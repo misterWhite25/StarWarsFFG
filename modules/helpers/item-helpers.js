@@ -1,3 +1,4 @@
+import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
 import EffectHelpers from "./effects.js";
 import ModifierHelpers from "./modifiers.js";
 
@@ -103,7 +104,7 @@ export default class ItemHelpers {
         });
       }
       if (itemEffect) {
-        await itemEffect.update({changes: changes});
+        await itemEffect.update(activeEffectChangesUpdate(changes));
       }
     } else if (this.object.type === "specialization") {
       // apply career skills from Careers
@@ -125,7 +126,7 @@ export default class ItemHelpers {
         });
       }
       if (itemEffect) {
-        await itemEffect.update({changes: changes});
+        await itemEffect.update(activeEffectChangesUpdate(changes));
       }
     }
   }
@@ -279,12 +280,10 @@ export default class ItemHelpers {
             // the mod should be applied once per rank
             const newValue = modifier.system.rank_current * modifier.system.attributes[attr].value;
             CONFIG.logger.debug(`Located ${attr}, updating with new value of ${newValue}`);
-            await matchingEffect.update({
-              "changes": [{
-                ...matchingEffect.changes[0],
+            await matchingEffect.update(activeEffectChangesUpdate([{
+                ...getActiveEffectChanges(matchingEffect)[0],
                 value: newValue,
-              }],
-            });
+              }]));
           }
         }
       }
@@ -313,13 +312,14 @@ export default class ItemHelpers {
         updatedEncumbrance = realEncumbrance;
       }
       CONFIG.logger.debug(`Original encumbrance: ${realEncumbrance}, new encumbrance: ${updatedEncumbrance}`);
-      for (const change of activeEffect.changes) {
+      const changes = getActiveEffectChanges(activeEffect);
+      for (const change of changes) {
         if (change.key === encumbranceModPath) {
           change.value = updatedEncumbrance;
           break;
         }
       }
-      await activeEffect.update({changes: activeEffect.changes});
+      await activeEffect.update(activeEffectChangesUpdate(changes));
     }
   }
 

@@ -11,6 +11,10 @@ import {
 export default class SettingsHelpers {
   // Initialize System Settings after the Init Hook
   static initLevelSettings() {
+    game.settings.register("starwarsffg", "activeEffectMigrationVersion", {
+      name: "Active Effect Migration Version", scope: "world", config: false, type: Number, default: 0,
+    });
+
     // System Migration Version
     game.settings.register("starwarsffg", "systemMigrationVersion", {
       name: "Current Version",

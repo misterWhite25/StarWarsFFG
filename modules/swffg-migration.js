@@ -1,11 +1,21 @@
 import EffectHelpers from "./helpers/effects.js";
 import ModifierHelpers from "./helpers/modifiers.js";
+import { ensureActiveEffectsV14 } from "./migration/active-effects-v14.js";
 
 /**
  * Handles all logic related to migrating the system to a new version, including sending notifications
  * @returns {Promise<void>}
  */
 export async function handleUpdate() {
+  const effectReport = await ensureActiveEffectsV14();
+  if (effectReport) {
+    CONFIG.logger.log("Foundry v14 Active Effect migration", effectReport);
+    if (effectReport.failed.length) {
+      ui.notifications.error(game.i18n.format("SWFFG.Migration.ActiveEffectsFailed", {count: effectReport.failed.length}), {permanent: true});
+      return;
+    }
+    if (effectReport.lockedPacks.length) CONFIG.logger.warn("Skipped locked or external compendiums", effectReport.lockedPacks);
+  }
   const registeredVersion = game.settings.get("starwarsffg", "systemMigrationVersion");
   const runningVersion = game.system.version;
   if (registeredVersion !== runningVersion) {

@@ -1,3 +1,4 @@
+import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
 import EffectHelpers from "../helpers/effects.js";
 import ItemBaseFFG from "./itembase-ffg.js";
 import PopoutEditor from "../popout-editor.js";
@@ -207,14 +208,14 @@ export class ItemFFG extends ItemBaseFFG {
       CONFIG.logger.debug("Unable to locate any inherent effect. This may be expected.");
     }
     if (itemEffect && Object.keys(changed).includes("system") && Object.keys(changed.system).includes("attributes")) {
-      const newChanges = foundry.utils.deepClone(itemEffect.changes);
+      const newChanges = getActiveEffectChanges(itemEffect);
       for (const updateKey of Object.keys(changed.system.attributes)) {
         const existingChange = newChanges.find(c => c.key.startsWith(`system.attributes.${updateKey}`));
         if (existingChange) {
           existingChange.value = parseInt(changed.system.attributes[updateKey].value);
         }
       }
-      await itemEffect.update({changes: newChanges});
+      await itemEffect.update(activeEffectChangesUpdate(newChanges));
     }
 
     // iterate over the changed data to look for any changes to attributes
@@ -240,9 +241,7 @@ export class ItemFFG extends ItemBaseFFG {
         if (existingEffect) {
           // existing entry
           CONFIG.logger.debug(`> Staged AE changes for update: ${JSON.stringify(changes)}`);
-          await existingEffect.update({
-            changes: changes,
-          });
+          await existingEffect.update(activeEffectChangesUpdate(changes));
         }
       }
     }

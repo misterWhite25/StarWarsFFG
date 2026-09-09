@@ -1,3 +1,4 @@
+import { getActiveEffectChanges, activeEffectChangesUpdate } from "./compatibility/active-effects.js";
 import EffectHelpers from "./helpers/effects.js";
 /**
  * A systems implementation of the Star Wars RPG by Fantasy Flight Games.
@@ -1580,14 +1581,14 @@ Hooks.once("ready", async () => {
   // set up support for Status Icon Counters
   const counterApi = game.modules.get("statuscounter")?.active;
   if (counterApi) {
-    Hooks.on("updateActiveEffect", function(effect, changes) {
-        const counterValue = foundry.utils.getProperty(changes, "flags.statuscounter.counter.value");
-        if (counterValue) {
-          for (const change of effect.changes) {
-            change['value'] = counterValue;
-          }
-        }
-        effect.update({changes: effect.changes});
+    Hooks.on("updateActiveEffect", async function(effect, changed, options, userId) {
+      if (userId !== game.user.id) return;
+      const value = foundry.utils.getProperty(changed, "flags.statuscounter.counter.value");
+      if (value === undefined) return;
+      const changes = getActiveEffectChanges(effect);
+      if (changes.every(change => change.value === value)) return;
+      for (const change of changes) change.value = value;
+      await effect.update(activeEffectChangesUpdate(changes));
     });
   }
 

@@ -173,9 +173,13 @@ test('the final effect phase does not count initial Force Rating bonuses a secon
   class ActorStub {
     applyActiveEffects(phase) { this.phases.push(phase); }
   }
-  const context = vm.createContext({ Actor: ActorStub });
+  const context = vm.createContext({ Actor: ActorStub, game: {release: {generation: 14}}, structuredClone });
+  const version = new vm.SourceTextModule(await readFile(new URL('../modules/compatibility/foundry-version.js', import.meta.url), 'utf8'), {context});
+  await version.link(() => { throw new Error('Unexpected version helper import'); });
+  const effects = new vm.SourceTextModule(await readFile(new URL('../modules/compatibility/active-effects.js', import.meta.url), 'utf8'), {context});
+  await effects.link(() => version);
   const module = new vm.SourceTextModule(await readFile(new URL('../modules/actors/actor-ffg.js', import.meta.url), 'utf8'), { context });
-  await module.link(() => new vm.SyntheticModule(['default'], function () {
+  await module.link(specifier => specifier.includes('/compatibility/') ? effects : new vm.SyntheticModule(['default'], function () {
     this.setExport('default', class {});
   }, { context }));
   await module.evaluate();
@@ -184,8 +188,8 @@ test('the final effect phase does not count initial Force Rating bonuses a secon
   actor.system = { stats: { forcePool: { max: 2, value: 1 } } };
   const skillChange = { key: 'system.skills.Discipline.force', value: 0 };
   actor.allApplicableEffects = () => [
-    { active: true, changes: [{ key: 'system.stats.forcePool.max', value: 1 }, skillChange] },
-    { active: false, changes: [{ key: 'system.stats.forcePool.max', value: 5 }] },
+    { active: true, system: {changes: [{ key: 'system.stats.forcePool.max', value: 1 }, skillChange]} },
+    { active: false, system: {changes: [{ key: 'system.stats.forcePool.max', value: 5 }]} },
   ];
   actor.applyActiveEffects('initial');
   assert.equal(skillChange.value, 2, 'only active bonuses, minus committed dice');

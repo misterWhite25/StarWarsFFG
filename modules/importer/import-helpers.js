@@ -1,3 +1,4 @@
+import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
 import EffectHelpers from "../helpers/effects.js";
 import Helpers from "../helpers/common.js";
 import {migrateDataToSystem} from "../helpers/migration.js";
@@ -3136,6 +3137,7 @@ export default class ImportHelpers {
     // first update anything inherent to the item type (such as "brawn" on "species")
     const inherentEffectName = "(inherent)";
     const inherentEffect = existing.find(e => e.name === inherentEffectName);
+    const inherentChanges = inherentEffect ? getActiveEffectChanges(inherentEffect) : [];
     if (inherentEffect && Object.keys(formData.system).includes("attributes")) {
       for (let k of Object.keys(formData.system.attributes)) {
         if (k.startsWith("attr")) {
@@ -3150,21 +3152,21 @@ export default class ImportHelpers {
 
         for (const curMod of explodedMods) {
           let modPath = ModifierHelpers.getModKeyPath(curMod['modType'], curMod['mod']);
-          const inherentEffectChangeIndex = inherentEffect.changes.findIndex(c => c.key === modPath);
+          const inherentEffectChangeIndex = inherentChanges.findIndex(c => c.key === modPath);
           if (inherentEffectChangeIndex >= 0) {
             if (modPath === "system.stats.wounds.max" && item.type === "species") {
-              inherentEffect.changes[inherentEffectChangeIndex].value = parseInt(inherentEffect.changes[inherentEffectChangeIndex].value) + parseInt(item.system.attributes.Brawn.value);
+              inherentChanges[inherentEffectChangeIndex].value = parseInt(inherentChanges[inherentEffectChangeIndex].value) + parseInt(item.system.attributes.Brawn.value);
             } else if (modPath === "system.stats.strain.max" && item.type === "species") {
-              inherentEffect.changes[inherentEffectChangeIndex].value = parseInt(inherentEffect.changes[inherentEffectChangeIndex].value) + parseInt(item.system.attributes.Willpower.value);
+              inherentChanges[inherentEffectChangeIndex].value = parseInt(inherentChanges[inherentEffectChangeIndex].value) + parseInt(item.system.attributes.Willpower.value);
             } else if (modPath === "system.stats.encumbrance.max" && item.type === "species") {
-              inherentEffect.changes[inherentEffectChangeIndex].value = parseInt(inherentEffect.changes[inherentEffectChangeIndex].value) + 5;
+              inherentChanges[inherentEffectChangeIndex].value = parseInt(inherentChanges[inherentEffectChangeIndex].value) + 5;
             } else {
-              inherentEffect.changes[inherentEffectChangeIndex].value = formData.system.attributes[k].value;
+              inherentChanges[inherentEffectChangeIndex].value = formData.system.attributes[k].value;
             }
           }
         }
       }
-      await inherentEffect.update({changes: inherentEffect.changes});
+      await inherentEffect.update(activeEffectChangesUpdate(inherentChanges));
     }
     // some inherent effects are not in the `attribute` keyspace; make sure to get them as well
     if (inherentEffect && ["gear", "weapon", "armour"].includes(item.type)) {
@@ -3178,9 +3180,9 @@ export default class ImportHelpers {
           curMod['modType'],
           curMod['mod'],
         );
-        const inherentEffectChangeIndex = inherentEffect.changes.findIndex(c => c.key === modPath);
+        const inherentEffectChangeIndex = inherentChanges.findIndex(c => c.key === modPath);
         if (inherentEffectChangeIndex >= 0) {
-          inherentEffect.changes[inherentEffectChangeIndex].value = formData.system.encumbrance.value;
+          inherentChanges[inherentEffectChangeIndex].value = formData.system.encumbrance.value;
         }
       }
 
@@ -3195,9 +3197,9 @@ export default class ImportHelpers {
             curMod['modType'],
             curMod['mod'],
           );
-          const inherentEffectChangeIndex = inherentEffect.changes.findIndex(c => c.key === modPath);
+          const inherentEffectChangeIndex = inherentChanges.findIndex(c => c.key === modPath);
           if (inherentEffectChangeIndex >= 0) {
-            inherentEffect.changes[inherentEffectChangeIndex].value = formData.system.defence.value;
+            inherentChanges[inherentEffectChangeIndex].value = formData.system.defence.value;
           }
         }
 
@@ -3210,13 +3212,13 @@ export default class ImportHelpers {
             curMod['modType'],
             curMod['mod'],
           );
-          const inherentEffectChangeIndex = inherentEffect.changes.findIndex(c => c.key === modPath);
+          const inherentEffectChangeIndex = inherentChanges.findIndex(c => c.key === modPath);
           if (inherentEffectChangeIndex >= 0) {
-            inherentEffect.changes[inherentEffectChangeIndex].value = formData.system.soak.value;
+            inherentChanges[inherentEffectChangeIndex].value = formData.system.soak.value;
           }
         }
       }
-      await inherentEffect.update({changes: inherentEffect.changes});
+      await inherentEffect.update(activeEffectChangesUpdate(inherentChanges));
     }
 
     // iterate over formdata attributes to add/update them if they were added
@@ -3240,9 +3242,7 @@ export default class ImportHelpers {
         if (match) {
           // existing entry
           CONFIG.logger.debug(`>>>> Staged AE changes for update: ${JSON.stringify(changes)}`);
-          await match.update({
-            changes: changes,
-          });
+          await match.update(activeEffectChangesUpdate(changes));
         } else if (k.startsWith("attr")) {
           // new entry
           const effect = {
@@ -3274,7 +3274,7 @@ export default class ImportHelpers {
           value: true,
         });
       }
-      await inherentEffect.update({changes: changes});
+      await inherentEffect.update(activeEffectChangesUpdate(changes));
     } else if (item.type === "specialization" && inherentEffect) {
       const changes = [];
       for (let i = 0; i < 5; i++) {
@@ -3291,7 +3291,7 @@ export default class ImportHelpers {
           value: true,
         });
       }
-      await inherentEffect.update({changes: changes});
+      await inherentEffect.update(activeEffectChangesUpdate(changes));
     }
 
     if (toCreate.length) {

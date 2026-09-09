@@ -6,7 +6,7 @@
 - Starting commit: `a0a0b546e6171551bf37c55e2420eaafc0a04e56`.
 - Target runtime: Foundry VTT 14.367 (stable), checked 2026-09-09.
 - Existing Windows runtime: Foundry VTT 13.351, serving the live `Star Wars` world on port 30000.
-- Current status: **27/27 integration tests pass against the installed development archive**, and **18/18 isolated compatibility tests pass**. The representative v13 backup completed core migration to 14.367 and now opens in the GM client. Acceptance checks on existing documents remain in progress; full compatibility is **not yet verified**.
+- Current status: **33/33 v14 integration tests pass against the installed development archive**, **40/40 isolated compatibility tests pass**, and **5/5 targeted browser tests pass on v13**. The representative v13 backup completed core migration to 14.367 and now opens in the GM client. Acceptance checks on existing documents remain in progress; full compatibility is **not yet verified**.
 - Manifest: minimum 13, verified 13, maximum 14. Maximum permits development testing; it is not a verification claim.
 
 ## Changes prepared
@@ -27,21 +27,23 @@ Item preparation is synchronous, as required by Foundry's document lifecycle. Th
 
 The public Karlinator fork was examined as a reference. Its changes are not merged: its manifest claim does not establish coverage of dice, message privacy or effects for this newer upstream checkout.
 
+Selected improvements from salohcin714's upstream PR #2280 were adapted in a follow-up: shared effect adapters, persisted effect migration with retries, modern macro APIs, and broader tests. See [implementation details and attribution](upstream-v14-integration.md).
+
 ## Validation performed
 
 `npm run compile` succeeds on the starting checkout. Its generated CSS differs from the checked-in file; that unrelated output was not included in this migration.
 
 Initial ESLint baseline: **119 errors and 466 warnings**. The first compatibility pass introduces no additional error messages. Existing errors remain and are not evidence of v14 compatibility.
 
-Current ESLint result: **119 errors and 464 warnings**, with no new error messages compared with that baseline. The final Sass compilation also succeeds in an isolated build directory, without changing the repository's pre-existing generated CSS.
+Current ESLint result: **110 errors and 464 warnings**, with no new error messages compared with that baseline and no rule-severity changes. Sass compilation succeeds in an isolated build directory, without changing the repository's pre-existing generated CSS.
 
 Run the isolated document-boundary tests with:
 
 ```bash
-npm run test:compat
+npm test
 ```
 
-These tests execute the actual system roll and compatibility helpers against stubbed Foundry interfaces. They check mode selection, intended whisper recipients, legacy macro options, deferred message creation, private group rolls and effect change formats. They **do not** establish actual client permissions, rendering, serialization or core data migrations. Those require the runtime checks below.
+This checks the syntax of 93 module files and runs 40 tests against the actual system helpers with stubbed Foundry interfaces. They cover message modes and privacy data, deferred messages, effect source/prepared boundaries, native and legacy updates, migration traversal and retries, duration metadata and generated macros. They **do not** establish actual client permissions, rendering, serialization or core data migrations. Those require the runtime checks below.
 
 ## Isolated Foundry environment
 
@@ -53,10 +55,12 @@ Installed WSL locations:
 
 ```text
 /home/tonio2581/foundry-v14/          Application files
-/home/tonio2581/foundry-v14-data/     Disposable development data
+/home/tonio2581/foundry-v14-data/     Migrated campaign copy for manual acceptance
+/home/tonio2581/foundry-v14-pr2280/data/  Disposable v14 browser-test data
+/home/tonio2581/foundry-v14-pr2280/v13/data/  Disposable v13 browser-test data
 ```
 
-The test instance uses port 30001, with UPnP disabled. Its `Data/systems/starwarsffg` links to this repository. The created world is:
+The manual acceptance instance uses port 30001, with UPnP disabled. Its `Data/systems/starwarsffg` links to this repository. The follow-up browser tests use a separate instance on port 30002, whose system link points to the extracted development archive. Its disposable world is:
 
 ```text
 ID:    starwarsffg-v14-test
@@ -66,15 +70,16 @@ MJ:    Gamemaster
 
 The separate `Player2` account is used for permission checks. There are no add-on modules. Do not open the test Gamemaster account in another browser while running Playwright: Foundry does not permit a second session to select an already-connected user.
 
-To start this installation from an Ubuntu terminal when it is stopped:
+To start the v14 browser-test installation from an Ubuntu terminal when it is stopped:
 
 ```bash
 /home/tonio2581/.nvm/versions/node/v24.15.0/bin/node \
   /home/tonio2581/foundry-v14/main.js \
-  --dataPath=/home/tonio2581/foundry-v14-data --port=30001 --upnp=false
+  --dataPath=/home/tonio2581/foundry-v14-pr2280/data --port=30002 --upnp=false \
+  --world=starwarsffg-v14-test
 ```
 
-Open `http://localhost:30001` in the Windows browser. Stop a foreground server with Ctrl+C. Keep Node 24 selected when running npm commands; the machine's default Node 20 cannot run this Foundry release.
+Open `http://localhost:30002` in the Windows browser. Stop a foreground server with Ctrl+C. Keep Node 24 selected when running npm commands; the machine's default Node 20 cannot run this Foundry release.
 
 Copy `.env.example` to `.env` and set the actual test server URL. Browser setup checks the title/version before joining and checks the world ID, system and generation after joining. The title/version check is deliberately before GM login because login can itself trigger system migration.
 
@@ -86,11 +91,13 @@ npm run test:e2e -- --trace on
 
 The login locators now support v13's select and v14's user picker. The player test explicitly starts with empty storage state, so it does not reuse the Gamemaster's server session.
 
-The suite contains 16 effect scenarios and 11 runtime compatibility scenarios in `e2e/runtimeCompatibility.spec.js`. Playwright is aligned to 1.62.1; its Chromium 151 satisfies Foundry 14's minimum Chromium 146. The previous pinned test runner downloaded Chromium 141, which is unsupported. Software WebGL is configured for WSL/CI.
+The suite contains 16 effect scenarios, 11 runtime compatibility scenarios in `e2e/runtimeCompatibility.spec.js`, and 6 additional scenarios in `e2e/compatibilityCoverage.spec.js`. Playwright is aligned to 1.62.1; its Chromium 151 satisfies Foundry 14's minimum Chromium 146. The previous pinned test runner downloaded Chromium 141, which is unsupported. Software WebGL is configured for WSL/CI. Tests run serially against the shared disposable world, using separate session files for each Foundry generation.
 
 The integration scenarios cover all seven narrative dice, standard and mixed pools, automatic symbols and cancellation, serialization, deferred messages, and actual public/GM/blind/self visibility in separate player and GM sessions, including reloads. They also exercise the five actor types, item sheets and talent trees, Force effect phases and persistence, once-per-roll and combat effect expiration, hidden initiative, combat slot claims and turn progression, and destiny rolls and pool synchronization across two clients.
 
-The complete integration suite passed **27/27 in 4.8 minutes** against the installed development archive on 2026-09-09. The trace inspection found no browser console errors. The archive contains 432 distributable files and was extracted into a separate package directory; the test server loaded that directory instead of the checkout during this run. Its SHA-256 is `1b0974f8f7e51262b4eaca29c49eb59e5f73f168fa80abdc63c4b253e1558949`. The development symlink was restored to the checkout afterward.
+The complete integration suite passed **33/33 in 6.3 minutes** against the installed development archive on 2026-09-09. The archive contains 435 distributable files and was extracted into a separate package directory; the test server loaded that directory instead of the checkout during this run. Its SHA-256 is `7c4792738557a216920221fe08d2d7832edbf1eb71f122b515b7019314f7dc44`.
+
+Five targeted browser scenarios also passed on Foundry 13.351, using Node 22.23.2 and a separate data folder on port 30003. They cover actual weapon/skill macro rolls, importer window initialization, all Actor/Item subtypes, registered sheets, and form persistence. The full effect/privacy suite was not rerun on v13. Neither opening an importer window nor these tests establish successful full dataset imports or optional-module compatibility.
 
 The browser fixtures now complete the purchase/grant dialog and close the specific software-rendering warning that otherwise covers sheet controls. Stat checks assert saved-looking field values rather than accidentally filling them; accessory tests require equipping a character's item before its bonuses apply. Failures attach test document data to the Playwright trace for diagnosis.
 
