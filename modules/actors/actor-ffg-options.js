@@ -15,17 +15,7 @@ export default class ActorOptions {
   constructor(data) {
     this.data = data;
     this.options = {};
-    this.init();
     this.suspended = {};
-  }
-
-  init() {
-    const options = $(`.starwarsffg.sheet.actor[data-appid='${this.data.appId}'] .ffg-sheet-options`);
-    if (options.length === 0) {
-      const button = $(`<a class="ffg-sheet-options"><i class="fas fa-wrench"></i>${game.i18n.localize("SWFFG.SheetOptions")}</a>`);
-      button.insertBefore(`.starwarsffg.sheet.actor[data-appid='${this.data.appId}'] header a:first`);
-      button.on("click", this.handler.bind(this));
-    }
   }
 
   async handler() {

@@ -13,16 +13,6 @@ export default class ItemOptions {
   constructor(data) {
     this.data = data;
     this.options = {};
-    this.init();
-  }
-
-  init() {
-    const options = $(`.starwarsffg.sheet.item[data-appid='${this.data.appId}'] .ffg-sheet-options`);
-    if (options.length === 0) {
-      const button = $(`<a class="ffg-sheet-options"><i class="fas fa-wrench"></i>${game.i18n.localize("SWFFG.SheetOptions")}</a>`);
-      button.insertBefore(`.starwarsffg.sheet.item[data-appid='${this.data.appId}'] header a:first`);
-      button.on("click", this.handler.bind(this));
-    }
   }
 
   async handler() {

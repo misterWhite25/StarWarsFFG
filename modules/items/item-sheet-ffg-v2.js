@@ -40,6 +40,18 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
     return super.isEditable && !this.item.flags.readonly && this.options.editable !== false;
   }
 
+  _getHeaderControls() {
+    const controls = super._getHeaderControls();
+    controls.unshift({
+      action: "ffgSheetOptions",
+      icon: "fas fa-wrench",
+      label: game.i18n.localize("SWFFG.SheetOptions"),
+      visible: this.isEditable && ["gear", "weapon", "armour"].includes(this.item.type),
+      onClick: () => this.sheetoptions?.handler(),
+    });
+    return controls;
+  }
+
   _configureRenderParts(options) {
     const parts = super._configureRenderParts(options);
     parts.sheet.template = this.template;

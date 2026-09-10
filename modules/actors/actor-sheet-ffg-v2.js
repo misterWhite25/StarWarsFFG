@@ -40,6 +40,18 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     return `[${game.i18n.localize("DOCUMENT.Token")}] ${this.actor.name}`;
   }
 
+  _getHeaderControls() {
+    const controls = super._getHeaderControls();
+    controls.unshift({
+      action: "ffgSheetOptions",
+      icon: "fas fa-wrench",
+      label: game.i18n.localize("SWFFG.SheetOptions"),
+      visible: this.isEditable,
+      onClick: () => this.sheetoptions?.handler(),
+    });
+    return controls;
+  }
+
   get template() {
     return `systems/starwarsffg/templates/actors/ffg-${this.actor.type}-sheet.html`;
   }

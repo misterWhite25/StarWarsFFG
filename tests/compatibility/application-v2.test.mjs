@@ -110,3 +110,16 @@ test("simple system prompts use DialogV2 factory methods directly", async () => 
   const template = await read("templates/dialogs/ffg-sheet-options.html");
   assert.doesNotMatch(template, /<form|dialog-buttons/);
 });
+
+
+test("V14 sheet options are exposed through native ApplicationV2 header controls", async () => {
+  for (const path of ["modules/actors/actor-sheet-ffg-v2.js", "modules/items/item-sheet-ffg-v2.js"]) {
+    const source = await read(path);
+    assert.match(source, /_getHeaderControls\s*\(\)/);
+    assert.match(source, /action:\s*["']ffgSheetOptions["']/);
+    assert.match(source, /sheetoptions\?\.handler\(\)/);
+  }
+  for (const path of ["modules/actors/actor-ffg-options.js", "modules/items/item-ffg-options.js"]) {
+    assert.doesNotMatch(await read(path), /data-appid|insertBefore/);
+  }
+});
