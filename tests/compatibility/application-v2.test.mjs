@@ -123,3 +123,11 @@ test("V14 sheet options are exposed through native ApplicationV2 header controls
     assert.doesNotMatch(await read(path), /data-appid|insertBefore/);
   }
 });
+
+
+test("combat choices use native DialogV2 results", async () => {
+  const source = await read("modules/combat-ffg.js");
+  assert.match(source, /DialogV2\.wait\s*\(/);
+  assert.match(source, /DialogV2\.input\s*\(/);
+  assert.match(source, /Number\(result\.initiative\)/);
+});

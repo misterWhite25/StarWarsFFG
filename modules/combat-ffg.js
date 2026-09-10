@@ -1,4 +1,6 @@
 import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
+
+const { DialogV2 } = foundry.applications.api;
 import { getMessageMode } from "./helpers/chat.js";
 import {DicePoolFFG, RollFFG} from "./dice-pool-ffg.js";
 import PopoutEditor from "./popout-editor.js";
@@ -415,33 +417,27 @@ export class CombatFFG extends Combat {
       await this.removeCombatantOnly(combatant.id);
     }
 
-    let action = game.settings.get("starwarsffg", "removeCombatantAction")
+    let action = game.settings.get("starwarsffg", "removeCombatantAction");
     if (action === "prompt") {
-      new LegacyDialogV2({
-        title: game.i18n.localize("SWFFG.CombatantRemoval.Title"),
+      action = await DialogV2.wait({
+        window: {title: game.i18n.localize("SWFFG.CombatantRemoval.Title")},
         content: game.i18n.localize("SWFFG.CombatantRemoval.Body"),
-        buttons: {
-          one: {
-            label: game.i18n.localize("SWFFG.CombatantRemoval.CombatantOnly"),
-            callback: async () => {
-              await this.doRemoval(combatant, "combatant_only");
-            },
-          },
-          two: {
-            label: game.i18n.localize("SWFFG.CombatantRemoval.LastSlot"),
-            callback: async () => {
-              await this.doRemoval(combatant, "last_slot");
-            },
-          },
-          three: {
-            icon: '<i class="fas fa-times"></i>',
-            label: game.i18n.localize("SWFFG.Cancel"),
-          },
-        },
-      }).render(true);
-    } else {
-      await this.doRemoval(combatant, action);
+        buttons: [{
+          action: "combatant_only",
+          label: game.i18n.localize("SWFFG.CombatantRemoval.CombatantOnly"),
+          default: true,
+        }, {
+          action: "last_slot",
+          label: game.i18n.localize("SWFFG.CombatantRemoval.LastSlot"),
+        }, {
+          action: "cancel",
+          icon: "fas fa-times",
+          label: game.i18n.localize("SWFFG.Cancel"),
+          type: "button",
+        }],
+      });
     }
+    if (["combatant_only", "last_slot"].includes(action)) await this.doRemoval(combatant, action);
   }
 
   async doRemoval(combatant, action) {
@@ -664,32 +660,25 @@ export class CombatFFG extends Combat {
   async updateCombatant(el) {
     const slotId = el.getAttribute("data-alt-id");
     const combatant = this.combatants.get(slotId);
-    const currentInitiative = combatant.initiative;
-    const updateDialog = new LegacyDialogV2({
-      title: game.i18n.localize("SWFFG.Combats.Slots.Dialog.Title"),
+    const result = await DialogV2.input({
+      window: {title: game.i18n.localize("SWFFG.Combats.Slots.Dialog.Title")},
       content: `
         <p>${game.i18n.localize("SWFFG.Combats.Slots.Dialog.Labels.Initiative")} :</p>
-        <input type="number" id="initiative" name="initiative" value="${currentInitiative}">
+        <input type="number" name="initiative" value="${combatant.initiative}">
       `,
-      buttons: {
-        submit: {
-          icon: '<i class="fas fa-check"></i>',
-          label: game.i18n.localize("SWFFG.Combats.Slots.Dialog.Labels.Submit"),
-          callback: async (obj, event) => {
-            const jObj = $(obj);
-            const initiative = +jObj.find("#initiative")[0].value;
-            if (initiative === "") {
-              ui.notifications.warn("You must provide an initiative value");
-              return;
-            }
-            await combatant.update({initiative: initiative});
-            game.socket.emit("system.starwarsffg", {event: "trackerRender", combatId: this.id});
-          }
-        }
+      ok: {
+        icon: "fas fa-check",
+        label: game.i18n.localize("SWFFG.Combats.Slots.Dialog.Labels.Submit"),
       },
-      default: "submit",
     });
-    updateDialog.render(true);
+    if (!result) return;
+    const initiative = Number(result.initiative);
+    if ((result.initiative === "") || !Number.isFinite(initiative)) {
+      ui.notifications.warn("You must provide an initiative value");
+      return;
+    }
+    await combatant.update({initiative});
+    game.socket.emit("system.starwarsffg", {event: "trackerRender", combatId: this.id});
   }
 
   async removeCombatant(el) {
