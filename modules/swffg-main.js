@@ -55,6 +55,7 @@ import SWAImporter from "./importer/swa-importer.js";
 import {CharacterCreator} from "./helpers/character-creator.js";
 import {xpLogUndo} from "./helpers/actor-helpers.js";
 import {register_system_tours} from "./helpers/tours.js";
+import { actorDataModels, itemDataModels } from "./data-models/system-data-models.js";
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
@@ -105,6 +106,8 @@ Hooks.once("init", async function () {
   // to instead use our extended version.
   CONFIG.Actor.documentClass = ActorFFG;
   CONFIG.Item.documentClass = ItemFFG;
+  Object.assign(CONFIG.Actor.dataModels, actorDataModels);
+  Object.assign(CONFIG.Item.dataModels, itemDataModels);
   CONFIG.ActiveEffect.documentClass = ActiveEffectFFG;
 
   if (game.release.generation >= 14) {

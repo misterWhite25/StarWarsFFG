@@ -59,6 +59,11 @@ export class ActorSheetFFGV2 extends ActorSheetV2 {
     return ActorSheetFFG.prototype.getData.call(this, options);
   }
 
+  /** ApplicationV1 compatibility method used by existing listener setup. */
+  async getData(options={}) {
+    return this._prepareContext(options);
+  }
+
   async _renderHTML(context) {
     return foundry.applications.handlebars.renderTemplate(this.template, context);
   }

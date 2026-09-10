@@ -4,6 +4,7 @@ import Helpers from "../helpers/common.js";
 import {migrateDataToSystem} from "../helpers/migration.js";
 import {ItemFFG} from "../items/item-ffg.js";
 import ModifierHelpers from "../helpers/modifiers.js";
+import {getSystemDataDefaults} from "../data-models/system-data-models.js";
 
 export default class ImportHelpers {
   /**
@@ -3016,21 +3017,7 @@ export default class ImportHelpers {
   }
 
   static async getTemplate(type) {
-    const response = await fetch("systems/starwarsffg/template.json");
-    const template = await response.json();
-
-    const obj = Object.values(template).find((i) => i.types.includes(type));
-
-    let item = obj[type];
-
-    if (item.templates) {
-      item.templates.forEach((i) => {
-        item = foundry.utils.mergeObject(item, obj.templates[i]);
-      });
-      delete item.templates;
-    }
-
-    return item;
+    return getSystemDataDefaults(type);
   }
 
   static async createActiveEffects(item) {
