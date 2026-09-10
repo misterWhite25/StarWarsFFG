@@ -89,6 +89,8 @@ test("rejects unknown importer document types", () => {
 test("manifest and importer use DataModels instead of template.json", async () => {
   const root = new URL("../../", import.meta.url);
   const manifest = JSON.parse(await readFile(new URL("system.json", root), "utf8"));
+  assert.equal(manifest.type, "system");
+  assert.equal(manifest.compatibility.verified, 14);
   assert.deepEqual(Object.keys(manifest.documentTypes.Actor), actorTypes);
   assert.deepEqual(Object.keys(manifest.documentTypes.Item), itemTypes);
   const importer = await readFile(new URL("modules/importer/import-helpers.js", root), "utf8");

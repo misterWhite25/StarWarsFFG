@@ -35,6 +35,7 @@ test("system applications no longer depend directly on FormApplication", async (
     "modules/importer/skills-list-importer.js",
     "modules/importer/swa-importer.js",
     "modules/dice/roll-builder.js",
+    "tests/ffg-tests.js",
   ];
   for (const path of paths) {
     const source = await read(path);
@@ -64,4 +65,13 @@ test("legacy dialog call sites are hosted by DialogV2", async () => {
     const source = await read(path);
     assert.doesNotMatch(source, /\bnew Dialog\s*\(/);
   }
+});
+
+
+test("v14 removed application and collection aliases are not used", async () => {
+  const tours = await read("modules/helpers/tours.js");
+  const main = await read("modules/swffg-main.js");
+  assert.doesNotMatch(tours, /\.bringToTop\s*\(/);
+  assert.match(tours, /\.bringToFront\s*\(/);
+  assert.doesNotMatch(main, /game\.macros\.entities/);
 });

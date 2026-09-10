@@ -56,7 +56,7 @@ class CharacterTour extends foundry.nue.Tour {
 
   async createActor() {
     this.tempActor = await createActor();
-    this.tempActor.sheet.bringToTop();
+    this.tempActor.sheet.bringToFront();
     await delay(100);
   }
 
@@ -122,7 +122,7 @@ class EditModeTour extends foundry.nue.Tour {
 
   async createActor() {
     this.tempActor = await createActor();
-    this.tempActor.sheet.bringToTop();
+    this.tempActor.sheet.bringToFront();
     await delay(100);
   }
 

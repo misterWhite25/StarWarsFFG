@@ -5,7 +5,7 @@
   "version": "2.0.3",
   "compatibility": {
     "minimum": 13,
-    "verified": 13,
+    "verified": 14,
     "maximum": 14
   },
   "authors": [
@@ -223,5 +223,6 @@
         ]
       }
     }
-  }
+  },
+  "type": "system"
 }

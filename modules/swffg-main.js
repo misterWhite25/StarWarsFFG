@@ -1444,7 +1444,7 @@ Hooks.once("ready", async () => {
       command: command,
     };
 
-    const macroExists = game.macros.entities.find((m) => m.name === macro.name);
+    const macroExists = game.macros.find((m) => m.name === macro.name);
     if (!macroExists) {
       Macro.create(macro);
     }
