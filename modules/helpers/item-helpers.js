@@ -4,7 +4,8 @@ import EffectHelpers from "./effects.js";
 import ModifierHelpers from "./modifiers.js";
 
 export default class ItemHelpers {
-  static async itemUpdate(event, formData) {
+  static async itemUpdate(event, initialFormData) {
+    let formData = initialFormData;
     formData = foundry.utils.expandObject(formData);
 
     if (this.object.isEmbedded && this.object.actor?.compendium?.metadata) {
@@ -37,7 +38,6 @@ export default class ItemHelpers {
     }
 
     // migrate data to v10 structure
-    let updated_id = formData._id;
     delete formData._id;
 
     foundry.utils.setProperty(formData, `flags.starwarsffg.loaded`, false);
@@ -164,12 +164,13 @@ export default class ItemHelpers {
    *  a field named "itemmodifier" with a single entry in an array
    * @param formData
    */
-  static explodeFormData(formData) {
+  static explodeFormData(initialFormData) {
+    let formData = initialFormData;
     // convert the formdata into a dict
     formData = foundry.utils.expandObject(formData);
     // collapse the resulting entries with an index into an array
     const relevantEntries = Object.keys(formData?.system).filter(i => i.includes("[") && i.includes("]"));
-    for (const cur_entry in relevantEntries) {
+    for (const cur_entry of Object.keys(relevantEntries)) {
       const updatedKeyName =  relevantEntries[cur_entry].replace(/\[.*\]/, "");
       if (!Object.keys(formData.system).includes(updatedKeyName)) {
         formData.system[updatedKeyName] = [];

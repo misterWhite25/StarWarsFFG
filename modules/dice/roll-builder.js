@@ -47,7 +47,6 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     };
 
     let canUserAddAudio = await game.settings.get("starwarsffg", "allowUsersAddRollAudio");
-    let canUserAddFlavor = game.user.isGM || !this?.roll?.flavor;
 
     if (game.user.isGM) {
       game.playlists.contents.forEach((playlist) => {
@@ -121,7 +120,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     this._initializeInputs(html);
     this._activateInputs(html);
 
-    html.find(".btn").click(async (event) => {
+    html.find(".btn").click(async (_event) => {
       // if sound was not passed search for sound dropdown value
       if (!this.roll.sound) {
         const sound = html.find(".sound-selection")?.[0]?.value;
@@ -137,7 +136,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
               };
             } else {
               const parts = this.roll.item.flags.starwarsffg?.uuid.split(".");
-              const [sceneName, sceneId, entityName, entityId, embeddedName, embeddedId] = parts;
+              const [, , , entityId, , embeddedId] = parts;
               entity = game.actors.tokens[entityId].items.get(embeddedId);
               if (parts.length === 6) {
                 entityData = {

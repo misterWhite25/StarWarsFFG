@@ -68,7 +68,8 @@ export default class EmbeddedItemHelpers {
         '-=attr',
     );
     // remove matching attributes from the existing object
-    deleted_keys.forEach(function (cur_key) {
+    deleted_keys.forEach(function (initialCur_key) {
+      let cur_key = initialCur_key;
       cur_key = cur_key.substring(2);
       EmbeddedItemHelpers.removeKeyFromObject(
           temporaryItem.system,
@@ -302,7 +303,7 @@ export default class EmbeddedItemHelpers {
 
   // totally not ripped from phind telling me how to do this
   static removeKeyFromObject(obj, keyToRemove) {
-    for (let key in obj) {
+    for (const key of Object.keys(obj)) {
       if (Object.hasOwn(obj, key)) {
         if (key === keyToRemove) {
           delete obj[key];
@@ -316,7 +317,7 @@ export default class EmbeddedItemHelpers {
   // totally not ripped from phind telling me how to do this
   static findKeysIncludingStringRecursively(obj, str) {
     let keys = [];
-    for (let key in obj) {
+    for (const key of Object.keys(obj)) {
       if (Object.hasOwn(obj, key)) {
         if (key.includes(str)) {
           keys.push(key);

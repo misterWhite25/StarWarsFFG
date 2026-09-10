@@ -1,5 +1,4 @@
 import { getPreparedActiveEffectChanges } from "../compatibility/active-effects.js";
-import PopoutEditor from "../popout-editor.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 
 /**
@@ -212,7 +211,6 @@ export class ActorFFG extends Actor {
   prepareDerivedData() {
     const actor = this;
     const data = actor.system;
-    const flags = actor.flags;
 
     // if the actor has skills, add custom skills
     if (data.skills) {

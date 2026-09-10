@@ -1,5 +1,4 @@
 import { FormApplicationV2 } from "./applications/form-application-v2.js";
-import { GroupManager } from "./groupmanager-ffg.js";
 import { DicePoolFFG } from "./dice/pool.js";
 
 /**
@@ -62,10 +61,10 @@ export default class DestinyTracker extends FormApplicationV2 {
   /* -------------------------------------------- */
 
   /** @override */
-  _updateObject(event, formData) {};
+  _updateObject(_event, _formData) {};
 
   /** @override */
-  async close(options = {}) {};
+  async close(_options = {}) {};
 
   /** @override */
   activateListeners(html) {
@@ -106,7 +105,6 @@ export default class DestinyTracker extends FormApplicationV2 {
       const add = event.shiftKey;
       const remove = event.ctrlKey || event.metaKey;
       var flipType = null;
-      var actionType = null;
       if (pointType == "dPoolLight") {
         flipType = "dPoolDark";
         typeName = game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-light"));
@@ -148,7 +146,6 @@ export default class DestinyTracker extends FormApplicationV2 {
           ui.notifications.warn("Only GMs can add or remove points from the Destiny Pool.");
           return;
         }
-        const setting = game.settings.settings.get(`starwarsffg.${pointType}`);
         game.settings.set("starwarsffg", pointType, game.settings.get("starwarsffg", pointType) + 1);
         messageText = "Added a " + typeName + " point.";
       } else if (remove) {
@@ -156,7 +153,6 @@ export default class DestinyTracker extends FormApplicationV2 {
           ui.notifications.warn("Only GMs can add or remove points from the Destiny Pool.");
           return;
         }
-        const setting = game.settings.settings.get(`starwarsffg.${pointType}`);
         game.settings.set("starwarsffg", pointType, game.settings.get("starwarsffg", pointType) - 1);
         messageText = "Removed a " + typeName + " point.";
       }
@@ -201,7 +197,7 @@ export default class DestinyTracker extends FormApplicationV2 {
 
           try {
             rolled = await game.settings.get("starwarsffg", `destinyrollers${args[0]?.canIRollDestiny}`);
-          } catch (err) {
+          } catch {
             game.settings.register("starwarsffg", `destinyrollers${args[0].canIRollDestiny}`, {
               name: "DestinyRoll",
               scope: "client",

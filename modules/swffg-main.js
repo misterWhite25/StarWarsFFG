@@ -23,7 +23,7 @@ import { ItemFFG } from "./items/item-ffg.js";
 import { ItemSheetFFGV2 } from "./items/item-sheet-ffg-v2.js";
 import { ActorSheetFFGV2 } from "./actors/actor-sheet-ffg-v2.js";
 import { AdversarySheetFFGV2 } from "./actors/adversary-sheet-ffg-v2.js";
-import { DicePoolFFG, RollFFG } from "./dice-pool-ffg.js";
+import { AbilityDie, BoostDie, ChallengeDie, DicePoolFFG, DifficultyDie, ForceDie, ProficiencyDie, RollFFG, SetbackDie } from "./dice-pool-ffg.js";
 import { GroupManager } from "./groupmanager-ffg.js";
 import PopoutEditor from "./popout-editor.js";
 
@@ -38,9 +38,7 @@ import SettingsHelpers from "./settings/settings-helpers.js";
 import {register_crew} from "./helpers/crew.js";
 
 // Import Dice Types
-import { AbilityDie, BoostDie, ChallengeDie, DifficultyDie, ForceDie, ProficiencyDie, SetbackDie } from "./dice-pool-ffg.js";
 import { createFFGMacro, updateMacro } from "./helpers/macros.js";
-import EmbeddedItemHelpers from "./helpers/embeddeditem-helpers.js";
 import DataImporter from "./importer/data-importer.js";
 import CompendiumBrowser from "./compendium/compendium-browser.js";
 import PauseFFG from "./apps/pause-ffg.js";
@@ -48,6 +46,7 @@ import FlagMigrationHelpers from "./helpers/flag-migration-helpers.js";
 import RollBuilderFFG from "./dice/roll-builder.js";
 import CrewSettings from "./settings/crew-settings.js";
 import {register_dice_enricher, register_oggdude_tag_enricher, register_roll_tag_enricher} from "./helpers/journal.js";
+import { itemPillHover } from "./helpers/item-pill-hover.js";
 import {drawAdversaryCount, drawMinionCount, registerTokenControls} from "./helpers/token.js";
 import {handleUpdate} from "./swffg-migration.js";
 import SWAImporter from "./importer/swa-importer.js";
@@ -63,7 +62,7 @@ import { actorDataModels, itemDataModels } from "./data-models/system-data-model
 async function parseSkillList() {
   try {
     return JSON.parse(await game.settings.get("starwarsffg", "arraySkillList"));
-  } catch (e) {
+  } catch {
     CONFIG.logger.log("Could not parse custom skill list, returning raw setting");
     return await game.settings.get("starwarsffg", "arraySkillList");
   }
@@ -162,7 +161,7 @@ Hooks.once("init", async function () {
     config: false,
     default: "[]",
     type: String,
-    onChange: (rule) => window.location.reload()
+    onChange: (_rule) => window.location.reload()
   });
 
   // register turn marker reconfigurator
@@ -350,7 +349,7 @@ Hooks.once("init", async function () {
     config: false,
     default: true,
     type: Boolean,
-    onChange: (rule) => window.location.reload()
+    onChange: (_rule) => window.location.reload()
   });
 
   if (game.settings.get("starwarsffg", "useGenericSlots")) {
@@ -668,7 +667,7 @@ Hooks.once("init", async function () {
       }
     });
 
-    Hooks.on("updateToken", async (tokenDocument, options, diffData, tokenId) => {
+    Hooks.on("updateToken", async (tokenDocument, options, _diffData, _tokenId) => {
       if (Object.keys(options).includes('hidden')) {
         updateCombatTracker();
       }
@@ -841,7 +840,7 @@ Hooks.once("init", async function () {
         CONFIG.statusEffects.push(status);
       }
 
-    } catch (e) {
+    } catch {
       ui.notifications.warn("Failed to load custom statuses, likely bad JSON");
     }
 
@@ -937,7 +936,9 @@ Hooks.once("init", async function () {
     return cost;
   });
 
-  Handlebars.registerHelper("math", function (lvalue, operator, rvalue, options) {
+  Handlebars.registerHelper("math", function (initialLvalue, operator, initialRvalue, _options) {
+    let lvalue = initialLvalue;
+    let rvalue = initialRvalue;
     lvalue = parseFloat(lvalue);
     rvalue = parseFloat(rvalue);
 
@@ -972,7 +973,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("keylen", function (obj) {
     try {
       return Object.keys(obj).length;
-    } catch (e) {
+    } catch {
       return 0;
     }
   });
@@ -1011,7 +1012,7 @@ Hooks.once("init", async function () {
   await TemplateHelpers.preload();
 });
 
-Hooks.on("renderChatInput", (app, html, data) => {
+Hooks.on("renderChatInput", (app, _html, _data) => {
   if (app.id === "chat") {
     // add in the chat dice roller
     const rollButtonId = "ffgChatRoll";
@@ -1068,7 +1069,7 @@ Hooks.on("renderActorDirectory", (app, html) => {
   }
 });
 
-Hooks.on("renderCompendiumDirectory", (app, html, data) => {
+Hooks.on("renderCompendiumDirectory", (app, html, _data) => {
   if (game.user.isGM) {
     let div;
     // Native DOM
@@ -1526,7 +1527,6 @@ Hooks.once("ready", async () => {
   });
 
   // Display Destiny Pool
-  let destinyPool = { light: game.settings.get("starwarsffg", "dPoolLight"), dark: game.settings.get("starwarsffg", "dPoolDark") };
 
   // future functionality to allow multiple menu items to be passed to destiny pool
   const defaultDestinyMenu = [
@@ -1541,10 +1541,10 @@ Hooks.once("ready", async () => {
     {
       name: game.i18n.localize("SWFFG.RequestDestinyRoll"),
       icon: '<i class="fas fa-dice-d20"></i>',
-      callback: (li) => {
+      callback: (_li) => {
         const messageText = `<button class="ffg-destiny-roll">${game.i18n.localize("SWFFG.DestinyPoolRoll")}</button>`;
 
-        new Map([...game.settings.settings].filter(([k, v]) => v.key.includes("destinyrollers"))).forEach((i) => {
+        new Map([...game.settings.settings].filter(([_k, v]) => v.key.includes("destinyrollers"))).forEach((i) => {
           game.settings.set(i.namespace, i.key, undefined);
         });
 
@@ -1970,91 +1970,4 @@ async function registerCrewRoles() {
     config: false,
     type: Object,
   });
-}
-
-/**
- * Check if all built-in compendiums are empty or not
- * @returns {Promise<boolean>}
- */
-async function compendiumsEmpty() {
-  const compendiums = game.packs.contents.filter(i => i.collection.includes("starwars"));
-  for (const compendium of compendiums) {
-    if ((await compendium.getDocuments()).length !== 0) {
-      return false;
-    }
-  }
-
-  return compendiums.length > 0;
-}
-
-/**
- * Give a custom, Star Wars FFG tooltip when qualities, attachments, upgrades, etc are hovered (after sending to chat)
- * @param event
- */
-export function itemPillHover(event) {
-  event.preventDefault();
-  const li = $(event.currentTarget);
-  const itemName = li.data("item-embed-name");
-  const itemImage = li.data("item-embed-img");
-  const itemType = li.data("item-type");
-  const itemRanks = li.data("item-ranks");
-  let desc = li.data("desc");
-  let descRanks = "";
-  if (itemType === "itemattachment") {
-    const rarity = li.data("rarity");
-    const price = li.data("price");
-    if (price) {
-      desc = `<span class="statt" title="Price"><i class="fa-solid fa-dollar-sign"></i>${price}</span>${desc}`
-    }
-    if (rarity) {
-      desc = `<span class="stat stat-right" title="Rarity"><i class="fa-solid fa-magnifying-glass"></i>${rarity}</span>${desc}`
-    }
-
-    // if the item has embedded mods, pull the data and add it to the description
-    let modNames = li.data("mod-names");
-    let modDescs = li.data("mod-descs");
-    let modActives = li.data("mod-actives");
-    if (modNames) {
-      modNames = modNames.split("~");
-      modDescs = modDescs.split("~");
-      modActives = modActives.split("~");
-      CONFIG.logger.debug(modNames);
-      CONFIG.logger.debug(modDescs);
-      CONFIG.logger.debug(modActives);
-      let newDesc = `<hr><b>Mods</b>:<br>`;
-      for (let i = 0; i < modNames.length - 1; i++) {
-        if (modActives[i] === "true") {
-          modNames[i] = `<i class="fa-solid fa-user-check" title="Installed"></i>&nbsp;${modNames[i]}`;
-        } else {
-          modNames[i] = `<i class="fa-duotone fa-solid fa-user-xmark" title="Not Installed"></i>&nbsp;${modNames[i]}`;
-        }
-        newDesc += `<u>${modNames[i]}</u>:&nbsp;${modDescs[i]}<br>`;
-      }
-      desc += newDesc;
-    }
-  }
-  if (itemRanks > 0) {
-    descRanks = `${itemRanks} ranks`;
-  } else {
-    if (!["specialization", "signatureAbility", "itemattachment"].includes(itemType)) {
-      descRanks = "Not ranked";
-    }
-  }
-  let embeddedContent = `
-    <section class="chat-msg-tooltip content">
-      <section class="header">
-        <img class="tooltip-img" src="${itemImage}"/>
-        <div class="title">${itemName}</div>
-      </section>
-      <section class="description">
-        ${desc}
-      </section>
-      <section class="ranks">
-        ${descRanks}
-      </section>
-    </section>
-  `;
-  if (itemType !== undefined) {
-    li.attr("data-tooltip", embeddedContent);
-  }
 }

@@ -5,16 +5,14 @@ import { deleteDataField } from "../compatibility/data-operators.js";
  * @extends {ActorSheet}
  */
 import PopoutEditor from "../popout-editor.js";
-import DiceHelpers from "../helpers/dice-helpers.js";
+import DiceHelpers, {get_dice_pool} from "../helpers/dice-helpers.js";
 import ActorOptions from "./actor-ffg-options.js";
 import ImportHelpers from "../importer/import-helpers.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 import ActorHelpers, {xpLogEarn, xpLogSpend} from "../helpers/actor-helpers.js";
-import ItemHelpers from "../helpers/item-helpers.js";
 import EmbeddedItemHelpers from "../helpers/embeddeditem-helpers.js";
 import EffectHelpers from "../helpers/effects.js";
 import {
-  change_role,
   deregister_crew,
   build_crew_roll,
   updateRoles,
@@ -22,8 +20,7 @@ import {
   buildPilotRoll
 } from "../helpers/crew.js";
 import {DicePoolFFG} from "../dice/pool.js";
-import {get_dice_pool} from "../helpers/dice-helpers.js";
-import {itemPillHover} from "../swffg-main.js";
+import { itemPillHover } from "../helpers/item-pill-hover.js";
 
 export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
   constructor(...args) {
@@ -110,7 +107,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                   icon: '<i class="fas fa-hourglass"></i>',
                   label: (cost <= availableXP) ? game.i18n.localize("SWFFG.DragDrop.PurchaseItem") : game.i18n.localize("SWFFG.DragDrop.UnableToPurchase"),
                   disabled: (cost <= availableXP) ? false : true,
-                  callback: async (that) => {
+                  callback: async (_that) => {
                     if (!this.actor.verifyEditModeIsNotEnabled()) return false;
                     if (cost >= 0 && cost <= availableXP) {
                       if (cost >= 0) {
@@ -141,7 +138,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                 grant: {
                   icon: '<i class="fas fa-recycle"></i>',
                   label: game.i18n.localize("SWFFG.DragDrop.GrantItem"),
-                  callback: async (that) => {
+                  callback: async (_that) => {
                     const messageData = {
                       speaker: `${this.actor.name}`,
                       style: CONST.CHAT_MESSAGE_STYLES.OTHER,
@@ -326,7 +323,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                 'roll': roll,
                 'link': crew[i]?.link,
               });
-            } catch (e) {
+            } catch {
               data.crew.push({
                 'type': 'shipcrew',
                 'id': crew[i].actor_id,
@@ -429,14 +426,13 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     // Setup dice pool image and hide filtered skills
     html.find(".skill").each(async (_, elem) => {
       await DiceHelpers.addSkillDicePool(await this.getData({}), elem);
-      const filters = this._filters.skills;
     });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
 
     if (Hooks.events.preCreateItem === undefined) {
-      Hooks.on("preCreateItem", (item, createData, options, userId) => {
+      Hooks.on("preCreateItem", (item, _createData, _options, _userId) => {
         // Save persistent sheet height and width for future use.
         this.sheetWidth = this.position.width;
         this.sheetHeight = this.position.height;
@@ -477,7 +473,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     }
 
     if (Hooks.events.preDeleteItem === undefined) {
-      Hooks.on("preDeleteItem", (item, createData, options, userId) => {
+      Hooks.on("preDeleteItem", (_item, _createData, _options, _userId) => {
         // Save persistent sheet height and width for future use.
         this.sheetWidth = this.position.width;
         this.sheetHeight = this.position.height;
@@ -485,7 +481,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     }
 
     if (Hooks.events.preUpdateItem === undefined) {
-      Hooks.on("preUpdateItem", (item, createData, options, userId) => {
+      Hooks.on("preUpdateItem", (_item, _createData, _options, _userId) => {
         // Save persistent sheet height and width for future use.
         this.sheetWidth = this.position.width;
         this.sheetHeight = this.position.height;
@@ -752,7 +748,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
     });
 
-    html.find(".resetMedical").click(async (ev) => {
+    html.find(".resetMedical").click(async (_ev) => {
       if (game.settings.get("starwarsffg", "HealingItemAction") === '0') {
           // prompt
           // show a prompt asking what the user wants to do
@@ -763,7 +759,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                       done: {
                           icon: '<i class="fas fa-hourglass"></i>',
                           label: game.i18n.localize("SWFFG.MedicalItemNameUseRest"),
-                          callback: (that) => {
+                          callback: (_that) => {
                               // rest
                               let updateData = {};
                               foundry.utils.setProperty(updateData, `system.stats.medical.uses`, 0);
@@ -779,7 +775,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                       cancel: {
                           icon: '<i class="fas fa-recycle"></i>',
                           label: game.i18n.localize("SWFFG.MedicalItemNameUseReset"),
-                          callback: (that) => {
+                          callback: (_that) => {
                               // reset
                               let updateData = {};
                               foundry.utils.setProperty(updateData, `system.stats.medical.uses`, 0);
@@ -1268,7 +1264,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           weapons['weapon ' + i] = {
             icon: `<img src="${raw_weapons[i].img}" style="max-width: 24px; max-height: 24px">`,
             label: raw_weapons[i].name,
-            callback: async (html) => {
+            callback: async (_html) => {
               const skill = raw_weapons[i].system.skill.value;
               let pool = new DicePoolFFG({'difficulty': 2});
               pool = get_dice_pool(crew_id, skill, pool);
@@ -1340,7 +1336,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           crewMembers['crew ' + i] = {
             icon: `<img src="${img}" style="max-width: 24px; max-height: 24px">`,
             label: crewGunners[i].actor_name,
-            callback: async (html) => {
+            callback: async (_html) => {
               await this.vehicleCrewGunneryRoll(weapon, weaponSkill, crewGunners[i]);
             }
           }
@@ -1482,7 +1478,6 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
     html.find(".add-duty").on("click", async (event) => {
       event.preventDefault();
-      const a = event.currentTarget;
       const form = this.form;
 
       const nk = randomID();
@@ -1825,7 +1820,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
       return;
     }
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SkillRank.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.SkillRank.Text", {cost: cost, skill: skill, old: curRank, new: curRank + 1}),
@@ -1833,7 +1828,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           done: {
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
-            callback: async (that) => {
+            callback: async (_that) => {
               if(!this.actor.verifyEditModeIsNotEnabled()) return;
 
               const id = await this._spendXp(`system.skills.${skill}.rank`, 1, cost);
@@ -1901,7 +1896,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     CONFIG.logger.debug(`refunding ${mode} for ${purchaseId}`);
     const purchasedEffect = this.object.getEmbeddedCollection("ActiveEffect").find(ae => ae.name.includes(purchaseId));
     if (purchasedEffect) {
-      const dialog = new LegacyDialogV2(
+      new LegacyDialogV2(
         {
           title: game.i18n.localize("SWFFG.Actors.Sheets.Refund.DialogTitle"),
           content: game.i18n.localize("SWFFG.Actors.Sheets.Refund.Text"),
@@ -1909,7 +1904,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
             done: {
               icon: '<i class="fa-solid fa-check"></i>',
               label: game.i18n.localize("SWFFG.Actors.Sheets.Refund.Confirm"),
-              callback: async (that) => {
+              callback: async (_that) => {
                 if(!this.actor.verifyEditModeIsNotEnabled()) return;
 
                 await this.object.deleteEmbeddedDocuments("ActiveEffect", [purchasedEffect.id]);
@@ -2066,11 +2061,11 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     }
   }
 
-  _canDragStart(selector) {
+  _canDragStart(_selector) {
     return this.options.editable && this.actor.isOwner;
   }
 
-  _canDragDrop(selector) {
+  _canDragDrop(_selector) {
     return true;
   }
 
@@ -2085,7 +2080,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
       if (data.type !== "Transfer") return;
-    } catch (err) {
+    } catch {
       return false;
     }
 
@@ -2121,7 +2116,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    * @returns {Promise<void>}
    * @private
    */
-  async _suspendActiveEffects(droppedItem) {
+  async _suspendActiveEffects(_droppedItem) {
     // Placeholder: item attachment effects remain on the item in V14.
   }
 
@@ -2507,7 +2502,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       return;
     }
 
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
     {
         title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.DialogTitle", {itemType: itemType}),
         content: content,
@@ -2568,7 +2563,6 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     // this is the current value of the characteristic (including Active Effects)
     const characteristicValue = this.actor.system.characteristics[characteristic].value;
     // this is the value without items that modify it
-    const characteristicWithoutAEs =  this.object.toObject().system.characteristics[characteristic].value;
 
     if (characteristicValue >= game.settings.get("starwarsffg", "maxAttribute")) {
       ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Characteristic.Max"));
@@ -2581,7 +2575,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
       return;
     }
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
       {
         title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmTitle", {characteristic: characteristic}),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmText", {cost: cost, level: characteristicValue + 1, characteristic: characteristic}),
@@ -2589,7 +2583,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           done: {
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
-            callback: async (that) => {
+            callback: async (_that) => {
               if(!this.actor.verifyEditModeIsNotEnabled()) return;
 
               const statusId = await this._spendXp(`system.characteristics.${characteristic}.value`, 1, cost);
@@ -2789,7 +2783,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           submit: {
             icon: '<i class="fas fa-check"></i>',
             label: game.i18n.localize("SWFFG.Meta.Sources.AddSource.Submit"),
-            callback: async (obj, event) => {
+            callback: async (obj, _event) => {
               const jObj = $(obj);
               const bookName = jObj.find("#book").val();
               const pageNum = jObj.find("#page").val();
@@ -2834,7 +2828,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           submit: {
             icon: '<i class="fas fa-check"></i>',
             label: game.i18n.localize("SWFFG.Meta.Tags.AddTag.Submit"),
-            callback: async (obj, event) => {
+            callback: async (obj, _event) => {
               const jObj = $(obj);
               const tag = jObj.find("#tag").val();
               const updatedTags = this.object.system.metadata.tags || [];

@@ -335,7 +335,8 @@ export default class PopoutEditor extends FormApplicationV2 {
 
   static replaceRollTags(html, actorData) {
     const rollTag = /(\[ROLL\])(.[^[]*)\[\/ROLL\]/gm;
-    const formula = html.toString().replace(rollTag, function (content) {
+    const formula = html.toString().replace(rollTag, function (initialContent) {
+      let content = initialContent;
       content = content.replace(rollTag, `$2`);
       const args = content.split(",").map(function (arg) {
         return arg.trim();

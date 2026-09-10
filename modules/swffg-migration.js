@@ -38,7 +38,7 @@ export async function handleUpdate() {
  * @param newVersion - version currently running (from game.system.version)
  * @returns {Promise<void>}
  */
-async function handleMigration(oldVersion, newVersion) {
+async function handleMigration(oldVersion, _newVersion) {
   // migration handlers should be added here going forward
   if (parseFloat(oldVersion) < 1.901) {
     await migrateTo1_901();
@@ -205,7 +205,7 @@ async function migrateTo1907() {
       if (["character", "nemesis", "rival"].includes(actor.type)) {
         // characteristics
         inputStats.system.characteristics = {};
-        for (const characteristic in actor.system.characteristics) {
+        for (const characteristic of Object.keys(actor.system.characteristics)) {
           inputStats.system.characteristics[characteristic] = {
             value: actor.system.characteristics[characteristic].value,
           }
@@ -240,7 +240,7 @@ async function migrateTo1907() {
 
       if (["character", "nemesis", "rival"].includes(actor.type)) {
         // characteristics
-        for (const characteristic in actor.system.characteristics) {
+        for (const characteristic of Object.keys(actor.system.characteristics)) {
           finalStats.system.characteristics[characteristic].value = updatedStats.system.characteristics[characteristic].value - ((updatedStats.system.characteristics[characteristic].value - foundry.utils.deepClone(inputStats.system.characteristics[characteristic].value)) * 2);
         }
         // wounds
@@ -258,7 +258,7 @@ async function migrateTo1907() {
         finalStats.system.stats.encumbrance.max = updatedStats.system.stats.encumbrance.max - ((updatedStats.system.stats.encumbrance.max - inputStats.system.stats.encumbrance.max) * 2);
 
         // skills
-        for (const skill in actor.system.skills) {
+        for (const skill of Object.keys(actor.system.skills)) {
           finalStats.system.skills[skill].rank = updatedStats.system.skills[skill].rank - ((updatedStats.system.skills[skill].rank - foundry.utils.deepClone(inputStats.system.skills[skill].rank)) * 2);
         }
 
@@ -282,7 +282,7 @@ async function migrateTo1907() {
           for (let i = 0; i < 20; i++) {
             const attributes = item.system.talents[`talent${i}`].attributes;
             if (attributes && Object.keys(attributes).length > 0) {
-              for (const attribute in attributes) {
+              for (const attribute of Object.keys(attributes)) {
                 if (!attribute.startsWith("attr")) {
                   // the attribute is using an older form, update it to the new naming scheme
                   const nk = `attr${new Date().getTime()}`;
@@ -323,7 +323,7 @@ async function migrateTo1907() {
           for (let i = 0; i < 16; i++) {
             const attributes = item.system.upgrades[`upgrade${i}`].attributes;
             if (attributes && Object.keys(attributes).length > 0) {
-              for (const attribute in attributes) {
+              for (const attribute of Object.keys(attributes)) {
                 if (!attribute.startsWith("attr")) {
                   // the attribute is using an older form, update it to the new naming scheme
                   const nk = `attr${new Date().getTime()}`;
@@ -366,7 +366,7 @@ async function migrateTo1907() {
           for (let i = 0; i < 8; i++) {
             const attributes = item.system.upgrades[`upgrade${i}`].attributes;
             if (attributes && Object.keys(attributes).length > 0) {
-              for (const attribute in attributes) {
+              for (const attribute of Object.keys(attributes)) {
                 if (!attribute.startsWith("attr")) {
                   // the attribute is using an older form, update it to the new naming scheme
                   const nk = `attr${new Date().getTime()}`;
@@ -416,7 +416,7 @@ async function migrateTo1907() {
       itemData.data = itemData.system;
       try {
         await ModifierHelpers.applyActiveEffectOnUpdate(item, itemData);
-      } catch (e) {
+      } catch {
         ui.notifications.warn(`Failed to migrate item ${item.name}, it may need to be recreated by hand`);
       }
     }

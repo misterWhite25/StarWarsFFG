@@ -1,12 +1,9 @@
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import { deleteDataField } from "../compatibility/data-operators.js";
 import PopoutEditor from "../popout-editor.js";
-import Helpers from "../helpers/common.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 import ItemHelpers from "../helpers/item-helpers.js";
-import ImportHelpers from "../importer/import-helpers.js";
 import DiceHelpers from "../helpers/dice-helpers.js";
-import item from "../helpers/embeddeditem-helpers.js";
 import EmbeddedItemHelpers from "../helpers/embeddeditem-helpers.js";
 import ActorHelpers, {xpLogSpend} from "../helpers/actor-helpers.js";
 import ItemOptions from "./item-ffg-options.js";
@@ -824,7 +821,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         html.find(".item-pill2").on("click", async (event) => {
           event.stopPropagation();
           const itemId = $(event.target).data("talent-id");
-          const itemType = $(event.target).data("item-type");
           let item = await fromUuid(this.object.system.talents[itemId].source);
           new Item(item).sheet.render(true);
         });
@@ -1080,7 +1076,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         },
       };
       if (this.object.isEmbedded) {
-        let ownerObject = await fromUuid(this.object.uuid);
 
         temp = {
           ...item,
@@ -1245,12 +1240,12 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       cost = basic_data.cost;
       availableXP = basic_data.availableXP;
       totalXP = basic_data.totalXP;
-    } catch (e) {
+    } catch {
       return;
     }
     const baseName = $(li).data("base-item-name");
     const talent = $(".talent-name", li).data("name");
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Talent.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Talent.ConfirmText", {cost: cost, talent: talent}),
@@ -1258,7 +1253,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           done: {
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
-            callback: async (that) => {
+            callback: async (_that) => {
               // update the form because the fields are read when an update is performed
               const talentId = $(li).attr("id");
               const input = $(`[name="data.talents.${talentId}.islearned"]`, this.element)[0];
@@ -1298,7 +1293,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           submit: {
             icon: '<i class="fas fa-check"></i>',
             label: game.i18n.localize("SWFFG.Meta.Sources.AddSource.Submit"),
-            callback: async (obj, event) => {
+            callback: async (obj, _event) => {
               const jObj = $(obj);
               const bookName = jObj.find("#book").val();
               const pageNum = jObj.find("#page").val();
@@ -1337,7 +1332,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           submit: {
             icon: '<i class="fas fa-check"></i>',
             label: game.i18n.localize("SWFFG.Meta.Tags.AddTag.Submit"),
-            callback: async (obj, event) => {
+            callback: async (obj, _event) => {
               const jObj = $(obj);
               const tag = jObj.find("#tag").val();
               const updatedTags = this.item.system.metadata.tags || [];
@@ -1385,7 +1380,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     let totalXP;
     let AEState;
     let availableXPToLog;
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.FP.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.FP.ConfirmText", {cost: cost, upgrade: upgradeName}),
@@ -1393,7 +1388,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           done: {
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
-            callback: async (that) => {
+            callback: async (_that) => {
               try {
                 // this fixes the actual math bugs but the log shows incorrect values. need to fix that.
                 const basic_data = await this._buyHandleClick(cost, "forcepower");
@@ -1402,7 +1397,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
                 totalXP = basic_data.totalXP;
                 AEState = basic_data.AEState;
                 availableXPToLog = basic_data.availableXPToLog;
-              } catch (e) {
+              } catch {
                 return;
               }
               // update the form because the fields are read when an update is performed
@@ -1437,7 +1432,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     let totalXP;
     let AEState;
     let availableXPToLog;
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SA.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.SA.ConfirmText", {cost: cost, upgrade: upgradeName}),
@@ -1445,7 +1440,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           done: {
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
-            callback: async (that) => {
+            callback: async (_that) => {
 
               try {
                 // this fixes the actual math bugs but the log shows incorrect values. need to fix that.
@@ -1455,7 +1450,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
                 totalXP = basic_data.totalXP;
                 AEState = basic_data.AEState;
                 availableXPToLog = basic_data.availableXPToLog;
-              } catch (e) {
+              } catch {
                 return;
               }
 
@@ -1491,7 +1486,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     let totalXP;
     let AEState;
     let availableXPToLog;
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Specialization.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Specialization.ConfirmText", {cost: cost, upgrade: upgradeName}),
@@ -1499,7 +1494,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           done: {
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
-            callback: async (that) => {
+            callback: async (_that) => {
 
               try {
                 const basic_data = await this._buyHandleClick(cost, "specialization");
@@ -1508,7 +1503,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
                 totalXP = basic_data.totalXP;
                 AEState = basic_data.AEState;
                 availableXPToLog = basic_data.availableXPToLog;
-              } catch (e) {
+              } catch {
                 return;
               }
               owner.update({system: {experience: {available: availableXP - cost}}});
@@ -1621,7 +1616,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       itemType = "talents";
     }
 
-    const form = this.form;
 
     if (action === "edit") {
       const currentValue = $(`input[name='data.isEditing']`).val() == "true";
@@ -1667,7 +1661,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     if (action === "split") {
       const nextKey = `upgrade${parseInt(key.replace("upgrade", ""), 10) + 1}`;
       const nextNextKey = `upgrade${parseInt(key.replace("upgrade", ""), 10) + 2}`;
-      const nextNextNextKey = `upgrade${parseInt(key.replace("upgrade", ""), 10) + 3}`;
 
       if (attrs[key].size === "double") {
         $(`input[name='data.upgrades.${key}.size']`).val("single");
@@ -1698,7 +1691,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
     if (action === "link-right") {
       if ($(".talent-disable-edit").length === 0) {
-        const linkid = a.dataset.linknumber;
         const currentValue = $(`input[name='data.${itemType}.${key}.links-right']`).val() == "true";
         $(`input[name='data.${itemType}.${key}.links-right']`).val(!currentValue);
 
@@ -1755,11 +1747,11 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     }).render(true);
   }
 
-  _canDragStart(selector) {
+  _canDragStart(_selector) {
     return this.options.editable && this.object.isOwner;
   }
 
-  _canDragDrop(selector) {
+  _canDragDrop(_selector) {
     return true;
   }
 
@@ -1781,7 +1773,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
       if (data.type !== "Item") return;
-    } catch (err) {
+    } catch {
       return false;
     }
     // as of v10, "id" is not passed in - instead, "uuid" is. Let's use the Foundry API to get the item Document from the uuid.
@@ -1792,13 +1784,12 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     if (itemObject.type === "talent") {
       itemObject = await ItemHelpers.uniqueAttrs(itemObject, specialization);
       // we need to remove if this is the last instance of the talent in the specialization
-      const previousItemId = $(li).find(`input[name='data.talents.${talentId}.itemId']`).val();
       const isPreviousItemFromPack = $(li).find(`input[name='data.talents.${talentId}.pack']`).val() === "" ? false : true;
       if (!isPreviousItemFromPack) {
         CONFIG.logger.debug("Non-compendium pack talent update");
 
         const talentList = [];
-        for (let talent in specialization.system.talents) {
+        for (const talent of Object.keys(specialization.system.talents)) {
           if (talent.itemId === itemObject.id) {
             talentList.push(talent);
           }
@@ -1908,12 +1899,11 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
   async _onDropItem(event) {
     let data;
     const obj = this.object;
-    const li = event.currentTarget;
 
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
       if (data.type !== "Item") return;
-    } catch (err) {
+    } catch {
       return false;
     }
 
@@ -2034,7 +2024,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
       if (data.type !== "Item") return;
-    } catch (err) {
+    } catch {
       return false;
     }
 
@@ -2061,7 +2051,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
       if (data.type !== "Item") return;
-    } catch (err) {
+    } catch {
       return false;
     }
 
@@ -2078,7 +2068,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     await this._transferActiveEffects(itemObject);
   }
 
-  async _onDragItemStart(event) {}
+  async _onDragItemStart(_event) {}
 
   /**
    * Remove an talent from a species item

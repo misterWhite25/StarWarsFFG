@@ -180,7 +180,7 @@ export default class SettingsHelpers {
         active: game.i18n.localize("SWFFG.SettingsPCListModeActive"),
         owned: game.i18n.localize("SWFFG.SettingsPCListModeOwned"),
       },
-      onChange: (rule) => {
+      onChange: (_rule) => {
         const groupmanager = canvas?.groupmanager?.window;
         if (groupmanager) {
           groupmanager.render();
@@ -195,7 +195,7 @@ export default class SettingsHelpers {
       default: 0,
       config: false,
       type: Number,
-      onChange: (rule) => {
+      onChange: (_rule) => {
         const groupmanager = canvas?.groupmanager?.window;
         if (groupmanager) {
           groupmanager.render();
@@ -211,7 +211,7 @@ export default class SettingsHelpers {
       default: 0,
       config: false,
       type: Number,
-      onChange: (rule) => {
+      onChange: (_rule) => {
         const groupmanager = canvas?.groupmanager?.window;
         if (groupmanager) {
           groupmanager.render();

@@ -68,7 +68,8 @@ export default class PopoutModifiers extends FormApplicationV2 {
   /* -------------------------------------------- */
 
   /** @override */
-  async _updateObject(event, formData) {
+  async _updateObject(event, initialFormData) {
+    let formData = initialFormData;
     formData = foundry.utils.expandObject(formData);
 
     // Handle the free-form attributes list

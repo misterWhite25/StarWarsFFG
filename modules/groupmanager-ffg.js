@@ -1,8 +1,7 @@
 import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
 import { FormApplicationV2 } from "./applications/form-application-v2.js";
 import { getRollMessageOptions } from "./helpers/chat.js";
-import {xpLogEarn} from "./helpers/actor-helpers.js";
-import ActorHelpers from "./helpers/actor-helpers.js";
+import ActorHelpers, {xpLogEarn} from "./helpers/actor-helpers.js";
 
 const CanvasLayerClass = foundry?.canvas?.layers?.CanvasLayer || CanvasLayer;
 export class GroupManagerLayer extends CanvasLayerClass {
@@ -35,7 +34,7 @@ export class GroupManagerLayer extends CanvasLayerClass {
 }
 
 export class GroupManager extends FormApplicationV2 {
-  constructor(options) {
+  constructor(_options) {
     super();
     this.obligations = [];
     this.duties = [];
@@ -149,7 +148,7 @@ export class GroupManager extends FormApplicationV2 {
     if (!this.options.editable) return;
 
     // Flip destiny pool DARK to LIGHT
-    html.find(".destiny-flip-dtl").click((ev) => {
+    html.find(".destiny-flip-dtl").click((_ev) => {
       let LightPool = this.form.elements["dPool.light"].value;
       let DarkPool = this.form.elements["dPool.dark"].value;
       if (DarkPool > 0) {
@@ -161,7 +160,7 @@ export class GroupManager extends FormApplicationV2 {
     });
 
     // Flip destiny pool LIGHT to DARK
-    html.find(".destiny-flip-ltd").click((ev) => {
+    html.find(".destiny-flip-ltd").click((_ev) => {
       let LightPool = this.form.elements["dPool.light"].value;
       let DarkPool = this.form.elements["dPool.dark"].value;
       if (LightPool > 0) {
@@ -185,7 +184,7 @@ export class GroupManager extends FormApplicationV2 {
       this._addCharacterToCombat(character, game.combat);
     });
     // Add all characters to combat tracker.
-    html.find(".group-to-combat").click((ev) => {
+    html.find(".group-to-combat").click((_ev) => {
       const characters = [];
       const groupmanager = document.getElementById("group-manager");
       const charlist = groupmanager.querySelectorAll('tr[class="player-character"]');
@@ -203,7 +202,7 @@ export class GroupManager extends FormApplicationV2 {
       this._grantXP(c);
     });
     // Add XP to all characters.
-    html.find(".bulk-XP").click((ev) => {
+    html.find(".bulk-XP").click((_ev) => {
       const characters = [];
       const groupmanager = document.getElementById("group-manager");
       const charlist = groupmanager.querySelectorAll('tr[class="player-character"]');
@@ -213,11 +212,11 @@ export class GroupManager extends FormApplicationV2 {
       this._bulkXP(characters);
     });
 
-    html.find(".obligation-button").click((ev) => {
+    html.find(".obligation-button").click((_ev) => {
       this._rollObligation();
     });
 
-    html.find(".duty-button").click((ev) => {
+    html.find(".duty-button").click((_ev) => {
       this._rollDuty();
     });
 
@@ -247,7 +246,8 @@ export class GroupManager extends FormApplicationV2 {
     return formData;
   }
 
-  _addCharacterObligationDuty(character, rangeStart, list, type) {
+  _addCharacterObligationDuty(character, initialRangeStart, list, type) {
+    let rangeStart = initialRangeStart;
     try {
       Object.values(list).forEach((item) => {
         let rangeEnd = rangeStart + parseInt(item.magnitude);
@@ -261,7 +261,7 @@ export class GroupManager extends FormApplicationV2 {
         });
         rangeStart = rangeEnd;
       });
-    } catch (err) {
+    } catch {
       CONFIG.logger.warn(`Unable to add player ${character.name} `);
     }
     return rangeStart;
@@ -334,7 +334,8 @@ export class GroupManager extends FormApplicationV2 {
     return activeTokens.length ? activeTokens[0] : null;
   }
 
-  async _setupCombat(cbt) {
+  async _setupCombat(initialCbt) {
+    let cbt = initialCbt;
     // If no combat encounter is active, create one.
     if (!cbt) {
       cbt = await Combat.create({scene: canvas.scene.id, active: true});
@@ -424,20 +425,20 @@ export class GroupManager extends FormApplicationV2 {
 }
 
 // Catch updates to connected players and update the group manager window if necessary.
-Hooks.on("renderPlayerList", (playerList) => {
+Hooks.on("renderPlayerList", (_playerList) => {
   const groupmanager = canvas?.groupmanager?.window;
   if (groupmanager) {
     groupmanager.render();
   }
 });
 // Catch updates to actors and update the group manager window if necessary.
-Hooks.on("updateActor", (actor, data, options, id) => {
+Hooks.on("updateActor", (_actor, _data, _options, _id) => {
   const groupmanager = canvas?.groupmanager?.window;
   if (groupmanager) {
     groupmanager.render();
   }
 });
-Hooks.on("renderActorSheet", (actor, data, options, id) => {
+Hooks.on("renderActorSheet", (_actor, _data, _options, _id) => {
   const groupmanager = canvas?.groupmanager?.window;
   if (groupmanager) {
     groupmanager.render();

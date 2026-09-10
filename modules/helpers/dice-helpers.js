@@ -1,4 +1,3 @@
-import PopoutEditor from "../popout-editor.js";
 import RollBuilderFFG from "../dice/roll-builder.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 import ImportHelpers from "../importer/import-helpers.js";
@@ -274,7 +273,8 @@ export default class DiceHelpers {
     return { setback, difficulty };
   }
 
-  static async getModifiers(dicePool, item) {
+  static async getModifiers(initialDicePool, item) {
+    let dicePool = initialDicePool;
     if (item.type === "weapon" || item.type === "shipweapon") {
       dicePool = await ModifierHelpers.getDicePoolModifiers(dicePool, item, []);
 

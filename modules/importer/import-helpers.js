@@ -3,7 +3,6 @@ import { deleteDataField } from "../compatibility/data-operators.js";
 import EffectHelpers from "../helpers/effects.js";
 import Helpers from "../helpers/common.js";
 import {migrateDataToSystem} from "../helpers/migration.js";
-import {ItemFFG} from "../items/item-ffg.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 import {getSystemDataDefaults} from "../data-models/system-data-models.js";
 
@@ -30,7 +29,7 @@ export default class ImportHelpers {
           CONFIG.logger.debug(`Error verifying path ${startingSource}, ${path}`, err);
         }
       }
-    } catch (err) {
+    } catch {
       return false;
     }
 
@@ -69,7 +68,7 @@ export default class ImportHelpers {
         }
 
         return `${serverPath}/${filename}`;
-      } catch (err) {
+      } catch {
         CONFIG.logger.error(`Error Uploading File: ${path} to ${serverPath}`);
       }
     }
@@ -108,7 +107,7 @@ export default class ImportHelpers {
         }
 
         return `${serverPath}/${filename}`;
-      } catch (err) {
+      } catch {
         CONFIG.logger.error(`Error Uploading File: ${path} to ${serverPath}`);
       }
     }
@@ -147,9 +146,9 @@ export default class ImportHelpers {
       updateData.img = newItem.img;
     }
 
-    for (let key in newItem.data) {
+    for (const key of Object.keys(newItem.data)) {
       const recursiveObject = (itemkey, obj) => {
-        for (let objkey in obj) {
+        for (const objkey of Object.keys(obj)) {
           if (typeof obj[objkey] === "object") {
             recursiveObject(`${itemkey}.${objkey}`, obj[objkey]);
           } else {
@@ -453,7 +452,8 @@ export default class ImportHelpers {
     return itemAttributes;
   }
 
-  static async getQualities(qualityList) {
+  static async getQualities(initialQualityList) {
+    let qualityList = initialQualityList;
     let qualities = [];
     let attributes = {};
 
@@ -494,7 +494,7 @@ export default class ImportHelpers {
     }
   };
 
-  static characteristicKeyToName(key) {}
+  static characteristicKeyToName(_key) {}
 
   static minionTemplate = {
     name: "no name",
@@ -1391,7 +1391,7 @@ export default class ImportHelpers {
     updateDialog(100);
   }
 
-  static async minionImport(adversaryData, updateDialog, subType)
+  static async minionImport(adversaryData, updateDialog, _subType)
   {
     const npcName = adversaryData.Name;
     const npcKey = adversaryData.Key;
@@ -1694,9 +1694,7 @@ export default class ImportHelpers {
         CONFIG.logger.error(`Unable to add species ${characterData.Character.Species.SpeciesKey} to character.`, err);
       }
 
-      let obligationlist = [];
       if (characterData.Character.Obligations.CharObligation) {
-        let obligation = 0;
         if (Array.isArray(characterData.Character.Obligations.CharObligation)) {
           characterData.Character.Obligations.CharObligation.forEach((CharObligation) => {
             const nk = randomID();
@@ -1707,9 +1705,6 @@ export default class ImportHelpers {
               description: CharObligation.Notes,
             };
             character.data.obligationlist[charobligation.key] = charobligation;
-            if (parseInt(CharObligation.Size, 10)) {
-              obligation += parseInt(CharObligation.Size, 10);
-            }
           });
         } else {
           const nk = randomID();
@@ -1720,15 +1715,10 @@ export default class ImportHelpers {
             description: characterData.Character.Obligations.CharObligation.Notes,
           };
           character.data.obligationlist[charobligation.key] = charobligation;
-          if (parseInt(characterData.Character.Obligations.CharObligation.Size, 10)) {
-            obligation += parseInt(characterData.Character.Obligations.CharObligation.Size, 10);
-          }
         }
       }
 
-      let dutylist = [];
       if (characterData.Character.Duties.CharDuty) {
-        let duty = 0;
         if (Array.isArray(characterData.Character.Duties.CharDuty)) {
           characterData.Character.Duties.CharDuty.forEach((CharDuty) => {
             const nk = randomID();
@@ -1738,9 +1728,6 @@ export default class ImportHelpers {
               magnitude: CharDuty.Size,
             };
             character.data.dutylist[charduty.key] = charduty;
-            if (parseInt(CharDuty.Size, 10)) {
-              duty += parseInt(CharDuty.Size, 10);
-            }
           });
         } else {
           const nk = randomID();
@@ -1750,9 +1737,6 @@ export default class ImportHelpers {
             magnitude: characterData.Character.Duties.CharDuty.Size,
           };
           character.data.dutylist[charduty.key] = charduty;
-          if (parseInt(characterData.Character.Duties.CharDuty.Size, 10)) {
-            duty += parseInt(characterData.Character.Duties.CharDuty.Size, 10);
-          }
         }
       }
 
@@ -1952,7 +1936,7 @@ export default class ImportHelpers {
                   } else {
                     character.items.push(newspec);
                   }
-                } catch (err) {
+                } catch {
                   CONFIG.logger.error(`Unable to add specialization ${spec.Key} to character.`);
                 }
                 specCount += 1;
@@ -2132,7 +2116,9 @@ export default class ImportHelpers {
     CONFIG.temporary = {};
   }
 
-  static b64toBlob = (b64Data, contentType, sliceSize) => {
+  static b64toBlob = (b64Data, initialContentType, initialSliceSize) => {
+    let contentType = initialContentType;
+    let sliceSize = initialSliceSize;
     contentType = contentType || "";
     sliceSize = sliceSize || 512;
 
@@ -2172,10 +2158,10 @@ export default class ImportHelpers {
   static readBlobFromFile(file) {
     const reader = new FileReader();
     return new Promise((resolve, reject) => {
-      reader.onload = (ev) => {
+      reader.onload = (_ev) => {
         resolve(reader.result);
       };
-      reader.onerror = (ev) => {
+      reader.onerror = (_ev) => {
         reader.abort();
         reject();
       };
@@ -2350,18 +2336,16 @@ export default class ImportHelpers {
     };
   }
 
-  static async addImportItemToCompendium(type, data, pack, removeFirst) {
+  static async addImportItemToCompendium(type, initialData, pack, removeFirst) {
+    let data = initialData;
     let entry = await ImportHelpers.findCompendiumEntityByImportId(type, data.flags.starwarsffg.ffgimportid, pack.collection);
-    let objClass;
     let dataType;
     switch (type) {
       case "Item": {
-        objClass = Item;
         dataType = data.type;
         break;
       }
       case "JournalEntry": {
-        objClass = JournalEntry;
         if (!data.img) {
           data.img = `icons/sundries/scrolls/scroll-rolled-white.webp`;
         }
@@ -2369,7 +2353,6 @@ export default class ImportHelpers {
         break;
       }
       case "Actor": {
-        objClass = Actor;
         dataType = data.type;
         break;
       }

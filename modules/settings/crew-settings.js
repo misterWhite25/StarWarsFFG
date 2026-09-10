@@ -12,7 +12,7 @@ export default class CrewSettings extends FormApplicationV2 {
     });
   }
 
-  getData(options) {
+  getData(_options) {
     const gs = game.settings;
     const canConfigure = game.user.can("SETTINGS_MODIFY");
 

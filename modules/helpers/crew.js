@@ -1,7 +1,6 @@
 const { DialogV2 } = foundry.applications.api;
-import {get_dice_pool} from "./dice-helpers.js";
+import DiceHelpers, {get_dice_pool} from "./dice-helpers.js";
 import {DicePoolFFG} from "../dice/pool.js";
-import DiceHelpers from "../helpers/dice-helpers.js";
 
 /**
  * Capture a drag-and-drop event (used to capture adding crew members via a flag)

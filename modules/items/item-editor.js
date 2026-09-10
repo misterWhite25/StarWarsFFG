@@ -43,7 +43,7 @@ export class itemEditor extends FormApplicationV2  {
   }
 
   /** @override */
-  async getData(options) {
+  async getData(_options) {
     // update the title since it isn't available when creating the application
     this._dynamicTitle = game.i18n.format("SWFFG.Items.Popout.Title", {currentItem: this.data.clickedObject.name, parentItem: this.data.sourceObject.name});
     const data = await this._enrichData();
@@ -107,14 +107,11 @@ export class itemEditor extends FormApplicationV2  {
     }
 
     let data;
-    const specialization = this.object;
-    const li = event.currentTarget;
-    const talentId = $(li).attr("id");
 
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
       if (data.type !== "Item") return;
-    } catch (err) {
+    } catch {
       return false;
     }
 
@@ -306,7 +303,8 @@ export class itemEditor extends FormApplicationV2  {
   }
 
   /** @override */
-  async _updateObject(event, formData) {
+  async _updateObject(event, initialFormData) {
+    let formData = initialFormData;
     formData = ItemHelpers.explodeFormData(formData);
     const equipped = this.data.sourceObject.system?.equippable?.equipped;
 
@@ -570,7 +568,7 @@ export class talentEditor extends itemEditor {
   }
 
     /** @override */
-  async getData(options) {
+  async getData(_options) {
     // update the title since it isn't available when creating the application
     this._dynamicTitle = game.i18n.format("SWFFG.Items.Popout.Title", {currentItem: this.data.clickedObject.name, parentItem: this.data.sourceObject.name});
 
@@ -654,7 +652,8 @@ export class talentEditor extends itemEditor {
   }
 
   /** @override */
-  async _updateObject(event, formData) {
+  async _updateObject(event, initialFormData) {
+    let formData = initialFormData;
     if(this.actor && !this.data.sourceObject.parent?.verifyEditModeIsNotEnabled()) return;
 
     CONFIG.logger.debug("Updating talent");
@@ -784,7 +783,7 @@ export class forcePowerEditor extends itemEditor {
   }
 
     /** @override */
-  async getData(options) {
+  async getData(_options) {
     // update the title since it isn't available when creating the application
     this._dynamicTitle = game.i18n.format("SWFFG.Items.Popout.Title", {currentItem: this.data.clickedObject.name, parentItem: this.data.sourceObject.name});
 
@@ -873,7 +872,8 @@ export class forcePowerEditor extends itemEditor {
   }
 
   /** @override */
-  async _updateObject(event, formData) {
+  async _updateObject(event, initialFormData) {
+    let formData = initialFormData;
     CONFIG.logger.debug("Updating upgrade");
     formData = foundry.utils.expandObject(formData);
 

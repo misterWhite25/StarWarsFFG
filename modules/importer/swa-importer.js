@@ -1,5 +1,4 @@
 import { FormApplicationV2 } from "../applications/form-application-v2.js";
-import ItemBaseFFG from "../items/itembase-ffg.js";
 import ImportHelpers from "./import-helpers.js";
 
 export default class SWAImporter extends FormApplicationV2 {
@@ -169,7 +168,7 @@ export default class SWAImporter extends FormApplicationV2 {
           let fileData;
           try {
             fileData = JSON.parse(file);
-          } catch (err) {
+          } catch {
             const newfile = file.replace(/[^ -~]+/, "");
             const newFile1 = [...newfile].filter((character) => character.charCodeAt(0) > 0x19).join("");
 

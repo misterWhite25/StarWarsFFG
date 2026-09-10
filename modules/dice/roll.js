@@ -1,7 +1,5 @@
-import PopoutEditor from "../popout-editor.js";
 import { ForceDie } from "./dietype/ForceDie.js";
 import {migrateDataToSystem} from "../helpers/migration.js";
-import {ItemFFG} from "../items/item-ffg.js";
 import { applyMessageMode, getMessageMode } from "../helpers/chat.js";
 
 /**
@@ -243,7 +241,8 @@ export class RollFFG extends Roll {
 
   /* -------------------------------------------- */
   /** @override */
-  async render(chatOptions = {}) {
+  async render(initialChatOptions = {}) {
+    let chatOptions = initialChatOptions;
     chatOptions = foundry.utils.mergeObject(
       {
         user: game.user.id,
@@ -326,7 +325,7 @@ export class RollFFG extends Roll {
               // there aren't any modifiers on the object, try copying the temp object to it so the link works
               test_item.data.data.itemmodifier = chatData.data.data.itemmodifier;
             }
-          } catch (exception) {
+          } catch {
             // required data was missing - best to just move along, citizen
           }
         }
@@ -343,7 +342,8 @@ export class RollFFG extends Roll {
 
   /* -------------------------------------------- */
   /** @override */
-  async toMessage(messageData = {}, { messageMode, rollMode, create = true } = {}) {
+  async toMessage(initialMessageData = {}, { messageMode, rollMode, create = true } = {}) {
+    let messageData = initialMessageData;
     // Perform the roll, if it has not yet been rolled
     if (!this._evaluated) await this.evaluate();
 

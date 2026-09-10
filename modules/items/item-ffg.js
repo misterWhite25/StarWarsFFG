@@ -2,10 +2,7 @@ import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibil
 import EffectHelpers from "../helpers/effects.js";
 import ItemBaseFFG from "./itembase-ffg.js";
 import PopoutEditor from "../popout-editor.js";
-import ActorOptions from "../actors/actor-ffg-options.js";
-import ImportHelpers from "../importer/import-helpers.js";
 import ModifierHelpers from "../helpers/modifiers.js";
-import Helpers from "../helpers/common.js";
 import ItemHelpers from "../helpers/item-helpers.js";
 
 /**
@@ -397,7 +394,7 @@ export class ItemFFG extends ItemBaseFFG {
 
         if (this.isEmbedded && this.actor) {
           let damageAdd = 0;
-          for (let attr in data.attributes) {
+          for (const attr of Object.keys(data.attributes)) {
             if (data.attributes[attr].mod === "damage" && data.attributes[attr].modtype === "Weapon Stat") {
               damageAdd += parseInt(data.attributes[attr].value, 10);
             }
@@ -486,7 +483,7 @@ export class ItemFFG extends ItemBaseFFG {
 
         if (this.isEmbedded && this.actor && this.actor.system) {
           let soakAdd = 0, defenceAdd = 0, encumbranceAdd = 0;
-          for (let attr in data.attributes) {
+          for (const attr of Object.keys(data.attributes)) {
             let modtype = data.attributes[attr].modtype;
             if (modtype === "Armor Stat" || modtype === "Stat" || modtype === "Stat All") {
               switch (data.attributes[attr].mod.toLocaleLowerCase()) {
@@ -562,7 +559,7 @@ export class ItemFFG extends ItemBaseFFG {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  _prepareTalentTrees(collection, itemType, listProperty, hasGlobalList) {
+  _prepareTalentTrees(collection, itemType, listProperty, _hasGlobalList) {
     const item = this;
     const talents = item.system[collection];
     let rowcount = 0;
@@ -628,7 +625,6 @@ export class ItemFFG extends ItemBaseFFG {
           talents[upgrade].canLinkRight = false;
         }
 
-        const controlNumber = parseInt(upgrade.replace(itemType, ""), 10);
 
         if (rowcount < 4) {
           talents[upgrade].canCombine = true;

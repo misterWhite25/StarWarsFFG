@@ -1,7 +1,6 @@
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
 import { deleteDataField } from "../compatibility/data-operators.js";
 import EffectHelpers from "./effects.js";
-import PopoutModifiers from "../popout-modifiers.js";
 import { DicePoolFFG } from "../dice/pool.js";
 
 export default class ModifierHelpers {
@@ -181,7 +180,6 @@ export default class ModifierHelpers {
   // TODO: this should probably be either removed or refactored
   static getCalculatedValueFromCurrentAndArray(item, items, key, modtype, includeSource) {
     let total = 0;
-    let checked = false;
     let sources = [];
 
     let rank = item?.system?.rank;
@@ -306,7 +304,7 @@ export default class ModifierHelpers {
    */
   static async popoutModiferWindow(event) {
     event.preventDefault();
-    const a = event.currentTarget.parentElement;
+    const { default: PopoutModifiers } = await import("../popout-modifiers.js");
 
     const title = `${game.i18n.localize("SWFFG.TabModifiers")}: ${this.object.name}`;
 
@@ -317,6 +315,7 @@ export default class ModifierHelpers {
 
   static async popoutModiferWindowUpgrade(event) {
     event.preventDefault();
+    const { default: PopoutModifiers } = await import("../popout-modifiers.js");
     const a = event.currentTarget.parentElement;
     const keyname = a.dataset.itemid;
 
@@ -500,7 +499,8 @@ export default class ModifierHelpers {
    * @param mod
    * @returns {string}
    */
-  static getModKeyPath(modType, mod) {
+  static getModKeyPath(initialModType, mod) {
+    let modType = initialModType;
     if (["Wounds", "Strain", "EncumbranceMax", "Speed", "Hulltrauma", "Systemstrain"].includes(mod)) {
       modType = "Threshold";
     }
@@ -582,7 +582,8 @@ export default class ModifierHelpers {
     }
   }
 
-  static async applyActiveEffectOnUpdate(item, formData) {
+  static async applyActiveEffectOnUpdate(item, initialFormData) {
+    let formData = initialFormData;
     /**
      * Given an updateObject event, update active effects on the item being updated
      * @type {*|{}}

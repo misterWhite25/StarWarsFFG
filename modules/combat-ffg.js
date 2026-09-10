@@ -3,7 +3,6 @@ import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
 const { DialogV2 } = foundry.applications.api;
 import { getMessageMode } from "./helpers/chat.js";
 import {DicePoolFFG, RollFFG} from "./dice-pool-ffg.js";
-import PopoutEditor from "./popout-editor.js";
 
 /**
  * Extend the base Combat entity.
@@ -103,7 +102,7 @@ export class CombatFFG extends Combat {
         submit: {
           icon: '<i class="fas fa-check"></i>',
           label: game.i18n.localize("SWFFG.Combats.Slots.Dialog.Labels.Submit"),
-          callback: async (obj, event) => {
+          callback: async (obj, _event) => {
             const jObj = $(obj);
             let disposition = undefined;
             if (jObj.find("#friendly")[0].checked) {
@@ -141,7 +140,8 @@ export class CombatFFG extends Combat {
   }, 200);
 
   /** @override */
-  async _getInitiativeRoll(combatant, formula) {
+  async _getInitiativeRoll(combatant, initialFormula) {
+    let formula = initialFormula;
     const cData = foundry.utils.duplicate(combatant.actor.system);
 
     if (combatant.actor.type === "vehicle") {
@@ -166,12 +166,13 @@ export class CombatFFG extends Combat {
   }
 
   /** @override */
-  _getInitiativeFormula(combatant) {
+  _getInitiativeFormula(_combatant) {
     return CONFIG.Combat.initiative.formula || game.system.initiative;
   }
 
   /** @override */
-  async rollInitiative(ids, { formula = null, updateTurn = true, messageOptions = {} } = {}) {
+  async rollInitiative(initialIds, { formula = null, updateTurn = true, messageOptions = {} } = {}) {
+    let ids = initialIds;
     let initiative = this;
 
       const id = foundry.utils.randomID();
@@ -372,7 +373,7 @@ export class CombatFFG extends Combat {
     const roundClaims = claims[round];
     try {
       return Object.keys(roundClaims).find(key => roundClaims[key] === combatantId) || undefined;
-    } catch (error) {
+    } catch {
       // we get an exception if there have been no claims in the round yet
       return undefined;
     }
@@ -408,8 +409,7 @@ export class CombatFFG extends Combat {
     }
   }
 
-  async handleCombatantRemoval(combatant, options, userId) {
-    const claimedSlot = this.findSlotClaims(this.round, combatant.id);
+  async handleCombatantRemoval(combatant, _options, _userId) {
     if (!combatant.combat.started) {
       // the combat hasn't started, remove the actual initiative slot
       await this.removeCombatantOnly(combatant.id);
@@ -451,7 +451,7 @@ export class CombatFFG extends Combat {
     }
   }
 
-  async handleCombatantAddition(combatant, context, options, combatantI) {
+  async handleCombatantAddition(_combatant, _context, _options, _combatantI) {
     // there may be cases when this is needed, but for now, we don't need to do anything
     // (leaving as a placeholder until we know for sure)
   }
@@ -894,7 +894,6 @@ export class CombatFFG extends Combat {
       }
 
       // determine if we should mark the slot as unneeded
-      const aliveCount = this._getCombatantStateCount(disposition);
       let unused = false;
       turnTracker[disposition]++;
 
@@ -994,7 +993,6 @@ function _getInitiativeFormula(skill, ability) {
 
 function _findActorForInitiative(c) {
   let data = c.actor.system;
-  const initiativeRole = game.settings.get('starwarsffg', 'initiativeCrewRole');
   CONFIG.logger.debug("Attempting to find initiative data for actor in combat");
   if (c.actor.type === "vehicle") {
     CONFIG.logger.debug("Actor is a vehicle, looking for initiative crew role.");
@@ -1096,7 +1094,6 @@ export class CombatTrackerFFG extends foundry.applications.sidebar.tabs.CombatTr
     }
 
     // create a copy of the turn data, then set hidden to false so non-GMs can view all turns, then set the data back
-    const tempData = foundry.utils.deepClone(this.viewed.turns);
     for (const turn of this.viewed.turns) {
       turn.hidden = false;
     }

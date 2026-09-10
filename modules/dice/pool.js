@@ -2,7 +2,8 @@
  * Dice pool utility specializing in the FFG special dice
  */
 export class DicePoolFFG {
-  constructor(obj) {
+  constructor(initialObj) {
+    let obj = initialObj;
     if (obj === undefined) {
       obj = {};
     }
@@ -173,7 +174,8 @@ export class DicePoolFFG {
    * dice or adding an ability die if none remain.
    * @param times the number of times to perform this operation, defaults to 1
    */
-  upgrade(times) {
+  upgrade(initialTimes) {
+    let times = initialTimes;
     if (times === undefined) {
       times = 1;
     }
@@ -205,7 +207,8 @@ export class DicePoolFFG {
    * into challenge dice or adding an difficulty die if none remain.
    * @param times the number of times to perform this operation, defaults to 1
    */
-  upgradeDifficulty(times) {
+  upgradeDifficulty(initialTimes) {
+    let times = initialTimes;
     if (times === undefined) {
       times = 1;
     }
@@ -262,7 +265,8 @@ export class DicePoolFFG {
    * @param container {HTMLElement} where to place the preview. A container will be generated if this is undefined
    * @returns {HTMLElement}
    */
-  renderPreview(container) {
+  renderPreview(initialContainer) {
+    let container = initialContainer;
     if (container === undefined) {
       container = document.createElement("div");
       container.classList.add("dice-pool");

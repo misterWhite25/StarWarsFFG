@@ -1,6 +1,6 @@
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import EffectHelpers from "./effects.js";
-import ActorHelpers, {xpLogEarn, xpLogSpend} from "./actor-helpers.js";
+import {xpLogEarn, xpLogSpend} from "./actor-helpers.js";
 import DiceHelpers from "./dice-helpers.js";
 import {sortDataBy, addIfNotExist} from "../actors/actor-sheet-ffg.js";
 
@@ -303,7 +303,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     $(`.${this._openCareerSection}`).next().show();
 
     // specializations
-    const specializationsTable = new globalThis.DataTable(
+    new globalThis.DataTable(
       "#specializations",
     );
     $(".specialization-spend").on("click", async (event) => {
@@ -367,7 +367,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
             buttons: [
               {
                 text: 'Weapons',
-                action: async (e, dt, node, config) => {
+                action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(true);
                   dt.column(5).visible(true);
@@ -387,7 +387,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
               },
               {
                 text: 'Armor',
-                action: async (e, dt, node, config) => {
+                action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(false);
                   dt.column(5).visible(false);
@@ -407,7 +407,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
               },
               {
                 text: 'Gear',
-                action: async (e, dt, node, config) => {
+                action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(false);
                   dt.column(5).visible(false);
@@ -427,7 +427,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
               },
               {
                 text: 'Attachment',
-                action: async (e, dt, node, config) => {
+                action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(false);
                   dt.column(5).visible(false);
@@ -447,7 +447,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
               },
               {
                 text: 'Mod',
-                action: async (e, dt, node, config) => {
+                action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(false);
                   dt.column(4).visible(false);
                   dt.column(5).visible(false);
@@ -476,7 +476,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     gearTable.buttons('.weapon').trigger();
 
     // motivations
-    const purchasedMotivationTable = new globalThis.DataTable(
+    new globalThis.DataTable(
       "#selected_motivations",
     );
     const availableMotivationTable = new globalThis.DataTable(
@@ -618,7 +618,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   /** @override */
-  async _preparePartContext(partId, context, options) {
+  async _preparePartContext(partId, context, _options) {
     // TODO: is this needed? valuable?
     switch (partId) {
       case 'rules':
@@ -1272,7 +1272,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     await this.showCharacterStatusShim();
   }
 
-  async handleSpecializationPurchase(event) {
+  async handleSpecializationPurchase(_event) {
     const availableXP = this.calcXp()['available'];
     const template = "systems/starwarsffg/templates/dialogs/ffg-confirm-purchase.html";
     const groups = [];
@@ -1326,7 +1326,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       await this.showPurchaseConfirmation("specializations", content)
   }
 
-  async handleForcePowerPurchase(event) {
+  async handleForcePowerPurchase(_event) {
     const groups = [];
     const template = "systems/starwarsffg/templates/dialogs/ffg-confirm-purchase.html";
     const sources = game.settings.get("starwarsffg", "forcePowerCompendiums").split(",");
@@ -1481,7 +1481,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async showPurchaseConfirmation(itemType, content) {
-    const dialog = new LegacyDialogV2(
+    new LegacyDialogV2(
       {
         title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.DialogTitle", {itemType: itemType}),
         content: content,

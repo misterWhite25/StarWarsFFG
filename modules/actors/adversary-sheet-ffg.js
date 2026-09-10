@@ -1,5 +1,4 @@
 import { ActorSheetFFG } from "./actor-sheet-ffg.js";
-import ActorOptions from "./actor-ffg-options.js";
 
 export class AdversarySheetFFG extends ActorSheetFFG {
   constructor(...args) {
@@ -55,7 +54,7 @@ export class AdversarySheetFFG extends ActorSheetFFG {
   }
 
   /** Bind the listeners specific to the adversary presentation. */
-  _activateAdversaryListeners(html) {
+  _activateAdversaryListeners(_html) {
     if (!this.isEditable) return;
 
     if (this.actor.type === "character") {
