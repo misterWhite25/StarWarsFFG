@@ -384,18 +384,29 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+    return this._activateFFGListeners(html);
+  }
+
+  /**
+   * Bind Star Wars FFG-specific listeners independently from the legacy
+   * ApplicationV1 lifecycle so they can also be used by ActorSheetFFGV2.
+   * @param {jQuery} html
+   * @returns {void}
+   */
+  _activateFFGListeners(html) {
     // convert jquery element to HTMLElement for usage with Foundry calls
     const htmlElement = html.get(0);
 
     // Activate tabs
     let tabs = html.find(".tabs");
     let initial = this._sheetTab;
-    new foundry.applications.ux.Tabs(tabs, {
+    const sheetTabs = new foundry.applications.ux.Tabs(tabs, {
       initial: initial,
       callback: (clicked) => {
         this._sheetTab = clicked.data("tab");
       },
     });
+    this._tabs = [sheetTabs];
 
     html.find(".alt-tab").click((ev) => {
       const item = $(ev.currentTarget);

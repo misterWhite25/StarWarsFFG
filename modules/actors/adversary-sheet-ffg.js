@@ -51,8 +51,12 @@ export class AdversarySheetFFG extends ActorSheetFFG {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+    return this._activateAdversaryListeners(html);
+  }
 
-    if (!this.options.editable) return;
+  /** Bind the listeners specific to the adversary presentation. */
+  _activateAdversaryListeners(html) {
+    if (!this.isEditable) return;
 
     if (this.actor.type === "character") {
       this.sheetoptions.clear();

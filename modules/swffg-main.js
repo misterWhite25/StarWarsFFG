@@ -1149,8 +1149,41 @@ function isCurrentVersionNullOrBlank(currentVersion) {
   return currentVersion === "null" || currentVersion === '' || currentVersion === null;
 }
 
+// Migrate saved v13 sheet selections to their ApplicationV2 counterparts.
+// Foundry stores both a world default per Actor type and optional per-Actor overrides.
+async function migrateV14ActorSheets() {
+  if ((game.release.generation < 14) || !game.user.isGM) return;
+
+  const replacements = {
+    "ffg.ActorSheetFFG": "ffg.ActorSheetFFGV2",
+    "ffg.AdversarySheetFFG": "ffg.AdversarySheetFFGV2",
+  };
+
+  const defaults = foundry.utils.deepClone(game.settings.get("core", "sheetClasses"));
+  let defaultsChanged = false;
+  for (const [type, sheetId] of Object.entries(defaults.Actor ?? {})) {
+    const replacement = replacements[sheetId];
+    if (!replacement) continue;
+    defaults.Actor[type] = replacement;
+    defaultsChanged = true;
+  }
+  if (defaultsChanged) await game.settings.set("core", "sheetClasses", defaults);
+
+  const updates = game.actors.reduce((updates, actor) => {
+    const replacement = replacements[actor.getFlag("core", "sheetClass")];
+    if (replacement) updates.push({_id: actor.id, "flags.core.sheetClass": replacement});
+    return updates;
+  }, []);
+  if (updates.length) await CONFIG.Actor.documentClass.updateDocuments(updates, {render: false});
+
+  if (defaultsChanged || updates.length) {
+    CONFIG.logger.log(`Migrated ${updates.length} Actor sheet override(s) to ApplicationV2`);
+  }
+}
+
 // Handle migration duties
 Hooks.once("ready", async () => {
+  await migrateV14ActorSheets();
   SettingsHelpers.readyLevelSetting();
 
   // NOTE: the "currentVersion" will be updated in handleUpdate, preventing the code below from running in the future
