@@ -1,3 +1,5 @@
+import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
+import { FormApplicationV2 } from "./applications/form-application-v2.js";
 import { getRollMessageOptions } from "./helpers/chat.js";
 import {xpLogEarn} from "./helpers/actor-helpers.js";
 import ActorHelpers from "./helpers/actor-helpers.js";
@@ -32,7 +34,7 @@ export class GroupManagerLayer extends CanvasLayerClass {
   /* -------------------------------------------- */
 }
 
-export class GroupManager extends FormApplication {
+export class GroupManager extends FormApplicationV2 {
   constructor(options) {
     super();
     this.obligations = [];
@@ -349,7 +351,7 @@ export class GroupManager extends FormApplication {
       id,
     });
 
-    new Dialog({
+    new LegacyDialogV2({
       title: description,
       content,
       buttons: {
@@ -385,7 +387,7 @@ export class GroupManager extends FormApplication {
       id,
     });
 
-    new Dialog({
+    new LegacyDialogV2({
       title: description,
       content,
       buttons: {

@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "./compatibility/active-effects.js";
 import EffectHelpers from "./helpers/effects.js";
 /**
@@ -18,11 +19,8 @@ import CombatantFFG, {
 } from "./combat-ffg.js";
 import { ActiveEffectFFG} from "./active-effects/active-effect-ffg.js";
 import { ItemFFG } from "./items/item-ffg.js";
-import { ItemSheetFFG } from "./items/item-sheet-ffg.js";
 import { ItemSheetFFGV2 } from "./items/item-sheet-ffg-v2.js";
-import { ActorSheetFFG } from "./actors/actor-sheet-ffg.js";
 import { ActorSheetFFGV2 } from "./actors/actor-sheet-ffg-v2.js";
-import { AdversarySheetFFG } from "./actors/adversary-sheet-ffg.js";
 import { AdversarySheetFFGV2 } from "./actors/adversary-sheet-ffg-v2.js";
 import { DicePoolFFG, RollFFG } from "./dice-pool-ffg.js";
 import { GroupManager } from "./groupmanager-ffg.js";
@@ -853,14 +851,21 @@ Hooks.once("init", async function () {
     }
 
   // Register sheet application classes
-  foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
-  foundry.documents.collections.Actors.registerSheet("ffg", ActorSheetFFG, { label: "Actor Sheet v1" });
-  foundry.documents.collections.Actors.registerSheet("ffg", ActorSheetFFGV2, { makeDefault: true, label: "Actor Sheet v2" });
-  foundry.documents.collections.Actors.registerSheet("ffg", AdversarySheetFFG, { types: ["character"], label: "Adversary Sheet v1" });
-  foundry.documents.collections.Actors.registerSheet("ffg", AdversarySheetFFGV2, { types: ["character"], label: "Adversary Sheet v2" });
-  foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
-  foundry.documents.collections.Items.registerSheet("ffg", ItemSheetFFG, { label: "Item Sheet v1" });
-  foundry.documents.collections.Items.registerSheet("ffg", ItemSheetFFGV2, { makeDefault: true, label: "Item Sheet v2" });
+  const { DocumentSheetConfig } = foundry.applications.apps;
+  DocumentSheetConfig.unregisterSheet(Actor, "core", foundry.appv1.sheets.ActorSheet);
+  DocumentSheetConfig.registerSheet(Actor, "ffg", ActorSheetFFGV2, {
+    makeDefault: true,
+    label: "Star Wars FFG Actor Sheet",
+  });
+  DocumentSheetConfig.registerSheet(Actor, "ffg", AdversarySheetFFGV2, {
+    types: ["character"],
+    label: "Star Wars FFG Adversary Sheet",
+  });
+  DocumentSheetConfig.unregisterSheet(Item, "core", foundry.appv1.sheets.ItemSheet);
+  DocumentSheetConfig.registerSheet(Item, "ffg", ItemSheetFFGV2, {
+    makeDefault: true,
+    label: "Star Wars FFG Item Sheet",
+  });
 
   // Add utilities to the global scope, this can be useful for macro makers
   window.DicePoolFFG = DicePoolFFG;
@@ -1199,7 +1204,7 @@ Hooks.once("ready", async () => {
   const isAlpha = game.system.version.includes("alpha");
 
   if (isAlpha && game.user.isGM) {
-    let d = new Dialog({
+    let d = new LegacyDialogV2({
       title: "Warning",
       content: "<p>This is an alpha release of the system.  It is not recommended for regular gameplay. <b>There will be bugs.</b> <br><br>Check Discord or the GitHub repo for the latest stable version.</p>",
       buttons: {

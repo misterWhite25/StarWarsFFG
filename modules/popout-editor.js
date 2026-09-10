@@ -1,10 +1,11 @@
+import { FormApplicationV2 } from "./applications/form-application-v2.js";
 import {migrateDataToSystem} from "./helpers/migration.js";
 
 /**
  * A specialized form used to pop out the editor.
  * @extends {FormApplication}
  */
-export default class PopoutEditor extends FormApplication {
+export default class PopoutEditor extends FormApplicationV2 {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {

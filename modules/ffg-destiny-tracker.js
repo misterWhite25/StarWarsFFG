@@ -1,3 +1,4 @@
+import { FormApplicationV2 } from "./applications/form-application-v2.js";
 import { GroupManager } from "./groupmanager-ffg.js";
 
 /**
@@ -8,7 +9,7 @@ import { GroupManager } from "./groupmanager-ffg.js";
  *
  *
  */
-export default class DestinyTracker extends FormApplication {
+export default class DestinyTracker extends FormApplicationV2 {
   constructor(object={}, options={}) {
     super(object, options);
 

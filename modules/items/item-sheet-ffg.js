@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import PopoutEditor from "../popout-editor.js";
 import Helpers from "../helpers/common.js";
 import ModifierHelpers from "../helpers/modifiers.js";
@@ -519,6 +520,11 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+    return this._activateFFGListeners(html);
+  }
+
+  /** Bind Star Wars FFG listeners independently from the V1 sheet lifecycle. */
+  _activateFFGListeners(html) {
     html.find(".ffg-purchase").click(async (ev) => {
       if(this.actor && !this.actor?.verifyEditModeIsNotEnabled()) return;
       await this._handleItemBuy(ev)
@@ -701,8 +707,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     }
 
     // Everything below here is only needed if the sheet is editable
-    if (this.object.flags.readonly) this.options.editable = false;
-    if (!this.options.editable) return;
+    if (!this.isEditable) return;
 
     // Add or Remove Attribute
     html.find(".attributes").on("click", ".attribute-control", ModifierHelpers.onClickAttributeControl.bind(this));
@@ -984,7 +989,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       if (item) {
         const title = `${this.object.name} ${item.name}`;
 
-        new Dialog(
+        new LegacyDialogV2(
           {
             title,
             content: {
@@ -1246,7 +1251,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     }
     const baseName = $(li).data("base-item-name");
     const talent = $(".talent-name", li).data("name");
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Talent.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Talent.ConfirmText", {cost: cost, talent: talent}),
@@ -1282,7 +1287,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     const action = $(event.currentTarget).data("action");
     const sourceIndex = $(event.currentTarget).data("index");
     if (action === "add") {
-      const addSource = new Dialog({
+      const addSource = new LegacyDialogV2({
         title: game.i18n.localize("SWFFG.Meta.Sources.AddSource.Title"),
         content: `
           <p>${game.i18n.localize("SWFFG.Meta.Sources.AddSource.Book")} :</p>
@@ -1323,7 +1328,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     const action = $(event.currentTarget).data("action");
     const tagIndex = $(event.currentTarget).data("index");
     if (action === "add") {
-      const addTag = new Dialog({
+      const addTag = new LegacyDialogV2({
         title: game.i18n.localize("SWFFG.Meta.Tags.AddTag.Title"),
         content: `
           <p>${game.i18n.localize("SWFFG.Meta.Tags.AddTag.Tag")} :</p>
@@ -1381,7 +1386,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     let totalXP;
     let AEState;
     let availableXPToLog;
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.FP.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.FP.ConfirmText", {cost: cost, upgrade: upgradeName}),
@@ -1433,7 +1438,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     let totalXP;
     let AEState;
     let availableXPToLog;
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SA.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.SA.ConfirmText", {cost: cost, upgrade: upgradeName}),
@@ -1487,7 +1492,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     let totalXP;
     let AEState;
     let availableXPToLog;
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Specialization.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Specialization.ConfirmText", {cost: cost, upgrade: upgradeName}),

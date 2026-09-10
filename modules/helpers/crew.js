@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import {get_dice_pool} from "./dice-helpers.js";
 import {DicePoolFFG} from "../dice/pool.js";
 import DiceHelpers from "../helpers/dice-helpers.js";
@@ -291,7 +292,7 @@ export async function selectRoles(vehicle, crew_member_id) {
     }
   );
 
-  new Dialog(
+  new LegacyDialogV2(
     {
       title: game.i18n.localize("SWFFG.Crew.Title"),
       content: content,

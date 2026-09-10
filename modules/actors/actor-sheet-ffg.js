@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
@@ -100,7 +101,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if (this.actor.type === "character" && ["talent", "specialization", "signatureability", "forcepower"].includes(itemData.type)) {
         const cost = await this.calcPurchasePrice(itemData);
         const availableXP = this.actor.system.experience.available;
-          new Dialog(
+          new LegacyDialogV2(
             {
               title: game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}),
               buttons: {
@@ -752,7 +753,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if (game.settings.get("starwarsffg", "HealingItemAction") === '0') {
           // prompt
           // show a prompt asking what the user wants to do
-          new Dialog(
+          new LegacyDialogV2(
               {
                   title: game.i18n.localize("SWFFG.MedicalItemNameUseTitle"),
                   buttons: {
@@ -1038,7 +1039,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         }
       );
 
-      new Dialog(
+      new LegacyDialogV2(
         {
           title: game.i18n.localize("SWFFG.Crew.Title"),
           content: content,
@@ -1074,7 +1075,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
       const title = `${game.i18n.localize("SWFFG.TalentSource")} ${item.name}`;
 
-      new Dialog(
+      new LegacyDialogV2(
         {
           title: title,
           content: {
@@ -1281,7 +1282,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         }
 
         // actually show the dialog
-        await new Dialog(
+        await new LegacyDialogV2(
           {
             title: game.i18n.localize("SWFFG.Crew.Roles.Gunner.Title"),
             content: `<p>${game.i18n.localize("SWFFG.Crew.Roles.Gunner.Description")}</p>`,
@@ -1342,7 +1343,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           }
         }
         // actually show the dialog
-        await new Dialog(
+        await new LegacyDialogV2(
           {
             title: game.i18n.localize("SWFFG.Crew.Roles.Weapon.Title"),
             content: `<p>${game.i18n.localize("SWFFG.Crew.Roles.Weapon.Description")}</p>`,
@@ -1712,7 +1713,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       label = CONFIG.FFG.skills[ability].label;
     }
 
-    new Dialog(
+    new LegacyDialogV2(
       {
         title: `${game.i18n.localize("SWFFG.SkillCharacteristicDialogTitle")} ${game.i18n.localize(label)}`,
         content: {
@@ -1754,7 +1755,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
   _onCreateSkill(a) {
     const group = $(a).parent().data("type");
 
-    new Dialog(
+    new LegacyDialogV2(
       {
         title: `${game.i18n.localize("SWFFG.SkillAddDialogTitle")}`,
         content: {
@@ -1821,7 +1822,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
       return;
     }
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
       {
         title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SkillRank.ConfirmTitle"),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.SkillRank.Text", {cost: cost, skill: skill, old: curRank, new: curRank + 1}),
@@ -1897,7 +1898,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     CONFIG.logger.debug(`refunding ${mode} for ${purchaseId}`);
     const purchasedEffect = this.object.getEmbeddedCollection("ActiveEffect").find(ae => ae.name.includes(purchaseId));
     if (purchasedEffect) {
-      const dialog = new Dialog(
+      const dialog = new LegacyDialogV2(
         {
           title: game.i18n.localize("SWFFG.Actors.Sheets.Refund.DialogTitle"),
           content: game.i18n.localize("SWFFG.Actors.Sheets.Refund.Text"),
@@ -2515,7 +2516,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       return;
     }
 
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
     {
         title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.DialogTitle", {itemType: itemType}),
         content: content,
@@ -2589,7 +2590,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
       return;
     }
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
       {
         title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmTitle", {characteristic: characteristic}),
         content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmText", {cost: cost, level: characteristicValue + 1, characteristic: characteristic}),
@@ -2647,7 +2648,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     <input type="text" id="adjustReason" name="adjustReason" value="${game.i18n.localize("SWFFG.XP.Adjust.Window.Default")}" />
     `;
 
-    let d = new Dialog({
+    let d = new LegacyDialogV2({
       title: game.i18n.localize("SWFFG.XP.Adjust.Window.Title"),
       content: content,
       buttons: {
@@ -2716,7 +2717,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     </div>
     `;
 
-    let d = new Dialog({
+    let d = new LegacyDialogV2({
       title: game.i18n.localize("SWFFG.XP.Import.Title"),
       content: content,
       buttons: {
@@ -2785,7 +2786,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     const action = $(event.currentTarget).data("action");
     const sourceIndex = $(event.currentTarget).data("index");
     if (action === "add") {
-      const addSource = new Dialog({
+      const addSource = new LegacyDialogV2({
         title: game.i18n.localize("SWFFG.Meta.Sources.AddSource.Title"),
         content: `
           <p>${game.i18n.localize("SWFFG.Meta.Sources.AddSource.Book")} :</p>
@@ -2832,7 +2833,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     const action = $(event.currentTarget).data("action");
     const tagIndex = $(event.currentTarget).data("index");
     if (action === "add") {
-      const addTag = new Dialog({
+      const addTag = new LegacyDialogV2({
         title: game.i18n.localize("SWFFG.Meta.Tags.AddTag.Title"),
         content: `
           <p>${game.i18n.localize("SWFFG.Meta.Tags.AddTag.Tag")} :</p>

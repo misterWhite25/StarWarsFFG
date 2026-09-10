@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
 import EffectHelpers from "./helpers/effects.js";
 import ModifierHelpers from "./helpers/modifiers.js";
 import { ensureActiveEffectsV14 } from "./migration/active-effects-v14.js";
@@ -426,7 +427,7 @@ async function migrateTo1907() {
 
 async function warnUnsupportedWorld() {
   const content = game.i18n.localize("SWFFG.Migrate.Unsupported.Text");
-  new Dialog(
+  new LegacyDialogV2(
     {
       title: game.i18n.localize("SWFFG.Migrate.Unsupported.Title"),
       content: content,

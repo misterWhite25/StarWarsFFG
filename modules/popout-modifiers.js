@@ -1,10 +1,11 @@
+import { FormApplicationV2 } from "./applications/form-application-v2.js";
 /**
  * A specialized form used to pop out the editor.
  * @extends {FormApplication}
  */
 
 import ModifierHelpers from "./helpers/modifiers.js";
-export default class PopoutModifiers extends FormApplication {
+export default class PopoutModifiers extends FormApplicationV2 {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {

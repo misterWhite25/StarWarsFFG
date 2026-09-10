@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import EffectHelpers from "./effects.js";
 import ActorHelpers, {xpLogEarn, xpLogSpend} from "./actor-helpers.js";
 import DiceHelpers from "./dice-helpers.js";
@@ -1480,7 +1481,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async showPurchaseConfirmation(itemType, content) {
-    const dialog = new Dialog(
+    const dialog = new LegacyDialogV2(
       {
         title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.DialogTitle", {itemType: itemType}),
         content: content,

@@ -1,7 +1,8 @@
+import { FormApplicationV2 } from "../applications/form-application-v2.js";
 import ItemBaseFFG from "../items/itembase-ffg.js";
 import ImportHelpers from "./import-helpers.js";
 
-export default class SWAImporter extends FormApplication {
+export default class SWAImporter extends FormApplicationV2 {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {

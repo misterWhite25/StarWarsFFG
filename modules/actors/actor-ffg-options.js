@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import ActorHelpers from "../helpers/actor-helpers.js";
 
 export default class ActorOptions {
@@ -20,7 +21,7 @@ export default class ActorOptions {
   handler(event) {
     const title = `${game.i18n.localize("SWFFG.CharacterSheet")} ${game.i18n.localize("SWFFG.Options")}: ${this.data.actor.name}`;
 
-    new Dialog(
+    new LegacyDialogV2(
       {
         title,
         content: {

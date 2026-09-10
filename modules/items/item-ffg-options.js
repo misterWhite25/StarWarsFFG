@@ -1,3 +1,4 @@
+import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 export default class ItemOptions {
   constructor(data, html) {
     this.data = data;
@@ -17,7 +18,7 @@ export default class ItemOptions {
   handler(event) {
     const title = `${game.i18n.localize("SWFFG.ItemSheet")} ${game.i18n.localize("SWFFG.Options")}: ${this.data.item.name}`;
 
-    new Dialog(
+    new LegacyDialogV2(
       {
         title,
         content: {
