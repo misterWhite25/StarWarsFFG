@@ -5,19 +5,14 @@ import vm from "node:vm";
 
 // Exercise the real system modules without requiring a licensed Foundry server.
 // The stubs implement the external document boundary; browser tests still validate core integration.
-async function loadSystem(generation = 14, defaultMode = "blind") {
+async function loadSystem(defaultMode = "blind") {
   const created = [];
   const settingsRead = [];
   class ChatMessageStub {
     constructor(data) { this.data = { whisper: [], blind: false, ...data }; }
     applyMode(mode) {
-      assert.equal(generation, 14, "v13 must use applyRollMode");
       assert.ok(['public', 'ic', 'gm', 'blind', 'self'].includes(mode), 'must pass a registered v14 message mode');
       this.setVisibility(mode);
-    }
-    applyRollMode(mode) {
-      assert.equal(generation, 13, "v14 must use applyMode");
-      this.setVisibility({ publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode]);
     }
     setVisibility(mode) {
       if (mode === 'public') this.data.whisper = [];
@@ -34,18 +29,16 @@ async function loadSystem(generation = 14, defaultMode = "blind") {
   }
   const context = vm.createContext({
     game: {
-      release: { generation },
+      release: { generation: 14 },
       user: { id: "player-id" },
       settings: { get(scope, key) {
         settingsRead.push(`${scope}.${key}`);
-        assert.equal(key, generation === 14 ? "messageMode" : "rollMode");
+        assert.equal(key, "messageMode");
         return defaultMode;
       } },
     },
     CONFIG: { sounds: { dice: "dice.ogg" } },
-    CONST: generation === 14
-      ? { ACTIVE_EFFECT_CHANGE_TYPES: { add: 20 } }
-      : { ACTIVE_EFFECT_MODES: { ADD: 2 } },
+    CONST: { ACTIVE_EFFECT_CHANGE_TYPES: { add: 20 } },
     foundry: { utils: { mergeObject: (base, extra) => ({ ...base, ...extra }) } },
     Roll: RollStub,
     getDocumentClass: () => ChatMessageStub,
@@ -113,44 +106,27 @@ test('explicit message mode overrides legacy options and the saved default', asy
   assert.deepEqual(settingsRead, []);
 });
 
-test('v13 still uses its saved private roll mode', async () => {
-  const { roll, settingsRead } = await loadSystem(13, 'gmroll');
-  const data = await roll.toMessage({}, { create: false });
-  assert.deepEqual(data.whisper, ['gm-id']);
-  assert.deepEqual(settingsRead, ['core.rollMode']);
+test('legacy macro roll mode names are normalized to V14 message modes', async () => {
+  const { roll } = await loadSystem('blind');
+  const data = await roll.toMessage({ whisper: ['gm-id'] }, { rollMode: 'publicroll', create: false });
+  assert.deepEqual(data.whisper, []);
+  assert.equal(data.blind, false);
 });
 
-test('explicit public rolls override a saved blind mode and existing whisper recipients', async () => {
-  for (const generation of [13, 14]) {
-    const { roll } = await loadSystem(generation, generation === 14 ? 'blind' : 'blindroll');
-    const data = await roll.toMessage({ whisper: ['gm-id'] }, { rollMode: 'publicroll', create: false });
-    assert.deepEqual(data.whisper, []);
-    assert.equal(data.blind, false);
-  }
+test('the legacy roll sentinel uses the saved V14 message mode', async () => {
+  const { roll } = await loadSystem('self');
+  const data = await roll.toMessage({}, { rollMode: 'roll', create: false });
+  assert.deepEqual(data.whisper, ['player-id']);
 });
 
-test('the legacy roll sentinel respects the saved private mode in both generations', async () => {
-  for (const generation of [13, 14]) {
-    const { roll } = await loadSystem(generation, generation === 14 ? 'self' : 'selfroll');
-    const data = await roll.toMessage({}, { rollMode: 'roll', create: false });
-    assert.deepEqual(data.whisper, ['player-id']);
-  }
+test('private obligation rolls use the V14 Roll option', async () => {
+  const { chat } = await loadSystem();
+  assert.deepEqual(JSON.parse(JSON.stringify(chat.getRollMessageOptions('gm'))), { messageMode: 'gm' });
 });
 
-test('private obligation rolls supply the appropriate core Roll option in both generations', async () => {
-  for (const generation of [13, 14]) {
-    const { chat } = await loadSystem(generation);
-    const options = JSON.parse(JSON.stringify(chat.getRollMessageOptions('gm')));
-    assert.deepEqual(options, generation === 14 ? { messageMode: 'gm' } : { rollMode: 'gmroll' });
-  }
-});
-
-test('new effects use the modern type field, with the legacy format retained on v13', async () => {
-  for (const generation of [13, 14]) {
-    const { effects } = await loadSystem(generation);
-    const change = JSON.parse(JSON.stringify(effects.changeType()));
-    assert.deepEqual(change, generation === 14 ? { type: 'add' } : { mode: 2 });
-  }
+test('new effects use the V14 string type', async () => {
+  const { effects } = await loadSystem();
+  assert.deepEqual(JSON.parse(JSON.stringify(effects.changeType())), { type: 'add' });
 });
 
 test('v14 effect display uses prepared duration text without mutating the original change', async () => {
@@ -174,10 +150,8 @@ test('the final effect phase does not count initial Force Rating bonuses a secon
     applyActiveEffects(phase) { this.phases.push(phase); }
   }
   const context = vm.createContext({ Actor: ActorStub, game: {release: {generation: 14}}, structuredClone });
-  const version = new vm.SourceTextModule(await readFile(new URL('../modules/compatibility/foundry-version.js', import.meta.url), 'utf8'), {context});
-  await version.link(() => { throw new Error('Unexpected version helper import'); });
   const effects = new vm.SourceTextModule(await readFile(new URL('../modules/compatibility/active-effects.js', import.meta.url), 'utf8'), {context});
-  await effects.link(() => version);
+  await effects.link(() => { throw new Error('Unexpected Active Effect helper import'); });
   const module = new vm.SourceTextModule(await readFile(new URL('../modules/actors/actor-ffg.js', import.meta.url), 'utf8'), { context });
   await module.link(specifier => specifier.includes('/compatibility/') ? effects : new vm.SyntheticModule(['default'], function () {
     this.setExport('default', class {});

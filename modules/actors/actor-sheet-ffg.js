@@ -1,4 +1,5 @@
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
@@ -70,7 +71,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const itemData = item.toObject(false);
       // Keep adjusted item values, but serialize effects from their source data:
       // v14 prepares a permanent duration as Infinity, which cannot be persisted.
-      if (game.release.generation >= 14) itemData.effects = item.effects.map(effect => effect.toObject());
+      itemData.effects = item.effects.map(effect => effect.toObject());
 
       // Handle item sorting within the same Actor
       if ( this.actor.uuid === item.parent?.uuid ) return this._onSortItem(event, itemData);
@@ -1493,7 +1494,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       event.preventDefault();
       const a = event.currentTarget;
       const id = a.dataset["id"];
-      this.object.update({ "system.dutylist": { ["-=" + id]: null } });
+      this.object.update({ "system.dutylist": { [id]: deleteDataField() } });
     });
 
     html.find(".force-conflict .enable-dice-pool").on("click", async (event) => {
@@ -1963,7 +1964,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       ui.notifications.info("You can only remove custom skills");
       return;
     }
-    await this.object.update({ [`system.skills.-=${ability}`]: null });
+    await this.object.update({ [`system.skills.${ability}`]: deleteDataField() });
   }
 
   /**

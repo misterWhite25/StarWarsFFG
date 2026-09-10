@@ -1,4 +1,5 @@
 import { FormApplicationV2 } from "./applications/form-application-v2.js";
+import { deleteDataField, isDataFieldDeletion } from "./compatibility/data-operators.js";
 /**
  * A specialized form used to pop out the editor.
  * @extends {FormApplication}
@@ -74,7 +75,7 @@ export default class PopoutModifiers extends FormApplicationV2 {
     const formAttrs = foundry.utils.expandObject(formData)?.data?.attributes || {};
     const attributes = Object.values(formAttrs).reduce((obj, v) => {
       let k = v["key"].trim();
-      if (/[\s\.]/.test(k)) return ui.notifications.error("Attribute keys may not contain spaces or periods");
+      if (/[\s.]/.test(k)) return ui.notifications.error("Attribute keys may not contain spaces or periods");
       delete v["key"];
       obj[k] = v;
       return obj;
@@ -83,7 +84,7 @@ export default class PopoutModifiers extends FormApplicationV2 {
     // Remove attributes which are no longer used
     if (this.object.system?.attributes) {
       for (let k of Object.keys(this.object.system.attributes)) {
-        if (!attributes.hasOwnProperty(k)) attributes[`-=${k}`] = null;
+        if (!Object.hasOwn(attributes, k)) attributes[k] = deleteDataField();
       }
     }
 
@@ -97,7 +98,7 @@ export default class PopoutModifiers extends FormApplicationV2 {
       // Remove attributes which are no longer used
       if (this.object.parent.system.upgrades[this.object.keyname].attributes) {
         for (let k of Object.keys(this.object.parent.system.upgrades[this.object.keyname].attributes)) {
-          if (!attributes.hasOwnProperty(k)) attributes[`-=${k}`] = null;
+          if (!Object.hasOwn(attributes, k)) attributes[k] = deleteDataField();
         }
       }
 
@@ -121,8 +122,8 @@ export default class PopoutModifiers extends FormApplicationV2 {
       // Remove attributes which are no longer used
       if (this.object.parent.system.talents[this.object.keyname].attributes) {
         for (let k of Object.keys(this.object.parent.system.talents[this.object.keyname].attributes)) {
-          if (!attributes.hasOwnProperty(k)) {
-            attributes[`-=${k}`] = null;
+          if (!Object.hasOwn(attributes, k)) {
+            attributes[k] = deleteDataField();
           }
         }
       }
@@ -151,7 +152,7 @@ export default class PopoutModifiers extends FormApplicationV2 {
       const syncFormData = foundry.utils.deepClone(formData);
       if (syncFormData?.data?.attributes) {
         for (const attr of Object.keys(syncFormData.data.attributes)) {
-          if (attr.startsWith("-=")) {
+          if (isDataFieldDeletion(syncFormData.data.attributes[attr])) {
             delete syncFormData.data.attributes[attr];
           }
         }

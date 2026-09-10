@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+class ForcedDeletion {}
+globalThis.foundry = {data: {operators: {ForcedDeletion}}};
+
 import {
   activeEffectMigrationUpdate,
   activeEffectNeedsMigration,
@@ -60,7 +63,7 @@ function world() {
         this.calls += 1;
         if (this.fail) throw new Error("simulated write failure");
         source.system.changes = structuredClone(update["system.changes"]);
-        if (update["-=changes"] === null) delete source.changes;
+        if (update.changes instanceof ForcedDeletion) delete source.changes;
         for (const key of ["duration", "start", "origin"]) if (Object.hasOwn(update, key)) source[key] = update[key];
       },
     };
@@ -136,10 +139,9 @@ test("malformed source and unreadable writable packs are reported and prevent ch
   } finally { delete globalThis.game; }
 });
 
-test("only the active GM on v14 can run the persisted migration", async () => {
-  for (const [generation, isGM, id] of [[13, true, "gm"], [14, false, "player"], [14, true, "other-gm"]]) {
+test("only the active V14 GM can run the persisted migration", async () => {
+  for (const [isGM, id] of [[false, "player"], [true, "other-gm"]]) {
     const fixture = world();
-    fixture.game.release.generation = generation;
     fixture.game.user = {id, isGM};
     globalThis.game = fixture.game;
     try {
@@ -169,7 +171,7 @@ test("removes the legacy top-level changes field", () => {
   const update = activeEffectMigrationUpdate({
     changes: [{key: "system.stats.soak.value", mode: 2, value: 1}],
   });
-  assert.equal(update["-=changes"], null);
+  assert.ok(update.changes instanceof ForcedDeletion);
 });
 
 test("rejects malformed effect source", () => {

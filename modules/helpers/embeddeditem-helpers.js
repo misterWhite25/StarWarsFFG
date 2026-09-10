@@ -59,10 +59,8 @@ export default class EmbeddedItemHelpers {
   static async updateRealObject(temporaryItem, data) {
     // TODO: drop parents once the refactor is done
     const {realItem, flagHierarchy: parents} = await EmbeddedItemHelpers._getRealItem(temporaryItem);
-    // this code was mostly written by Phind
-    // removing a key from a dict in Foundry requires submitting it with a new key of `-=key` and a value of null
-    // without explicitly replacing values, we end up duplicating entries instead of removing the one
-    // so instead, we go and manually remove any mods which have been deleted
+    // Legacy worlds and old form submissions may still contain `-=key` markers.
+    // Remove those markers while rebuilding the current data so they are never persisted again.
 
     // find any deleted attributes
     const deleted_keys = EmbeddedItemHelpers.findKeysIncludingStringRecursively(
@@ -81,7 +79,7 @@ export default class EmbeddedItemHelpers {
           cur_key,
       );
     });
-    // this is the end of the de-duplicating -=key stuff
+    // End legacy data cleanup.
 
     if (!realItem) {
       ui.notifications.error("Could not locate the real item, aborting action");

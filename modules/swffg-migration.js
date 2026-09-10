@@ -1,4 +1,5 @@
 import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
+import { deleteDataField } from "./compatibility/data-operators.js";
 import EffectHelpers from "./helpers/effects.js";
 import ModifierHelpers from "./helpers/modifiers.js";
 import { ensureActiveEffectsV14 } from "./migration/active-effects-v14.js";
@@ -286,7 +287,7 @@ async function migrateTo1907() {
                   // the attribute is using an older form, update it to the new naming scheme
                   const nk = `attr${new Date().getTime()}`;
                   item.system.talents[`talent${i}`].attributes[nk] = attributes[attribute];
-                  item.system.talents[`talent${i}`].attributes[`-=${attribute}`] = null;
+                  item.system.talents[`talent${i}`].attributes[attribute] = deleteDataField();
                   delete item.system.talents[`talent${i}`].attributes[attribute];
                   // ensure further keys have a new entry
                   await new Promise(r => setTimeout(r, 1));
@@ -327,7 +328,7 @@ async function migrateTo1907() {
                   // the attribute is using an older form, update it to the new naming scheme
                   const nk = `attr${new Date().getTime()}`;
                   item.system.upgrades[`upgrade${i}`].attributes[nk] = attributes[attribute];
-                  item.system.upgrades[`upgrade${i}`].attributes[`-=${attribute}`] = null;
+                  item.system.upgrades[`upgrade${i}`].attributes[attribute] = deleteDataField();
                   delete item.system.upgrades[`upgrade${i}`].attributes[attribute];
                   // ensure further keys have a new entry
                   await new Promise(r => setTimeout(r, 1));
@@ -370,7 +371,7 @@ async function migrateTo1907() {
                   // the attribute is using an older form, update it to the new naming scheme
                   const nk = `attr${new Date().getTime()}`;
                   item.system.upgrades[`upgrade${i}`].attributes[nk] = attributes[attribute];
-                  item.system.upgrades[`upgrade${i}`].attributes[`-=${attribute}`] = null;
+                  item.system.upgrades[`upgrade${i}`].attributes[attribute] = deleteDataField();
                   delete item.system.upgrades[`upgrade${i}`].attributes[attribute];
                   // ensure further keys have a new entry
                   await new Promise(r => setTimeout(r, 1));

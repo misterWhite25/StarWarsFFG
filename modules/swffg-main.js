@@ -1,4 +1,5 @@
 import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
+import { deleteDataField } from "./compatibility/data-operators.js";
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "./compatibility/active-effects.js";
 import EffectHelpers from "./helpers/effects.js";
 /**
@@ -108,21 +109,15 @@ Hooks.once("init", async function () {
   Object.assign(CONFIG.Item.dataModels, itemDataModels);
   CONFIG.ActiveEffect.documentClass = ActiveEffectFFG;
 
-  if (game.release.generation >= 14) {
-    // Keep FFG's once/combat expiry alongside the core v14 effect changes.
-    CONFIG.ActiveEffect.dataModels.base = class extends foundry.data.ActiveEffectTypeDataModel {
-      static defineSchema() {
-        return {
-          ...super.defineSchema(),
-          duration: new foundry.data.fields.StringField({ required: false, nullable: true, initial: null }),
-        };
-      }
-    };
-  }
-
-  // we do not want the legacy active effect transfer mode
-  // also, reeeeeeeeeeeeeeeee
-  if (game.release.generation < 14) CONFIG.ActiveEffect.legacyTransferral = false;
+  // Keep FFG's once/combat expiry alongside the core V14 effect changes.
+  CONFIG.ActiveEffect.dataModels.base = class extends foundry.data.ActiveEffectTypeDataModel {
+    static defineSchema() {
+      return {
+        ...super.defineSchema(),
+        duration: new foundry.data.fields.StringField({ required: false, nullable: true, initial: null }),
+      };
+    }
+  };
 
   // Define custom Roll class
   CONFIG.Dice.rolls.push(CONFIG.Dice.rolls[0]);
@@ -1033,9 +1028,8 @@ Hooks.on("renderChatInput", (app, html, data) => {
       rollButton.setAttribute("aria-label", game.i18n.localize("SWFFG.RollingDefaultTitle"));
       const rollPrivacyElement = document.querySelector("#message-modes, #roll-privacy");
       if (!rollPrivacyElement) return;
-      // v14's split-button controls message modes, so keep the dice button beside it.
-      if (game.release.generation >= 14) rollPrivacyElement.after(rollButton);
-      else rollPrivacyElement.appendChild(rollButton);
+      // V14's split-button controls message modes, so keep the dice button beside it.
+      rollPrivacyElement.after(rollButton);
 
       rollButton.onclick = async function () {
         const dicePool = new DicePoolFFG();
@@ -1080,7 +1074,7 @@ Hooks.on("renderActorDirectory", (app, html) => {
 Hooks.on("renderCompendiumDirectory", (app, html, data) => {
   if (game.user.isGM) {
     let div;
-    // Native DOM (V13+)
+    // Native DOM
     div = document.createElement("div");
     div.className = "og-character-import";
     div.innerHTML = `<hr><h4>Importers</h4>
@@ -1157,10 +1151,10 @@ function isCurrentVersionNullOrBlank(currentVersion) {
   return currentVersion === "null" || currentVersion === '' || currentVersion === null;
 }
 
-// Migrate saved v13 sheet selections to their ApplicationV2 counterparts.
+// Migrate saved legacy sheet selections to their ApplicationV2 counterparts.
 // Foundry stores both a world default per Actor type and optional per-Actor overrides.
 async function migrateV14ActorSheets() {
-  if ((game.release.generation < 14) || !game.user.isGM) return;
+  if (!game.user.isGM) return;
 
   const replacements = {
     "ffg.ActorSheetFFG": "ffg.ActorSheetFFGV2",
@@ -1249,7 +1243,7 @@ Hooks.once("ready", async () => {
 
             Object.keys(actor.system.skills).forEach((skill) => {
               if (!skills.skills[skill] && !actor.system.skills?.[skill]?.nontheme) {
-                skills.skills[`-=${skill}`] = null;
+                skills.skills[skill] = deleteDataField();
               } else {
                 skills.skills[skill] = {
                   ...skills.skills[skill],

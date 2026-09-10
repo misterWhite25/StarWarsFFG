@@ -75,3 +75,21 @@ test("v14 removed application and collection aliases are not used", async () => 
   assert.match(tours, /\.bringToFront\s*\(/);
   assert.doesNotMatch(main, /game\.macros\.entities/);
 });
+
+test("persisted field deletions use native V14 operators", async () => {
+  const paths = [
+    "modules/swffg-main.js",
+    "modules/swffg-migration.js",
+    "modules/popout-modifiers.js",
+    "modules/actors/actor-sheet-ffg.js",
+    "modules/helpers/actor-helpers.js",
+    "modules/helpers/item-helpers.js",
+    "modules/helpers/modifiers.js",
+    "modules/items/item-editor.js",
+    "modules/items/item-sheet-ffg.js",
+    "modules/importer/import-helpers.js",
+    "modules/migration/active-effects-v14.js",
+  ];
+  for (const path of paths) assert.doesNotMatch(await read(path), /[`"']-=\$?\{/);
+  assert.match(await read("modules/compatibility/data-operators.js"), /ForcedDeletion/);
+});

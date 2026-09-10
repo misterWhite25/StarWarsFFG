@@ -1,4 +1,5 @@
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
 import EffectHelpers from "../helpers/effects.js";
 import Helpers from "../helpers/common.js";
 import {migrateDataToSystem} from "../helpers/migration.js";
@@ -2438,7 +2439,7 @@ export default class ImportHelpers {
           // Remove and repopulate all modifiers
           if (entry.system?.attributes) {
             for (let k of Object.keys(entry.system.attributes)) {
-              if (!updateData.data.attributes.hasOwnProperty(k)) updateData.data.attributes[`-=${k}`] = null;
+              if (!updateData.data.attributes.hasOwnProperty(k)) updateData.data.attributes[k] = deleteDataField();
             }
           }
         }
@@ -2446,7 +2447,7 @@ export default class ImportHelpers {
           // Remove and repopulate all specializations
           if (entry.system?.specializations) {
             for (let k of Object.keys(entry.system.specializations)) {
-              if (!updateData.data.specializations.hasOwnProperty(k)) updateData.data.specializations[`-=${k}`] = null;
+              if (!updateData.data.specializations.hasOwnProperty(k)) updateData.data.specializations[k] = deleteDataField();
             }
           }
         }
@@ -2454,7 +2455,7 @@ export default class ImportHelpers {
           // Remove and repopulate all talents
           if (entry.system?.talents) {
             for (let k of Object.keys(entry.system.talents)) {
-              if (!updateData.data.talents.hasOwnProperty(k)) updateData.data.talents[`-=${k}`] = null;
+              if (!updateData.data.talents.hasOwnProperty(k)) updateData.data.talents[k] = deleteDataField();
             }
           }
         }
@@ -2462,7 +2463,7 @@ export default class ImportHelpers {
           // Remove and repopulate all abilities
           if (entry.system?.abilities) {
             for (let k of Object.keys(entry.system.abilities)) {
-              if (!updateData.data.abilities.hasOwnProperty(k)) updateData.data.abilities[`-=${k}`] = null;
+              if (!updateData.data.abilities.hasOwnProperty(k)) updateData.data.abilities[k] = deleteDataField();
             }
           }
         }

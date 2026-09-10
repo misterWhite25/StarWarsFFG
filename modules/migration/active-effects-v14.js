@@ -1,7 +1,7 @@
 import {
   activeEffectCreateData,
 } from "../compatibility/active-effects.js";
-import { foundryGeneration } from "../compatibility/foundry-version.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
 
 export const ACTIVE_EFFECT_MIGRATION_VERSION = 1;
 
@@ -45,7 +45,7 @@ export function normalizeActiveEffectSource(source) {
       throw new TypeError("Active Effect changes must be an array");
     }
   }
-  const normalized = activeEffectCreateData(clone(source), 14);
+  const normalized = activeEffectCreateData(clone(source));
   migrateDuration(source, normalized);
   return normalized;
 }
@@ -59,7 +59,7 @@ export function activeEffectMigrationUpdate(effect) {
   const source = clone(effect?.toObject ? effect.toObject() : effect?._source ?? effect);
   const normalized = normalizeActiveEffectSource(source);
   const update = {"system.changes": normalized.system.changes};
-  if (Array.isArray(source?.changes)) update["-=changes"] = null;
+  if (Array.isArray(source?.changes)) update.changes = deleteDataField();
   if (normalized.duration) update.duration = normalized.duration;
   if (normalized.start) update.start = normalized.start;
   if (Object.hasOwn(normalized, "origin")) update.origin = normalized.origin;
@@ -111,7 +111,7 @@ async function migrateActor(actor, report) {
  */
 export async function migrateActiveEffectsV14() {
   const report = {migrated: [], skipped: [], failed: [], lockedPacks: []};
-  if (foundryGeneration() < 14 || !game.user?.isGM || game.users?.activeGM?.id !== game.user.id) return report;
+  if (!game.user?.isGM || game.users?.activeGM?.id !== game.user.id) return report;
 
   for (const actor of game.actors ?? []) await migrateActor(actor, report);
   for (const item of game.items ?? []) await migrateItem(item, report);
@@ -145,7 +145,7 @@ export async function migrateActiveEffectsV14() {
 
 /** Advance the checkpoint only after every writable document was handled successfully. */
 export async function ensureActiveEffectsV14() {
-  if (foundryGeneration() < 14 || !game.user?.isGM || game.users?.activeGM?.id !== game.user.id) return null;
+  if (!game.user?.isGM || game.users?.activeGM?.id !== game.user.id) return null;
   if (game.settings.get("starwarsffg", "activeEffectMigrationVersion") >= ACTIVE_EFFECT_MIGRATION_VERSION) return null;
   const report = await migrateActiveEffectsV14();
   if (!report.failed.length) {

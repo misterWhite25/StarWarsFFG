@@ -1,4 +1,5 @@
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
 import EffectHelpers from "./effects.js";
 import PopoutModifiers from "../popout-modifiers.js";
 
@@ -718,7 +719,7 @@ export default class ModifierHelpers {
       for (let k of Object.keys(item.system.attributes)) {
         const match = existing.find(i => i.name === k);
         if (!attributes.hasOwnProperty(k)) {
-          attributes[`-=${k}`] = null;
+          attributes[k] = deleteDataField();
           // delete the matching active effect
           if (match) {
             toDelete.push(match.id);

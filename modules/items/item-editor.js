@@ -1,4 +1,5 @@
 import { FormApplicationV2 } from "../applications/form-application-v2.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
 import EffectHelpers from "../helpers/effects.js";
 import ItemHelpers from "../helpers/item-helpers.js";
 import ModifierHelpers from "../helpers/modifiers.js";
@@ -333,7 +334,7 @@ export class itemEditor extends FormApplicationV2  {
           for (let modKey of Object.keys(attachment.system.attributes)) {
             if (!Object.keys(formData.system.attributes).includes(modKey)) {
               CONFIG.logger.debug(`>> Detected key ${modKey} was removed, attempting to locate matching active effect`);
-              formData.system.attributes[`-=${modKey}`] = null;
+              formData.system.attributes[modKey] = deleteDataField();
               delete attachment.system.attributes[modKey];
               // delete the active effect
               const match = existingActiveEffects.find(i => i.name === modKey);
@@ -472,7 +473,7 @@ export class itemEditor extends FormApplicationV2  {
           // iterate over the mods on the existing item and remove them if they are not present in the new data
           for (let modKey of Object.keys(modifier.system.attributes)) {
             if (!Object.keys(formData.system.attributes).includes(modKey)) {
-              formData.system.attributes[`-=${modKey}`] = null;
+              formData.system.attributes[modKey] = deleteDataField();
               delete modifier.system.attributes[modKey];
               // delete the active effect
               const match = existingActiveEffects.find(i => i.name === modKey);
@@ -676,7 +677,7 @@ export class talentEditor extends itemEditor {
     if (Object.keys(this.data.sourceObject.system.talents[this.data.talentId]).includes("attributes") && this.data.sourceObject.system.talents[this.data.talentId].attributes !== undefined) {
       for (const attrKey of Object.keys(this.data.sourceObject.system.talents[this.data.talentId].attributes)) {
         if (!Object.keys(formData.attributes).includes(attrKey)) {
-          formData.attributes[`-=${attrKey}`] = null;
+          formData.attributes[attrKey] = deleteDataField();
           delete this.data.sourceObject.system.attributes[attrKey];
           // delete the active effect
           const match = existingActiveEffects.find(i => i.name === attrKey);
@@ -890,7 +891,7 @@ export class forcePowerEditor extends itemEditor {
     if (Object.keys(this.data.sourceObject.system.upgrades[this.data.upgradeId]).includes("attributes") && this.data.sourceObject.system.upgrades[this.data.upgradeId].attributes !== undefined) {
       for (const attrKey of Object.keys(this.data.sourceObject.system.upgrades[this.data.upgradeId].attributes)) {
         if (!Object.keys(formData.attributes).includes(attrKey)) {
-          formData.attributes[`-=${attrKey}`] = null;
+          formData.attributes[attrKey] = deleteDataField();
           delete this.data.sourceObject.system.attributes[attrKey];
           // delete the active effect
           const match = existingActiveEffects.find(i => i.name === attrKey);

@@ -1,4 +1,5 @@
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
 import PopoutEditor from "../popout-editor.js";
 import Helpers from "../helpers/common.js";
 import ModifierHelpers from "../helpers/modifiers.js";
@@ -49,10 +50,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     // v14 exposes the live Item here. Enrich a copy so rendering does not
     // mutate document data before update() can detect and persist edits.
     data.item = this.item.toObject(false);
-    // this code was mostly written by Phind
-    // removing a key from a dict in Foundry requires submitting it with a new key of `-=key` and a value of null
-    // without explicitly replacing values, we end up duplicating entries instead of removing the one
-    // so instead, we go and manually remove any mods which have been deleted
+    // Legacy worlds and old form submissions may still contain `-=key` markers.
+    // Remove those markers while rebuilding the current data so they are never persisted again.
 
     // Search item data only: the v14 sheet context also contains live Documents
     // whose parent/collection references are circular.
@@ -68,7 +67,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         cur_key,
       );
     });
-    // this is the end of the de-duplicating -=key stuff
+    // End legacy data cleanup.
 
     data.data = data.item.system;
 
@@ -773,12 +772,12 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         if (itemType === "specialization") {
           const updateData = this.object.system.specializations;
           delete updateData[itemId];
-          updateData[`-=${itemId}`] = null;
+          updateData[itemId] = deleteDataField();
           this.object.update({system: {specializations: updateData}})
         } else if (itemType === "signatureability") {
           const updateData = this.object.system.signatureabilities;
           delete updateData[itemId];
-          updateData[`-=${itemId}`] = null;
+          updateData[itemId] = deleteDataField();
           this.object.update({system: {signatureabilities: updateData}})
         }
       });
@@ -817,7 +816,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           if (itemType === "talent") {
             const updateData = this.object.system.talents;
             delete updateData[itemId];
-            updateData[`-=${itemId}`] = null;
+            updateData[itemId] = deleteDataField();
             await this.object.update({system: {talents: updateData}})
           }
         });
@@ -1876,7 +1875,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       const existingEffects = specialization.getEmbeddedCollection("ActiveEffect");
       const toDelete = [];
       for (const attr of Object.keys(existingAttrs)) {
-        updateData.system.talents[talentId].attributes[`-=${attr}`] = null;
+        updateData.system.talents[talentId].attributes[attr] = deleteDataField();
         const matchingEffect = existingEffects.find(ae => ae.name === attr);
         if (matchingEffect) {
           toDelete.push(matchingEffect.id);
@@ -2097,7 +2096,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     await this.item.update({
       system: {
         talents: {
-          [`-=${deleteId}`]: null
+          [deleteId]: deleteDataField()
         },
       },
     });
@@ -2120,7 +2119,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     await this.item.update({
       system: {
         abilities: {
-          [`-=${deleteId}`]: null
+          [deleteId]: deleteDataField()
         },
       },
     });

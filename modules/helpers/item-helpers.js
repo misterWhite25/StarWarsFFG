@@ -1,4 +1,5 @@
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
 import EffectHelpers from "./effects.js";
 import ModifierHelpers from "./modifiers.js";
 
@@ -23,7 +24,7 @@ export default class ItemHelpers {
     // Remove attributes which are no longer used
     if (this.object.system?.attributes) {
       for (let k of Object.keys(this.object.system.attributes)) {
-        if (!attributes.hasOwnProperty(k)) attributes[`-=${k}`] = null;
+        if (!attributes.hasOwnProperty(k)) attributes[k] = deleteDataField();
       }
     }
 
@@ -63,7 +64,7 @@ export default class ItemHelpers {
             // Remove attributes which are no longer used
             if (spec?.system?.talents?.[parent.talent]?.attributes) {
               for (let k of Object.keys(spec.system.talents[parent.talent].attributes)) {
-                if (!formData.data.attributes.hasOwnProperty(k)) formData.data.attributes[`-=${k}`] = null;
+                if (!formData.data.attributes.hasOwnProperty(k)) formData.data.attributes[k] = deleteDataField();
               }
             }
 
