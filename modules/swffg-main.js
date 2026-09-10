@@ -653,7 +653,7 @@ Hooks.once("init", async function () {
             let skills = JSON.parse(JSON.stringify(CONFIG.FFG.alternateskilllists.find((list) => list.id === skilllist)));
             CONFIG.logger.log(`Applying skill theme ${skilllist} to actor`);
 
-            if (!actor?.flags?.starwarsffg?.hasOwnProperty('ffgimportid') && JSON.stringify(Object.keys(skills.skills).sort()) !== JSON.stringify(Object.keys(actor.system.skills).sort())) {
+            if (!Object.hasOwn(actor?.flags?.starwarsffg ?? {}, 'ffgimportid') && JSON.stringify(Object.keys(skills.skills).sort()) !== JSON.stringify(Object.keys(actor.system.skills).sort())) {
               // only apply the skills if it wasn't an imported actor and the skills loaded are not the same
               actor.update({
                 system: {
@@ -869,7 +869,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper({
     selectFfg: function (selected, options) {
       const escapedValue = RegExp.escape(Handlebars.escapeExpression(selected));
-      const rgx = new RegExp(' value=[\"\']' + escapedValue + '[\"\']');
+      const rgx = new RegExp(` value=["']${escapedValue}["']`);
       const html = options.fn(this);
       return html.replace(rgx, "$& selected");
     }
@@ -1314,14 +1314,14 @@ Hooks.once("ready", async () => {
           if (["weapon", "armour", "shipweapon"].includes(item.type)) {
             // iterate over attachments and modifiers on the item
             updated_item.system.itemmodifier.map((modifier) => {
-              if (modifier !== null && modifier?.hasOwnProperty('data')) {
+              if (modifier !== null && Object.hasOwn(modifier ?? {}, 'data')) {
                 modifier.system = modifier.data;
                 delete modifier.data;
               }
             });
 
             updated_item.system.itemattachment.map((attachment) => {
-              if (attachment !== null && attachment.hasOwnProperty('data')) {
+              if (attachment !== null && Object.hasOwn(attachment, 'data')) {
                 attachment.system = attachment.data;
                 delete attachment.data;
               }
@@ -1342,7 +1342,7 @@ Hooks.once("ready", async () => {
         if (["weapon", "armour", "shipweapon"].includes(item.type)) {
           // iterate over attachments and modifiers on the item
           updated_item.system.itemmodifier.map((modifier) => {
-            if (modifier?.hasOwnProperty('data')) {
+            if (Object.hasOwn(modifier ?? {}, 'data')) {
               updated = true;
               modifier.system = modifier.data;
               delete modifier.data;
@@ -1350,7 +1350,7 @@ Hooks.once("ready", async () => {
           });
 
           updated_item.system.itemattachment.map((attachment) => {
-            if (attachment.hasOwnProperty('data')) {
+            if (Object.hasOwn(attachment, 'data')) {
               updated = true;
               attachment.system = attachment.data;
               delete attachment.data;

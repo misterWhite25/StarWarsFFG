@@ -310,10 +310,10 @@ export class RollFFG extends Roll {
       addedResults: this.addedResults,
       publicRoll: !chatOptions.isPrivate,
     };
-    if (chatData?.data?.flags?.starwarsffg.hasOwnProperty('crew')) {
+    if (Object.hasOwn(chatData?.data?.flags?.starwarsffg ?? {}, 'crew')) {
       chatData.data.crew = chatData.data.flags.starwarsffg.crew;
     }
-    if (chatData.data.hasOwnProperty('data') && (chatData.data.data.adjusteditemmodifier === undefined || chatData.data.data.adjusteditemmodifier.length === 0)) {
+    if (Object.hasOwn(chatData.data, 'data') && (chatData.data.data.adjusteditemmodifier === undefined || chatData.data.data.adjusteditemmodifier.length === 0)) {
       // extended metadata is missing, lookup the actor ID so we can embed it for future lookups
       let candidate_actors = game.actors.filter(actor => actor.items.filter(item => item.id === chatData.data._id).length > 0);
       if (candidate_actors.length > 0) {

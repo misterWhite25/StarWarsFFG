@@ -303,7 +303,7 @@ export default class EmbeddedItemHelpers {
   // totally not ripped from phind telling me how to do this
   static removeKeyFromObject(obj, keyToRemove) {
     for (let key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.hasOwn(obj, key)) {
         if (key === keyToRemove) {
           delete obj[key];
         } else if (typeof obj[key] === 'object') {
@@ -317,7 +317,7 @@ export default class EmbeddedItemHelpers {
   static findKeysIncludingStringRecursively(obj, str) {
     let keys = [];
     for (let key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.hasOwn(obj, key)) {
         if (key.includes(str)) {
           keys.push(key);
         }

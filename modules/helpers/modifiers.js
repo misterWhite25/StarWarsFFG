@@ -2,6 +2,7 @@ import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibil
 import { deleteDataField } from "../compatibility/data-operators.js";
 import EffectHelpers from "./effects.js";
 import PopoutModifiers from "../popout-modifiers.js";
+import { DicePoolFFG } from "../dice/pool.js";
 
 export default class ModifierHelpers {
   /**
@@ -718,7 +719,7 @@ export default class ModifierHelpers {
       // iterate over existing attributes to remove them if they were deleted
       for (let k of Object.keys(item.system.attributes)) {
         const match = existing.find(i => i.name === k);
-        if (!attributes.hasOwnProperty(k)) {
+        if (!Object.hasOwn(attributes, k)) {
           attributes[k] = deleteDataField();
           // delete the matching active effect
           if (match) {

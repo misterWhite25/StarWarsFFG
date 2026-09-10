@@ -311,7 +311,7 @@ export class ItemFFG extends ItemBaseFFG {
     // perform localisation of dynamic values
     switch (this.type) {
       case "weapon":
-      case "shipweapon":
+      case "shipweapon": {
         // Apply item attachments / modifiers
         data.damage.value = parseInt(data.damage.value, 10);
         data.crit.value = parseInt(data.crit.value, 10);
@@ -417,6 +417,7 @@ export class ItemFFG extends ItemBaseFFG {
         data.range.label = rangeLabel;
 
         break;
+      }
       case "armour":
         data.soak.value = parseInt(data.soak.value, 10);
         data.defence.value = parseInt(data.defence.value, 10);
@@ -513,11 +514,12 @@ export class ItemFFG extends ItemBaseFFG {
           }
         }
         break;
-      case "talent":
+      case "talent": {
         const cleanedActivationName = data.activation.value.replace(/[\W_]+/g, "");
         const activationId = `SWFFG.TalentActivations${this._capitalize(cleanedActivationName)}`;
         data.activation.label = activationId;
         break;
+      }
 
       case "gear":
         data.encumbrance.value = parseInt(data.encumbrance.value, 10);
@@ -739,7 +741,7 @@ export class ItemFFG extends ItemBaseFFG {
     }
     // General equipment properties
     else if (this.type !== "talent") {
-      if (data.hasOwnProperty("doNotSubmit")) {
+      if (Object.hasOwn(data, "doNotSubmit")) {
         const modifiers = data.doNotSubmit.qualities;
         const qualities = [];
         for (const modifier of modifiers) {
@@ -753,16 +755,16 @@ export class ItemFFG extends ItemBaseFFG {
         props.push(`<div>${game.i18n.localize("SWFFG.ItemDescriptors")}: <ul>${qualities.join("")}<ul></div>`);
       }
 
-      if (data.hasOwnProperty("encumbrance")) {
+      if (Object.hasOwn(data, "encumbrance")) {
         props.push(`${game.i18n.localize("SWFFG.Encumbrance")}: ${data.encumbrance?.adjusted ? data.encumbrance.adjusted : data.encumbrance.value}`);
       }
-      if (data.hasOwnProperty("price")) {
+      if (Object.hasOwn(data, "price")) {
         props.push(`${game.i18n.localize("SWFFG.ItemsPrice")}: ${data.price?.adjusted ? data.price.adjusted : data.price.value}`);
       }
-      if (data.hasOwnProperty("rarity")) {
+      if (Object.hasOwn(data, "rarity")) {
         props.push(`${game.i18n.localize("SWFFG.ItemsRarity")}: ${data.rarity?.adjusted ? data.rarity.adjusted : data.rarity.value} ${data.rarity.isrestricted ? "<span class='restricted'>" + game.i18n.localize("SWFFG.IsRestricted") + "</span>" : ""}`);
       }
-      if (data.hasOwnProperty("talents")) {
+      if (Object.hasOwn(data, "talents")) {
         for (const talentKey of Object.keys(data.talents)) {
           const talent = data.talents[talentKey];
           if (talent?.islearned) {
@@ -774,7 +776,7 @@ export class ItemFFG extends ItemBaseFFG {
           }
         }
       }
-      if (data.hasOwnProperty("specializations")) {
+      if (Object.hasOwn(data, "specializations")) {
         for (const specializationKey of Object.keys(data.specializations)) {
           const specialization = data.specializations[specializationKey];
           const fullSpecialization = fromUuidSync(specialization.source);
@@ -786,7 +788,7 @@ export class ItemFFG extends ItemBaseFFG {
           });
         }
       }
-      if (data.hasOwnProperty("signatureabilities")) {
+      if (Object.hasOwn(data, "signatureabilities")) {
         for (const SAKey of Object.keys(data.signatureabilities)) {
           const signatureAbility = data.signatureabilities[SAKey];
           const fullSignatureAbility = fromUuidSync(signatureAbility.source);
@@ -802,7 +804,7 @@ export class ItemFFG extends ItemBaseFFG {
 
     // Weapon properties
     if (this.type === "weapon") {
-      if (data.hasOwnProperty("skill")) {
+      if (Object.hasOwn(data, "skill")) {
         const cleanedSkillName = data.skill.value.replace(/[\W_]+/g, "");
         const skillLabel = "SWFFG.SkillsName" + cleanedSkillName;
         props.push(`Skill: ${game.i18n.localize(skillLabel)}`);
@@ -810,10 +812,10 @@ export class ItemFFG extends ItemBaseFFG {
     }
 
     // Talent properties
-    if (data.hasOwnProperty("isForceTalent")) {
+    if (Object.hasOwn(data, "isForceTalent")) {
       if (data.isForceTalent) props.push(game.i18n.localize("SWFFG.ForceTalent"));
     }
-    if (data.hasOwnProperty("ranks")) {
+    if (Object.hasOwn(data, "ranks")) {
       if (data.ranks.ranked) props.push(game.i18n.localize("SWFFG.Ranked"));
     }
 

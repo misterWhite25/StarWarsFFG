@@ -189,11 +189,12 @@ async function createActor() {
 
   await tempActor.sheet.render(true);
   // wait for the rendering to actually finish
-  await new Promise(async resolve => {
-    while (!tempActor.sheet.rendered) {
-      await delay(5);
-    }
-    resolve();
+  await new Promise(resolve => {
+    const waitForRender = () => {
+      if (tempActor.sheet.rendered) resolve();
+      else setTimeout(waitForRender, 5);
+    };
+    waitForRender();
   });
   return tempActor;
 }

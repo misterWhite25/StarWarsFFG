@@ -148,7 +148,7 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
       if (typeof zip === "undefined") return;
 
       const selectAll = document.querySelector("[data-action='selectAll']");
-      if (importAll !== null) selectAll.disabled = false;
+      if (selectAll !== null) selectAll.disabled = false;
 
       for (const importer of Object.values(this.importers)) {
         this.canImport[importer.itemName] = this._enableImportSelection(importer.displayName, importer.className, zip.files);

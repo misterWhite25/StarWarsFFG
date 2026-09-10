@@ -174,7 +174,6 @@ export class CombatFFG extends Combat {
   async rollInitiative(ids, { formula = null, updateTurn = true, messageOptions = {} } = {}) {
     let initiative = this;
 
-    let promise = new Promise(async function (resolve, reject) {
       const id = foundry.utils.randomID();
 
       let whosInitiative = initiative.combatant?.name;
@@ -241,7 +240,8 @@ export class CombatFFG extends Combat {
         diceSymbols,
       });
 
-      new LegacyDialogV2({
+      return new Promise((resolve) => {
+        new LegacyDialogV2({
         title,
         content,
         buttons: {
@@ -317,7 +317,7 @@ export class CombatFFG extends Combat {
                 },
                 [[], []]
               );
-              if (!updates.length) return initiative;
+              if (!updates.length) return resolve(initiative);
 
               // Update multiple combatants
               await initiative.updateEmbeddedDocuments("Combatant", updates);
@@ -338,10 +338,8 @@ export class CombatFFG extends Combat {
             label: game.i18n.localize("SWFFG.Cancel"),
           },
         },
-      }).render(true);
-    });
-
-    return await promise;
+        }).render(true);
+      });
   }
 
   /**
@@ -486,9 +484,10 @@ export class CombatFFG extends Combat {
       CONFIG.FFG.preCombatDelete = Hooks.on("preDeleteCombatant", registerHandleCombatantRemoval);
     }
     // now create a new slot to replace it
+    let replacementTurnId;
     if (combatant.combat.started) {
       CONFIG.logger.debug("Re-creating the slot with the same disposition and initiative");
-      const replacementTurnId = await this.addExtraSlot(round, disposition, initiative);
+      replacementTurnId = await this.addExtraSlot(round, disposition, initiative);
     }
 
     // if there was a claim on the slot replaced, add it back
@@ -1000,7 +999,7 @@ function _findActorForInitiative(c) {
   if (c.actor.type === "vehicle") {
     CONFIG.logger.debug("Actor is a vehicle, looking for initiative crew role.");
     const crew = c.actor.getFlag("starwarsffg", "crew");
-    if (crew !== undefined && crew !== []) {
+    if (crew?.length) {
       const initiativeCrew = crew.find((c) => c.role === "Pilot");
       if (initiativeCrew) {
         CONFIG.logger.debug("Found initiative crew role, swapping data to crew member");

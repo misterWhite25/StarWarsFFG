@@ -335,7 +335,7 @@ export function register_oggdude_tag_enricher() {
       }
   });
   CONFIG.TextEditor.enrichers.push({
-    pattern: /(\[BR\])(.[^\[]*)/gm,
+    pattern: /(\[BR\])(.[^[]*)/gm,
     enricher: async (match, options) => {
         let element = document.createElement("br");
         return element;
@@ -393,7 +393,7 @@ export function register_oggdude_tag_enricher() {
 
 export function register_roll_tag_enricher() {
   CONFIG.TextEditor.enrichers.push({
-    pattern: /(\[ROLL\])(.[^\[]*)\[\/ROLL\]/gim,
+    pattern: /(\[ROLL\])(.[^[]*)\[\/ROLL\]/gim,
     enricher: async (match, options) => {
         let element = document.createElement("span");
         const skill = match[2].trim().split(',')[0];

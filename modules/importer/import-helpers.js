@@ -48,7 +48,7 @@ export default class ImportHelpers {
   static async importImage(path, zip, pack) {
     if (path) {
       const serverPath = `worlds/${game.world.id}/images/packs/${pack.metadata.name}`;
-      const filename = path.replace(/^.*[\\\/]/, "");
+      const filename = path.replace(/^.*[\\/]/, "");
       if (!CONFIG.temporary.images) {
         CONFIG.temporary.images = [];
       }
@@ -87,7 +87,7 @@ export default class ImportHelpers {
   static async importSilhouetteImage(path, zip, pack) {
     if (path) {
       const serverPath = `worlds/${game.world.id}/images/packs/${pack.metadata.name}Silhouettes`;
-      const filename = path.replace(/^.*[\\\/]/, "");
+      const filename = path.replace(/^.*[\\/]/, "");
       if (!CONFIG.temporary.images) {
         CONFIG.temporary.images = [];
       }
@@ -153,7 +153,7 @@ export default class ImportHelpers {
           if (typeof obj[objkey] === "object") {
             recursiveObject(`${itemkey}.${objkey}`, obj[objkey]);
           } else {
-            if (typeof obj[objkey] !== undefined) {
+            if (typeof obj[objkey] !== "undefined") {
               const datakey = `data.${itemkey}.${objkey}`;
               updateData[datakey] = obj[objkey];
             }
@@ -385,7 +385,6 @@ export default class ImportHelpers {
     if (mod.Key === "ENCTADD") {
       modtype = "Stat";
       type = "Encumbrance";
-      value = value;
     }
 
     if (type) {
@@ -473,7 +472,7 @@ export default class ImportHelpers {
         }
 
         if (quality.Key === "DEFENSIVE") {
-          const nk = randomId();
+          const nk = foundry.utils.randomID();
           const count = quality.Count ? parseInt(quality.Count) : 0;
 
           attributes[`attr${nk}`] = {
@@ -2439,7 +2438,7 @@ export default class ImportHelpers {
           // Remove and repopulate all modifiers
           if (entry.system?.attributes) {
             for (let k of Object.keys(entry.system.attributes)) {
-              if (!updateData.data.attributes.hasOwnProperty(k)) updateData.data.attributes[k] = deleteDataField();
+              if (!Object.hasOwn(updateData.data.attributes, k)) updateData.data.attributes[k] = deleteDataField();
             }
           }
         }
@@ -2447,7 +2446,7 @@ export default class ImportHelpers {
           // Remove and repopulate all specializations
           if (entry.system?.specializations) {
             for (let k of Object.keys(entry.system.specializations)) {
-              if (!updateData.data.specializations.hasOwnProperty(k)) updateData.data.specializations[k] = deleteDataField();
+              if (!Object.hasOwn(updateData.data.specializations, k)) updateData.data.specializations[k] = deleteDataField();
             }
           }
         }
@@ -2455,7 +2454,7 @@ export default class ImportHelpers {
           // Remove and repopulate all talents
           if (entry.system?.talents) {
             for (let k of Object.keys(entry.system.talents)) {
-              if (!updateData.data.talents.hasOwnProperty(k)) updateData.data.talents[k] = deleteDataField();
+              if (!Object.hasOwn(updateData.data.talents, k)) updateData.data.talents[k] = deleteDataField();
             }
           }
         }
@@ -2463,7 +2462,7 @@ export default class ImportHelpers {
           // Remove and repopulate all abilities
           if (entry.system?.abilities) {
             for (let k of Object.keys(entry.system.abilities)) {
-              if (!updateData.data.abilities.hasOwnProperty(k)) updateData.data.abilities[k] = deleteDataField();
+              if (!Object.hasOwn(updateData.data.abilities, k)) updateData.data.abilities[k] = deleteDataField();
             }
           }
         }
@@ -3356,7 +3355,7 @@ function prep_for_v10(actor) {
   actor.system = actor.data;
   // iterate over items so we can iterate over their modifiers
   actor.items.forEach(function (item) {
-    if (item.system.hasOwnProperty('itemmodifier')) {
+    if (Object.hasOwn(item.system, 'itemmodifier')) {
       item.system?.itemmodifier.forEach(function (modifier) {
         if (modifier) { // handle null modifiers (often from bad input)
           modifier.system = modifier.data;

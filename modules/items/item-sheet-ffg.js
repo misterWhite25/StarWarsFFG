@@ -239,7 +239,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           }
         }
         break;
-      case "species":
+      case "species": {
         this.position.width = 550;
         this.position.height = 650;
 
@@ -298,6 +298,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         }
 
         break;
+      }
       case "career":
         this.position.width = 500;
         this.position.height = 600;
@@ -379,7 +380,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         data.data.motivationTypes = CONFIG.FFG.characterCreator.motivationTypes;
         break;
       }
-      break;
       default:
     }
 

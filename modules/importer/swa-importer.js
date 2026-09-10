@@ -171,7 +171,7 @@ export default class SWAImporter extends FormApplicationV2 {
             fileData = JSON.parse(file);
           } catch (err) {
             const newfile = file.replace(/[^ -~]+/, "");
-            const newFile1 = newfile.replace(/[\u0000-\u0019]+/g, "");
+            const newFile1 = [...newfile].filter((character) => character.charCodeAt(0) > 0x19).join("");
 
             fileData = JSON.parse(newFile1);
           }
@@ -470,7 +470,7 @@ export default class SWAImporter extends FormApplicationV2 {
                   let isMinion = Array.isArray(item.skills);
                   let adversarySkills = isMinion ? item.skills : Object.keys(item.skills);
                   adversarySkills.forEach((skillRaw) => {
-                    let skill = skillRaw.match(/^[^\(]*/)[0];
+                    let skill = skillRaw.match(/^[^()]*/)[0];
                     skill = $.trim(skill);
                     let alternateCharacteristic = skillRaw.match(/(?<=\()(.*?)(?=\))/)?.length ? skillRaw.match(/(?<=\()(.*?)(?=\))/)[0] : undefined;
 

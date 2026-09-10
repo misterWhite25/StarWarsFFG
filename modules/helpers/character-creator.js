@@ -205,7 +205,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     CONFIG.logger.debug("Rendering Character Creator");
 
     // backgrounds
-    const cultureSelector = new SlimSelect({
+    const cultureSelector = new globalThis.SlimSelect({
       select: '#culture',
       events: {
         afterChange: async (newVal) => {
@@ -215,7 +215,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       }
     });
     cultureSelector.setSelected(this.data.selected.background.culture?.uuid, false);
-    const hookSelector = new SlimSelect({
+    const hookSelector = new globalThis.SlimSelect({
       select: '#hook',
       events: {
         afterChange: async (newVal) => {
@@ -226,7 +226,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     });
     hookSelector.setSelected(this.data.selected.background.hook?.uuid, false);
     if (this.data.selected.rules === "fad") {
-      const forceAttitudeSelector = new SlimSelect({
+      const forceAttitudeSelector = new globalThis.SlimSelect({
         select: '#force_attitude',
         events: {
           afterChange: async (newVal) => {
@@ -239,7 +239,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     }
 
     // starting bonuses
-    const startingBonusSelector = new SlimSelect({
+    const startingBonusSelector = new globalThis.SlimSelect({
         select: '#startingBonus',
         events: {
           afterChange: async (newVal) => {
@@ -251,7 +251,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       startingBonusSelector.setSelected(this.data.selected.startingBonus, false);
 
     // obligations
-    const obligationsTable = new DataTable(
+    const obligationsTable = new globalThis.DataTable(
       "#obligations",
     );
     obligationsTable.on("draw", () => {
@@ -267,7 +267,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     });
 
     // species
-    const speciesTable = new DataTable(
+    const speciesTable = new globalThis.DataTable(
       "#species",
     );
     speciesTable.on("draw", () => {
@@ -280,7 +280,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     });
 
     // careers
-    const careersTable = new DataTable(
+    const careersTable = new globalThis.DataTable(
       "#careers",
     );
     careersTable.on("draw", () => {
@@ -303,7 +303,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     $(`.${this._openCareerSection}`).next().show();
 
     // specializations
-    const specializationsTable = new DataTable(
+    const specializationsTable = new globalThis.DataTable(
       "#specializations",
     );
     $(".specialization-spend").on("click", async (event) => {
@@ -355,7 +355,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     });
 
     // credit spending
-    const gearTable = new DataTable(
+    const gearTable = new globalThis.DataTable(
       "#buy_gear",
       {
         columnDefs: [{
@@ -476,10 +476,10 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     gearTable.buttons('.weapon').trigger();
 
     // motivations
-    const purchasedMotivationTable = new DataTable(
+    const purchasedMotivationTable = new globalThis.DataTable(
       "#selected_motivations",
     );
-    const availableMotivationTable = new DataTable(
+    const availableMotivationTable = new globalThis.DataTable(
       "#motivations",
     );
     availableMotivationTable.on("draw", async () => {

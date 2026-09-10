@@ -238,7 +238,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         }
         const roll = new game.ffg.RollFFG(this.dicePool.renderDiceExpression(), this.roll.item, this.dicePool, this.roll.flavor);
         // check if this is a crew roll - and it's a roll for a weapon
-        if (this.roll.item && this.roll.item.hasOwnProperty('crew') && Object.keys(this.roll.item).length > 1) {
+        if (this.roll.item && Object.hasOwn(this.roll.item, 'crew') && Object.keys(this.roll.item).length > 1) {
           await this.roll.item.update({"flags": {"starwarsffg": {"crew": this.roll.item.crew}}})
         }
         await roll.toMessage({
@@ -403,8 +403,8 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       $("#success_chance").text(
         `${(simResults.successProbability * 100).toLocaleString(undefined, {maximumFractionDigits: 0})}%`
       ).removeClass("likely unlikely").addClass(newClass);
-    } catch (e) {
-
+    } catch (error) {
+      CONFIG.logger.debug("Unable to calculate roll probability", error);
     }
   }
 }

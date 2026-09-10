@@ -1,5 +1,6 @@
 import { FormApplicationV2 } from "./applications/form-application-v2.js";
 import { GroupManager } from "./groupmanager-ffg.js";
+import { DicePoolFFG } from "./dice/pool.js";
 
 /**
  * A specialized form used to pop out the editor.

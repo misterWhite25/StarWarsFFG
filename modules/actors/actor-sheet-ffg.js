@@ -289,7 +289,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           moralities: data.items.filter(i => i.system?.type === "morality"),
         };
         break;
-      case "vehicle":
+      case "vehicle": {
         data.data.enrichedBio = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.biography);
         // add the crew to the items of the vehicle
         data.crew = [];
@@ -339,6 +339,8 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
             }
           }
         }
+        break;
+      }
       default:
     }
 
@@ -2120,19 +2122,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    * @private
    */
   async _suspendActiveEffects(droppedItem) {
-    // Note: this function is currently placeholder. I may implement it - if we get better support for holding attachments
-    return;
-    const droppedType = droppedItem.type;
-    const myType = this.object.type;
-    const toSuspend = [];
-
-    if (["itemattachment", "itemmodifier"].includes(droppedType)) {
-      CONFIG.logger.info(`Suspending AEs for drag-and-drop of ${droppedType} -> ${myType}`);
-      for (const activeEffect of droppedItem.effects) {
-        toSuspend.push(activeEffect);
-      }
-      await this.object.createEmbeddedDocuments("ActiveEffect", toSuspend);
-    }
+    // Placeholder: item attachment effects remain on the item in V14.
   }
 
   /**
