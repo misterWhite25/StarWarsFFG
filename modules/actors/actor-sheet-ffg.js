@@ -398,14 +398,15 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     const htmlElement = html.get(0);
 
     // Activate tabs
-    let tabs = html.find(".tabs");
-    let initial = this._sheetTab;
-    const sheetTabs = new foundry.applications.ux.Tabs(tabs, {
-      initial: initial,
-      callback: (clicked) => {
-        this._sheetTab = clicked.data("tab");
+    const sheetTabs = new foundry.applications.ux.Tabs({
+      navSelector: ".sheet-tabs",
+      contentSelector: ".sheet-body",
+      initial: this._sheetTab,
+      callback: (_event, _tabs, tabName) => {
+        this._sheetTab = tabName;
       },
     });
+    sheetTabs.bind(htmlElement);
     this._tabs = [sheetTabs];
 
     html.find(".alt-tab").click((ev) => {
