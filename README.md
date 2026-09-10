@@ -13,7 +13,7 @@ The system for Foundry VTT contains no rules or proprietary content from the var
 For more info and documentation including various "How-To" guides, please check out the Wiki section of our GitHub repo.
 
 - For support on this game system : Discord [The Foundry](https://discord.gg/foundryvtt) #starwars-ffg
-- Read this document in another language : [Français](https://github.com/StarWarsFoundryVTT/StarWarsFFG/blob/main/README-fr.md), [Català](https://github.com/StarWarsFoundryVTT/StarWarsFFG/blob/main/README-ca.md)
+- Read this document in another language : [Français](https://github.com/misterWhite25/StarWarsFFG/blob/main/README-fr.md), [Català](https://github.com/misterWhite25/StarWarsFFG/blob/main/README-ca.md)
 - This system supports simulated dice rolls to determine success chance. Powered by [SWRPG Online](https://github.com/swrpg-online/monte-carlo)
 
 # Installing Star Wars FFG game system
@@ -22,18 +22,18 @@ For more info and documentation including various "How-To" guides, please check 
 2. Go to the "Game Systems" Tab
 3. Click the "Install System" button
 4. Copy the Following link into the "Manifest URL" section:
-   https://raw.githubusercontent.com/StarWarsFoundryVTT/StarWarsFFG/master/system.json
+   https://raw.githubusercontent.com/misterWhite25/StarWarsFFG/misterWhite-foundry-v14/system.json
 5. Click Install, after a few seconds the system should be installed.
 
 # Getting Started
 Check out our getting started guides over on the wiki...
-* Star Wars: https://github.com/StarWarsFoundryVTT/StarWarsFFG/wiki/Getting-started
-* Genesys: https://github.com/StarWarsFoundryVTT/StarWarsFFG/wiki/Getting-Started-with-Genesys
+* Star Wars: https://github.com/misterWhite25/StarWarsFFG/wiki/Getting-started
+* Genesys: https://github.com/misterWhite25/StarWarsFFG/wiki/Getting-Started-with-Genesys
 
 # Contributing
 
-Please see [CONTRIBUTING.md](https://github.com/StarWarsFoundryVTT/StarWarsFFG/blob/main/CONTRIBUTING.md).
+Please see [CONTRIBUTING.md](https://github.com/misterWhite25/StarWarsFFG/blob/main/CONTRIBUTING.md).
 
 # Changelog
 
-Release `CHANGELOG` can be found [here](https://github.com/StarWarsFoundryVTT/StarWarsFFG/releases).
+Release `CHANGELOG` can be found [here](https://github.com/misterWhite25/StarWarsFFG/releases).
