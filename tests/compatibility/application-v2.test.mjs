@@ -93,3 +93,20 @@ test("persisted field deletions use native V14 operators", async () => {
   for (const path of paths) assert.doesNotMatch(await read(path), /[`"']-=\$?\{/);
   assert.match(await read("modules/compatibility/data-operators.js"), /ForcedDeletion/);
 });
+
+
+test("simple system prompts use DialogV2 factory methods directly", async () => {
+  for (const path of [
+    "modules/actors/actor-ffg-options.js",
+    "modules/items/item-ffg-options.js",
+    "modules/helpers/crew.js",
+    "modules/swffg-migration.js",
+    "modules/swffg-main.js",
+  ]) {
+    const source = await read(path);
+    assert.match(source, /DialogV2\.(?:prompt|wait)\s*\(/);
+    assert.doesNotMatch(source, /LegacyDialogV2/);
+  }
+  const template = await read("templates/dialogs/ffg-sheet-options.html");
+  assert.doesNotMatch(template, /<form|dialog-buttons/);
+});

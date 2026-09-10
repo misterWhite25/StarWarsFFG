@@ -1,4 +1,4 @@
-import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
+const { DialogV2 } = foundry.applications.api;
 import { deleteDataField } from "./compatibility/data-operators.js";
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "./compatibility/active-effects.js";
 import EffectHelpers from "./helpers/effects.js";
@@ -984,11 +984,8 @@ Hooks.once("init", async function () {
     return array.indexOf(value) >= 0;
   });
 
-  Handlebars.registerHelper("ffgDiceSymbols", function (text) {
-    //return PopoutEditor.renderDiceImages(text);
-    CONFIG.logger.warn("This function is no longer needed and should not be called. Please notify the devs if you see this message.");
-    return text;
-  });
+  // Retained as a semantic template helper; V14 content is enriched before rendering.
+  Handlebars.registerHelper("ffgDiceSymbols", text => text);
 
   Handlebars.registerHelper("object", function ({ hash }) {
     return hash;
@@ -1194,23 +1191,14 @@ Hooks.once("ready", async () => {
 
   const currentVersion = game.settings.get("starwarsffg", "systemMigrationVersion");
 
-  const version = game.system.version;
   const isAlpha = game.system.version.includes("alpha");
 
   if (isAlpha && game.user.isGM) {
-    let d = new LegacyDialogV2({
-      title: "Warning",
-      content: "<p>This is an alpha release of the system.  It is not recommended for regular gameplay. <b>There will be bugs.</b> <br><br>Check Discord or the GitHub repo for the latest stable version.</p>",
-      buttons: {
-        one: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "I understand",
-          callback: () => console.log("Chose One") // leaving in case I get feedback to update a game setting to not show this on every load
-        }
-      },
-      default: "one",
+    await DialogV2.prompt({
+      window: {title: "Warning"},
+      content: "<p>This is an alpha release of the system. It is not recommended for regular gameplay. <b>There will be bugs.</b><br><br>Check the project repository for the latest stable version.</p>",
+      ok: {label: "I understand"},
     });
-    d.render(true);
   }
 
   if ((isAlpha || isCurrentVersionNullOrBlank(currentVersion) || parseFloat(currentVersion) < parseFloat(game.system.version)) && game.user.isGM) {

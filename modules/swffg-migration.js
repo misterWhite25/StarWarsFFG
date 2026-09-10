@@ -1,4 +1,4 @@
-import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
+const { DialogV2 } = foundry.applications.api;
 import { deleteDataField } from "./compatibility/data-operators.js";
 import EffectHelpers from "./helpers/effects.js";
 import ModifierHelpers from "./helpers/modifiers.js";
@@ -428,19 +428,13 @@ async function migrateTo1907() {
 
 async function warnUnsupportedWorld() {
   const content = game.i18n.localize("SWFFG.Migrate.Unsupported.Text");
-  new LegacyDialogV2(
-    {
-      title: game.i18n.localize("SWFFG.Migrate.Unsupported.Title"),
-      content: content,
-      buttons: {
-        ok: {
-          icon: '<i class="fas fa-exclamation"></i>',
-          label: game.i18n.localize("SWFFG.Migrate.Unsupported.Button"),
-        },
-      },
+  await DialogV2.prompt({
+    window: {title: game.i18n.localize("SWFFG.Migrate.Unsupported.Title")},
+    classes: ["starwarsffg"],
+    content,
+    ok: {
+      icon: "fas fa-exclamation",
+      label: game.i18n.localize("SWFFG.Migrate.Unsupported.Button"),
     },
-    {
-      classes: ["dialog", "starwarsffg"],
-    }
-  ).render(true);
+  });
 }
