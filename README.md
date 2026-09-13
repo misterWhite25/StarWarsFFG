@@ -24,13 +24,13 @@ Il s’installe via **Add-on Modules → Install Module**, avec Babele et ses d�
 
 Chaque release stable doit contenir **system.json**, **system.zip**, **module.json** et le **ZIP du compendium**, même si un seul paquet change. Les numéros de version des deux paquets restent indépendants ; leurs liens `download` doivent viser le tag commun de la release. Le ZIP du compendium est joint à la release, sans être committé dans le dépôt.
 
-### Version 2.1.0 — essais Windows
+### Version 0.0.1 — essais Windows
 
 Le système intègre les correctifs de dépôt V2, de persistance de l’état équipé du matériel et de recalcul des dégâts après les effets de caractéristiques. Ils ne dépendent plus d’un script propre au compendium. Le compendium 0.18.0 ajoute les références d’équipement Roll20 en FR/EN.
 
 [Inventaire complet des contenus et installation Windows](CONTENU.md).
 
-98 fichiers JavaScript vérifiés et 65 tests système réussis. Les tests en jeu de la combinaison système 2.1.0 + compendium 0.18.0 restent à effectuer sous Windows. Aucune release n’a été publiée. Le workflow prépare les champs du manifest à partir du tag réel et ne publie pas au catalogue officiel Foundry ; il conserve les assets du compendium joints à la release.
+98 fichiers JavaScript vérifiés et 65 tests système réussis. Les tests en jeu de la combinaison système 0.0.1 + compendium 0.18.0 restent à effectuer sous Windows. Aucune release n’a été publiée. Le workflow prépare les champs du manifest à partir du tag réel et ne publie pas au catalogue officiel Foundry ; il conserve les assets du compendium joints à la release.
 
 Le canal `releases/latest` vise les releases stables. Une préversion demande un canal distinct.
 
