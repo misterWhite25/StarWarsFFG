@@ -1,7 +1,7 @@
 {
   "id": "starwarsffg",
-  "title": "Star Wars FFG",
-  "description": "A system for playing Star Wars FFG games.",
+  "title": "Star Wars FFG - Tonio",
+  "description": "Star Wars FFG - Tonio est un système de jeu pour Foundry VTT créé en septembre 2026 à partir du système original Star Wars FFG. Il constitue désormais une version totalement indépendante, développée et maintenue séparément du projet d’origine.",
   "version": "0.0.1",
   "compatibility": {
     "minimum": 14,
