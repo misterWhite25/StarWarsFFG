@@ -1,3 +1,4 @@
+import { supportsWeaponSelection, missingAccurateBoost } from "./weapon-selection.js";
 import RollBuilderFFG from "../dice/roll-builder.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 import ImportHelpers from "../importer/import-helpers.js";
@@ -84,8 +85,9 @@ export default class DiceHelpers {
       }
     }
 
-    const itemData = item || {};
+    const makePool = async (itemData = {}) => {
     const status = this.getWeaponStatus(itemData);
+    if (!status) throw new Error(game.i18n.localize("SWFFG.ItemTooDamagedToUse"));
     let defenseDice = this.getDefenseDice(skill, itemData);
 
     // TODO: Get weapon specific modifiers from itemmodifiers and itemattachments
@@ -117,7 +119,11 @@ export default class DiceHelpers {
     }
 
     dicePool = new DicePoolFFG(await this.getModifiers(dicePool, itemData));
-    await this.displayRollDialog(data, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${game.i18n.localize(skill.label)}`, skill.label, itemData, flavorText, sound);
+      return dicePool;
+    };
+    const itemData = item || {};
+    const dicePool = await makePool(itemData);
+    await this.displayRollDialog(data, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${game.i18n.localize(skill.label)}`, skill.label, itemData, flavorText, sound, supportsWeaponSelection(skillName, skill) ? {actor:obj.actor, skillKey:skillName, makePool} : null);
   }
 
   static getDefenseDice(skill, itemData){
@@ -140,8 +146,15 @@ export default class DiceHelpers {
     return defenseDice;
   }
 
-  static async displayRollDialog(data, dicePool, description, skillName, item, flavorText, sound) {
-    return new RollBuilderFFG(data, dicePool, description, skillName, item, flavorText, sound).render(true);
+  static async displayRollDialog(data, dicePool, description, skillName, item, flavorText, sound, weaponContext = null, rollChoices = {}) {
+    const builder = new RollBuilderFFG(data, dicePool, description, skillName, item, flavorText, sound);
+    builder.weaponContext = weaponContext;
+    builder.roll.autoFire = Boolean(rollChoices.autoFire);
+    if(['personal','vehicle'].includes(rollChoices.combatMode)) {
+      builder.roll.combatMode=rollChoices.combatMode;
+      builder._combatModeExplicit=true;
+    }
+    return builder.render(true);
   }
 
   static async addSkillDicePool(data, elem) {
@@ -196,11 +209,14 @@ export default class DiceHelpers {
     const itemData = item.system;
     await item.setFlag("starwarsffg", "uuid", item.uuid);
 
-    const status = this.getWeaponStatus(item);
+
 
     const skill = actor.system.skills[itemData.skill.value];
     const characteristic = actor.system.characteristics[skill.characteristic];
-    let defenseDice = this.getDefenseDice(skill, itemData);
+    const makePool = async (selected = {}) => {
+    const status = this.getWeaponStatus(selected);
+    if (!status) throw new Error(game.i18n.localize("SWFFG.ItemTooDamagedToUse"));
+    let defenseDice = this.getDefenseDice(skill, selected);
     let dicePool = new DicePoolFFG({
       ability: Math.max(characteristic.value, skill.rank),
       boost: skill.boost,
@@ -221,9 +237,12 @@ export default class DiceHelpers {
 
     dicePool.upgrade(Math.min(characteristic.value, skill.rank) + dicePool.upgrades);
 
-    dicePool = new DicePoolFFG(await this.getModifiers(dicePool, item));
+    dicePool = new DicePoolFFG(await this.getModifiers(dicePool, selected));
 
-    this.displayRollDialog(actorSheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, item, flavorText, sound);
+      return dicePool;
+    };
+    const dicePool = await makePool(item);
+    this.displayRollDialog(actorSheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, item, flavorText, sound, supportsWeaponSelection(itemData.skill.value, skill) ? {actor, skillKey:itemData.skill.value, makePool} : null);
   }
 
   // Takes a skill object, characteristic object, difficulty number and ActorSheetFFG.getData() object and creates the appropriate roll dialog.
@@ -275,6 +294,11 @@ export default class DiceHelpers {
 
   static async getModifiers(initialDicePool, item) {
     let dicePool = initialDicePool;
+    const applyQuality = async modifier => {
+      const before = Number(dicePool.boost) || 0;
+      dicePool = await ModifierHelpers.getDicePoolModifiers(dicePool, modifier, []);
+      dicePool.boost += missingAccurateBoost(modifier, Number(dicePool.boost) - before);
+    };
     if (item.type === "weapon" || item.type === "shipweapon") {
       dicePool = await ModifierHelpers.getDicePoolModifiers(dicePool, item, []);
 
@@ -284,13 +308,13 @@ export default class DiceHelpers {
           dicePool = await ModifierHelpers.getDicePoolModifiers(dicePool, attachment, []);
           const activeModifiers = attachment.system.itemmodifier.filter((i) => i.system?.active);
           await ImportHelpers.asyncForEach(activeModifiers, async (modifier) => {
-            dicePool = await ModifierHelpers.getDicePoolModifiers(dicePool, modifier, []);
+            await applyQuality(modifier);
           });
         });
       }
       if (item?.system?.itemmodifier) {
         await ImportHelpers.asyncForEach(item.system.itemmodifier, async (modifier) => {
-          dicePool = await ModifierHelpers.getDicePoolModifiers(dicePool, modifier, []);
+          await applyQuality(modifier);
         });
       }
     }
@@ -327,7 +351,7 @@ export function get_dice_pool(actor_id, skill_name, incoming_roll) {
     triumph: (skill.triumph ?? 0) + incoming_roll.triumph,
     despair: (skill.despair ?? 0) + incoming_roll.despair,
     upgrades: (skill.upgrades ?? 0) + incoming_roll.upgrades,
-    remsetback: skill?.remsetback ? skill.remsetback : 0 + incoming_roll.remsetback,
+    remsetback: Number(skill.remsetback ?? 0) + Number(incoming_roll.remsetback ?? 0),
     difficulty: +incoming_roll.difficulty,
     challenge: +incoming_roll.challenge,
   });

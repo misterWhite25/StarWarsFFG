@@ -1,3 +1,5 @@
+import { weaponQualityName } from "./helpers/weapon-selection.js";
+import { renderCombatActions } from "./helpers/combat-actions.js";
 import { registerCriticalTableRolls } from "./helpers/critical-table-roll.js";
 const { DialogV2 } = foundry.applications.api;
 import { deleteDataField } from "./compatibility/data-operators.js";
@@ -880,6 +882,7 @@ Hooks.once("init", async function () {
 
   // Register Handlebars utilities
   Handlebars.registerHelper("json", JSON.stringify);
+  Handlebars.registerHelper("ffgQualityName", name => weaponQualityName(name,game.i18n.lang));
 
   // Allows {if X = Y} type syntax in html using handlebars
   Handlebars.registerHelper("iff", function (a, operator, b, opts) {
@@ -1117,7 +1120,7 @@ Hooks.on("renderChatMessageHTML", async (message, element) => {
 
     const dicePool = new DicePoolFFG(poolData.dicePool);
 
-    DiceHelpers.displayRollDialog(poolData.roll.data, dicePool, poolData.description, poolData.roll.skillName, poolData.roll.item, poolData.roll.flavor, poolData.roll.sound);
+    DiceHelpers.displayRollDialog(poolData.roll.data, dicePool, poolData.description, poolData.roll.skillName, poolData.roll.item, poolData.roll.flavor, poolData.roll.sound, null, {autoFire:poolData.roll.autoFire,combatMode:poolData.roll.combatMode});
   });
 
   // collapse / expand item details
@@ -1975,3 +1978,7 @@ async function registerCrewRoles() {
     type: Object,
   });
 }
+
+Hooks.on("renderChatMessageHTML", renderCombatActions);
+
+

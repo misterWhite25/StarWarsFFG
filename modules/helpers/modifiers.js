@@ -187,7 +187,8 @@ export default class ModifierHelpers {
       rank = 1;
     }
     if (item?.system) {
-      const filteredAttributes = Object.values(item.system.attributes).filter(a => a).filter((a) => a.modtype === modtype && a.mod === key);
+      // Imported qualities and attachments can have no configured attributes.
+      const filteredAttributes = Object.values(item.system.attributes ?? {}).filter(a => a).filter((a) => a.modtype === modtype && a.mod === key);
 
       filteredAttributes.forEach((attr) => {
         sources.push({ modtype, key, name: item.name, value: attr.value * rank, type: item.type });

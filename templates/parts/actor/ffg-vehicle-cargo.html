@@ -2,7 +2,15 @@
   <li class="items-header flexrow">
     <div class="header-name">{{localize "SWFFG.VehicleTabShipCargoHold"}}</div>
     <div>{{localize "SWFFG.ItemsQuantity"}}</div>
-    <div></div>
+    <div class="item-controls">
+      {{#if editable}}
+      <button type="button" class="item-add gear" data-open-sheet="true"
+        title="{{localize 'SWFFG.VehicleAddCargo'}}" aria-label="{{localize 'SWFFG.VehicleAddCargo'}}"
+        style="width:auto;height:auto;min-height:24px;padding:2px 6px;font-size:12px;line-height:normal;color:#fff">
+        <i class="fas fa-plus" aria-hidden="true" style="color:inherit"></i> {{localize 'SWFFG.VehicleAddCargo'}}
+      </button>
+      {{/if}}
+    </div>
   </li>
 
   <ul class="items-list">

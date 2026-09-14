@@ -9,7 +9,7 @@ test('V2 accepts Item documents and legacy drag data, and protects locked sheets
   class Legacy { _onDropItem(event,data) {calls.push(data);return this._onDropItemCreate({name:data.uuid});} }
   const context=vm.createContext({foundry:{applications:{sheets:{ActorSheetV2:class {}},api:{HandlebarsApplicationMixin:C=>C}}}});
   const mod=new vm.SourceTextModule(await read('actors/actor-sheet-ffg-v2.js'),{context});
-  await mod.link(()=>new vm.SyntheticModule(['ActorSheetFFG'],function(){this.setExport('ActorSheetFFG',Legacy);},{context}));
+  await mod.link(async spec => spec.includes('sheet-portrait') ? new vm.SourceTextModule(await read('helpers/sheet-portrait.js'),{context}) : new vm.SyntheticModule(['ActorSheetFFG'],function(){this.setExport('ActorSheetFFG',Legacy);},{context}));
   await mod.evaluate();
   const sheet=Object.create(mod.namespace.ActorSheetFFGV2.prototype);
   const created=[];sheet.actor={isOwner:true,createEmbeddedDocuments:(type,data)=>{assert.equal(type,'Item');created.push(...data);return data;}};sheet.isEditable=true;
@@ -37,4 +37,16 @@ test('actor effects feed weapon damage on every preparation without accumulating
   actor.prepareDerivedData();assert.equal(damage,5);
   brawn=4;actor.prepareDerivedData();assert.equal(damage,6);
   actor.prepareDerivedData();assert.equal(damage,6);assert.equal(calls,3);
+});
+
+test('actor form preserves derived overrides, invalid numbers and valid zeroes', async () => {
+  const context=vm.createContext({foundry:{utils:{flattenObject:x=>x},applications:{sheets:{ActorSheetV2:class {}},api:{HandlebarsApplicationMixin:C=>C}}}});
+  const mod=new vm.SourceTextModule(await read('actors/actor-sheet-ffg-v2.js'),{context});
+  await mod.link(async spec=>spec.includes('sheet-portrait')?new vm.SourceTextModule(await read('helpers/sheet-portrait.js'),{context}):new vm.SyntheticModule(['ActorSheetFFG'],function(){this.setExport('ActorSheetFFG',class {});},{context}));
+  await mod.evaluate();
+  let saved;
+  const form={'data.stats.wounds.value':null,'data.stats.strain.value':0,'data.stats.soak.value':9,'data.stats.wounds.max':NaN,'data.stats.encumbrance.max':12};
+  const sheet={isEditable:true,actor:{overrides:{'system.stats.soak.value':9}},form:{querySelectorAll:()=>Object.keys(form).map(name=>({name,disabled:name==='data.stats.encumbrance.max'}))},_updateObject:(_event,data)=>{saved=data;}};
+  await mod.namespace.ActorSheetFFGV2._onSubmitForm.call(sheet,{},null,{object:form});
+  assert.deepEqual(Object.keys(saved),['data.stats.strain.value']);assert.equal(saved['data.stats.strain.value'],0);
 });

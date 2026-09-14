@@ -159,6 +159,9 @@ export function build_crew_roll(vehicle, crew_id, crew_role) {
     deregister_crew(vehicle_actor, crew_id, crew_role);
     return false;
   }
+  if (crew_role === "Pilot" || crew_role === "Co-Pilot") {
+    return buildPilotRoll(vehicle_actor, crew_id).renderPreview().innerHTML;
+  }
   const starting_pool = {'difficulty': 0};
   const registeredRoles = game.settings.get('starwarsffg', 'arrayCrewRoles');
   // don't attempt to draw a roll for the initiative role
@@ -178,6 +181,9 @@ export function build_crew_roll(vehicle, crew_id, crew_role) {
     ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Role.Invalid"));
     return false;
   }
+  if (crew_role === "Pilot") {
+    return buildPilotRoll(vehicle_actor, crew_id).renderPreview().innerHTML;
+  }
   // check if the pool uses handling
   if (role_info[0].use_handling) {
     const handling = vehicle_actor?.system?.stats?.handling?.value;
@@ -193,16 +199,29 @@ export function build_crew_roll(vehicle, crew_id, crew_role) {
   return pool.renderPreview().innerHTML;
 }
 
+/** Dangerous terrain: current speed versus half silhouette (rounded up).
+ * Specific actions can override this default difficulty in the roll dialog.
+ */
+export function getPilotDifficulty(vehicle) {
+  const count = value => Math.max(0, Math.floor(Number(value) || 0));
+  const speed = count(vehicle?.system?.stats?.speed?.value);
+  const silhouette = Math.ceil(count(vehicle?.system?.stats?.silhouette?.value) / 2);
+  const challenge = Math.min(speed, silhouette);
+  return {difficulty: Math.max(speed, silhouette) - challenge, challenge};
+}
+
 /**
  * Build the dice pool for the built-in piloting check, which automatically resolves the correct piloting skill
  * @param vehicle_id - the vehicle actor object
  * @param pilot_id - the actor ID of the pilot
- * @param difficulty - the difficulty of the check (omit to default to "average")
+ * @param difficulty - the difficulty of the check (omit to calculate from current speed and silhouette)
  * @returns {Promise<Window.DicePoolFFG>}
  */
-export async function buildPilotRoll(vehicle_id, pilot_id, difficulty = 2) {
-  const starting_pool = {'difficulty': difficulty};
-  const vehicle = game.actors.get(vehicle_id);
+export function buildPilotRoll(vehicle_id, pilot_id, difficulty) {
+  const vehicle = typeof vehicle_id === "string" ? game.actors.get(vehicle_id) : vehicle_id;
+  const starting_pool = difficulty === undefined
+    ? getPilotDifficulty(vehicle)
+    : {difficulty};
   const skillTheme = game.settings.get("starwarsffg", "skilltheme");
 
   // add modifiers from the vehicle handling
@@ -242,9 +261,13 @@ export async function buildPilotRoll(vehicle_id, pilot_id, difficulty = 2) {
  * @param pilot_id - the actor ID of the pilot
  * @returns {Promise<void>}
  */
-export async function handlePilotCheck(vehicle, pilot_id) {
+export async function handlePilotCheck(vehicle, pilot_id, role = "Pilot") {
   const crewSheet = game.actors.get(pilot_id)?.sheet;
-  const pool = await buildPilotRoll(vehicle.id, pilot_id);
+  if (!crewSheet) {
+    ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
+    return;
+  }
+  const pool = await buildPilotRoll(vehicle, pilot_id);
 
   // create chat card data
   const card_data = {
@@ -252,7 +275,7 @@ export async function handlePilotCheck(vehicle, pilot_id) {
       "name": vehicle.name,
       "img": vehicle.img,
       "crew_card": true,
-      "role": "Pilot",
+      "role": role,
     }
   };
 
@@ -297,11 +320,43 @@ export async function selectRoles(vehicle, crew_member_id) {
     window: {title: game.i18n.localize("SWFFG.Crew.Title")},
     content: trustedContent,
     ok: {
-      label: "Update Roles",
+      label: game.i18n.localize("SWFFG.Crew.Role.Update"),
       callback: async (_event, _button, dialog) => {
         const newRoles = $(dialog.element).find('[name="select-many-things"]').val();
         await updateRoles(vehicle, crew_member_id, newRoles);
       },
     },
   });
+}
+
+/** Optional weapon station restrictions. No selected station preserves legacy access. */
+export function hasWeaponCrewAccess(weapon) {
+  const access = weapon?.flags?.starwarsffg?.weaponCrew;
+  return ["pilot", "copilot", "gunner"].some(key => access?.[key] === true);
+}
+
+export function canCrewUseWeapon(weapon, role) {
+  if (!hasWeaponCrewAccess(weapon)) return true;
+  const normalized = String(role ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]/g, "");
+  const key = {pilot:"pilot", pilote:"pilot", copilot:"copilot", copilote:"copilot", gunner:"gunner", artilleur:"gunner"}[normalized];
+  return Boolean(key && weapon.flags.starwarsffg.weaponCrew[key] === true);
+}
+
+export function weaponCrewCandidates(weapon, crew = [], skillRoles = []) {
+  const restricted = hasWeaponCrewAccess(weapon);
+  const seen = new Set();
+  return crew.filter(member => {
+    const allowed = restricted ? canCrewUseWeapon(weapon, member.role)
+      : /^(gunner|artilleur)$/i.test(String(member.role).trim()) || skillRoles.some(role => role.role_name === member.role);
+    if (!allowed || seen.has(member.actor_id)) return false;
+    seen.add(member.actor_id);
+    return true;
+  });
+}
+
+/** Resolve station access identically from the crew row and from the weapon row. */
+export function crewStationWeapons(vehicle, member, registeredRoles = []) {
+  return vehicle.items.filter(weapon => weapon.type === "shipweapon" &&
+    weaponCrewCandidates(weapon, [member], registeredRoles.filter(role =>
+      role.role_skill === weapon.system?.skill?.value)).length > 0);
 }

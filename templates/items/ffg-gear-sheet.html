@@ -57,7 +57,13 @@
   <section class="sheet-body small gear">
     {{!-- Description Tab --}}
     <div class="tab" data-group="primary" data-tab="description">
-      {{editor data.enrichedDescription target="system.description" button=true owner=owner editable=editable engine="prosemirror"}}
+      {{#if editable}}
+      <prose-mirror name="system.description" value="{{data.description}}" toggled style="min-height:240px;height:100%;">
+        {{{data.enrichedDescription}}}
+      </prose-mirror>
+      {{else}}
+      <div class="editor-content">{{{data.enrichedDescription}}}</div>
+      {{/if}}
     </div>
 
     {{!-- Modifiers Tab --}}

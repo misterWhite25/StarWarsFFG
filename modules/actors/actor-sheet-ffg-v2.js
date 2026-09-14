@@ -1,3 +1,4 @@
+import { activateSheetPortrait } from "../helpers/sheet-portrait.js";
 import { ActorSheetFFG } from "./actor-sheet-ffg.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -37,7 +38,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.sheetWidth = this.position.width;
     this.sheetHeight = this.position.height;
     this._filters = { skills: new Set() };
-    this._sheetTab = "characteristics";
+    this._sheetTab = undefined;
     this._tabs = [];
     this.pools = new Map();
   }
@@ -52,6 +53,13 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _onDropItemCreate(data) {
     if (!this.isEditable || !this.actor.isOwner) return [];
     return this.actor.createEmbeddedDocuments("Item", Array.isArray(data) ? data : [data]);
+  }
+
+  async close(options = {}) {
+    const result = await super.close(options);
+    // Keep the selected tab during edits, but start at the first tab on reopening.
+    if (!this.rendered) this._sheetTab = undefined;
+    return result;
   }
 
   get object() { return this.document; }
@@ -98,6 +106,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
+    activateSheetPortrait(this);
     const actorClasses = ["character", "nemesis", "rival", "minion", "vehicle", "homestead", "editable", "locked"];
     this.element.classList.remove(...actorClasses);
     this.element.classList.add(this.actor.type, this.isEditable ? "editable" : "locked");
@@ -128,7 +137,16 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!this.isEditable) return;
     const updateData = { ...formData.object };
     const overrides = foundry.utils.flattenObject(this.actor.overrides);
-    for (const key of Object.keys(overrides)) delete updateData[key];
+    for (const key of Object.keys(overrides)) {
+      delete updateData[key];
+      // These legacy templates still submit data.*, while V14 overrides use system.*.
+      delete updateData[key.replace(/^system\./, "data.")];
+    }
+    // Blank/invalid numeric inputs must not erase persisted statistics on unrelated edits.
+    for (const input of this.form?.querySelectorAll('[data-dtype="Number"], input[type="number"]') ?? []) {
+      const value = updateData[input.name];
+      if (input.disabled || value === null || value === "" || (value !== undefined && !Number.isFinite(Number(value)))) delete updateData[input.name];
+    }
     return this._updateObject(event, updateData);
   }
 }

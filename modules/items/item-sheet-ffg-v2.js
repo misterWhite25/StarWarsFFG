@@ -1,3 +1,4 @@
+import { activateSheetPortrait } from "../helpers/sheet-portrait.js";
 import { ItemSheetFFG } from "./item-sheet-ffg.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -28,6 +29,13 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
   constructor(options, ...args) {
     super(options, ...args);
     this._tabs = [];
+  }
+
+  async close(options = {}) {
+    const result = await super.close(options);
+    // Keep the selected tab during edits, but start at the first tab on reopening.
+    if (!this.rendered) this._sheetTab = undefined;
+    return result;
   }
 
   get object() { return this.document; }
@@ -66,6 +74,7 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
+    activateSheetPortrait(this);
     const html = $(this.element);
     ItemSheetFFG.prototype._activateFFGListeners.call(this, html);
     this._activateLegacyTabs(html);

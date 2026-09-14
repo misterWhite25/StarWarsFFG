@@ -1950,6 +1950,7 @@ const LEGACY_DEFAULTS = {
       "label": "Ship Attachment"
     },
     "shipweapon": {
+      "ammo": {"value": 0, "max": 0},
       "description": "",
       "attributes": {},
       "metadata": {

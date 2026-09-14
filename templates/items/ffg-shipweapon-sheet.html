@@ -9,7 +9,7 @@
           <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name" /></h1>
         </div>
         <div class="container flex-group-center">
-          <div class="grid grid-6col">
+          <div class="grid" style="grid-template-columns:repeat(5,minmax(0,1fr));">
             <div class="characteristic-item flex-group-center">
               <div class="characteristic">
                 <div class="characteristic-value">
@@ -75,16 +75,48 @@
                 {{localize "SWFFG.ItemWeaponRarity"}}
               </div>
             </div>
-            <div class="characteristic-item flex-group-center">
-              {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.ItemWeaponPrice" type="Number" name="data.price.value" value=data.price.value adjusted=data.price.adjusted)}}
-            </div>
           </div>
 
-          <div class="container flex-group-center weapon-values">
-            {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="double" title="SWFFG.VehicleTabFiringArc" type="Multicheckbox" fields=(array (object name="data.firingarc.fore" value=data.firingarc.fore label="SWFFG.VehicleFiringArcForward") (object name="data.firingarc.aft" value=data.firingarc.aft label="SWFFG.VehicleFiringArcAft") (object name="data.firingarc.port" value=data.firingarc.port label="SWFFG.VehicleFiringArcPort") (object name="data.firingarc.starboard" value=data.firingarc.starboard label="SWFFG.VehicleFiringArcStarboard") (object name="data.firingarc.dorsal" value=data.firingarc.dorsal label="SWFFG.VehicleFiringArcDorsal") (object name="data.firingarc.ventral" value=data.firingarc.ventral label="SWFFG.VehicleFiringArcVentral") )) }}
+          <div class="container flex-group-center weapon-values" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+            {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.ItemWeaponPrice" type="Number" name="data.price.value" value=data.price.value adjusted=data.price.adjusted)}}
             {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.ItemWeaponSkill" type="Dropdown" name="data.skill.value" value=data.skill.value options=this.FFG.skills)}}
             {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.ItemWeaponRange" type="Dropdown" name="data.range.value" value=data.range.value options=this.FFG.vehicle_ranges adjusted=data.range.label)}}
           </div>
+
+          <fieldset class="ship-weapon-panel">
+            <legend>{{localize "SWFFG.VehicleTabFiringArc"}}</legend>
+            <div class="ship-weapon-checks">
+              <label><input type="checkbox" name="system.firingarc.fore" {{checked data.firingarc.fore}} /> {{localize "SWFFG.VehicleFiringArcForward"}}</label>
+              <label><input type="checkbox" name="system.firingarc.aft" {{checked data.firingarc.aft}} /> {{localize "SWFFG.VehicleFiringArcAft"}}</label>
+              <label><input type="checkbox" name="system.firingarc.port" {{checked data.firingarc.port}} /> {{localize "SWFFG.VehicleFiringArcPort"}}</label>
+              <label><input type="checkbox" name="system.firingarc.starboard" {{checked data.firingarc.starboard}} /> {{localize "SWFFG.VehicleFiringArcStarboard"}}</label>
+              <label><input type="checkbox" name="system.firingarc.dorsal" {{checked data.firingarc.dorsal}} /> {{localize "SWFFG.VehicleFiringArcDorsal"}}</label>
+              <label><input type="checkbox" name="system.firingarc.ventral" {{checked data.firingarc.ventral}} /> {{localize "SWFFG.VehicleFiringArcVentral"}}</label>
+            </div>
+          </fieldset>
+
+          <div class="ship-weapon-panel">
+            <label style="display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" name="flags.starwarsffg.config.enableAmmo" {{checked item.flags.starwarsffg.config.enableAmmo}} />
+              {{localize "SWFFG.Ammo"}}
+            </label>
+            {{#if item.flags.starwarsffg.config.enableAmmo}}
+            <div style="display:flex;gap:16px;margin-top:6px;">
+              <label>{{localize "SWFFG.ShipAmmo.Current"}} <input type="number" min="0" step="1" name="system.ammo.value" value="{{data.ammo.value}}" style="width:70px;" /></label>
+              <label>{{localize "SWFFG.ShipAmmo.Max"}} <input type="number" min="0" step="1" name="system.ammo.max" value="{{data.ammo.max}}" style="width:70px;" /></label>
+            </div>
+            {{/if}}
+          </div>
+
+          <fieldset class="weapon-crew-access ship-weapon-panel">
+            <legend>{{localize "SWFFG.WeaponCrew.Title"}}</legend>
+            <div class="ship-weapon-checks">
+              <label style="display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" name="flags.starwarsffg.weaponCrew.pilot" {{checked item.flags.starwarsffg.weaponCrew.pilot}} /> {{localize "SWFFG.WeaponCrew.pilot"}}</label>
+              <label style="display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" name="flags.starwarsffg.weaponCrew.copilot" {{checked item.flags.starwarsffg.weaponCrew.copilot}} /> {{localize "SWFFG.WeaponCrew.copilot"}}</label>
+              <label style="display: inline-flex; align-items: center; gap: 6px;"><input type="checkbox" name="flags.starwarsffg.weaponCrew.gunner" {{checked item.flags.starwarsffg.weaponCrew.gunner}} /> {{localize "SWFFG.WeaponCrew.gunner"}}</label>
+            </div>
+            <p style="font-size: 0.85em; margin: 6px 0 0; opacity: 0.8;">{{localize "SWFFG.WeaponCrew.Hint"}}</p>
+          </fieldset>
 
           <div class="flex-group-center weapon-values hidden-content">
             <input type="text" name="data.damage.adjusted" value="{{data.damage.adjusted}}" data-dtype="Number" />
