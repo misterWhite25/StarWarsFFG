@@ -15,6 +15,7 @@ import {forcePowerEditor, itemEditor, talentEditor} from "./item-editor.js";
  */
 
 export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
+
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
@@ -577,12 +578,15 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
     // TODO: This is not needed in Foundry 0.6.0
     // Activate tabs
-    let tabs = html.find(".tabs");
-    let initial = this._sheetTab;
-    new foundry.applications.ux.Tabs(tabs, {
-      initial: initial,
-      callback: (clicked) => (this._sheetTab = clicked.data("tab")),
+    const htmlElement = html.get(0);
+    const sheetTabs = new foundry.applications.ux.Tabs({
+      navSelector: ".sheet-tabs",
+      contentSelector: ".sheet-body",
+      initial: this._sheetTab ?? htmlElement.querySelector(".sheet-tabs [data-tab]")?.dataset.tab,
+      callback: (_event, _tabs, tabName) => { this._sheetTab = tabName; },
     });
+    sheetTabs.bind(htmlElement);
+    this._tabs = [sheetTabs];
 
     html.find(".items .item, .header-description-block .item, .injuries .item").click(async (ev) => {
       const li = $(ev.currentTarget);

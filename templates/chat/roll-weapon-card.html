@@ -16,7 +16,7 @@
     <h5>
       {{#each system.system.doNotSubmit.qualities as |item id|}}
         <div class="item-pill-hover hover-tooltip" data-item-type="itemmodifier" data-item-embed-name="{{ name }}" data-item-embed-img="{{ item.img }}" data-desc="{{ item.description }}" data-item-ranks="{{ item.totalRanks }}" data-tooltip="Loading...">
-          {{{name}}} {{ item.totalRanks }}
+          {{ffgQualityName name}} {{ item.totalRanks }}
         </div>
       {{/each}}
     </h5>

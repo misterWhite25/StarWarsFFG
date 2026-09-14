@@ -2,7 +2,8 @@
   <li class="items-header flexrow">
     <div class="header-name">{{localize "SWFFG.VehicleTabShipCrew"}}</div>
     <div>{{localize "SWFFG.VehicleCrewRole"}}</div>
-    <div>{{localize "SWFFG.VehicleCrewRoll"}}</div>
+    <div>{{localize "SWFFG.Crew.PilotingColumn"}}</div>
+    <div>{{localize "SWFFG.Crew.GunneryColumn"}}</div>
     <div></div>
   </li>
 
@@ -12,7 +13,7 @@
       <div class="item-name">
         <div class="roll-button-crew">
           <!-- Create define a button with mouseover events to update the icon and generate rolls when clicked and moused over -->
-          <div class="skill-label rollable roll-button-crew starwarsffg item-rollable" style="background-image: url('{{ item.img }}')"></div>
+          <div class="skill-label rollable roll-button-crew crew-roll starwarsffg item-rollable" style="background-image: url('{{ item.img }}')"></div>
         </div>
         {{#if item.link}}
           {{{ item.link }}}
@@ -21,17 +22,17 @@
         {{/if}}
       </div>
       <div class="crew_role">
-        <div>{{ item.role }}</div>
+        <div>{{#if (eq item.role "Pilot")}}{{localize "SWFFG.WeaponCrew.pilot"}}{{else}}{{#if (eq item.role "Co-Pilot")}}{{localize "SWFFG.WeaponCrew.copilot"}}{{else}}{{ item.role }}{{/if}}{{/if}}</div>
       </div>
-      <div>
-        {{#if (eq item.role "(none)")}}
-        {{else}}
-          <div class="crew skillsGrid">
-            <div class="crew dice-pool">
-              {{{ item.roll }}}
-            </div>
-          </div>
-        {{/if}}
+      <div class="crew skillsGrid">
+        {{#if item.pilotRoll}}
+          <button type="button" class="crew dice-pool crew-roll" aria-label="{{localize 'SWFFG.Crew.PilotingColumn'}}" style="width:auto;height:auto;min-height:24px;padding:0;border:0;background:transparent;">{{{item.pilotRoll}}}</button>
+        {{else}}—{{/if}}
+      </div>
+      <div class="crew skillsGrid">
+        {{#if item.gunneryRoll}}
+          <button type="button" class="crew dice-pool crew-gunnery-roll" aria-label="{{localize 'SWFFG.Crew.GunneryColumn'}}" style="width:auto;height:auto;min-height:24px;padding:0;border:0;background:transparent;">{{{item.gunneryRoll}}}</button>
+        {{else}}—{{/if}}
       </div>
       <div class="item-controls">
         <a class="item-control crew-edit" title="Edit Role"><i class="fas fa-edit"></i></a>

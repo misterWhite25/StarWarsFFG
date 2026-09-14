@@ -69,6 +69,28 @@
       }
 
       .defense-block {
+        isolation: isolate;
+
+        // Keep arbitrary imported silhouettes between the four shield controls.
+        > img.defense-img {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: min(120px, 35%);
+          height: 60px;
+          max-width: 100%;
+          object-fit: contain;
+          border: 0;
+          margin: 0;
+          z-index: 0;
+        }
+
+        .defense-value,
+        .defense-block-title {
+          z-index: 1;
+        }
+
         height: 200px;
         width: 100%;
         position: relative;
@@ -238,3 +260,13 @@
     }
   }
 }
+
+/* Keep the native rich-text edit/save control discoverable on equipment sheets. */
+.starwarsffg.sheet.item prose-mirror[name="system.description"] > button.toggle { display: block; }
+
+/* Compact ship weapon firing arcs, ammunition and station access. */
+.starwarsffg .ship-weapon-panel { width:100%; box-sizing:border-box; margin:10px 0; padding:8px 12px; text-align:left; border:1px solid #9996; border-radius:4px; background:#ffffff18; }
+.starwarsffg .ship-weapon-panel legend { font-weight:bold; padding:0 5px; }
+.starwarsffg .ship-weapon-checks { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 12px; }
+.starwarsffg .ship-weapon-checks label { display:flex; align-items:center; gap:6px; margin:0; }
+.starwarsffg .ship-weapon-checks input[type="checkbox"] { flex:none; margin:0; }

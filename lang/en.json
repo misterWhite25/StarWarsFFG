@@ -1,4 +1,5 @@
 {
+  "SWFFG.VehicleAddCargo": "Add cargo",
   "SWFFG.CriticalTable.VehicleTitle": "Starship Critical Hit roll",
   "SWFFG.CriticalTable.VehicleHint": "Roll 1d100 plus the modifier below. The total can exceed 100; the final range is 154+.",
   "SWFFG.CriticalTable.Title": "Critical injury roll",
@@ -1106,5 +1107,21 @@
   "SWFFG.CompendiumBrowser.Tabs.SignatureAbilities": "Signature Abilities",
   "SWFFG.CompendiumBrowser.Tabs.Vehicles": "Vehicles",
   "SWFFG.CompendiumBrowser.Tabs.Adversaries": "Adversaries",
-  "SWFFG.CompendiumBrowser.Tabs.Other": "Other"
+  "SWFFG.CompendiumBrowser.Tabs.Other": "Other",
+  "SWFFG.Crew.Role.UpdateFor": "Update roles for {name}",
+  "SWFFG.Crew.Role.BuiltIn": "Built-in roles",
+  "SWFFG.Crew.Role.Custom": "Custom roles",
+  "SWFFG.Crew.Roles.Pilot": "Pilot",
+  "SWFFG.WeaponCrew.Title": "Weapon access by station",
+  "SWFFG.WeaponCrew.pilot": "Pilot",
+  "SWFFG.WeaponCrew.copilot": "Co-pilot",
+  "SWFFG.WeaponCrew.gunner": "Gunner",
+  "SWFFG.WeaponCrew.Hint": "Select any number of stations. None selected: use the usual station skill matching.",
+  "SWFFG.WeaponCrew.NoCrew": "No crew member holds an authorized station for this weapon.",
+  "SWFFG.WeaponCrew.NoWeapons": "No weapons are accessible from this station.",
+  "SWFFG.Crew.PilotingColumn": "Piloting",
+  "SWFFG.Crew.GunneryColumn": "Gunnery",
+  "SWFFG.ShipAmmo.Enable": "Track ammunition",
+  "SWFFG.ShipAmmo.Current": "Remaining ammunition",
+  "SWFFG.ShipAmmo.Max": "Maximum capacity"
 }

@@ -6,6 +6,7 @@
     <div class="">{{localize "SWFFG.VehicleTabDamage"}}</div>
     <div class="">{{localize "SWFFG.VehicleTabRange"}}</div>
     <div class="">{{localize "SWFFG.VehicleTabCritical"}}</div>
+    <div>{{localize "SWFFG.Ammo"}}</div>
     <div class="item-add shipweapon"><i class="far fa-plus-square"></i></div>
   </li>
 
@@ -23,6 +24,7 @@
       <div>{{item.system.damage.value}} {{#if (and (ne item.system.damage.value item.system.damage.adjusted) (or (gt item.system.damage.adjusted.length 0) (gt item.system.damage.adjusted 0)))}}({{item.system.damage.adjusted}}){{/if}}</div>
       <div>{{localize item.system.range.label}}</div>
       <div>{{item.system.crit.value}} {{#if (and (ne item.system.crit.value item.system.crit.adjusted) (or (gt item.system.crit.adjusted.length 0) (gt item.system.crit.adjusted 0)))}}({{item.system.crit.adjusted}}){{/if}}</div>
+      <div class="ship-weapon-ammo">{{#if item.flags.starwarsffg.config.enableAmmo}}{{#if item.system.ammo.value}}{{item.system.ammo.value}}{{else}}0{{/if}}/{{#if item.system.ammo.max}}{{item.system.ammo.max}}{{else}}0{{/if}}{{else}}-{{/if}}</div>
       <div class="item-controls">
         <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
         <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>

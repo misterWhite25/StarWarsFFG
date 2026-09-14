@@ -123,11 +123,22 @@ export class ActorFFG extends Actor {
      *  // this might be able to be done when you submit an update to the species item - we update the values of the existing AEs
      */
 
+    // Reject invalid numeric stat writes at the document boundary as well as in the sheet.
+    for (const [key, value] of Object.entries(changes)) {
+      if (key.startsWith("system.stats.") && (value === null || typeof value === "number" && !Number.isFinite(value))) delete changes[key];
+    }
+    const pruneInvalid = object => {
+      for (const [key, value] of Object.entries(object ?? {})) {
+        if (value === null || typeof value === "number" && !Number.isFinite(value)) delete object[key];
+        else if (value && typeof value === "object") pruneInvalid(value);
+      }
+    };
+    pruneInvalid(changes.system?.stats);
     CONFIG.logger.debug(`Performing pre-update on ${this.name}`);
     if (["character", "rival", "nemesis"].includes(this.type)) {
       const originalBrawn = this.system.characteristics.Brawn.value;
       const updatedBrawn = changes?.system?.characteristics?.Brawn?.value;
-      if (originalBrawn !== undefined && updatedBrawn !== undefined && originalBrawn !== updatedBrawn) {
+      if (originalBrawn != null && updatedBrawn != null && Number.isFinite(Number(updatedBrawn)) && originalBrawn !== updatedBrawn) {
         CONFIG.logger.debug(`Detected modified Brawn (${originalBrawn} -> ${updatedBrawn}, updating derived values`);
         // get the wounds without brawn modifying it, then add the new brawn value in
         const originalWounds = this.system.stats?.wounds.max;
@@ -151,7 +162,7 @@ export class ActorFFG extends Actor {
         // repeat the above process, but for soak
         const originalSoak = this.system.stats?.soak.value;
         const originalSoakWithoutBrawn = originalSoak - originalBrawn;
-        const updatedSoak = originalSoakWithoutBrawn + updatedBrawn;
+        const updatedSoak = originalSoakWithoutBrawn + Number(updatedBrawn);
         CONFIG.logger.debug(`The character sheet showed ${originalSoak} soak, while that value without Brawn was ${originalSoakWithoutBrawn}. Updating to be ${updatedSoak}`);
         changes.system.stats = foundry.utils.mergeObject(
           changes.system.stats,
@@ -177,7 +188,7 @@ export class ActorFFG extends Actor {
       }
       const originalWillpower = this.system.characteristics.Willpower.value;
       const updatedWillpower = changes.system?.characteristics?.Willpower?.value;
-      if (originalWillpower !== undefined && updatedWillpower !== undefined && originalWillpower !== updatedWillpower) {
+      if (originalWillpower != null && updatedWillpower != null && Number.isFinite(Number(updatedWillpower)) && originalWillpower !== updatedWillpower) {
         CONFIG.logger.debug(`Detected modified Willpower (${originalWillpower} -> ${updatedWillpower}, updating derived values`);
         if (!Object.keys(changes.system).includes("stats")) {
           changes.system.stats = {};
@@ -189,7 +200,7 @@ export class ActorFFG extends Actor {
           // get the soak without willpower modifying it, then add the new willpower value in
           const originalStrain = this.system.stats?.strain.max;
           const originalStrainWithoutWillpower = originalStrain - originalWillpower;
-          const updatedStrain = originalStrainWithoutWillpower + updatedWillpower;
+          const updatedStrain = originalStrainWithoutWillpower + Number(updatedWillpower);
           CONFIG.logger.debug(`The character sheet showed ${originalStrain} strain, while that value without Willpower was ${originalStrainWithoutWillpower}. Updating to be ${updatedStrain}`);
           changes.system.stats = foundry.utils.mergeObject(
             changes.system.stats,
@@ -317,7 +328,10 @@ export class ActorFFG extends Actor {
     }
 
     //Calculate the number of alive minions
-    data.quantity.value = Math.max(Math.min(data.quantity.max, data.quantity.max - Math.floor((data.stats.wounds.value - 1) / data.unit_wounds.value)), 0);
+    data.quantity.value = data.unit_wounds.value > 0
+      ? Math.max(Math.min(data.quantity.max, data.quantity.max - Math.floor((data.stats.wounds.value - 1) / data.unit_wounds.value)), 0)
+      : Math.max(0, data.quantity.max);
+    data.stats.woundsOverThreshold = data.stats.wounds.value - data.stats.wounds.max;
 
     // Loop through Skills, and where groupskill = true, set the rank to 1*(quantity-1).
     for (let [key, skill] of Object.entries(data.skills)) {
@@ -625,22 +639,12 @@ export class ActorFFG extends Actor {
       try {
         // Calculate encumbrance, only if encumbrance value exists
         if (item.system?.encumbrance?.adjusted !== undefined || item.system?.encumbrance?.value !== undefined) {
-          if (item.type === "armour" && item?.system?.equippable?.equipped) {
-            const equippedEncumbrance = +item.system.encumbrance.adjusted - 3;
-            encum += equippedEncumbrance > 0 ? equippedEncumbrance : 0;
-          } else if (item.type === "armour" || item.type === "weapon" || item.type === "shipweapon") {
-            let count = 0;
-            if (item.system?.quantity?.value) {
-              count = item.system.quantity.value;
-            }
-            encum += ((item.system?.encumbrance?.adjusted !== undefined) ? item.system?.encumbrance?.adjusted : item.system?.encumbrance?.value) * count;
-          } else {
-            let count = 0;
-            if (item.system?.quantity?.value) {
-              count = item.system.quantity.value;
-            }
-            encum += item.system?.encumbrance?.value * count;
-          }
+          const encumbrance = Math.max(0, Number(item.system.encumbrance.adjusted ?? item.system.encumbrance.value) || 0);
+          const count = Math.max(0, Number(item.system.quantity?.value ?? 1) || 0);
+          // Only one copy is worn; other copies remain carried at full encumbrance.
+          const wornReduction = item.type === "armour" && item.system.equippable?.equipped && count > 0
+            ? Math.min(3, encumbrance) : 0;
+          encum += encumbrance * count - wornReduction;
         }
       } catch (err) {
         CONFIG.logger.error(`Error calculating derived Encumbrance`, err);
