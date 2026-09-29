@@ -1,4 +1,5 @@
 import { weaponQualityName, combatModeForRoll } from "./weapon-selection.js";
+import { tonioRulesEnabled, weaponSuccessDamage } from "./custom-rules.js";
 // Post-roll helpers. Only message authors/GMs spend results; damage respects Actor ownership.
 const scope = 'starwarsffg';
 const key = 'combatActions';
@@ -32,10 +33,16 @@ export function remainingSymbols(results, entries = []) {
   for (const entry of entries) if (!entry.undone && entry.currency in available) available[entry.currency] -= num(entry.cost);
   return available;
 }
-export function calculateDamage({base, successes, soak, pierce = 0, breach = 0, vehicle = false, scale = 1}) {
-  const raw = Math.max(0, (num(base) + num(successes)) * num(scale));
+export function calculateDamage({base, successes, soak, pierce = 0, breach = 0, vehicle = false, scale = 1, tonioRules = false}) {
+  const raw = Math.max(0, (num(base) + weaponSuccessDamage(successes, tonioRules)) * num(scale));
   const reduction = Math.max(0, num(soak) - (vehicle ? num(breach) : num(pierce) + 10 * num(breach)));
   return {raw, reduction, wounds: Math.max(0, raw - reduction)};
+}
+export function weaponBaseDamage(item) {
+  const damage = [item?.system?.damage, item?.system?.system?.damage, item?.damage, item?.data?.damage, item?.data?.data?.damage]
+    .find(value => value && (value.adjusted !== undefined || value.value !== undefined)) ?? {};
+  const adjusted = Number(damage.adjusted);
+  return Number.isFinite(adjusted) && adjusted !== 0 ? adjusted : num(damage.value);
 }
 function qualities(item) {
   const values = item?.system?.adjusteditemmodifier ?? item?.system?.itemmodifier ?? [];
@@ -330,16 +337,31 @@ export async function restoreAid(entries) {
 }
 /** Listen only while the target picker is open; never select hidden/unlisted tokens. */
 export function watchDamageTarget(tokens, getSelect, hooks = Hooks, userId = game.user.id) {
+  let pendingUuid = null;
+  const refresh = () => {
+    const select = getSelect();
+    if (!select || !pendingUuid) return false;
+    select.value = pendingUuid;
+    pendingUuid = null;
+    return true;
+  };
   const selectToken = token => {
     const uuid = token?.document?.uuid;
-    const select = getSelect();
-    if (!select || !tokens.some(candidate => candidate.document.uuid === uuid)) return;
+    if (!tokens.some(candidate => candidate.document.uuid === uuid)) return;
     if (!game.user.isGM && (!token.visible || token.document.hidden)) return;
-    select.value = uuid;
+    pendingUuid = uuid;
+    refresh();
   };
   const control = hooks.on('controlToken', (token, controlled) => { if (controlled) selectToken(token); });
   const target = hooks.on('targetToken', (user, token, targeted) => { if (targeted && user.id === userId) selectToken(token); });
-  return () => { hooks.off('controlToken', control); hooks.off('targetToken', target); };
+  const stop = () => { hooks.off('controlToken', control); hooks.off('targetToken', target); };
+  stop.refresh = refresh;
+  return stop;
+}
+
+/** Prefer an explicit GM request, then the user's most recent target, then their controlled token. */
+export function preferredDamageTarget(requested, targets = [], controlled = []) {
+  return requested ?? targets.at(-1)?.document?.uuid ?? controlled.at(-1)?.document?.uuid;
 }
 
 async function chooseDamageTarget(tokens, requested) {
@@ -353,7 +375,7 @@ async function chooseDamageTarget(tokens, requested) {
       window: {title: t('Choisir la cible','Choose target')},
       classes: ['starwarsffg','themed','theme-light'], position: {width:500},
       modal: false, content: body, rejectClose:false,
-      render: (_event, app) => { root = app.element; },
+      render: (_event, app) => { root = app.element; stop.refresh(); },
       ok: {label:t('Calculer','Calculate'), callback:(_event,_button,app) => field(app.element,'target')},
     });
   } finally { stop(); }
@@ -363,17 +385,19 @@ async function damageDialog(message) {
   const item=weapon(message);if(!item || num(result(message)?.success)<=0) return;
   const tokens=(canvas.tokens?.placeables ?? []).filter(token=>token.actor && (game.user.isGM || (token.visible && !token.document.hidden)));
   if(!tokens.length) throw Error(t('Aucun token sur la scène.','No tokens on this scene.'));
-  const selected=new Set([...game.user.targets, ...(canvas.tokens.controlled ?? [])].map(token=>token.id));
-  tokens.sort((a,b)=>Number(selected.has(b.id))-Number(selected.has(a.id)));
   const request=state(message).request;
-  const choose=await chooseDamageTarget(tokens,request?.target);
+  const targets=[...game.user.targets], controlled=canvas.tokens.controlled ?? [];
+  const preferred=preferredDamageTarget(request?.target,targets,controlled);
+  const selected=new Set([...targets, ...controlled].map(token=>token.id));
+  tokens.sort((a,b)=>Number(selected.has(b.id))-Number(selected.has(a.id)));
+  const choose=await chooseDamageTarget(tokens,preferred);
   if(!choose) return;
   const token=await fromUuid(choose), actor=token?.actor;if(!actor) return;
   const vehicle=actor.type==='vehicle', shipWeapon=item.type==='shipweapon';
   const scale=shipWeapon===vehicle?1:shipWeapon?10:0.1;
   const soak=vehicle?actor.system.stats?.armour?.value:actor.system.stats?.soak?.value;
-  const computed=calculateDamage({base:item.system.damage?.adjusted ?? item.system.damage?.value,successes:result(message).success,soak,
-    pierce:qualityRank(item,['pierce','perforant']),breach:qualityRank(item,['breach','breche']),vehicle,scale});
+  const computed=calculateDamage({base:weaponBaseDamage(item),successes:result(message).success,soak,
+    pierce:qualityRank(item,['pierce','perforant']),breach:qualityRank(item,['breach','breche']),vehicle,scale,tonioRules:tonioRulesEnabled()});
   if(request?.target===choose) {computed.raw=request.raw;computed.reduction=request.reduction;}
   const prior=state(message).entries.filter(e=>e.kind==='damage'&&!e.undone&&e.change?.actor===actor.uuid);
   await dialog(t('Appliquer les dégâts','Apply damage'),`<p><strong>${esc(token.name)}</strong></p>

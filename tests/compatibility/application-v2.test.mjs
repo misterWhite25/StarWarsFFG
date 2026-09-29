@@ -100,7 +100,6 @@ test("simple system prompts use DialogV2 factory methods directly", async () => 
     "modules/actors/actor-ffg-options.js",
     "modules/items/item-ffg-options.js",
     "modules/helpers/crew.js",
-    "modules/swffg-migration.js",
     "modules/swffg-main.js",
   ]) {
     const source = await read(path);

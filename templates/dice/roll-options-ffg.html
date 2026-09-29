@@ -1,5 +1,6 @@
-<form style="overflow-y: scroll; scrollbar-width: thin;">
+<div class="roll-builder-content">
   <div class="dice-pool-dialog">
+    <div class="roll-builder-body">
     <div class="dice-pool"></div>
     <div class="simulation" {{#if simDisplay }} {{ else }}style="display: none"{{/if}}>
       Success chance: <span id="success_chance">{{ success }}</span>
@@ -13,7 +14,7 @@
       <button id="downgrade-ability">{{localize "SWFFG.DowngradeAbility"}}</button>
       <button id="downgrade-difficulty">{{localize "SWFFG.DowngradeDifficulty"}}</button>
     </div>
-    <div style="margin: 10px 1px 5px 1px;">
+    <div class="pool-hint">
       <span><em>{{localize "SWFFG.DicePoolAddsHint"}}</em></span>
     </div>
     <details>
@@ -143,8 +144,9 @@
       {{/if}}
     </div>
     </details>
+    </div>
     <div class="roll-button flexrow">
       <button class="btn">{{localize "SWFFG.SkillsRoll"}}</button>
     </div>
   </div>
-</form>
+</div>

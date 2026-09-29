@@ -8,15 +8,24 @@ async function load(){
  const entries=[{id:'offer',kind:'aid',recipient:'p2'}];
  const context=vm.createContext({game:{user:{id:'p2',getFlag:()=>flags,setFlag:async(_s,_k,value)=>{flags=value;}},messages:{get:()=>({getFlag:()=>({entries})})},i18n:{lang:'fr'}},foundry:{utils:{deepClone:structuredClone}}});
  const selection=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/weapon-selection.js',import.meta.url),'utf8'),{context});await selection.link(()=>{});await selection.evaluate();
- const mod=new vm.SourceTextModule(source,{context});await mod.link(()=>selection);await mod.evaluate();return {api:mod.namespace,entries,setFlags:value=>{flags=value;},flags:()=>flags};
+ const customRules=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/custom-rules.js',import.meta.url),'utf8'),{context});await customRules.link(()=>{});await customRules.evaluate();
+ const mod=new vm.SourceTextModule(source,{context});await mod.link(specifier=>specifier.endsWith('custom-rules.js')?customRules:selection);await mod.evaluate();return {api:mod.namespace,entries,setFlags:value=>{flags=value;},flags:()=>flags};
 }
 test('post-roll damage never heals, supports soak/pierce and vehicle scale',async()=>{
  const {api}=await load();
+ assert.equal(api.weaponBaseDamage({system:{damage:{value:7,adjusted:0}}}),7);
+ assert.equal(api.weaponBaseDamage({system:{damage:{value:7,adjusted:9}}}),9);
+ assert.equal(api.weaponBaseDamage({system:{system:{damage:{value:7,adjusted:0}}}}),7);
+ assert.equal(api.weaponBaseDamage({data:{data:{damage:{value:7,adjusted:0}}}}),7);
  assert.equal(api.calculateDamage({base:7,successes:3,soak:5,pierce:2}).wounds,7);
  assert.equal(api.calculateDamage({base:3,successes:1,soak:10}).wounds,0);
  assert.equal(api.calculateDamage({base:7,successes:3,soak:3,breach:1,vehicle:true}).wounds,8);
  assert.equal(api.calculateDamage({base:7,successes:3,soak:5,scale:10}).wounds,95);
  assert.equal(api.calculateDamage({base:0,successes:1,soak:0}).wounds,1);
+ const first=api.calculateDamage({base:7,successes:1,soak:3,tonioRules:true});
+ assert.equal(first.raw,7);assert.equal(first.reduction,3);assert.equal(first.wounds,4);
+ const three=api.calculateDamage({base:7,successes:3,soak:3,tonioRules:true});
+ assert.equal(three.raw,9);assert.equal(three.reduction,3);assert.equal(three.wounds,6);
 });
 test('symbol budget accounts for spending and refunds independently',async()=>{
  const {api}=await load();const left=api.remainingSymbols({advantage:4,triumph:1},[{currency:'advantage',cost:2},{currency:'advantage',cost:2,undone:true},{currency:'triumph',cost:1}]);
@@ -155,7 +164,7 @@ test('damage picker follows local selection/targeting and removes listeners on c
  const a={document:{uuid:'a'},visible:true},b={document:{uuid:'b'},visible:true},hidden={document:{uuid:'hidden',hidden:true},visible:false};
  const select={value:'a'};let ready=false;
  const stop=api.watchDamageTarget([a,b,hidden],()=>ready?select:null,hooks,'p2');
- emit('controlToken',b,true);assert.equal(select.value,'a');ready=true;
+ emit('controlToken',b,true);assert.equal(select.value,'a');ready=true;stop.refresh();assert.equal(select.value,'b');
  emit('controlToken',b,true);assert.equal(select.value,'b');
  emit('controlToken',a,false);assert.equal(select.value,'b');
  emit('targetToken',{id:'other'},a,true);assert.equal(select.value,'b');
@@ -163,4 +172,12 @@ test('damage picker follows local selection/targeting and removes listeners on c
  emit('controlToken',hidden,true);assert.equal(select.value,'a');
  emit('controlToken',{document:{uuid:'unlisted'},visible:true},true);assert.equal(select.value,'a');
  stop();assert.equal(handlers.size,0);
+});
+
+test('damage picker initially prefers a requested token, then a target, then a controlled token',async()=>{
+ const {api}=await load();
+ const controlled={document:{uuid:'controlled'}},targetA={document:{uuid:'target-a'}},targetB={document:{uuid:'target-b'}};
+ assert.equal(api.preferredDamageTarget(undefined,[targetA,targetB],[controlled]),'target-b');
+ assert.equal(api.preferredDamageTarget(undefined,[],[controlled]),'controlled');
+ assert.equal(api.preferredDamageTarget('requested',[targetA],[controlled]),'requested');
 });

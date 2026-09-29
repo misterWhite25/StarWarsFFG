@@ -1,4 +1,3 @@
-import ActorHelpers from "../helpers/actor-helpers.js";
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -39,17 +38,9 @@ export default class ActorOptions {
             this.options[control.id].value = value;
           }
 
-          const editMode = updateObject["flags.starwarsffg.config.enableEditMode"];
-          if (editMode && Object.keys(this.suspended).length === 0) {
-            this.suspended = await ActorHelpers.beginEditMode(this.data.object);
-            updateObject["flags.starwarsffg.config.editModeActor"] = game.user.id;
-          } else if (!editMode) {
-            if (Object.keys(this.suspended).length > 0) {
-              await ActorHelpers.endEditMode(this.data.object, this.suspended);
-              this.suspended = {};
-            }
-            updateObject["flags.starwarsffg.config.editModeActor"] = "";
-          }
+          this.data._manualEditMode = Boolean(updateObject["flags.starwarsffg.config.enableEditMode"]);
+          delete updateObject["flags.starwarsffg.config.enableEditMode"];
+          delete updateObject["flags.starwarsffg.config.editModeActor"];
 
           await this.data.object.update(updateObject);
           this.data.object.sheet.render(true);
@@ -70,6 +61,7 @@ export default class ActorOptions {
     }
     this.options[optionName].value = this.data.object.flags?.starwarsffg?.config[optionName]
       ?? this.options[optionName].default;
+    if (optionName === "enableEditMode") this.options[optionName].value = Boolean(this.data._manualEditMode);
   }
 
   registerMany(optionsArray) {

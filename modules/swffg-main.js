@@ -1,4 +1,5 @@
 import { weaponQualityName } from "./helpers/weapon-selection.js";
+import { tonioRulesEnabled, weaponSuccessDamage } from "./helpers/custom-rules.js";
 import { renderCombatActions } from "./helpers/combat-actions.js";
 import { registerCriticalTableRolls } from "./helpers/critical-table-roll.js";
 const { DialogV2 } = foundry.applications.api;
@@ -57,6 +58,7 @@ import {CharacterCreator} from "./helpers/character-creator.js";
 import {xpLogUndo} from "./helpers/actor-helpers.js";
 import {register_system_tours} from "./helpers/tours.js";
 import { actorDataModels, itemDataModels } from "./data-models/system-data-models.js";
+import { registerTokenResourceLabels } from "./helpers/token-resource-labels.js";
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
@@ -108,8 +110,19 @@ Hooks.once("init", async function () {
   // to instead use our extended version.
   CONFIG.Actor.documentClass = ActorFFG;
   CONFIG.Item.documentClass = ItemFFG;
+  registerTokenResourceLabels();
   Object.assign(CONFIG.Actor.dataModels, actorDataModels);
   Object.assign(CONFIG.Item.dataModels, itemDataModels);
+  // ObjectField preserves imported data, but hides nested resources from V14's
+  // schema inspection. Register paths from each model's plain initial data.
+  CONFIG.Actor.trackableAttributes ??= {};
+  for (const [type, Model] of Object.entries(actorDataModels)) {
+    const attributes = foundry.documents.TokenDocument.getTrackedAttributes(new Model().toObject());
+    CONFIG.Actor.trackableAttributes[type] = {
+      bar: attributes.bar.map(path => path.join('.')),
+      value: attributes.value.map(path => path.join('.')),
+    };
+  }
   CONFIG.ActiveEffect.documentClass = ActiveEffectFFG;
 
   // Keep FFG's once/combat expiry alongside the core V14 effect changes.
@@ -883,6 +896,7 @@ Hooks.once("init", async function () {
   // Register Handlebars utilities
   Handlebars.registerHelper("json", JSON.stringify);
   Handlebars.registerHelper("ffgQualityName", name => weaponQualityName(name,game.i18n.lang));
+  Handlebars.registerHelper("ffgWeaponSuccessDamage", successes => weaponSuccessDamage(successes,tonioRulesEnabled()));
 
   // Allows {if X = Y} type syntax in html using handlebars
   Handlebars.registerHelper("iff", function (a, operator, b, opts) {

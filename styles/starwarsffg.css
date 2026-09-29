@@ -1086,6 +1086,23 @@ img {
   height: 50px;
   width: auto;
 }
+.starwarsffg .item-display .weapon-name {
+  font-size: 14px;
+  line-height: 1.15;
+}
+.starwarsffg .item-display h4.item-damage,
+.starwarsffg .item-display h4.item-critical {
+  font-size: 14px;
+  line-height: 1.2;
+}
+.starwarsffg .item-display h4.item-damage input,
+.starwarsffg .item-display h4.item-critical input {
+  font-size: 14px;
+}
+.starwarsffg .item-display .specials h5 {
+  font-size: 8px;
+  line-height: 1.2;
+}
 .starwarsffg .item-display h4 {
   display: flex;
   flex-direction: row;
@@ -2983,3 +3000,26 @@ img {
 .starwarsffg .ship-weapon-checks { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 12px; }
 .starwarsffg .ship-weapon-checks label { display:flex; align-items:center; gap:6px; margin:0; }
 .starwarsffg .ship-weapon-checks input[type="checkbox"] { flex:none; margin:0; }
+
+/* Compact roll builder; other dice displays keep their normal dimensions. */
+.starwarsffg.roll-builder-dialog { max-height: calc(100dvh - 24px); }
+.starwarsffg.roll-builder-dialog .window-content { padding: 8px; min-height: 0; overflow: hidden; }
+.starwarsffg.roll-builder-dialog .roll-builder-content,
+.starwarsffg.roll-builder-dialog .dice-pool-dialog { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.starwarsffg.roll-builder-dialog .roll-builder-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+.starwarsffg.roll-builder-dialog .dice-pool { margin-top: 0; min-height: 38px; max-height: 76px; overflow-y: auto; }
+.starwarsffg.roll-builder-dialog .dice-pool img { width: 30px; height: 30px; }
+.starwarsffg.roll-builder-dialog .simulation { margin: 2px 0 5px; font-size: 12px; }
+.starwarsffg.roll-builder-dialog .upgrade-buttons { gap: 3px; margin-bottom: 3px; }
+.starwarsffg.roll-builder-dialog .upgrade-buttons button { flex: 1; min-width: 0; min-height: 24px; padding: 1px 4px; line-height: 18px; }
+.starwarsffg.roll-builder-dialog .pool-hint { margin: 5px 1px; font-size: 12px; line-height: 1.25; }
+.starwarsffg.roll-builder-dialog .pool-dice-pool { margin: 6px 0; padding: 0; width: 100%; table-layout: fixed; }
+.starwarsffg.roll-builder-dialog .pool-dice-pool td { padding: 3px 6px; height: 34px; vertical-align: middle; }
+.starwarsffg.roll-builder-dialog .pool-dice-pool td:first-child { width: 42px; }
+.starwarsffg.roll-builder-dialog .pool-dice-pool td:nth-child(2) { width: 54px; }
+.starwarsffg.roll-builder-dialog .pool-dice-pool img { display: block; width: 24px; height: 24px; margin: auto; }
+.starwarsffg.roll-builder-dialog .pool-value { width: 38px; height: 28px; margin: auto; }
+.starwarsffg.roll-builder-dialog .pool-value input { display: block; height: 26px; min-height: 0; padding: 0; margin: 0; font-size: 20px; line-height: 26px; }
+.starwarsffg.roll-builder-dialog .pool-text label { margin-left: 5px; }
+.starwarsffg.roll-builder-dialog .roll-button { flex: 0 0 auto; margin-top: 6px; padding-top: 4px; border-top: 1px solid #9996; }
+.starwarsffg.roll-builder-dialog .roll-button button { min-height: 30px; margin: 0; }

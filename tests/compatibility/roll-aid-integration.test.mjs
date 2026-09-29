@@ -11,7 +11,8 @@ test('real roll builder adds aid once, consumes on posting and restores it on fa
    ffg:{RollFFG:class {async toMessage(data){if(fail)throw Error('posting failed');messages.push(data);}}}
  }});
  const selection=new vm.SourceTextModule(await read('helpers/weapon-selection.js'),{context});await selection.link(()=>{});await selection.evaluate();
- const helper=new vm.SourceTextModule(await read('helpers/combat-actions.js'),{context});await helper.link(()=>selection);await helper.evaluate();
+ const customRules=new vm.SourceTextModule(await read('helpers/custom-rules.js'),{context});await customRules.link(()=>{});await customRules.evaluate();
+ const helper=new vm.SourceTextModule(await read('helpers/combat-actions.js'),{context});await helper.link(spec=>spec.includes('custom-rules')?customRules:selection);await helper.evaluate();
  const builder=new vm.SourceTextModule(await read('dice/roll-builder.js'),{context});
  await builder.link(spec=>spec.includes('weapon-selection')?selection:spec.includes('combat-actions')?helper:new vm.SyntheticModule(spec.includes('form-application')?['FormApplicationV2']:['MonteCarlo'],function(){this.setExport(spec.includes('form-application')?'FormApplicationV2':'MonteCarlo',class {activateListeners(){}});},{context}));await builder.evaluate();
  const app=new builder.namespace.default({document:actor,actor:{_id:'pc'}},{boost:0,renderDiceExpression:()=> '1db'},'test','Pilot');

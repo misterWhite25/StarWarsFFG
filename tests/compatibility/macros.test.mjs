@@ -14,7 +14,7 @@ test("generated weapon and skill macros execute with current document data and r
   const world = {macros, actors: {get: id => id === actor.id ? actor : null},
     user: {assignHotbarMacro: async (macro, slot) => assignments.push({macro, slot})},
     ffg: {DiceHelpers: {rollItem: async (...args) => calls.push(args),
-      rollSkillDirect: async (...args) => calls.push(args)}},
+      rollSkillByKey: async (...args) => calls.push(args)}},
   };
   globalThis.game = world;
   globalThis.CONFIG = {Macro: {documentClass: {create: async data => {macros.push(data); return data;}}}};
@@ -33,7 +33,7 @@ test("generated weapon and skill macros execute with current document data and r
     assert.equal(calls.pop(), "Item.world-weapon");
     await createFFGMacro(null, {actorId: actor.id, data: {type: "skill", skill: 'Cool "custom"', characteristic: "Presence"}}, 4);
     await new AsyncFunction(macros[2].command)();
-    assert.deepEqual(calls.pop(), [{rank: 2}, {value: 3}, 2, {actor: "prepared"}]);
+    assert.deepEqual(calls.pop(), [actor.id, 'Cool "custom"', 2]);
     await createFFGMacro(null, {type: "Transfer", actorId: actor.id, data: {type: "weapon", _id: owned.id, name: owned.name}}, 5);
     await new AsyncFunction(macros[3].command)();
     assert.deepEqual(calls.pop(), [owned.id, actor.id]);

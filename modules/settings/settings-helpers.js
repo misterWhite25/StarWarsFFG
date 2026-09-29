@@ -24,6 +24,15 @@ export default class SettingsHelpers {
       type: String,
     });
 
+    game.settings.register("starwarsffg", "enableTonioCustomRules", {
+      name: "SWFFG.Settings.TonioRules.Name",
+      hint: "SWFFG.Settings.TonioRules.Hint",
+      scope: "world",
+      config: false,
+      default: false,
+      type: Boolean,
+    });
+
     game.settings.registerMenu("starwarsffg", "rulesetSettings", {
       name: game.i18n.localize("SWFFG.Settings.ruleset.Name"),
       hint: game.i18n.localize("SWFFG.Settings.ruleset.Hint"),

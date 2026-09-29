@@ -142,6 +142,26 @@
     width: auto;
   }
 
+  .weapon-name {
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  h4.item-damage,
+  h4.item-critical {
+    font-size: 14px;
+    line-height: 1.2;
+
+    input {
+      font-size: 14px;
+    }
+  }
+
+  .specials h5 {
+    font-size: 8px;
+    line-height: 1.2;
+  }
+
   & h4 {
     display: flex;
     flex-direction: row;
@@ -192,3 +212,26 @@
   }
 
 }
+
+/* Compact roll builder; other dice displays keep their normal dimensions. */
+&.roll-builder-dialog { max-height: calc(100dvh - 24px); }
+&.roll-builder-dialog .window-content { padding: 8px; min-height: 0; overflow: hidden; }
+&.roll-builder-dialog .roll-builder-content,
+&.roll-builder-dialog .dice-pool-dialog { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+&.roll-builder-dialog .roll-builder-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+&.roll-builder-dialog .dice-pool { margin-top: 0; min-height: 38px; max-height: 76px; overflow-y: auto; }
+&.roll-builder-dialog .dice-pool img { width: 30px; height: 30px; }
+&.roll-builder-dialog .simulation { margin: 2px 0 5px; font-size: 12px; }
+&.roll-builder-dialog .upgrade-buttons { gap: 3px; margin-bottom: 3px; }
+&.roll-builder-dialog .upgrade-buttons button { flex: 1; min-width: 0; min-height: 24px; padding: 1px 4px; line-height: 18px; }
+&.roll-builder-dialog .pool-hint { margin: 5px 1px; font-size: 12px; line-height: 1.25; }
+&.roll-builder-dialog .pool-dice-pool { margin: 6px 0; padding: 0; width: 100%; table-layout: fixed; }
+&.roll-builder-dialog .pool-dice-pool td { padding: 3px 6px; height: 34px; vertical-align: middle; }
+&.roll-builder-dialog .pool-dice-pool td:first-child { width: 42px; }
+&.roll-builder-dialog .pool-dice-pool td:nth-child(2) { width: 54px; }
+&.roll-builder-dialog .pool-dice-pool img { display: block; width: 24px; height: 24px; margin: auto; }
+&.roll-builder-dialog .pool-value { width: 38px; height: 28px; margin: auto; }
+&.roll-builder-dialog .pool-value input { display: block; height: 26px; min-height: 0; padding: 0; margin: 0; font-size: 20px; line-height: 26px; }
+&.roll-builder-dialog .pool-text label { margin-left: 5px; }
+&.roll-builder-dialog .roll-button { flex: 0 0 auto; margin-top: 6px; padding-top: 4px; border-top: 1px solid #9996; }
+&.roll-builder-dialog .roll-button button { min-height: 30px; margin: 0; }

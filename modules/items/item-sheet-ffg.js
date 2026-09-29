@@ -1,5 +1,7 @@
+import CharacteristicIncrease from "../helpers/characteristic-increase.js";
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import { deleteDataField } from "../compatibility/data-operators.js";
+import ImportHelpers from "../importer/import-helpers.js";
 import PopoutEditor from "../popout-editor.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 import ItemHelpers from "../helpers/item-helpers.js";
@@ -7,7 +9,7 @@ import DiceHelpers from "../helpers/dice-helpers.js";
 import EmbeddedItemHelpers from "../helpers/embeddeditem-helpers.js";
 import ActorHelpers, {xpLogSpend} from "../helpers/actor-helpers.js";
 import ItemOptions from "./item-ffg-options.js";
-import {forcePowerEditor, itemEditor, talentEditor} from "./item-editor.js";
+import {forcePowerEditor, itemEditor} from "./item-editor.js";
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
@@ -524,6 +526,22 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
   /** Bind Star Wars FFG listeners independently from the V1 sheet lifecycle. */
   _activateFFGListeners(html) {
+    void this._promptForUnconfiguredCharacteristicTalents();
+    html.find('.specialization-talent input[type="checkbox"][name$=".islearned"]').change(async (event) => {
+      const input = event.currentTarget;
+      if (input.checked || this.object.type !== "specialization") return;
+      const talentKey = input.closest(".specialization-talent")?.id;
+      const ownerId = this.object.flags?.starwarsffg?.ffgUuid?.split(".")[1];
+      const owner = this.object.parent?.documentName === "Actor" ? this.object.parent : game.actors.get(ownerId);
+      if (!owner || !talentKey) return;
+      await this.object.update({[`system.talents.${talentKey}.islearned`]: false});
+      const linked = owner.items.find(item => {
+        const source = item.flags?.starwarsffg?.characteristicIncrease;
+        return source?.sourceSpecializationId === this.object.id && source?.sourceTalentKey === talentKey;
+      });
+      if (linked) await linked.delete();
+      this._characteristicChoicePrompts?.delete(`${this.object.id}.${talentKey}`);
+    });
     html.find(".ffg-purchase").click(async (ev) => {
       if(this.actor && !this.actor?.verifyEditModeIsNotEnabled()) return;
       await this._handleItemBuy(ev)
@@ -741,7 +759,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     if (this.object.type === "specialization") {
       html.find(".talent-action").on("click", this._onClickTalentControl.bind(this));
       html.find(".talent-actions .fa-cog").on("click", ModifierHelpers.popoutModiferWindow.bind(this));
-      html.find(".talent-modifiers .fa-cog").on("click", this._onClickUpgradeEdit.bind(this));
       try {
         const dragDrop = new foundry.applications.ux.DragDrop({
           dragSelector: ".item",
@@ -1235,6 +1252,47 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     }
   }
 
+  async _findTalentDocument(itemId, name) {
+    return game.items.get(itemId)
+      ?? await ImportHelpers.findCompendiumEntityById("Item", itemId)
+      ?? await ImportHelpers.findCompendiumEntityByName("Item", name);
+  }
+
+  async _configureCharacteristicTalent(owner, itemId, name, talentKey) {
+    if (!CharacteristicIncrease.matches({type: "talent", name})) return null;
+    const talent = await this._findTalentDocument(itemId, name);
+    if (!talent || !CharacteristicIncrease.matches(talent)) {
+      ui.notifications.warn(`Le talent « ${name} » est introuvable dans les objets et compendiums.`);
+      return false;
+    }
+    const configured = await CharacteristicIncrease.choose(talent.toObject(), owner);
+    if (!configured) return false;
+    const choice = configured.flags.starwarsffg.characteristicIncrease;
+    choice.sourceSpecializationId = this.object.id;
+    choice.sourceTalentKey = talentKey;
+    return configured;
+  }
+
+  async _promptForUnconfiguredCharacteristicTalents() {
+    if (this.object.type !== "specialization") return;
+    const ownerId = this.object.flags?.starwarsffg?.ffgUuid?.split(".")[1];
+    const owner = this.object.parent?.documentName === "Actor" ? this.object.parent : game.actors.get(ownerId);
+    if (!owner || owner.isOwner === false) return;
+    this._characteristicChoicePrompts ??= new Set();
+    for (const [talentKey, talent] of Object.entries(this.object.system.talents ?? {})) {
+      if (!talent.islearned || !CharacteristicIncrease.matches({type: "talent", name: talent.name})) continue;
+      const exists = owner.items.some(item => {
+        const source = item.flags?.starwarsffg?.characteristicIncrease;
+        return source?.sourceSpecializationId === this.object.id && source?.sourceTalentKey === talentKey;
+      });
+      const promptKey = `${this.object.id}.${talentKey}`;
+      if (exists || this._characteristicChoicePrompts.has(promptKey)) continue;
+      this._characteristicChoicePrompts.add(promptKey);
+      const configured = await this._configureCharacteristicTalent(owner, talent.itemId, talent.name, talentKey);
+      if (configured) await owner.createEmbeddedDocuments("Item", [configured]);
+    }
+  }
+
   async _buyTalent(li) {
     let owner;
     let cost;
@@ -1260,13 +1318,25 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
             callback: async (_that) => {
+              const talentKey = $(li).attr("id");
+              const itemId = $(li).data("itemid");
+              const configured = await this._configureCharacteristicTalent(owner, itemId, talent, talentKey);
+              if (configured === false) return;
+              let created = [];
+              if (configured) created = await owner.createEmbeddedDocuments("Item", [configured]);
               // update the form because the fields are read when an update is performed
-              const talentId = $(li).attr("id");
-              const input = $(`[name="data.talents.${talentId}.islearned"]`, this.element)[0];
-              input.checked = true;
-              await this.object.sheet.submit();
-              owner.update({system: {experience: {available: availableXP - cost}}});
-              await xpLogSpend(owner, `specialization ${baseName} talent ${talent}`, cost, availableXP - cost, totalXP);
+              const input = $(`[name="data.talents.${talentKey}.islearned"]`, this.element)[0];
+              try {
+                input.checked = true;
+                await this.object.sheet.submit();
+                await owner.update({system: {experience: {available: availableXP - cost}}});
+                await xpLogSpend(owner, `specialization ${baseName} talent ${talent}`, cost, availableXP - cost, totalXP);
+              } catch (error) {
+                if (created.length) await owner.deleteEmbeddedDocuments("Item", created.map(item => item.id));
+                input.checked = false;
+                ui.notifications.error(`L’achat de « ${talent} » n’a pas pu être terminé.`);
+                throw error;
+              }
             },
           },
           cancel: {
@@ -1571,19 +1641,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         modifierChoices: modifierChoices,
       }
       new forcePowerEditor(data).render(true);
-    } else if (this.object.type === "specialization") {
-      const clickedType = 'talents';
-      const parentObject = await fromUuid(this.object.uuid);
-      // locate the clicked object on the parent
-      let clickedObject = parentObject.system[clickedType][clickedId];
-      const data = {
-        sourceObject: this.object,
-        clickedObject: clickedObject,
-        talentId: clickedId,
-        modifierTypes: modifierTypes,
-        modifierChoices: modifierChoices,
-      }
-      new talentEditor(data).render(true);
     } else if (this.object.type === "signatureability") {
       const clickedType = 'upgrades';
       const parentObject = await fromUuid(this.object.uuid);

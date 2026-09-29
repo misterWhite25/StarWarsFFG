@@ -1570,6 +1570,29 @@ img {
   width: auto;
 }
 
+.starwarsffg .item-display .weapon-name {
+  font-size: 14px;
+  line-height: 1.15;
+}
+
+.starwarsffg .item-display h4.item-damage,
+.starwarsffg .item-display h4.item-critical {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.starwarsffg .item-display h4.item-damage input,
+.starwarsffg .item-display h4.item-critical input {
+  font-size: 14px;
+}
+
+.starwarsffg .item-display .specials h5,
+.starwarsffg .item-display .specials .item-pill-hover {
+  font-size: 10px;
+  font-family: Verdana, Arial, sans-serif;
+  line-height: 1.2;
+}
+
 .starwarsffg .item-display h4 {
   margin: 0 0 0.25rem 0;
   font-size: 18px;

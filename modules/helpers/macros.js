@@ -7,12 +7,7 @@ const createMacroItem = async (macro) => {
 async function createSkillMacro(data) {
   const actor = game.actors.get(data.actorId);
   if (!actor) return null;
-  const command = `
-    const ffgactor = game.actors.get(${JSON.stringify(data.actorId)});
-    const skill = ffgactor.system.skills[${JSON.stringify(data.data.skill)}];
-    const characteristic = ffgactor.system.characteristics[${JSON.stringify(data.data.characteristic)}];
-    const actorSheet = await ffgactor.sheet.getData();
-    await game.ffg.DiceHelpers.rollSkillDirect(skill, characteristic, 2, actorSheet);`;
+  const command = `await game.ffg.DiceHelpers.rollSkillByKey(${JSON.stringify(data.actorId)}, ${JSON.stringify(data.data.skill)}, 2);`;
   return createMacroItem({name: `${actor.name}-${data.data.skill}`, type: "script", command});
 }
 
