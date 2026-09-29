@@ -1,3 +1,4 @@
+import CharacteristicIncrease from "../helpers/characteristic-increase.js";
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import { deleteDataField } from "../compatibility/data-operators.js";
 /**
@@ -37,8 +38,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     this._filters = {
       skills: new Set(),
     };
-    this.object.setFlag("starwarsffg", "config.enableEditMode", false);
-    this.object.setFlag("starwarsffg", "config.editModeActor", "");
+    this._manualEditMode = false;
   }
 
   pools = new Map();
@@ -70,13 +70,18 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if ( !this.actor.isOwner ) return false;
       const item = await Item.implementation.fromDropData(data);
       // do not Draw values from the underlying data source rather than transformed values - we want to use adjusted values
-      const itemData = item.toObject(false);
+      let itemData = item.toObject(false);
       // Keep adjusted item values, but serialize effects from their source data:
       // v14 prepares a permanent duration as Infinity, which cannot be persisted.
       itemData.effects = item.effects.map(effect => effect.toObject());
 
       // Handle item sorting within the same Actor
       if ( this.actor.uuid === item.parent?.uuid ) return this._onSortItem(event, itemData);
+
+      if (this.actor.type === "character" && CharacteristicIncrease.matches(itemData)) {
+        itemData = await CharacteristicIncrease.choose(itemData, this.actor);
+        if (!itemData) return false;
+      }
 
       if (["character", "minion", "rival"].includes(this.actor.type) && ["itemmodifier", "itemattachment"].includes(itemData.type)) {
         ui.notifications.warn("You cannot add Item Modifiers or Attachments directly to actors.");
@@ -226,6 +231,13 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
     // Compatibility for Foundry 0.8.x with backwards compatibility (hopefully) for 0.7.x
     const actorData = this.actor.toObject(false);
+    // Edit only a display copy of the base data. Never suspend effects on a client.
+    if (this._manualEditMode) {
+      for (const key of ["characteristics", "skills", "stats"]) {
+        if (this.actor._source.system[key]) actorData.system[key] = foundry.utils.deepClone(this.actor._source.system[key]);
+      }
+      if (this.actor.flags?.starwarsffg?.automaticStats?.enabled) actorData.system.stats = foundry.utils.deepClone(this.actor.system.stats);
+    }
     data.actor = actorData;
     data.data = actorData.system;
     data.talentList = this.actor.talentList;
@@ -367,9 +379,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     }
 
     data.actor.items = ActorSheetFFG.sortForActorSheet(data.actor.items);
-    const editModeEnabled = this.object.getFlag("starwarsffg", "config.enableEditMode");
-    const editModeActor = this.object.getFlag("starwarsffg", "config.editModeActor");
-    data.disabled = !(editModeEnabled && editModeActor === game.user.id);
+    data.disabled = !this._manualEditMode;
 
     data.modTypeSelected = "all"; // TODO: should this be something else?
     data.modifierTypes = CONFIG.FFG.allowableModifierTypes;
@@ -968,6 +978,23 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if (openSheet) created[0]?.sheet?.render(true);
     });
 
+    html.find(".talent-delete").click(async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!this.actor.isOwner || !this.actor.verifyEditModeIsNotEnabled()) return;
+      const row = ev.currentTarget.closest(".item");
+      const item = this.actor.items.get(row?.dataset.itemId);
+      if (!item || item.type !== "talent") return;
+      const content = document.createElement("div");
+      const message = document.createElement("p");
+      message.textContent = `Supprimer « ${item.name} » et ses bonus associés ?`;
+      content.append(message);
+      const confirmed = await foundry.applications.api.DialogV2.confirm({
+        window: {title: "Supprimer le talent"}, content,
+        classes: ["starwarsffg", "themed", "theme-light"]
+      });
+      if (confirmed && this.actor.items.has(item.id)) await item.delete();
+    });
     // Delete Inventory Item
     html.find(".item-delete").click((ev) => {
       if(!this.actor.verifyEditModeIsNotEnabled()) {

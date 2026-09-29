@@ -473,6 +473,8 @@
   "SWFFG.Settings.ruleset.Name": "Ruleset Settings",
   "SWFFG.Settings.ruleset.Hint": "Configure Ruleset Themes",
   "SWFFG.Settings.ruleset.Label": "Configure Ruleset",
+  "SWFFG.Settings.TonioRules.Name": "Enable Tonio custom rules",
+  "SWFFG.Settings.TonioRules.Hint": "Enables Tonio's house rules. Weapon damage: the first success confirms the hit but adds no damage.",
   "SWFFG.Settings.ui.Title": "User Interface Settings",
   "SWFFG.Settings.ui.Name": "UI Settings",
   "SWFFG.Settings.ui.Hint": "Configure UI Theme",

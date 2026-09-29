@@ -1,3 +1,5 @@
+import CharacteristicIncrease from "../helpers/characteristic-increase.js";
+import AutomaticStats from "../helpers/automatic-stats.js";
 import { getPreparedActiveEffectChanges } from "../compatibility/active-effects.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 
@@ -135,13 +137,13 @@ export class ActorFFG extends Actor {
     };
     pruneInvalid(changes.system?.stats);
     CONFIG.logger.debug(`Performing pre-update on ${this.name}`);
-    if (["character", "rival", "nemesis"].includes(this.type)) {
-      const originalBrawn = this.system.characteristics.Brawn.value;
+    if (["character", "rival", "nemesis"].includes(this.type) && !this.flags?.starwarsffg?.automaticStats?.enabled) {
+      const originalBrawn = this._source.system.characteristics.Brawn.value;
       const updatedBrawn = changes?.system?.characteristics?.Brawn?.value;
       if (originalBrawn != null && updatedBrawn != null && Number.isFinite(Number(updatedBrawn)) && originalBrawn !== updatedBrawn) {
         CONFIG.logger.debug(`Detected modified Brawn (${originalBrawn} -> ${updatedBrawn}, updating derived values`);
         // get the wounds without brawn modifying it, then add the new brawn value in
-        const originalWounds = this.system.stats?.wounds.max;
+        const originalWounds = this._source.system.stats?.wounds.max;
         const originalWoundsWithoutBrawn = originalWounds - originalBrawn;
         const updatedWounds = originalWoundsWithoutBrawn + parseInt(updatedBrawn);
         if (!Object.keys(changes.system).includes("stats")) {
@@ -160,7 +162,7 @@ export class ActorFFG extends Actor {
           }
         );
         // repeat the above process, but for soak
-        const originalSoak = this.system.stats?.soak.value;
+        const originalSoak = this._source.system.stats?.soak.value;
         const originalSoakWithoutBrawn = originalSoak - originalBrawn;
         const updatedSoak = originalSoakWithoutBrawn + Number(updatedBrawn);
         CONFIG.logger.debug(`The character sheet showed ${originalSoak} soak, while that value without Brawn was ${originalSoakWithoutBrawn}. Updating to be ${updatedSoak}`);
@@ -173,7 +175,7 @@ export class ActorFFG extends Actor {
           }
         );
         // repeat the above process, but for encumbrance threshold
-        const originalEncumbrance = this.system.stats?.encumbrance.max;
+        const originalEncumbrance = this._source.system.stats?.encumbrance.max;
         const originalEncumbranceWithoutBrawn = originalEncumbrance - originalBrawn;
         const updatedEncumbrance = originalEncumbranceWithoutBrawn + parseInt(updatedBrawn);
         CONFIG.logger.debug(`The character sheet showed ${originalEncumbrance} encumbrance max, while that value without Brawn was ${originalEncumbranceWithoutBrawn}. Updating to be ${updatedEncumbrance}`);
@@ -186,7 +188,7 @@ export class ActorFFG extends Actor {
           }
         );
       }
-      const originalWillpower = this.system.characteristics.Willpower.value;
+      const originalWillpower = this._source.system.characteristics.Willpower.value;
       const updatedWillpower = changes.system?.characteristics?.Willpower?.value;
       if (originalWillpower != null && updatedWillpower != null && Number.isFinite(Number(updatedWillpower)) && originalWillpower !== updatedWillpower) {
         CONFIG.logger.debug(`Detected modified Willpower (${originalWillpower} -> ${updatedWillpower}, updating derived values`);
@@ -196,9 +198,9 @@ export class ActorFFG extends Actor {
         if (changes.system.characteristics?.Willpower?.value) {
           changes.system.stats.Willpower = changes.system.characteristics.Willpower;
         }
-        if (this.system.stats?.strain) {
+        if (this._source.system.stats?.strain) {
           // get the soak without willpower modifying it, then add the new willpower value in
-          const originalStrain = this.system.stats?.strain.max;
+          const originalStrain = this._source.system.stats?.strain.max;
           const originalStrainWithoutWillpower = originalStrain - originalWillpower;
           const updatedStrain = originalStrainWithoutWillpower + Number(updatedWillpower);
           CONFIG.logger.debug(`The character sheet showed ${originalStrain} strain, while that value without Willpower was ${originalStrainWithoutWillpower}. Updating to be ${updatedStrain}`);
@@ -262,6 +264,11 @@ export class ActorFFG extends Actor {
     if (["character", "nemesis", "rival"].includes(actor.type)) {
       this._prepareCharacterData(actor);
       this._prepareSources(actor);
+    }
+
+    if (this.type === "character" && this.flags?.starwarsffg?.automaticStats?.enabled) {
+      this._calculateDerivedValues(this);
+      AutomaticStats.apply(this);
     }
 
     // Embedded weapons prepare before initial actor effects in V14. Rebuild
@@ -424,6 +431,12 @@ export class ActorFFG extends Actor {
       return item.type === "specialization";
     });
 
+    const linkedCharacteristicTalents = new Set(actorData.items
+      .filter(item => item.type === "talent")
+      .map(item => item.flags?.starwarsffg?.characteristicIncrease)
+      .filter(source => source?.sourceSpecializationId && source?.sourceTalentKey)
+      .map(source => `${source.sourceSpecializationId}.${source.sourceTalentKey}`));
+
     const globalTalentList = [];
     specializations.forEach((element) => {
       //go through each list of talent where learned = true
@@ -431,6 +444,7 @@ export class ActorFFG extends Actor {
       const learnedTalents = Object.keys(element.system.talents).filter((key) => element.system.talents[key].islearned === true);
 
       learnedTalents.forEach((talent) => {
+        if (linkedCharacteristicTalents.has(`${element.id}.${talent}`)) return;
         const item = JSON.parse(JSON.stringify(element.system.talents[talent]));
         item.firstSpecialization = element.id;
         item.source = [{ type: "specialization", typeLabel: "SWFFG.Specialization", name: element.name, id: element.id }];
@@ -464,6 +478,8 @@ export class ActorFFG extends Actor {
         activation: element.system?.activation?.value,
         activationLabel: element.system?.activation?.label,
         isRanked: element.system?.ranks?.ranked,
+        characteristicChoice: CharacteristicIncrease.matches(element) ? CharacteristicIncrease.label(element) : null,
+        separateAcquisition: CharacteristicIncrease.matches(element),
         source: [{
           type: element?.flags?.starwarsffg?.fromSpecies ? "species" : "talent",
           typeLabel: element?.flags?.starwarsffg?.fromSpecies ? "SWFFG.Species" : "SWFFG.Talent",
@@ -486,7 +502,7 @@ export class ActorFFG extends Actor {
         return obj.name === item.name;
       });
 
-      if (index < 0 || !item.isRanked) {
+      if (index < 0 || !item.isRanked || item.separateAcquisition) {
         item.isDirectlyAdded = true;
         globalTalentList.push(item);
       } else {
@@ -733,7 +749,11 @@ export class ActorFFG extends Actor {
   /** @override **/
   applyActiveEffects(phase) {
     // v14 calls this again after derived data. Do not count initial bonuses twice.
-    if (phase && phase !== "initial") return super.applyActiveEffects(phase);
+    if (phase && phase !== "initial") {
+      const result = super.applyActiveEffects(phase);
+      if (phase === "final" && this.type === "character" && this.flags?.starwarsffg?.automaticStats?.enabled) AutomaticStats.apply(this);
+      return result;
+    }
     // collect force pool modifications since it appears the stat value is without AEs active
     let maxForceRating = parseInt(this.system?.stats?.forcePool?.max);
     for (const effect of this.allApplicableEffects()) {

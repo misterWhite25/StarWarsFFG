@@ -75,6 +75,7 @@ export class rulesetSettings extends ffgSettings {
 
   getData(_options) {
     const includeSettingsNames = [
+        "starwarsffg.enableTonioCustomRules",
         "starwarsffg.dicetheme",
         "starwarsffg.vehicleRangeBand",
         "starwarsffg.skilltheme",

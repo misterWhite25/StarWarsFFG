@@ -124,3 +124,19 @@
   background-color: rgb(100 140 165 / 25%);
   border-radius: 3px;
 }
+
+/* Group FFG token states: conditions, boost/setback, upgrades/successes. */
+#token-hud .status-effects { --effect-columns: 5; grid-template-columns: repeat(5, var(--effect-size)); }
+#token-hud .status-effects [data-status-id="starwarsffg-defeated"] { grid-row: 1; grid-column: 1; }
+#token-hud .status-effects [data-status-id="starwarsffg-heavy-cover"] { grid-row: 1; grid-column: 2; }
+#token-hud .status-effects [data-status-id="starwarsffg-disoriented"] { grid-row: 1; grid-column: 3; }
+#token-hud .status-effects [data-status-id="starwarsffg-immobilized"] { grid-row: 1; grid-column: 4; }
+#token-hud .status-effects [data-status-id="starwarsffg-staggered"] { grid-row: 1; grid-column: 5; }
+#token-hud .status-effects [data-status-id="starwarsffg-boost-once"] { grid-row: 2; grid-column: 1; }
+#token-hud .status-effects [data-status-id="starwarsffg-boost-combat"] { grid-row: 2; grid-column: 2; }
+#token-hud .status-effects [data-status-id="starwarsffg-setback-once"] { grid-row: 2; grid-column: 3; }
+#token-hud .status-effects [data-status-id="starwarsffg-setback-combat"] { grid-row: 2; grid-column: 4; }
+#token-hud .status-effects [data-status-id="starwarsffg-upgrade-once"] { grid-row: 3; grid-column: 1; }
+#token-hud .status-effects [data-status-id="starwarsffg-upgrade-combat"] { grid-row: 3; grid-column: 2; }
+#token-hud .status-effects [data-status-id="starwarsffg-success-once"] { grid-row: 3; grid-column: 3; }
+#token-hud .status-effects [data-status-id="starwarsffg-success-combat"] { grid-row: 3; grid-column: 4; }

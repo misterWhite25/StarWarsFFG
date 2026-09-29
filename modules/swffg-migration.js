@@ -1,4 +1,3 @@
-const { DialogV2 } = foundry.applications.api;
 import { deleteDataField } from "./compatibility/data-operators.js";
 import EffectHelpers from "./helpers/effects.js";
 import ModifierHelpers from "./helpers/modifiers.js";
@@ -23,12 +22,7 @@ export async function handleUpdate() {
   if (registeredVersion !== runningVersion) {
     await handleMigration(registeredVersion, runningVersion);
     await sendChanges(runningVersion);
-    if (parseFloat(registeredVersion) >= 2.0 || !registeredVersion) {
-      await game.settings.set("starwarsffg", "systemMigrationVersion", runningVersion);
-    } else {
-      // do not register the updated warning and instead throw an error every time that the world is unsupported
-      await warnUnsupportedWorld();
-    }
+    await game.settings.set("starwarsffg", "systemMigrationVersion", runningVersion);
   }
 }
 
@@ -39,14 +33,16 @@ export async function handleUpdate() {
  * @returns {Promise<void>}
  */
 async function handleMigration(oldVersion, _newVersion) {
-  // migration handlers should be added here going forward
-  if (parseFloat(oldVersion) < 1.901) {
+  // Tonio uses an independent 0.x version sequence, not the upstream 1.x schema.
+  // Only upstream worlds should run these historical conversions.
+  const upstreamVersion = parseFloat(oldVersion);
+  if (upstreamVersion >= 1 && upstreamVersion < 1.901) {
     await migrateTo1_901();
   }
-  if (parseFloat(oldVersion) < 1.906) {
+  if (upstreamVersion >= 1 && upstreamVersion < 1.906) {
     await migrateTo1_906();
   }
-  if (parseFloat(oldVersion) < 1.907) {
+  if (upstreamVersion >= 1 && upstreamVersion < 1.907) {
     await migrateTo1907();
   }
   await warnTheme();
@@ -426,15 +422,3 @@ async function migrateTo1907() {
   }
 }
 
-async function warnUnsupportedWorld() {
-  const content = game.i18n.localize("SWFFG.Migrate.Unsupported.Text");
-  await DialogV2.prompt({
-    window: {title: game.i18n.localize("SWFFG.Migrate.Unsupported.Title")},
-    classes: ["starwarsffg"],
-    content,
-    ok: {
-      icon: "fas fa-exclamation",
-      label: game.i18n.localize("SWFFG.Migrate.Unsupported.Button"),
-    },
-  });
-}

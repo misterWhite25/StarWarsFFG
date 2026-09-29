@@ -1,3 +1,5 @@
+import {showCalculationDetails} from "../helpers/stat-calculation-dialog.js";
+import {showTalentSummary} from "../helpers/talent-summary.js";
 import { activateSheetPortrait } from "../helpers/sheet-portrait.js";
 import { ActorSheetFFG } from "./actor-sheet-ffg.js";
 
@@ -85,6 +87,9 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       visible: this.isEditable,
       onClick: () => this.sheetoptions?.handler(),
     });
+    if (this.actor.type === "character") controls.splice(1, 0, {action: "ffgCalculationDetails", icon: "fas fa-calculator", label: "Détail des calculs", onClick: () => showCalculationDetails(this.actor)});
+    const detachIndex = controls.findIndex(control => control.action === "detach");
+    if (detachIndex > 0) controls.unshift(controls.splice(detachIndex, 1)[0]);
     return controls;
   }
 
@@ -114,6 +119,24 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     const content = this.element.querySelector(".window-content");
     content.classList.remove(...actorClasses);
     content.classList.add(this.actor.type);
+    if (this.actor.type === "character") {
+      const heading = this.element.querySelector('.header-name h2');
+      if (heading) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Récapitulatif des talents';
+        button.style.cssText = 'width:auto;font-size:12px;margin:2px 0 6px';
+        button.addEventListener('click', () => showTalentSummary(this));
+        heading.after(button);
+      }
+      void showTalentSummary(this, true);
+      if (this.actor.flags?.starwarsffg?.automaticStats?.enabled) {
+        for (const path of ["wounds.max", "strain.max", "soak.value", "defence.melee", "defence.ranged", "encumbrance.max"]) {
+          const input = this.element.querySelector(`[name="data.stats.${path}"], [name="system.stats.${path}"]`);
+          if (input) {input.disabled = true; input.title = "Calcul automatique : voir Détail des calculs";}
+        }
+      }
+    }
     this._activateLegacyListeners($(this.element));
   }
 
@@ -136,7 +159,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onSubmitForm(event, _form, formData) {
     if (!this.isEditable) return;
     const updateData = { ...formData.object };
-    const overrides = foundry.utils.flattenObject(this.actor.overrides);
+    const overrides = this._manualEditMode && !this.actor.flags?.starwarsffg?.automaticStats?.enabled ? {} : foundry.utils.flattenObject(this.actor.overrides);
     for (const key of Object.keys(overrides)) {
       delete updateData[key];
       // These legacy templates still submit data.*, while V14 overrides use system.*.

@@ -245,14 +245,31 @@ export default class DiceHelpers {
     this.displayRollDialog(actorSheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, item, flavorText, sound, supportsWeaponSelection(itemData.skill.value, skill) ? {actor, skillKey:itemData.skill.value, makePool} : null);
   }
 
+  /** Resolve a skill macro from stable document identifiers so its weapon selector uses current Actor data. */
+  static async rollSkillByKey(actorId, skillKey, difficulty = 2, flavorText, sound) {
+    const actor = game.actors.get(actorId);
+    const skill = actor?.system?.skills?.[skillKey];
+    const characteristic = actor?.system?.characteristics?.[skill?.characteristic];
+    if (!actor || !skill || !characteristic) return null;
+    const sheet = await actor.sheet.getData();
+    return this.rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound, {actor, skillKey});
+  }
+
   // Takes a skill object, characteristic object, difficulty number and ActorSheetFFG.getData() object and creates the appropriate roll dialog.
-  static async rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound) {
-    const dicePool = new DicePoolFFG({
+  static async rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound, context = {}) {
+    const sheetActor = sheet?.actor?.system ? sheet.actor : game.actors.get(sheet?.actor?._id ?? sheet?.actor?.id ?? sheet?.data?._id);
+    const actor = context.actor ?? sheetActor ?? game.actors.find(candidate => Object.values(candidate.system?.skills ?? {}).includes(skill));
+    const skillKey = context.skillKey ?? Object.entries(actor?.system?.skills ?? {}).find(([key, value]) => value === skill || key === skill?.value || (value?.label === skill?.label && value?.characteristic === skill?.characteristic))?.[0];
+    const makePool = async (itemData = {}) => {
+    const status = this.getWeaponStatus(itemData);
+    if (!status) throw new Error(game.i18n.localize("SWFFG.ItemTooDamagedToUse"));
+    const defenseDice = this.getDefenseDice(skill, itemData);
+    let dicePool = new DicePoolFFG({
       ability: Math.max(characteristic.value, skill.rank),
       boost: skill.boost,
-      setback: skill.setback,
+      setback: (skill.setback ?? 0) + status.setback + defenseDice,
       force: skill.force,
-      difficulty: difficulty,
+      difficulty: difficulty + status.difficulty,
       advantage: skill.advantage,
       dark: skill.dark,
       light: skill.light,
@@ -266,8 +283,13 @@ export default class DiceHelpers {
     });
 
     dicePool.upgrade(Math.min(characteristic.value, skill.rank) + dicePool.upgrades);
+    dicePool = new DicePoolFFG(await this.getModifiers(dicePool, itemData));
+    return dicePool;
+    };
 
-    this.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, {}, flavorText, sound);
+    const dicePool = await makePool({});
+    const weaponContext = actor && supportsWeaponSelection(skillKey, skill) ? {actor, skillKey, makePool} : null;
+    return this.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, {}, flavorText, sound, weaponContext);
   }
 
   static getWeaponStatus(item) {

@@ -750,6 +750,8 @@
   "SWFFG.Settings.ruleset.Name": "Paramètres du Système de règles",
   "SWFFG.Settings.ruleset.Hint": "Configuration du Système de règles",
   "SWFFG.Settings.ruleset.Label": "Configurer le Système de règles",
+  "SWFFG.Settings.TonioRules.Name": "Activer les règles personnalisées Tonio",
+  "SWFFG.Settings.TonioRules.Hint": "Active les règles maison Tonio. Dégâts des armes : la première réussite valide l’attaque mais n’ajoute aucun dégât.",
   "SWFFG.Settings.ui.Title": "Paramètres d'interface utilisateur",
   "SWFFG.Settings.ui.Name": "Paramètres d'UI",
   "SWFFG.Settings.ui.Hint": "Configuration du thème de l'UI",

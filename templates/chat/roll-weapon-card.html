@@ -2,11 +2,11 @@
   {{#iff (defaultImage system.img) '!=' true}}
     <img class="item-image" src="{{system.img}}" />
   {{/iff}}
-  <h2 class="item-name">{{system.name}}</h2>
+  <h2 class="item-name weapon-name">{{system.name}}</h2>
   {{#if ffg.success}}
-  {{#iff system.system.damage.adjusted '!=' 0 }}<h4 class="item-damage">{{localize "SWFFG.ItemsDamage"}}: <input class="damage-value" type="text" value="{{system.system.damage.adjusted}} + {{ffg.success}} = {{math system.system.damage.adjusted '+' ffg.success}}" disabled /></h4>
+  {{#iff system.system.damage.adjusted '!=' 0 }}<h4 class="item-damage">{{localize "SWFFG.ItemsDamage"}}: <input class="damage-value" type="text" value="{{system.system.damage.adjusted}} + {{ffgWeaponSuccessDamage ffg.success}} = {{math system.system.damage.adjusted '+' (ffgWeaponSuccessDamage ffg.success)}}" disabled /></h4>
   <h4 class="item-critical">{{localize "SWFFG.WeaponCardCritical"}}: <input class="damage-value" type="text" value="{{system.system.crit.adjusted}}" disabled /></h4>{{/iff}}
-  {{#iff system.system.damage.adjusted '==' 0 }}<h4 class="item-damage">{{localize "SWFFG.ItemsDamage"}}: <input class="damage-value" type="text" value="{{system.system.damage.value}} + {{ffg.success}} = {{math system.system.damage.value '+' ffg.success}}" disabled /></h4>
+  {{#iff system.system.damage.adjusted '==' 0 }}<h4 class="item-damage">{{localize "SWFFG.ItemsDamage"}}: <input class="damage-value" type="text" value="{{system.system.damage.value}} + {{ffgWeaponSuccessDamage ffg.success}} = {{math system.system.damage.value '+' (ffgWeaponSuccessDamage ffg.success)}}" disabled /></h4>
   <h4 class="item-critical">{{localize "SWFFG.WeaponCardCritical"}}: <input class="damage-value" type="text" value="{{system.system.crit.value}}" disabled /></h4>{{/iff}}
   {{else}}
   <h4 class="item-miss">Miss!</h4>
