@@ -50,6 +50,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     // v14 exposes the live Item here. Enrich a copy so rendering does not
     // mutate document data before update() can detect and persist edits.
     data.item = this.item.toObject(false);
+    data.textVerification = data.item.flags?.['swffg-compendium-bilingual']?.review?.userTextVerification;
     // Legacy worlds and old form submissions may still contain `-=key` markers.
     // Remove those markers while rebuilding the current data so they are never persisted again.
 
@@ -206,7 +207,12 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           }
         }
         break;
-      case "specialization":
+      case "specialization": {
+        const treePresentation = await import('../helpers/talent-tree-presentation.js');
+        const bookPresentation = await import('../helpers/book-tree-presentation.js');
+        data.bookTree = bookPresentation.bookTreeContext(data.item, await bookPresentation.loadBookTreeRegistry(), {lang:game.i18n.lang,skills:CONFIG.FFG.skills,localize:key=>game.i18n.localize(key)});
+        const treeNames = Object.values(data.data.talents).map(talent => talent.name).filter(Boolean);
+        data.data.enrichedDescription = treePresentation.treeHeaderDescription(data.data.enrichedDescription, data.item.name);
         this.position.width = 850;
         this.position.height = 1005;
         data.isReadOnly = false;
@@ -225,6 +231,11 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         }
         for (let x = 0; x < 20; x++) {
           data.data.talents[`talent${x}`].enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(data.data.talents[`talent${x}`].description);
+          const treeTalent = data.data.talents[`talent${x}`];
+          treeTalent.bookActivation = bookPresentation.bookActivation(treeTalent,game.i18n.lang);
+          treeTalent.displayName = treePresentation.talentTitle(treeTalent.name);
+          treeTalent.textVerified = treeTalent.verification?.status === 'verified';
+          treeTalent.enrichedDescription = treePresentation.treeTalentDescription(treeTalent, treeTalent.enrichedDescription, treeNames);
 
           if (x - 4 < 0) {
             data.data.talents[`talent${x}`].isTopLearned = false;
@@ -239,6 +250,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           }
         }
         break;
+      }
       case "species": {
         this.position.width = 550;
         this.position.height = 650;
@@ -1383,7 +1395,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         },
         default: "submit",
       });
-      addSource.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "theme-light", "starwarsffg-dialog"]});
+      addSource.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "starwarsffg-dialog"]});
     } else if (action === "remove") {
       const sources = foundry.utils.deepClone(this.item.system.metadata.sources);
       sources.splice(sourceIndex, 1);
@@ -1423,7 +1435,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         },
         default: "submit",
       });
-      addTag.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "theme-light", "starwarsffg-dialog"]});
+      addTag.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "starwarsffg-dialog"]});
     } else if (action === "remove") {
       const tags = foundry.utils.deepClone(this.item.system.metadata.tags);
       tags.splice(tagIndex, 1);
@@ -1798,7 +1810,10 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     const windowLeft = parseInt(parentPosition.left, 10);
     const windowTop = parseInt(parentPosition.top, 10);
 
-    const title = a.dataset.label ? `Editor for ${this.object.name}: ${label}` : `Editor for ${this.object.name}`;
+    const hasDistinctLabel = label?.trim() && label.trim() !== this.object.name.trim();
+    const title = game.i18n.format(hasDistinctLabel ? 'SWFFG.Editor.ForField' : 'SWFFG.Editor.ForDocument', {
+      name: this.object.name, label,
+    });
 
     new PopoutEditor(this.object, {
       name: key,

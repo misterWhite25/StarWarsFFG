@@ -1,6 +1,6 @@
 /* Make editable fields distinct from derived and locked values in both themes. */
 .application.starwarsffg.sheet.v2 :is(input[type="text"], input[type="number"], input:not([type]), select, textarea):not(:disabled):not([readonly]) {
-  background: #fff;
+  background: var(--ffg-input, #fff);
   color: #20252a;
   border: 1px solid #7b8793;
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 8%);
@@ -140,3 +140,435 @@
 #token-hud .status-effects [data-status-id="starwarsffg-upgrade-combat"] { grid-row: 3; grid-column: 2; }
 #token-hud .status-effects [data-status-id="starwarsffg-success-once"] { grid-row: 3; grid-column: 3; }
 #token-hud .status-effects [data-status-id="starwarsffg-success-combat"] { grid-row: 3; grid-column: 4; }
+
+.ffg-gm-difficulty.active {background:#59446e; color:white; border-color:#bba0d4;}
+.ffg-gm-difficulty-notice {font-size:12px; color:#59446e; margin:4px 0;}
+
+.ffg-gm-difficulty-dialog .gm-enabled {display:flex; align-items:center; gap:6px; font-size:12px;}
+.ffg-gm-difficulty-dialog .gm-dice-preview {display:flex; flex-wrap:wrap; justify-content:center; align-items:center; min-height:55px; gap:2px; margin:8px 0;}
+.ffg-gm-difficulty-dialog .gm-dice-preview img {width:34px; height:34px; border:0;}
+.ffg-gm-difficulty-dialog .gm-upgrade-buttons {display:flex; gap:3px;}
+.ffg-gm-difficulty-dialog .gm-upgrade-buttons button {flex:1; font-size:11px; padding:2px; height:auto; min-height:26px; line-height:1.2;}
+.ffg-gm-difficulty-dialog .gm-pool-hint {font-size:12px; margin:7px 0;}
+.ffg-gm-difficulty-dialog .gm-dice-table {width:100%; border:1px solid #999;}
+.ffg-gm-difficulty-dialog .gm-dice-table tr {cursor:pointer; border-bottom:1px solid #999;}
+.ffg-gm-difficulty-dialog .gm-dice-table tr:nth-child(even) {background:#0002;}
+.ffg-gm-difficulty-dialog .gm-dice-table td {padding:3px 8px; font-size:13px; vertical-align:middle;}
+.ffg-gm-difficulty-dialog .gm-dice-table img {display:block; border:0;}
+.ffg-gm-difficulty-dialog [data-gm-count] {width:40px; height:30px; padding:0; border:1px solid #222; border-radius:0; font-size:22px; line-height:1; background:#fff3; color:inherit;}
+
+.application.starwarsffg.sheet.v2 .sheet-tabs .ffg-summary-button {
+  box-sizing:border-box; flex:0 0 40px; width:40px; height:40px;
+  margin:2px 0; padding:0; line-height:40px; font-size:18px;
+  background:#819ba9; color:#142c39; border:1px solid #b9cbd5; border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+}
+.application.starwarsffg.sheet.v2 .sheet-tabs .ffg-summary-button:first-of-type {margin-top:8px;}
+.application.starwarsffg.sheet.v2 .sheet-tabs .ffg-summary-button:hover,
+.application.starwarsffg.sheet.v2 .sheet-tabs .ffg-summary-button:focus-visible {background:#a3bac7;}
+
+/* Shared presentation for every specialization tree, including imported copies. */
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .talent-name input[name="name"] {font-family:inherit;font-size:20px;font-weight:700;height:30px;text-transform:uppercase;}
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .talent-body {padding:6px 10px;}
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .popout-editor {font-size:12px;line-height:1.4;min-height:0;}
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .popout-editor p {margin:2px 0;}
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .popout-editor h1,
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .popout-editor h2,
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .popout-editor h3,
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .popout-editor h4 {font-family:inherit;font-size:13px;line-height:1.4;margin:2px 0;}
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .tree-subtitle {font-size:13px;font-weight:600;}
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) > .sheet-header .tree-source {font-size:12px;}
+:is(.starwarsffg.sheet.item .item-sheet-specialization, .starwarsffg.sheet.item.ffg-specialization-tree > .window-content) .specialization-talent .talent-name {text-transform:uppercase;}
+/* Uppercase labels must remain readable when the talent name spans two lines. */
+.ffg-specialization-tree .specialization-talent .talent-header {display:flex;align-items:flex-start;gap:4px;}
+.ffg-specialization-tree .specialization-talent .talent-header > div:first-child {flex:0 0 20px;}
+.ffg-specialization-tree .specialization-talent .talent-header .talent-name {width:auto;min-width:0;flex:1;white-space:normal;overflow:visible;height:auto;min-height:24px;font-size:12px;line-height:1.25;overflow-wrap:anywhere;}
+
+/* Let the V14 popout editor use the full resizable window, not a two-line field. */
+.application.starwarsffg.ffg-popout-editor {min-height:260px;}
+.application.starwarsffg.ffg-popout-editor > .window-content {display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.application.starwarsffg.ffg-popout-editor > .window-content > .sheet-body {display:flex;flex-direction:column;flex:1;min-height:0;height:auto;}
+.application.starwarsffg.ffg-popout-editor prose-mirror[name="value"] {display:flex;flex-direction:column;flex:1;min-height:0;height:100%;}
+.application.starwarsffg.ffg-popout-editor prose-mirror .menu-container {flex-shrink:0;}
+.application.starwarsffg.ffg-popout-editor prose-mirror .editor-container {display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+.application.starwarsffg.ffg-popout-editor prose-mirror .editor-content {flex:1;min-height:0;overflow-y:auto;}
+.application.starwarsffg.ffg-popout-editor prose-mirror textarea {flex:1;min-height:0;height:100%;overflow-y:auto;}
+
+.ffg-text-verified-icon {color:#397243;font-size:11px;}
+.ffg-text-verified-label {color:#397243;font-size:12px;}
+
+
+/* Book-style specialization trees: all selectors stay scoped to these sheets. */
+.starwarsffg.ffg-specialization-tree .ffg-book-header {display:block;flex:0 0 auto;margin:0 0 10px;padding:8px 12px;border-bottom:2px solid #4d626d;background:none;}
+.starwarsffg.ffg-specialization-tree .ffg-book-header .ffg-book-title {font-family:inherit;font-size:22px;line-height:1.3;text-transform:none;margin:0 0 5px;border:0;}
+.starwarsffg.ffg-specialization-tree .ffg-book-header p {font-size:12px;line-height:1.45;margin:3px 0;}
+.starwarsffg.ffg-specialization-tree .ffg-book-legend {display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+.starwarsffg.ffg-specialization-tree .ffg-book-legend span {color:#fff;font-size:11px;font-weight:bold;text-transform:uppercase;padding:3px 22px 3px 9px;clip-path:polygon(0 0,calc(100% - 11px) 0,100% 50%,calc(100% - 11px) 100%,0 100%);}
+.starwarsffg.ffg-specialization-tree .ffg-book-passive {background:#344c65;}
+.starwarsffg.ffg-specialization-tree .ffg-book-active {background:#8c192d;}
+.starwarsffg.ffg-specialization-tree .sheet-body {min-height:0;overflow-y:auto;overflow-x:auto;}
+.starwarsffg.ffg-specialization-tree .sheet-body > .tab {height:auto;min-height:0;overflow:visible;}
+.starwarsffg.ffg-specialization-tree .specialization-grid {display:flex;flex-direction:column;position:relative;gap:34px;height:auto;max-height:none;min-width:670px;padding:12px 10px 22px;isolation:isolate;}
+.starwarsffg.ffg-specialization-tree .specialization-grid .talent-tier-row {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:26px;align-items:start;flex:none;max-height:none;position:relative;}
+.starwarsffg.ffg-specialization-tree .talent-tier-row-label {display:none;}
+.starwarsffg.ffg-specialization-tree .specialization-talent {position:relative;min-width:0;margin:0;box-shadow:none;z-index:1;align-self:start;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-node {--book-ink:#344c65;--book-fill:#fafaf4;position:relative;background:#52646b;padding:7px 7px 22px;min-height:130px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% calc(100% - 20px),calc(100% - 20px) 100%,20px 100%,0 calc(100% - 20px));}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-node::before {content:'';position:absolute;inset:3px;background:var(--book-fill);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% calc(100% - 18px),calc(100% - 18px) 100%,18px 100%,0 calc(100% - 18px));z-index:-1;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-active {--book-ink:#8c192d;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-passive {--book-ink:#344c65;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-unknown {--book-ink:#565b62;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-header {display:flex;align-items:center;gap:5px;padding:4px 14px 4px 5px;min-height:30px;background:var(--book-ink);color:white;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%);}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-header > div:first-child {display:flex;align-items:center;flex:0 0 17px;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-header input[type=checkbox] {margin:0;width:15px;height:15px;flex:none;accent-color:var(--book-ink);}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-header .talent-name {font-size:12px;line-height:1.25;min-height:0;font-weight:700;width:auto;text-align:left;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-body {height:auto;overflow:visible;padding:6px 4px 0;}
+.starwarsffg.ffg-specialization-tree .ffg-book-activation {display:block;color:var(--book-ink);font-weight:bold;text-transform:uppercase;font-size:10px;line-height:1.2;margin:0 0 5px;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-body .popout-editor {height:auto;max-height:none;min-height:0;overflow:visible;font-size:12px;line-height:1.35;color:#243c50;text-align:justify;hyphens:auto;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-body p {margin:0 0 5px;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-cost {position:absolute;bottom:0;right:12px;background:var(--book-ink,#344c65);color:#fff;padding:2px 15px;font-size:11px;font-weight:bold;text-transform:uppercase;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);z-index:2;white-space:nowrap;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-cost.talent-active {background:#8c192d;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-cost.talent-passive {background:#344c65;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .talent-connections {display:none;}
+.starwarsffg.ffg-specialization-tree .ffg-book-connections {position:absolute;top:0;left:0;overflow:visible;pointer-events:none;z-index:0;}
+.starwarsffg.ffg-specialization-tree .ffg-book-connections path {fill:none;stroke:#4f6269;stroke-width:7;stroke-linejoin:round;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview-layout {display:flow-root;padding:10px 14px;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview-layout figure {float:right;width:35%;max-width:280px;margin:0 0 14px 20px;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview-layout img {display:block;width:100%;height:auto;max-height:420px;object-fit:contain;border:0;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview-layout .popout-editor {min-height:100px;font-size:14px;line-height:1.55;text-align:justify;}
+.starwarsffg.ffg-specialization-tree .ffg-book-tools {display:flex;gap:12px;padding:8px;}
+.starwarsffg.ffg-specialization-tree.theme-dark .specialization-talent .ffg-book-node {--book-fill:#242b34;}
+.starwarsffg.ffg-specialization-tree.theme-dark .specialization-talent .talent-body .popout-editor {color:#e3e9ed;}
+.starwarsffg.ffg-specialization-tree.theme-dark .ffg-book-activation {color:#b9c8d8;}
+
+/* Override the legacy theme's talent selectors without affecting other sheets. */
+.starwarsffg.ffg-specialization-tree .ffg-book-header .ffg-book-title {font-weight:400;}
+.starwarsffg.ffg-specialization-tree .ffg-book-header .ffg-book-title strong {font-weight:700;}
+.starwarsffg.ffg-specialization-tree .ffg-book-header p {display:block;width:100%;}
+.starwarsffg.ffg-specialization-tree .ffg-book-header .ffg-book-legend {display:flex;width:100%;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-node .talent-header {background-color:var(--book-ink);}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-node .talent-header .talent-name {white-space:normal;overflow:visible;text-align:left;min-width:0;word-break:normal;font-size:12px;line-height:1.25;height:auto;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-node .talent-body .popout-editor {background:none;border:0;padding:0;}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-cost {z-index:20;}
+
+.starwarsffg.ffg-specialization-tree .ffg-book-overview .ffg-book-overview-layout {display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,34%);gap:18px;align-items:start;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview .ffg-book-overview-layout figure {float:none;grid-column:2;grid-row:1;width:100%;max-width:none;margin:0;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview .ffg-book-overview-layout .popout-editor {grid-column:1;grid-row:1;width:auto;max-width:none;height:auto;max-height:none;min-height:0;overflow:visible;background:none;border:0;padding:0;font-size:14px;line-height:1.55;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview .ffg-book-overview-layout .popout-editor p {font-size:inherit;line-height:inherit;margin:0 0 10px;}
+.starwarsffg.ffg-specialization-tree .ffg-book-overview > h2 {font-family:inherit;font-size:20px;margin:8px 14px;}
+
+.starwarsffg.ffg-specialization-tree .ffg-book-overview .ffg-book-no-illustration {grid-template-columns:1fr;}
+
+/* Parallel 45-degree title bevels and six-sided XP badges. */
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-node .talent-header {
+  width:calc(100% - 6px);margin-right:6px;padding:4px 30px 4px 5px;
+  clip-path:polygon(0 0,calc(100% - var(--ffg-arrow-half,15px)) 0,100% 50%,calc(100% - var(--ffg-arrow-half,15px)) 100%,0 100%);
+}
+.starwarsffg.ffg-specialization-tree .talent-grid .specialization-talent .ffg-book-node .talent-header div.talent-name {
+  position:static;top:auto;right:auto;flex:1 1 0;width:auto;max-width:none;min-width:0;
+  text-align:left;white-space:normal;overflow:visible;line-height:1.25;height:auto;
+}
+.starwarsffg.ffg-specialization-tree .specialization-talent .ffg-book-cost {
+  height:20px;line-height:20px;padding:0 15px;right:24px;bottom:-8.5px;
+  clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,10px 100%,0 50%);
+}
+
+/* Align the acquisition checkbox with the title, including wrapped titles. */
+.starwarsffg.ffg-specialization-tree .talent-grid .specialization-talent .ffg-book-node .talent-header {
+  align-items:center;
+}
+.starwarsffg.ffg-specialization-tree .talent-grid .specialization-talent .ffg-book-node .talent-header > div:first-child {
+  display:flex;align-items:center;align-self:center;line-height:1;margin:0;padding:0;
+}
+.starwarsffg.ffg-specialization-tree .talent-grid .specialization-talent .ffg-book-node .talent-header input[type=checkbox] {
+  display:block;position:relative;top:auto;transform:none;vertical-align:middle;margin:0;padding:0;
+}
+.starwarsffg.ffg-specialization-tree .talent-grid .specialization-talent .ffg-book-node .talent-header div.talent-name {
+  align-self:center;display:block;min-height:0;margin:0;padding:0;line-height:1.25;
+}
+
+/* Optical alignment with Foundry's Font Awesome checkbox glyph. */
+.starwarsffg.ffg-specialization-tree .talent-grid .specialization-talent .ffg-book-node .talent-header div.talent-name {transform:translateY(2px);}
+
+
+/* Foundry v14 chooses application colors through body.theme-light/theme-dark.
+   Interface/sidebar colors are a separate native preference. */
+.application.starwarsffg {
+  --ffg-window-background:#e4e2d8;
+  --ffg-panel:#f4f3ed;--ffg-muted-panel:#d0cfc7;--ffg-input:#fff;
+  --ffg-ink:#24282e;--ffg-muted-ink:#505963;--ffg-link:#345c74;
+  --ffg-accent-surface:#dce5e9;--ffg-line:#8c969d;
+}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) {
+  --ffg-window-background:#1b2028;--ffg-panel:#29323c;--ffg-muted-panel:#333e49;--ffg-input:#17202a;
+  --ffg-ink:#e5eaf0;--ffg-muted-ink:#b7c3ce;--ffg-link:#adcfe7;
+  --ffg-accent-surface:#2d414f;--ffg-line:#687e90;
+}
+.application.starwarsffg > .window-content {background:var(--ffg-window-background);color:var(--ffg-ink);}
+.application.starwarsffg.ffg-sheet-pending {visibility:hidden;pointer-events:none;}
+.application.starwarsffg.sheet.v2 :is(input[type=text],input[type=number],input:not([type]),select,textarea):not(:disabled):not([readonly]) {background:var(--ffg-input);color:var(--ffg-ink);border-color:var(--ffg-line);}
+.application.starwarsffg :is(input:disabled,input[readonly],select:disabled,textarea:disabled) {background-color:var(--ffg-muted-panel);color:var(--ffg-muted-ink);}
+.application.starwarsffg :is(.sheet-body,.header-fields,.popout-editor,.item-sheet,.skillsGrid,.skillsTablesGrid) {color:var(--ffg-ink);}
+.application.starwarsffg :is(table,table tbody,tr,td) {color:inherit;}
+.application.starwarsffg .sheet-body :is(.skillsTable,.skillsTable tr,.skillsTable td) {color:var(--ffg-ink);}
+.application.starwarsffg :is(a,.hint,.notes) {color:var(--ffg-link);}
+.application.starwarsffg .ffg-gm-difficulty-notice {color:var(--ffg-link);}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) :is(.header-fields,.character-details-table,.ffg-skill-modifier-summary) {color:var(--ffg-ink);}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) .sheet-body :is(table tbody tr:nth-child(even),.skill, .item:nth-child(even)) {background-color:#ffffff08;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) :is(.resource input,.character-details-table input,.pool-value input,.pool-dice-pool input) {background-color:var(--ffg-input);color:var(--ffg-ink);}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) .ffg-book-node {--book-fill:var(--ffg-panel);}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) .specialization-talent .ffg-book-node .talent-body .popout-editor {color:var(--ffg-ink);}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) .ffg-book-header {color:var(--ffg-ink);}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) .ffg-skill-information-window :is(table td,tbody tr) {background:var(--ffg-panel);color:var(--ffg-ink);}
+
+/* Keep the Mandar column backing readable in the native dark palette. */
+:is(body.theme-dark .application.starwarsffg:not(.theme-light),.application.starwarsffg.theme-dark) .skillsGrid .skillTypeGrid.skillColumnGrid {background:var(--ffg-panel);}
+
+/* Navigation icons sit on colored tabs, not on the window's text background. */
+.application.starwarsffg.sheet.v2 .sheet-tabs a.item {color:#fff;text-shadow:none;}
+.application.starwarsffg.sheet.v2 .sheet-tabs :is(a.item,.ffg-summary-button) i {color:inherit;text-shadow:none;}
+
+/* Soft slate palette: character sheets only, native dark preference only. */
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) {--ffg-window-background:#222a31;--ffg-panel:#2b353e;--ffg-muted-panel:#34414b;--ffg-input:#26323b;
+ --ffg-ink:#dde3e6;--ffg-muted-ink:#b9c6cd;--ffg-link:#aac4d2;--ffg-accent-surface:#344751;--ffg-line:#526570;--color-scrollbar:#607e8c;scrollbar-color:#607e8c #252f37;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) > .window-header {background:#28323b;color:#dde3e6;border-bottom:1px solid #43535e;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-body {background:#252f37;color:var(--ffg-ink);}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .header-fields .header-name {background:#2c3740;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .header-fields .header-name input[name="name"] {background:#25313a;color:#e4e9e9;border-color:#566a77;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .character-details-table tr {background:transparent;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .character-details-table tr:nth-child(even) {background:#ffffff05;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.species-pill,.career-pill,.specialization-pill) {background:#3a4852;border:1px solid #60727d;color:#dce4e8;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .characteristics .characteristic-item {background:#35474e;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .characteristics .characteristic-item .characteristic-label {background:#2b3943;color:#dce5e8;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .characteristics .characteristic {background:#283640;border-color:#71858c;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .characteristics .characteristic .characteristic-value input {background:#283640;color:#e1e9e9;border-color:#71858c;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .attribute .block-background {background:#34434e;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .attribute .block-title {background:#3c4e5c;color:#e1e8ec;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .attribute .block-background-shadow {background:#465f6c;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .attribute .shadow-left {background:#61484f;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .attribute .shadow-right {background:#465f6c;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .attribute .shadow-text {color:#e3e8eb;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTypeGrid.skillColumnGrid {background:#2b353e;border-color:#4b5c67;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .skillsHeader div {background:#3b4b56;color:#e0e7ea;border-bottom-color:#556977;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-body .skillsGrid .skillTable div.skill {background:#2b353e;border-bottom-color:#3c4a54;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-body .skillsGrid .skillTable div.skill:nth-child(even) {background:#2e3943;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-body .skillsGrid .skillTable div.skill:hover {background:#394b57;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skill-characteristic {color:#b9c6ce;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .careerskill-rank {background:#34434f;color:#d2dee4;border:1px solid #506571;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-tabs a.item {background:#3a4b57;color:#dfe8ec;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-tabs a.item:hover {background:#4b6373;color:#f1f4f5;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-tabs a.item.active {background:#526f81;color:#f1f4f5;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-tabs .ffg-summary-button {background:#405766;color:#e1ebef;border-color:#627e8d;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .sheet-tabs .ffg-summary-button:hover {background:#506c7c;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.items-header,.skillsTablesGrid .skillsHeader) {background:#3b4b56;color:#e0e7ea;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .items .item {border-bottom-color:#45555f;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) * {scrollbar-color:#607e8c #252f37;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) ::-webkit-scrollbar-thumb {background:#607e8c;}
+
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .toggle-equipped {color:#98a8b1;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .toggle-equipped.active {color:#ddc69a;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .talents-header {background:#3b4b56;color:#e0e7ea;}
+
+/* Muted critical marker, readable narrative tables and calm XP history. */
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .injuries .block-header {background:#634750;color:#f0e1e4;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.tab.general,.tab.obligation,.tab.effects) .block-attribute table {background:#2d3942;border:1px solid #586d79;border-collapse:collapse;color:#dce4e8;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.tab.general,.tab.obligation,.tab.effects) .block-attribute table thead {background:#465d6b;color:#eef2f3;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.tab.general,.tab.obligation,.tab.effects) .block-attribute table th {background:#465d6b;color:#eef2f3;border:1px solid #71838e;padding:8px;font-weight:600;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.tab.general,.tab.obligation,.tab.effects) .block-attribute table tbody tr {background:#2d3942;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.tab.general,.tab.obligation,.tab.effects) .block-attribute table tbody tr:nth-child(even) {background:#34434d;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) :is(.tab.general,.tab.obligation,.tab.effects) .block-attribute table td {color:#dce4e8;border:1px solid #526571;padding:8px;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .tab.xp .xp:is(.purchase,.grant,.refunded,.adjusted,.undid) {color:#d7e0e5;background:#2b353e;border-left:3px solid #9bb5c5;border-bottom:1px solid #43545f;text-align:left;padding:9px 12px;margin:0;line-height:1.6;font-weight:400;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .tab.xp .xp:is(.grant,.refunded) {border-left-color:#98b9ab;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .tab.xp .xp:is(.adjusted,.undid) {border-left-color:#b2a8c2;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .tab.xp .xp b {color:#e0e7ea;font-weight:600;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .tab.xp font[color] {color:#d7e0e5;}
+
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .injuries .block-header > div {background:#634750;color:#f0e1e4;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .injuries .block-header > .grid {background:#56434a;color:#f0e1e4;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .tab.xp .xp:is(.purchase,.grant,.refunded,.adjusted,.undid) {box-sizing:border-box;max-width:100%;min-width:0;}
+
+/* Soft blue and muted burgundy: dark specialization trees only. */
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) {--ffg-window-background:#222a31;--ffg-panel:#2d3841;--ffg-ink:#d8e1e5;--ffg-muted-ink:#b9c8cf;--ffg-link:#afc6d2;--ffg-line:#526875;--color-scrollbar:#607e8c;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) > .window-header {background:#28323b;color:#dde3e6;border-bottom:1px solid #43535e;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .sheet-body {background:#252f37;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .specialization-grid {background:#252f37;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .ffg-book-header {background:#28343d;border-bottom-color:#526875;color:#d8e1e5;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .ffg-book-title {color:#e1e8eb;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .ffg-book-header p {color:#bcccd4;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .ffg-book-header p strong {color:#d8e1e5;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .specialization-talent .ffg-book-node {--book-fill:#2d3841;background:#586d79;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .specialization-talent .talent-passive {--book-ink:#435e72;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .specialization-talent .talent-active {--book-ink:#73535f;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .specialization-talent .talent-unknown {--book-ink:#52616d;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .specialization-talent .ffg-book-node .talent-header {color:#edf1f3;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .specialization-talent .ffg-book-node .talent-body .popout-editor {color:#d8e1e5;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) :is(.ffg-book-passive,.specialization-talent .ffg-book-cost.talent-passive) {background:#435e72;color:#edf1f3;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) :is(.ffg-book-active,.specialization-talent .ffg-book-cost.talent-active) {background:#73535f;color:#edf1f3;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .ffg-book-connections path {stroke:#526874;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .sheet-tabs a.item {background:#3a4b57;color:#dfe8ec;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .sheet-tabs a.item.active {background:#526f81;color:#f1f4f5;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .sheet-tabs a.item:hover {background:#4b6373;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) * {scrollbar-color:#607e8c #252f37;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) ::-webkit-scrollbar-thumb {background:#607e8c;}
+
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .talent-body .dietype:is(.success,.failure,.advantage,.threat,.triumph,.despair) {color:#d8e1e5;}
+:is(body.theme-dark .application.starwarsffg.ffg-specialization-tree:not(.theme-light), .application.starwarsffg.ffg-specialization-tree.theme-dark) .talent-body .dietype.setback {color:#17212a;-webkit-text-stroke:0.6px #b6c6ce;}
+
+/* Pilotage MJ: calm slate surfaces, native dark application theme only. */
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) {--ffg-window-background:#222a31;--ffg-panel:#2b353e;--ffg-input:#25313a;--ffg-ink:#dde5e9;--ffg-muted-ink:#b8c7cf;--ffg-line:#526570;--color-text-primary:#dde5e9;--color-text-secondary:#b8c7cf;--color-scrollbar:#607e8c;font-family:var(--font-body);color:var(--ffg-ink);text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) > .window-header {background:#28343e;color:#dde5e9;border-bottom:1px solid #435662;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) :is(h3,h4) {font-family:var(--font-body);font-weight:650;letter-spacing:normal;color:#bdcfda;text-shadow:none;border:0;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) h3 {font-size:18px;line-height:1.3;margin:0 0 12px;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) h4 {font-size:14px;line-height:1.4;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) :is(input,select,option,label,small,strong,td) {font-family:var(--font-body);text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) button {background:#2d3c47;color:#dce6eb;border:1px solid #536a79;border-radius:5px;box-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) button:hover {background:#3b5262;border-color:#829eaf;color:#f0f4f5;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) :is(button,input,select):focus-visible {outline:2px solid #9dbdce;outline-offset:2px;box-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) :is(input[type=text],input[type=number],select) {background:#25313a;color:#dde5e9;border:1px solid #586e7b;border-radius:4px;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) input::placeholder {color:#a8bac5;opacity:1;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) input[type=checkbox] {accent-color:#8fb1c5;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) :is(small,.pilotage-effect-summary) {color:#b8c7cf;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .gm-dice-preview {background:#28343e;border:1px solid #465c69;border-radius:6px;padding:8px;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .gm-dice-table {background:#2b353e;border:1px solid #4b606d;border-radius:5px;overflow:hidden;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .gm-dice-table tr {background:#2b353e;border-bottom:1px solid #435560;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .gm-dice-table tr:nth-child(even) {background:#303d47;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .gm-dice-table tr:hover {background:#374b59;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .gm-dice-table td {color:#d5e0e6;border-color:#435560;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .gm-dice-table button {background:#344752;border-color:#5d7584;color:#e3ebee;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-token-row {background:#2b3741;border-color:#4b606d;color:#dde5e9;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-token-row:hover {background:#354b59;border-color:#7895a5;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-token-row[aria-pressed=true] {background:#3b5363;color:#edf3f5;border-color:#9ebdcc;outline:2px solid #86aabb;outline-offset:-2px;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-token-row img {border:1px solid #617987;border-radius:50%;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-editor {background:#2c3a44;border:1px solid #526b7a;border-top:3px solid #7895a5;box-shadow:0 3px 10px #0002;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-target-title {color:#d9e6ed;border-bottom-color:#506773;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-pending.is-empty {color:#bccbd3;opacity:1;border-top-color:#506773;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-pending-effect {background:#344650;border-color:#566f7c;color:#dde5e9;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-effect-reason {color:#c2d0d8;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .pilotage-group-list {scrollbar-color:#607e8c #252f37;padding-right:4px;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) img[src$="/black.png"] {outline:1px solid #8e9fa8;outline-offset:-1px;}
+:is(body.theme-dark .application.starwarsffg.pilotage-mj-dialog:not(.theme-light), .application.starwarsffg.pilotage-mj-dialog.theme-dark) .form-footer {border-top:1px solid #435662;padding-top:10px;}
+
+/* Equipment art: separate viewing from the editable portrait. */
+.application.starwarsffg.sheet.item.v2 .ffg-equipment-portrait {display:inline-flex;flex-direction:row;align-items:center;gap:8px;max-width:100%;margin:0 auto 8px;}
+.application.starwarsffg.sheet.item.v2 .ffg-equipment-portrait > img.profile-img {margin:0;}
+.application.starwarsffg.sheet.item.v2 .ffg-equipment-image-preview {display:inline-flex;align-items:center;justify-content:center;gap:6px;width:auto;min-height:26px;height:auto;padding:4px 10px;font:inherit;font-size:12px;line-height:1.3;background:var(--ffg-accent-surface);color:var(--ffg-ink);border:1px solid var(--ffg-line);border-radius:5px;box-shadow:none;text-shadow:none;}
+.application.starwarsffg.sheet.item.v2 .ffg-equipment-image-preview:hover {filter:brightness(1.12);}
+.application.starwarsffg.sheet.item.v2 .ffg-equipment-image-preview:focus-visible {outline:2px solid var(--ffg-link);outline-offset:2px;}
+
+/* Reduce glare in dark character skill lists; retain distinct dice hues. */
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .skill-name {color:#b8c6ce;font-weight:400;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .skill-name .ffg-purchase {color:#9db4c2;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .skill-characteristic {color:#9fafba;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .skillsHeader div {color:#b9c9d2;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .dice-pool > img {filter:brightness(.76) saturate(.65);}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .dice-pool:hover > img {filter:brightness(.88) saturate(.8);}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.character:not(.theme-light), .application.starwarsffg.sheet.actor.v2.character.theme-dark) .skillsGrid .skillTable .skill:hover .skill-name {color:#cedae0;}
+
+/* Roll builder: match the soft slate dark character palette. */
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) {--ffg-window-background:#222a31;--ffg-panel:#2b353e;--ffg-muted-panel:#34414b;--ffg-input:#26343e;--ffg-ink:#bfcdd5;--ffg-muted-ink:#a8bac5;--ffg-link:#abc5d4;--ffg-line:#506572;--color-text-primary:#bfcdd5;--color-text-secondary:#a8bac5;--color-scrollbar:#607e8c;color:var(--ffg-ink);text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) > .window-header {background:#28343e;color:#c5d3db;border-bottom:1px solid #435662;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(label,summary,.pool-hint,.simulation,.pool-text) {color:#b9cbd5;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(button,input,select,textarea) {text-shadow:none;box-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) button:not(.header-control) {background:#30424e;color:#c7d7df;border:1px solid #536e7d;border-radius:4px;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) button:not(.header-control):hover {background:#3c5464;border-color:#829fae;color:#e0e9ed;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(input[type=text],input[type=number],select,textarea) {background:#26343e;color:#c3d3dc;border:1px solid #536c7b;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.pool-dice-pool,.pool-additional-container) {background:#2b3741;border:1px solid #4c626f;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.pool-dice-pool,.pool-additional-container) tr {background:#2b3741;border-bottom:1px solid #405460;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.pool-dice-pool,.pool-additional-container) tr:nth-child(even) {background:#303f49;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.pool-dice-pool,.pool-additional-container) td {background:transparent;border-color:#405460;color:#bfcdd5;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.pool-dice-pool,.pool-additional-container) input[type=button] {background:#354b59;color:#c8d8e1;border:1px solid #5c7889;border-radius:4px;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.pool-dice-pool,.pool-additional-container) input[type=button]:hover {background:#436071;color:#e0e9ed;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.dice-pool > img,.pool-dice-pool img) {filter:brightness(.76) saturate(.65);}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) .pool-dice-pool img[src$="/black.png"] {outline:1px solid #92a4ae;outline-offset:-1px;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) .pool-hint {font-weight:400;font-size:11px;line-height:1.45;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) .simulation {font-weight:400;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) summary {padding:5px 0;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(.roll-button,.form-footer) {border-color:#435965;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) .roll-button button.btn {background:#3b5665;border-color:#6d8d9e;color:#d4e1e7;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) :is(button,input,select,textarea):focus-visible {outline:2px solid #9dbdce;outline-offset:2px;box-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.roll-builder-dialog:not(.theme-light), .application.starwarsffg.roll-builder-dialog.theme-dark) .roll-builder-body {scrollbar-color:#607e8c #252f37;}
+
+/* Compact image viewer control beside the equipment portrait. */
+.application.starwarsffg.sheet.item.v2 .ffg-equipment-image-preview {flex:none;width:28px;min-width:28px;height:28px;min-height:28px;padding:0;}
+.application.starwarsffg.sheet.item.v2 .ffg-equipment-image-preview i {margin:0;}
+
+/* Readable equipment property tags in expanded dark sheet summaries. */
+:is(body.theme-dark .application.starwarsffg.sheet.v2:not(.theme-light), .application.starwarsffg.sheet.v2.theme-dark) .item-details .item-properties .tag {background:#344651;color:#c6d6df;border:1px solid #607b8b;border-radius:4px;line-height:1.5;padding:2px 5px;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.sheet.v2:not(.theme-light), .application.starwarsffg.sheet.v2.theme-dark) .item-details .item-properties .tag :is(a,span,strong,b) {color:inherit;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.sheet.v2:not(.theme-light), .application.starwarsffg.sheet.v2.theme-dark) .item-details .item-properties .tag a:hover {color:#e0ebf0;}
+
+/* Inventory image zoom: an unframed icon immediately after the equipment name. */
+.application.starwarsffg.sheet.actor.v2 .items-list .item-name .ffg-inventory-image-preview {display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;flex:none;width:22px;min-width:22px;height:22px;min-height:22px;margin:0 0 0 5px;padding:0;border:0;border-radius:3px;background:transparent;color:var(--ffg-link);box-shadow:none;text-shadow:none;line-height:1;cursor:pointer;}
+.application.starwarsffg.sheet.actor.v2 .items-list .item-name .ffg-inventory-image-preview i {margin:0;font-size:12px;pointer-events:none;}
+.application.starwarsffg.sheet.actor.v2 .items-list .item-name .ffg-inventory-image-preview:hover {background:transparent;color:var(--ffg-ink);box-shadow:none;}
+.application.starwarsffg.sheet.actor.v2 .items-list .item-name .ffg-inventory-image-preview:focus-visible {outline:2px solid var(--ffg-link);outline-offset:1px;}
+
+/* Equipment summary: soft slate dark palette and legible item names. */
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) {--ffg-window-background:#222a31;--ffg-ink:#bdccd5;--ffg-link:#a9c6d7;--ffg-equipment-heading-bg:#3b4f5d;--ffg-equipment-heading-ink:#d0dee6;--ffg-equipment-name:#abc8d9;--color-text-primary:#bdccd5;--color-scrollbar:#607e8c;color:#bdccd5;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) > .window-header {background:#28343e;color:#c5d3db;border-bottom:1px solid #435662;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-body {font-family:var(--font-body);font-weight:400;color:#bdccd5;scrollbar-color:#607e8c #252f37;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-body :is(p,div,h2,h3,h4,strong,b,em) {text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-body > h2 {font-family:var(--font-body);font-weight:600;border:1px solid #526c7c;border-radius:4px;letter-spacing:normal;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry {background:#29353e;border-bottom-color:#4b606e !important;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry:nth-of-type(even) {background:#2c3a44;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry h3 {font-family:var(--font-body);font-weight:600;border:0;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry h4 {color:#b5cbd7;font-family:var(--font-body);}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry > p {color:#b2c6d1;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry :is(strong,b) {color:#c5d5de;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry .dietype.setback {color:#101820;-webkit-text-stroke:.6px #a1b5bf;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) .ffg-equipment-summary-entry img[src$="/black.png"] {outline:1px solid #92a4ae;outline-offset:-1px;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) button:not(.header-control) {background:#30424e;color:#c7d7df;border:1px solid #536e7d;border-radius:4px;text-shadow:none;box-shadow:none;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) button:not(.header-control):hover {background:#3c5464;border-color:#829fae;color:#e0e9ed;}
+:is(body.theme-dark .application.starwarsffg.ffg-equipment-summary:not(.theme-light), .application.starwarsffg.ffg-equipment-summary.theme-dark) button:focus-visible {outline:2px solid #9dbdce;outline-offset:2px;}
+
+/* Independent player/NPC vitality filters in Pilotage MJ. */
+.application.starwarsffg.pilotage-mj-dialog .pilotage-vitality-filter {display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:12px;color:var(--ffg-muted-ink);}
+.application.starwarsffg.pilotage-mj-dialog .pilotage-vitality-filter select {flex:1;min-width:0;height:28px;font-size:12px;}
+
+/* Clear dark modifier summary, without translucent white backing. */
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary {background:#28343d;color:#c5d2da;border:1px solid #536c7b;border-top:3px solid #7895a5;padding:14px 16px;font-family:var(--font-body);font-size:13px;line-height:1.6;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary h3 {color:#d0dfe7;font-family:var(--font-body);font-size:15px;font-weight:600;line-height:1.4;margin:0 0 12px;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary h4 {color:#abc6d6;font-family:var(--font-body);font-size:13px;font-weight:600;line-height:1.5;letter-spacing:normal;text-transform:none;margin:12px 0 6px;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-note {color:#aebfc9;font-size:12px;font-weight:400;line-height:1.6;opacity:1;margin:6px 0 10px;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-row {gap:8px 10px;padding:10px 0;border-bottom:1px solid #455b68;align-items:baseline;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-row:last-child {border-bottom:0;padding-bottom:0;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-scope {flex:1 1 210px;min-width:0;color:#c5d2da;font-size:13px;font-weight:400;line-height:1.65;overflow-wrap:anywhere;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-die {flex:none;align-items:center;color:#d0e0e9;font-size:13px;font-weight:600;white-space:nowrap;text-shadow:none;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-die img {vertical-align:middle;filter:brightness(.85) saturate(.75);}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary img[src$="/black.png"] {outline:1px solid #9cb2be;outline-offset:-1px;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-label {color:#bfd1dc;font-weight:500;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary .modifier-reason {color:#aebfc9;font-weight:400;line-height:1.6;}
+:is(body.theme-dark .application.starwarsffg:not(.theme-light), .application.starwarsffg.theme-dark) .ffg-skill-modifier-summary h3 > i {color:#9fbfce;}
+
+/* Keep optional roll settings below Jet and Talents associés, within the viewport. */
+.application.starwarsffg.roll-builder-dialog .roll-options-footer {flex:0 0 auto;margin-top:8px;border-top:1px solid var(--ffg-line);padding-top:4px;}
+.application.starwarsffg.roll-builder-dialog .roll-options-footer .pool-roll-options {max-height:min(35dvh,220px);overflow-y:auto;}
+
+/* Stored possessions use the existing inventory rows and palette. */
+.application.starwarsffg.sheet.actor.v2 .ffg-possession-toggle,.application.starwarsffg.sheet.actor.v2 [data-possession-add] {display:inline-flex;align-items:center;justify-content:center;width:24px;min-width:24px;height:24px;margin:0;padding:0;background:transparent;border:0;box-shadow:none;color:var(--ffg-link);text-shadow:none;vertical-align:middle;}
+.application.starwarsffg.sheet.actor.v2 .ffg-possession-toggle i,.application.starwarsffg.sheet.actor.v2 [data-possession-add] i {margin:0;pointer-events:none;}
+.application.starwarsffg.sheet.actor.v2 .ffg-possession-toggle:hover {color:var(--ffg-ink);}
+.application.starwarsffg.sheet.actor.v2 .ffg-possession-toggle:focus-visible,.application.starwarsffg.sheet.actor.v2 [data-possession-add]:focus-visible {outline:2px solid var(--ffg-link);}
+.application.starwarsffg.sheet.actor.v2 .ffg-possessions .item-controls {min-width:100px;}
+.application.starwarsffg.sheet.actor.v2 .ffg-possessions .header-name i {font-size:11px;margin-left:5px;cursor:help;}
+
+/* A quiet talent marker on NPC rows; the full list is available on hover. */
+.application.starwarsffg.pilotage-mj-dialog .pilotage-talent-marker {display:inline-block;margin-left:7px;color:var(--ffg-link);font-size:12px;vertical-align:baseline;cursor:help;text-shadow:none;}
+
+/* GM reminder for NPC talents in named combat initiative rows. */
+#combat-tracker .ffg-combat-talent-marker {
+  display: inline-block;
+  margin-left: 6px;
+  color: #a7c5d2;
+  font-size: 12px;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: help;
+  text-shadow: none;
+}
+
+/* Preserve tree editing tools while the book layout hides legacy connectors. */
+.starwarsffg.ffg-specialization-tree.ffg-book-editing .specialization-talent .talent-connections {display:block;}
+.starwarsffg.ffg-specialization-tree.ffg-book-editing .talent-connections :is(.talent-connector-up,.talent-connector-side) {display:none;}
+.starwarsffg.ffg-specialization-tree.ffg-book-editing .talent-connections .talent-action > i {display:inline-block;padding:2px 4px;color:var(--ffg-ink);background:var(--ffg-panel);border:1px solid var(--ffg-line);border-radius:3px;}
+.starwarsffg.ffg-specialization-tree .ffg-book-name-editor {display:block;margin:8px 0;}
+.starwarsffg.ffg-specialization-tree .ffg-book-name-editor input {display:block;width:100%;}

@@ -115,7 +115,12 @@
       </tr>
       {{/if}}
     </table>
-    <details>
+
+    </div>
+    <div class="roll-button flexrow">
+      <button class="btn">{{localize "SWFFG.SkillsRoll"}}</button>
+    </div>
+    <details class="roll-options-footer">
     <summary>Options</summary>
     <div class="pool-roll-options">
       {{#if (or (eq isGM true) (eq canUserAddAudio true)) }}
@@ -144,9 +149,5 @@
       {{/if}}
     </div>
     </details>
-    </div>
-    <div class="roll-button flexrow">
-      <button class="btn">{{localize "SWFFG.SkillsRoll"}}</button>
-    </div>
   </div>
 </div>

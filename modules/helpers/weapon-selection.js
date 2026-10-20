@@ -48,7 +48,35 @@ export function supportsWeaponSelection(key, skill) {
   return supported.has(key) || supported.has(skill?.value);
 }
 export function matchingWeapons(actor, key) {
-  return (actor?.items?.contents ?? []).filter(item => item.type === 'weapon' && item.system?.skill?.value === key);
+  return (actor?.items?.contents ?? []).filter(item => !(item?.flags?.starwarsffg?.inventoryLocation==='possession') && item.type === 'weapon' && item.system?.skill?.value === key);
+}
+
+// Actor flags survive closing a dialog, reconnecting and switching clients.
+// Keep a separate choice per skill so a lightsaber never replaces a blaster.
+const weaponMemoryKey = key => `lastWeapons.${encodeURIComponent(key)}`;
+export function rememberedWeapon(actor, key) {
+  const id = actor?.getFlag?.('starwarsffg', weaponMemoryKey(key));
+  return matchingWeapons(actor, key).find(item => item.id === id) ?? null;
+}
+export async function rememberWeapon(actor, key, item) {
+  if (!actor?.isOwner || !actor.setFlag || !supportsWeaponSelection(key)) return;
+  const id = item?.id ?? '';
+  if (id && !matchingWeapons(actor, key).some(weapon => weapon.id === id)) return;
+  if (actor.getFlag?.('starwarsffg', weaponMemoryKey(key)) !== id) {
+    await actor.setFlag('starwarsffg', weaponMemoryKey(key), id);
+  }
+}
+
+export async function prepareRememberedWeapon(context, item, pool) {
+  if (!context) return {item, pool};
+  // An attack from an inventory weapon always takes precedence over memory.
+  if (item?.id) {
+    await rememberWeapon(context.actor, context.skillKey, item);
+    return {item, pool};
+  }
+  const remembered = rememberedWeapon(context.actor, context.skillKey);
+  if (!remembered) return {item, pool};
+  return {item: remembered, pool: await context.makePool(remembered)};
 }
 // Retain manual changes (and accepted assistance) while replacing only the
 // contribution of the previous weapon. Never run modifiers on the live pool twice.

@@ -17,7 +17,7 @@ export default class ModifierHelpers {
 
     try {
       items.forEach((item) => {
-        if (!item) {
+        if (!item || (item?.flags?.starwarsffg?.inventoryLocation==='possession')) {
           // don't process null items
           return;
         }

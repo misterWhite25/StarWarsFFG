@@ -1,3 +1,12 @@
+`0.0.4 — candidat préparé le 20 octobre 2026`
+* Adoucit les thèmes sombres et remplace la texture répétée du thème clair par un fond uni.
+* Ajoute les résumés et repères de talents des PNJ, les filtres de vitalité de Pilotage MJ et les modificateurs regroupés.
+* Ajoute les possessions non transportées et l’agrandissement des images d’équipement.
+* Améliore les informations de compétence, la présentation des arbres, l’aide à la création/XP et les jets avec talents et critiques.
+* Revue avant release : corrige la consommation lors d’un jet échoué, les macros d’armes non transportées et les messages d’acquisition ; restaure les contrôles d’édition des arbres.
+* Livre les fichiers de données utilisés à l’exécution, vérifie l’archive et retire des fonctions et variables inutilisées.
+* Conserve explicitement la limite du prototype Esquive : même navigateur uniquement.
+
 `Unreleased — Foundry V14 migration in progress`
 * Adapt chat authors, message styles, render hooks and dice audio to current APIs.
 * Route roll visibility through the v14 message-mode API, retaining v13 and legacy macro options.

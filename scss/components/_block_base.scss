@@ -1,5 +1,5 @@
 .block-background {
-  background-color: #ddd;
+  background-color: var(--ffg-panel, #ddd);
   padding: 5px;
   margin: 0 0;
   

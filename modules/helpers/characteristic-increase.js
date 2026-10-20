@@ -43,7 +43,7 @@ export default class CharacteristicIncrease {
     }
     if(!select.options.length){ui.notifications.warn('Aucune caractéristique ne peut être augmentée (maximum 6).');return null;}
     const custom=Boolean(data.flags?.starwarsffg?.characteristicIncrease?.creationTool);
-    const choice=await foundry.applications.api.DialogV2.wait({classes:['starwarsffg','themed','theme-light'],window:{title:data.name},content:root,
+    const choice=await foundry.applications.api.DialogV2.wait({classes:['starwarsffg','themed'],window:{title:data.name},content:root,
       buttons:[{action:'select',label:'Choisir',default:true,callback:(_event,_button,dialog)=>({characteristic:dialog.element.querySelector('[name="characteristic"]').value,phase:custom?'creation':'progression'})},{action:'cancel',type:'button',label:'Annuler'}]});
     if(!choice?.characteristic)return null;
     try{return this.configure(data,actor,choice.characteristic,choice.phase);}catch(error){ui.notifications.warn(error.message);return null;}

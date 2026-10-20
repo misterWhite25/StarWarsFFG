@@ -1,0 +1,4087 @@
+{
+  "schemaVersion": 1,
+  "source": "compendium catalogue; presentation only",
+  "specializations": [
+    {
+      "key": "specialization.doctor",
+      "id": "38b70978ad77808f",
+      "names": {
+        "fr": "Médecin",
+        "en": "Doctor"
+      },
+      "careers": [
+        {
+          "key": "career.colonist",
+          "names": {
+            "fr": "Colon",
+            "en": "Colonist"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Education",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Streetwise"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Knowledge: Education",
+        "Medicine",
+        "Resilience",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/8d8abd8f75fe33e9.webp"
+    },
+    {
+      "key": "specialization.politico",
+      "id": "642d6dbac0121282",
+      "names": {
+        "fr": "Diplomate",
+        "en": "Politico"
+      },
+      "careers": [
+        {
+          "key": "career.colonist",
+          "names": {
+            "fr": "Colon",
+            "en": "Colonist"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Education",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Streetwise"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Coercion",
+        "Knowledge: Core Worlds",
+        "Deception",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/8d8abd8f75fe33e9.webp"
+    },
+    {
+      "key": "specialization.scholar",
+      "id": "9ecaac2582f7eac1",
+      "names": {
+        "fr": "Érudit",
+        "en": "Scholar"
+      },
+      "careers": [
+        {
+          "key": "career.colonist",
+          "names": {
+            "fr": "Colon",
+            "en": "Colonist"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Education",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Streetwise"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Outer Rim",
+        "Knowledge: Underworld",
+        "Knowledge: Xenology",
+        "Perception",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/8d8abd8f75fe33e9.webp"
+    },
+    {
+      "key": "specialization.path",
+      "id": "a743fda88cd72547",
+      "names": {
+        "fr": "Arpenteur",
+        "en": "Pathfinder"
+      },
+      "careers": [
+        {
+          "key": "career.seeker",
+          "names": {
+            "fr": "Errant",
+            "en": "Seeker"
+          },
+          "skills": [
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Survival",
+            "Vigilance",
+            "Knowledge: Xenology",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Ranged: Light",
+        "Medicine",
+        "Resilience",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/ed81231f39c219c9.png"
+    },
+    {
+      "key": "specialization.hunter",
+      "id": "ccada0b11ad9aa8a",
+      "names": {
+        "fr": "Chasseur",
+        "en": "Hunter"
+      },
+      "careers": [
+        {
+          "key": "career.seeker",
+          "names": {
+            "fr": "Errant",
+            "en": "Seeker"
+          },
+          "skills": [
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Survival",
+            "Vigilance",
+            "Knowledge: Xenology",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coordination",
+        "Stealth",
+        "Ranged: Heavy",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/ed81231f39c219c9.png"
+    },
+    {
+      "key": "specialization.aggres",
+      "id": "432f3d9f4571e596",
+      "names": {
+        "fr": "Agresseur",
+        "en": "Aggressor"
+      },
+      "careers": [
+        {
+          "key": "career.warrior",
+          "names": {
+            "fr": "Guerrier",
+            "en": "Warrior"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Melee",
+            "Perception",
+            "Survival",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Knowledge: Underworld",
+        "Ranged: Light",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/08bc3585c8e21b1b.png"
+    },
+    {
+      "key": "specialization.ataru",
+      "id": "049ec6995fad6a41",
+      "names": {
+        "fr": "Bretteur Ataru",
+        "en": "Ataru Striker"
+      },
+      "careers": [
+        {
+          "key": "career.seeker",
+          "names": {
+            "fr": "Errant",
+            "en": "Seeker"
+          },
+          "skills": [
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Survival",
+            "Vigilance",
+            "Knowledge: Xenology",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Coordination",
+        "Perception",
+        "Lightsaber",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/ed81231f39c219c9.png"
+    },
+    {
+      "key": "specialization.advisor",
+      "id": "b69296419884cd77",
+      "names": {
+        "fr": "Conseiller",
+        "en": "Advisor"
+      },
+      "careers": [
+        {
+          "key": "career.mystic",
+          "names": {
+            "fr": "Mystique",
+            "en": "Mystic"
+          },
+          "skills": [
+            "Charm",
+            "Coercion",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Perception",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Negotiation",
+        "Streetwise",
+        "Deception",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/2a45d3216ff203b1.png"
+    },
+    {
+      "key": "specialization.assas",
+      "id": "4cd56bfd9b539bf2",
+      "names": {
+        "fr": "Assassin",
+        "en": "Assassin"
+      },
+      "careers": [
+        {
+          "key": "career.bounty-hunter",
+          "names": {
+            "fr": "Chasseur de primes",
+            "en": "Bounty Hunter"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Melee",
+        "Stealth",
+        "Ranged: Heavy",
+        "Skulduggery",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/d1186bbe50618b01.webp"
+    },
+    {
+      "key": "specialization.makashi",
+      "id": "53f598ac6d714dab",
+      "names": {
+        "fr": "Duelliste Makashi",
+        "en": "Makashi Duelist"
+      },
+      "careers": [
+        {
+          "key": "career.mystic",
+          "names": {
+            "fr": "Mystique",
+            "en": "Mystic"
+          },
+          "skills": [
+            "Charm",
+            "Coercion",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Perception",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Charm",
+        "Coordination",
+        "Lightsaber",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/2a45d3216ff203b1.png"
+    },
+    {
+      "key": "specialization.seer",
+      "id": "5671fc3ac7c17a67",
+      "names": {
+        "fr": "Visionnaire",
+        "en": "Seer"
+      },
+      "careers": [
+        {
+          "key": "career.mystic",
+          "names": {
+            "fr": "Mystique",
+            "en": "Mystic"
+          },
+          "skills": [
+            "Charm",
+            "Coercion",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Perception",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Lore",
+        "Discipline",
+        "Survival",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/2a45d3216ff203b1.png"
+    },
+    {
+      "key": "specialization.artisan",
+      "id": "04a306019624542d",
+      "names": {
+        "fr": "Artisan",
+        "en": "Artisan"
+      },
+      "careers": [
+        {
+          "key": "career.sentinel",
+          "names": {
+            "fr": "Sentinelle",
+            "en": "Sentinel"
+          },
+          "skills": [
+            "Computers",
+            "Knowledge: Core Worlds",
+            "Deception",
+            "Perception",
+            "Skulduggery",
+            "Stealth",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Knowledge: Education",
+        "Computers",
+        "Mechanics",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/c91d7b4ab64d4412.png"
+    },
+    {
+      "key": "specialization.shiicho",
+      "id": "50452a81befad92e",
+      "names": {
+        "fr": "Chevalier Shii-Cho",
+        "en": "Shii-Cho Knight"
+      },
+      "careers": [
+        {
+          "key": "career.warrior",
+          "names": {
+            "fr": "Guerrier",
+            "en": "Warrior"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Melee",
+            "Perception",
+            "Survival",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Coordination",
+        "Melee",
+        "Lightsaber",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/08bc3585c8e21b1b.png"
+    },
+    {
+      "key": "specialization.surv",
+      "id": "a3b03a79673fc7a9",
+      "names": {
+        "fr": "Expert en survie",
+        "en": "Survivalist"
+      },
+      "careers": [
+        {
+          "key": "career.bounty-hunter",
+          "names": {
+            "fr": "Chasseur de primes",
+            "en": "Bounty Hunter"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Xenology",
+        "Perception",
+        "Resilience",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/d1186bbe50618b01.webp"
+    },
+    {
+      "key": "specialization.shadow",
+      "id": "41e0a0027f2ee1ab",
+      "names": {
+        "fr": "Ombre",
+        "en": "Shadow"
+      },
+      "careers": [
+        {
+          "key": "career.sentinel",
+          "names": {
+            "fr": "Sentinelle",
+            "en": "Sentinel"
+          },
+          "skills": [
+            "Computers",
+            "Knowledge: Core Worlds",
+            "Deception",
+            "Perception",
+            "Skulduggery",
+            "Stealth",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Underworld",
+        "Stealth",
+        "Skulduggery",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/c91d7b4ab64d4412.png"
+    },
+    {
+      "key": "specialization.peace",
+      "id": "7d7fb0d9da235014",
+      "names": {
+        "fr": "Pacificateur",
+        "en": "Peacekeeper"
+      },
+      "careers": [
+        {
+          "key": "career.guardian",
+          "names": {
+            "fr": "Gardien",
+            "en": "Guardian"
+          },
+          "skills": [
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Melee",
+            "Resilience",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Leadership",
+        "Perception",
+        "Piloting: Planetary",
+        "Discipline",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/fc57bedbfb75c1a6.png"
+    },
+    {
+      "key": "specialization.healer",
+      "id": "6a7d0213be61d507",
+      "names": {
+        "fr": "Guérisseur",
+        "en": "Healer"
+      },
+      "careers": [
+        {
+          "key": "career.consular",
+          "names": {
+            "fr": "Consulaire",
+            "en": "Consular"
+          },
+          "skills": [
+            "Cool",
+            "Discipline",
+            "Knowledge: Education",
+            "Leadership",
+            "Knowledge: Lore",
+            "Negotiation",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Education",
+        "Knowledge: Xenology",
+        "Medicine",
+        "Discipline",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/a653c44fe7fbfee2.png"
+    },
+    {
+      "key": "specialization.soresu",
+      "id": "00775e0180293c43",
+      "names": {
+        "fr": "Défenseur Soresu",
+        "en": "Soresu Defender"
+      },
+      "careers": [
+        {
+          "key": "career.guardian",
+          "names": {
+            "fr": "Gardien",
+            "en": "Guardian"
+          },
+          "skills": [
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Melee",
+            "Resilience",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Lore",
+        "Lightsaber",
+        "Discipline",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/fc57bedbfb75c1a6.png"
+    },
+    {
+      "key": "specialization.niman",
+      "id": "192e17d3a1040abf",
+      "names": {
+        "fr": "Disciple Niman",
+        "en": "Niman Disciple"
+      },
+      "careers": [
+        {
+          "key": "career.consular",
+          "names": {
+            "fr": "Consulaire",
+            "en": "Consular"
+          },
+          "skills": [
+            "Cool",
+            "Discipline",
+            "Knowledge: Education",
+            "Leadership",
+            "Knowledge: Lore",
+            "Negotiation",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Leadership",
+        "Negotiation",
+        "Discipline",
+        "Lightsaber",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/a653c44fe7fbfee2.png"
+    },
+    {
+      "key": "specialization.protect",
+      "id": "c19c07601c01731c",
+      "names": {
+        "fr": "Protecteur",
+        "en": "Protector"
+      },
+      "careers": [
+        {
+          "key": "career.guardian",
+          "names": {
+            "fr": "Gardien",
+            "en": "Guardian"
+          },
+          "skills": [
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Melee",
+            "Resilience",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Ranged: Light",
+        "Medicine",
+        "Resilience",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/fc57bedbfb75c1a6.png"
+    },
+    {
+      "key": "specialization.gadg",
+      "id": "183249895cfb7384",
+      "names": {
+        "fr": "Expert en gadgets",
+        "en": "Gadgeteer"
+      },
+      "careers": [
+        {
+          "key": "career.bounty-hunter",
+          "names": {
+            "fr": "Chasseur de primes",
+            "en": "Bounty Hunter"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Ranged: Light",
+        "Mechanics",
+        "Brawl",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/d1186bbe50618b01.webp"
+    },
+    {
+      "key": "specialization.sage",
+      "id": "952f25433ed4953e",
+      "names": {
+        "fr": "Sage",
+        "en": "Sage"
+      },
+      "careers": [
+        {
+          "key": "career.consular",
+          "names": {
+            "fr": "Consulaire",
+            "en": "Consular"
+          },
+          "skills": [
+            "Cool",
+            "Discipline",
+            "Knowledge: Education",
+            "Leadership",
+            "Knowledge: Lore",
+            "Negotiation",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Cool",
+        "Charm",
+        "Knowledge: Lore",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/a653c44fe7fbfee2.png"
+    },
+    {
+      "key": "specialization.shien",
+      "id": "d6b07eed4760b4f1",
+      "names": {
+        "fr": "Expert Shien",
+        "en": "Shien Expert"
+      },
+      "careers": [
+        {
+          "key": "career.sentinel",
+          "names": {
+            "fr": "Sentinelle",
+            "en": "Sentinel"
+          },
+          "skills": [
+            "Computers",
+            "Knowledge: Core Worlds",
+            "Deception",
+            "Perception",
+            "Skulduggery",
+            "Stealth",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Skulduggery",
+        "Resilience",
+        "Lightsaber",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/c91d7b4ab64d4412.png"
+    },
+    {
+      "key": "specialization.starace",
+      "id": "d7c44697fc28fa24",
+      "names": {
+        "fr": "As de l'Espace",
+        "en": "Starfighter Ace"
+      },
+      "careers": [
+        {
+          "key": "career.warrior",
+          "names": {
+            "fr": "Guerrier",
+            "en": "Warrior"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Melee",
+            "Perception",
+            "Survival",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Gunnery",
+        "Mechanics",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/imported/08bc3585c8e21b1b.png"
+    },
+    {
+      "key": "specialization.gunner",
+      "id": "e752c73a171d170a",
+      "names": {
+        "fr": "Artilleur",
+        "en": "Gunner"
+      },
+      "careers": [
+        {
+          "key": "career.ace",
+          "names": {
+            "fr": "As",
+            "en": "Ace"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Gunnery",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Light"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Discipline",
+        "Gunnery",
+        "Resilience",
+        "Ranged: Heavy",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.scientist",
+      "id": "453df5732ce93750",
+      "names": {
+        "fr": "Scientifique",
+        "en": "Scientist"
+      },
+      "careers": [
+        {
+          "key": "career.engineer",
+          "names": {
+            "fr": "Ingénieur",
+            "en": "Engineer"
+          },
+          "skills": [
+            "Athletics",
+            "Computers",
+            "Knowledge: Education",
+            "Ranged: Light",
+            "Piloting: Space",
+            "Mechanics",
+            "Perception",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Knowledge: Education",
+        "Knowledge: Lore",
+        "Medicine",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.gunslinger",
+      "id": "a85ce82100f409f2",
+      "names": {
+        "fr": "Pistolero",
+        "en": "Gunslinger"
+      },
+      "careers": [
+        {
+          "key": "career.smuggler",
+          "names": {
+            "fr": "Contrebandier",
+            "en": "Smuggler"
+          },
+          "skills": [
+            "Coordination",
+            "Deception",
+            "Knowledge: Underworld",
+            "Perception",
+            "Piloting: Space",
+            "Skulduggery",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Cool",
+        "Knowledge: Outer Rim",
+        "Ranged: Light",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.mechanic",
+      "id": "8f95f5b2a6cd2108",
+      "names": {
+        "fr": "Mécanicien",
+        "en": "Mechanic"
+      },
+      "careers": [
+        {
+          "key": "career.technician",
+          "names": {
+            "fr": "Technicien",
+            "en": "Technician"
+          },
+          "skills": [
+            "Astrogation",
+            "Computers",
+            "Coordination",
+            "Discipline",
+            "Knowledge: Outer Rim",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary"
+          ]
+        },
+        {
+          "key": "career.engineer",
+          "names": {
+            "fr": "Ingénieur",
+            "en": "Engineer"
+          },
+          "skills": [
+            "Athletics",
+            "Computers",
+            "Knowledge: Education",
+            "Ranged: Light",
+            "Piloting: Space",
+            "Mechanics",
+            "Perception",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Brawl",
+        "Mechanics",
+        "Piloting: Space",
+        "Skulduggery",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.alchemist",
+      "id": "b35796b79319ce17",
+      "names": {
+        "fr": "Alchimiste",
+        "en": "Alchemist"
+      },
+      "careers": [
+        {
+          "key": "career.mystic",
+          "names": {
+            "fr": "Mystique",
+            "en": "Mystic"
+          },
+          "skills": [
+            "Charm",
+            "Coercion",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Perception",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Education",
+        "Medicine",
+        "Resilience",
+        "Knowledge: Xenology",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.teacher",
+      "id": "7be82d8719ba7db7",
+      "names": {
+        "fr": "Enseignant",
+        "en": "Teacher"
+      },
+      "careers": [
+        {
+          "key": "career.consular",
+          "names": {
+            "fr": "Consulaire",
+            "en": "Consular"
+          },
+          "skills": [
+            "Cool",
+            "Discipline",
+            "Knowledge: Education",
+            "Leadership",
+            "Knowledge: Lore",
+            "Negotiation",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Education",
+        "Leadership",
+        "Knowledge: Lore",
+        "Perception",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.mercenary",
+      "id": "839ff7709a1bf3ef",
+      "names": {
+        "fr": "Soldat à louer",
+        "en": "Mercenary Soldier"
+      },
+      "careers": [
+        {
+          "key": "career.hired-gun",
+          "names": {
+            "fr": "Mercenaire",
+            "en": "Hired Gun"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Discipline",
+            "Melee",
+            "Piloting: Planetary",
+            "Ranged: Light",
+            "Resilience",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Discipline",
+        "Gunnery",
+        "Leadership",
+        "Ranged: Heavy",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.beastrider",
+      "id": "6a7b8e44b102cb37",
+      "names": {
+        "fr": "Cavalier",
+        "en": "Beast Rider"
+      },
+      "careers": [
+        {
+          "key": "career.ace",
+          "names": {
+            "fr": "As",
+            "en": "Ace"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Gunnery",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Light"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Perception",
+        "Survival",
+        "Knowledge: Xenology",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.driver",
+      "id": "8e6621d7b7e66c13",
+      "names": {
+        "fr": "Fonceur",
+        "en": "Driver"
+      },
+      "careers": [
+        {
+          "key": "career.ace",
+          "names": {
+            "fr": "As",
+            "en": "Ace"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Gunnery",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Light"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Gunnery",
+        "Mechanics",
+        "Piloting: Planetary",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.infiltrator",
+      "id": "2a545a891964d0d4",
+      "names": {
+        "fr": "Taupe",
+        "en": "Infiltrator"
+      },
+      "careers": [
+        {
+          "key": "career.spy",
+          "names": {
+            "fr": "Espion",
+            "en": "Spy"
+          },
+          "skills": [
+            "Computers",
+            "Cool",
+            "Coordination",
+            "Deception",
+            "Knowledge: Warfare",
+            "Perception",
+            "Skulduggery",
+            "Stealth"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Deception",
+        "Melee",
+        "Skulduggery",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.bgmhunter",
+      "id": "0b190dbf7f5cd400",
+      "names": {
+        "fr": "Prédateur",
+        "en": "Big Game Hunter"
+      },
+      "careers": [
+        {
+          "key": "career.explorer",
+          "names": {
+            "fr": "Explorateur",
+            "en": "Explorer"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology",
+            "Perception",
+            "Piloting: Space",
+            "Survival"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Ranged: Heavy",
+        "Stealth",
+        "Survival",
+        "Knowledge: Xenology",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.shipwright",
+      "id": "86dd173cef7ddac0",
+      "names": {
+        "fr": "Constructeur naval",
+        "en": "Shipwright"
+      },
+      "careers": [
+        {
+          "key": "career.engineer",
+          "names": {
+            "fr": "Ingénieur",
+            "en": "Engineer"
+          },
+          "skills": [
+            "Athletics",
+            "Computers",
+            "Knowledge: Education",
+            "Ranged: Light",
+            "Piloting: Space",
+            "Mechanics",
+            "Perception",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Education",
+        "Gunnery",
+        "Mechanics",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.recruit",
+      "id": "8b7a6fa6fa71ce32",
+      "names": {
+        "fr": "Recrue",
+        "en": "Recruit"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "Athletics",
+        "Discipline",
+        "Survival",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": true,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.tactician",
+      "id": "665c1bfab5c30ed6",
+      "names": {
+        "fr": "Tacticien",
+        "en": "Tactician"
+      },
+      "careers": [
+        {
+          "key": "career.commander",
+          "names": {
+            "fr": "Stratège",
+            "en": "Commander"
+          },
+          "skills": [
+            "Coercion",
+            "Cool",
+            "Discipline",
+            "Knowledge: Warfare",
+            "Leadership",
+            "Perception",
+            "Ranged: Light",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Brawl",
+        "Discipline",
+        "Leadership",
+        "Ranged: Heavy",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.pilot",
+      "id": "e70ac90d21dd487c",
+      "names": {
+        "fr": "Pilote",
+        "en": "Pilot"
+      },
+      "careers": [
+        {
+          "key": "career.smuggler",
+          "names": {
+            "fr": "Contrebandier",
+            "en": "Smuggler"
+          },
+          "skills": [
+            "Coordination",
+            "Deception",
+            "Knowledge: Underworld",
+            "Perception",
+            "Piloting: Space",
+            "Skulduggery",
+            "Streetwise",
+            "Vigilance"
+          ]
+        },
+        {
+          "key": "career.ace",
+          "names": {
+            "fr": "As",
+            "en": "Ace"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Gunnery",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Light"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Gunnery",
+        "Piloting: Planetary",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.ambassador",
+      "id": "adcdc8e0914dabab",
+      "names": {
+        "fr": "Ambassadeur",
+        "en": "Ambassador"
+      },
+      "careers": [
+        {
+          "key": "career.diplomat",
+          "names": {
+            "fr": "Diplomate",
+            "en": "Diplomat"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Discipline",
+        "Knowledge: Core Worlds",
+        "Negotiation",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.fringer",
+      "id": "7b39a269debd1114",
+      "names": {
+        "fr": "Bourlingueur",
+        "en": "Fringer"
+      },
+      "careers": [
+        {
+          "key": "career.explorer",
+          "names": {
+            "fr": "Explorateur",
+            "en": "Explorer"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology",
+            "Perception",
+            "Piloting: Space",
+            "Survival"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Coordination",
+        "Negotiation",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.magus",
+      "id": "141a23e44835378b",
+      "names": {
+        "fr": "Mage",
+        "en": "Magus"
+      },
+      "careers": [
+        {
+          "key": "career.mystic",
+          "names": {
+            "fr": "Mystique",
+            "en": "Mystic"
+          },
+          "skills": [
+            "Charm",
+            "Coercion",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Perception",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Discipline",
+        "Knowledge: Lore",
+        "Medicine",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.charmer",
+      "id": "d69e98e7e00e2d30",
+      "names": {
+        "fr": "Charmeur",
+        "en": "Charmer"
+      },
+      "careers": [
+        {
+          "key": "career.smuggler",
+          "names": {
+            "fr": "Contrebandier",
+            "en": "Smuggler"
+          },
+          "skills": [
+            "Coordination",
+            "Deception",
+            "Knowledge: Underworld",
+            "Perception",
+            "Piloting: Space",
+            "Skulduggery",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Cool",
+        "Leadership",
+        "Negotiation",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.courier",
+      "id": "0386e86b543a63e3",
+      "names": {
+        "fr": "Messager",
+        "en": "Courier"
+      },
+      "careers": [
+        {
+          "key": "career.spy",
+          "names": {
+            "fr": "Espion",
+            "en": "Spy"
+          },
+          "skills": [
+            "Computers",
+            "Cool",
+            "Coordination",
+            "Deception",
+            "Knowledge: Warfare",
+            "Perception",
+            "Skulduggery",
+            "Stealth"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Deception",
+        "Streetwise",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.advocate",
+      "id": "fd4109e4f180b45e",
+      "names": {
+        "fr": "Avocat",
+        "en": "Advocate"
+      },
+      "careers": [
+        {
+          "key": "career.diplomat",
+          "names": {
+            "fr": "Diplomate",
+            "en": "Diplomat"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Deception",
+        "Negotiation",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.repnavyoff",
+      "id": "a4d34b364f6c7112",
+      "names": {
+        "fr": "Officier de la marine républicaine",
+        "en": "Republic Navy Officer"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "Astrogation",
+        "Discipline",
+        "Leadership",
+        "Knowledge: Warfare",
+        "(none)"
+      ],
+      "universal": true,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.archeologist",
+      "id": "db890de33dce56d6",
+      "names": {
+        "fr": "Archéologue",
+        "en": "Archaeologist"
+      },
+      "careers": [
+        {
+          "key": "career.explorer",
+          "names": {
+            "fr": "Explorateur",
+            "en": "Explorer"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology",
+            "Perception",
+            "Piloting: Space",
+            "Survival"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Discipline",
+        "Knowledge: Education",
+        "Knowledge: Lore",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.forcesensitiveemergent",
+      "id": "6a006dffdfc1a049",
+      "names": {
+        "fr": "Aspirant sensible à la Force",
+        "en": "Force-Sensitive Emergent"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)"
+      ],
+      "universal": true,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.martialartist",
+      "id": "2b7600eb0255c7b0",
+      "names": {
+        "fr": "Expert en arts martiaux",
+        "en": "Martial Artist"
+      },
+      "careers": [
+        {
+          "key": "career.bounty-hunter",
+          "names": {
+            "fr": "Chasseur de primes",
+            "en": "Bounty Hunter"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Brawl",
+        "Coordination",
+        "Discipline",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.strategist",
+      "id": "5fa77b0fe8ce0d3c",
+      "names": {
+        "fr": "Stratégiste",
+        "en": "Strategist"
+      },
+      "careers": [
+        {
+          "key": "career.commander",
+          "names": {
+            "fr": "Stratège",
+            "en": "Commander"
+          },
+          "skills": [
+            "Coercion",
+            "Cool",
+            "Discipline",
+            "Knowledge: Warfare",
+            "Leadership",
+            "Perception",
+            "Ranged: Light",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Cool",
+        "Vigilance",
+        "Knowledge: Warfare",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.bodyguard",
+      "id": "187143a8625d8389",
+      "names": {
+        "fr": "Garde du corps",
+        "en": "Bodyguard"
+      },
+      "careers": [
+        {
+          "key": "career.hired-gun",
+          "names": {
+            "fr": "Mercenaire",
+            "en": "Hired Gun"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Discipline",
+            "Melee",
+            "Piloting: Planetary",
+            "Ranged: Light",
+            "Resilience",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Gunnery",
+        "Perception",
+        "Piloting: Planetary",
+        "Ranged: Heavy",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.demolitionist",
+      "id": "80c47d49e51b1bf4",
+      "names": {
+        "fr": "Démolisseur",
+        "en": "Demolitionist"
+      },
+      "careers": [
+        {
+          "key": "career.hired-gun",
+          "names": {
+            "fr": "Mercenaire",
+            "en": "Hired Gun"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Discipline",
+            "Melee",
+            "Piloting: Planetary",
+            "Ranged: Light",
+            "Resilience",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Cool",
+        "Mechanics",
+        "Skulduggery",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.meneurdhomme",
+      "id": "e13c75aea053e67c",
+      "names": {
+        "fr": "Meneur d’hommes [communautaire]",
+        "en": "Leader of Men [community]"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "Cool",
+        "Leadership",
+        "Perception",
+        "Knowledge: Warfare",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.skiptracer",
+      "id": "db3128854f622276",
+      "names": {
+        "fr": "Traqueur de fugitifs",
+        "en": "Skip Tracer"
+      },
+      "careers": [
+        {
+          "key": "career.bounty-hunter",
+          "names": {
+            "fr": "Chasseur de primes",
+            "en": "Bounty Hunter"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Knowledge: Underworld",
+        "Negotiation",
+        "Skulduggery",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.enforcer",
+      "id": "2877483a86160649",
+      "names": {
+        "fr": "Nervi",
+        "en": "Enforcer"
+      },
+      "careers": [
+        {
+          "key": "career.hired-gun",
+          "names": {
+            "fr": "Mercenaire",
+            "en": "Hired Gun"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Discipline",
+            "Melee",
+            "Piloting: Planetary",
+            "Ranged: Light",
+            "Resilience",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Brawl",
+        "Coercion",
+        "Knowledge: Underworld",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.scound",
+      "id": "14686a8691f1c78c",
+      "names": {
+        "fr": "Vaurien",
+        "en": "Scoundrel"
+      },
+      "careers": [
+        {
+          "key": "career.smuggler",
+          "names": {
+            "fr": "Contrebandier",
+            "en": "Smuggler"
+          },
+          "skills": [
+            "Coordination",
+            "Deception",
+            "Knowledge: Underworld",
+            "Perception",
+            "Piloting: Space",
+            "Skulduggery",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Cool",
+        "Deception",
+        "Ranged: Light",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.interrogator",
+      "id": "dd78264acc62ee88",
+      "names": {
+        "fr": "Interrogateur",
+        "en": "Interrogator"
+      },
+      "careers": [
+        {
+          "key": "career.spy",
+          "names": {
+            "fr": "Espion",
+            "en": "Spy"
+          },
+          "skills": [
+            "Computers",
+            "Cool",
+            "Coordination",
+            "Deception",
+            "Knowledge: Warfare",
+            "Perception",
+            "Skulduggery",
+            "Stealth"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Coercion",
+        "Medicine",
+        "Perception",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.scout",
+      "id": "409150079104e7c9",
+      "names": {
+        "fr": "Éclaireur",
+        "en": "Scout"
+      },
+      "careers": [
+        {
+          "key": "career.explorer",
+          "names": {
+            "fr": "Explorateur",
+            "en": "Explorer"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology",
+            "Perception",
+            "Piloting: Space",
+            "Survival"
+          ]
+        },
+        {
+          "key": "career.spy",
+          "names": {
+            "fr": "Espion",
+            "en": "Spy"
+          },
+          "skills": [
+            "Computers",
+            "Cool",
+            "Coordination",
+            "Deception",
+            "Knowledge: Warfare",
+            "Perception",
+            "Skulduggery",
+            "Stealth"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Medicine",
+        "Piloting: Planetary",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.jediknight",
+      "id": "4acbdecaf528ed59",
+      "names": {
+        "fr": "Chevalier Jedi",
+        "en": "Knight"
+      },
+      "careers": [
+        {
+          "key": "career.jedi",
+          "names": {
+            "fr": "Jedi",
+            "en": "Jedi"
+          },
+          "skills": [
+            "Athletics",
+            "Cool",
+            "Discipline",
+            "Lightsaber",
+            "Knowledge: Lore",
+            "Piloting: Space",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Leadership",
+        "Lightsaber",
+        "Negotiation",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.medic",
+      "id": "9473490ba48d0c30",
+      "names": {
+        "fr": "Urgentiste",
+        "en": "Medic"
+      },
+      "careers": [
+        {
+          "key": "career.soldier",
+          "names": {
+            "fr": "Soldat",
+            "en": "Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Knowledge: Warfare",
+            "Melee",
+            "Medicine",
+            "Ranged: Light",
+            "Survival",
+            "Ranged: Heavy"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Medicine",
+        "Resilience",
+        "Vigilance",
+        "Knowledge: Xenology",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.agitator",
+      "id": "908884b5c4d78d34",
+      "names": {
+        "fr": "Agitateur",
+        "en": "Agitator"
+      },
+      "careers": [
+        {
+          "key": "career.diplomat",
+          "names": {
+            "fr": "Diplomate",
+            "en": "Diplomat"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Deception",
+        "Knowledge: Underworld",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.cloneoff",
+      "id": "af6c4093cdd90d09",
+      "names": {
+        "fr": "Officier clone",
+        "en": "Clone Officer"
+      },
+      "careers": [
+        {
+          "key": "career.clone-soldier",
+          "names": {
+            "fr": "Soldat clone",
+            "en": "Clone Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Medicine",
+            "Ranged: Light",
+            "Ranged: Heavy",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Leadership",
+        "Knowledge: Outer Rim",
+        "Knowledge: Warfare",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.slicer",
+      "id": "a8a44e87ecb06087",
+      "names": {
+        "fr": "Pirate informatique",
+        "en": "Slicer"
+      },
+      "careers": [
+        {
+          "key": "career.technician",
+          "names": {
+            "fr": "Technicien",
+            "en": "Technician"
+          },
+          "skills": [
+            "Astrogation",
+            "Computers",
+            "Coordination",
+            "Discipline",
+            "Knowledge: Outer Rim",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary"
+          ]
+        },
+        {
+          "key": "career.spy",
+          "names": {
+            "fr": "Espion",
+            "en": "Spy"
+          },
+          "skills": [
+            "Computers",
+            "Cool",
+            "Coordination",
+            "Deception",
+            "Knowledge: Warfare",
+            "Perception",
+            "Skulduggery",
+            "Stealth"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Knowledge: Education",
+        "Knowledge: Underworld",
+        "Stealth",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.modder",
+      "id": "f79bb1d49977817f",
+      "names": {
+        "fr": "Préparateur",
+        "en": "Modder"
+      },
+      "careers": [
+        {
+          "key": "career.technician",
+          "names": {
+            "fr": "Technicien",
+            "en": "Technician"
+          },
+          "skills": [
+            "Astrogation",
+            "Computers",
+            "Coordination",
+            "Discipline",
+            "Knowledge: Outer Rim",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Gunnery",
+        "Mechanics",
+        "Piloting: Space",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.quartermaster",
+      "id": "b9882058ae301e14",
+      "names": {
+        "fr": "Intendant",
+        "en": "Quartermaster"
+      },
+      "careers": [
+        {
+          "key": "career.commander",
+          "names": {
+            "fr": "Stratège",
+            "en": "Commander"
+          },
+          "skills": [
+            "Coercion",
+            "Cool",
+            "Discipline",
+            "Knowledge: Warfare",
+            "Leadership",
+            "Perception",
+            "Ranged: Light",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Negotiation",
+        "Skulduggery",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.heavy",
+      "id": "8d100733af5601ac",
+      "names": {
+        "fr": "Canonnier",
+        "en": "Heavy"
+      },
+      "careers": [
+        {
+          "key": "career.hired-gun",
+          "names": {
+            "fr": "Mercenaire",
+            "en": "Hired Gun"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Discipline",
+            "Melee",
+            "Piloting: Planetary",
+            "Ranged: Light",
+            "Resilience",
+            "Vigilance"
+          ]
+        },
+        {
+          "key": "career.soldier",
+          "names": {
+            "fr": "Soldat",
+            "en": "Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Knowledge: Warfare",
+            "Melee",
+            "Medicine",
+            "Ranged: Light",
+            "Survival",
+            "Ranged: Heavy"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Gunnery",
+        "Perception",
+        "Ranged: Heavy",
+        "Resilience",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.droidtech",
+      "id": "e3644ad780902e12",
+      "names": {
+        "fr": "Technicien droïde",
+        "en": "Droid Tech"
+      },
+      "careers": [
+        {
+          "key": "career.technician",
+          "names": {
+            "fr": "Technicien",
+            "en": "Technician"
+          },
+          "skills": [
+            "Astrogation",
+            "Computers",
+            "Coordination",
+            "Discipline",
+            "Knowledge: Outer Rim",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Cool",
+        "Leadership",
+        "Mechanics",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.investigator",
+      "id": "d840d65e141e9625",
+      "names": {
+        "fr": "Enquêteur",
+        "en": "Investigator"
+      },
+      "careers": [
+        {
+          "key": "career.sentinel",
+          "names": {
+            "fr": "Sentinelle",
+            "en": "Sentinel"
+          },
+          "skills": [
+            "Computers",
+            "Knowledge: Core Worlds",
+            "Deception",
+            "Perception",
+            "Skulduggery",
+            "Stealth",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Education",
+        "Perception",
+        "Streetwise",
+        "Knowledge: Underworld",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.outlaw",
+      "id": "346fbb3ede999d07",
+      "names": {
+        "fr": "Tech hors-la-loi",
+        "en": "Outlaw Tech"
+      },
+      "careers": [
+        {
+          "key": "career.technician",
+          "names": {
+            "fr": "Technicien",
+            "en": "Technician"
+          },
+          "skills": [
+            "Astrogation",
+            "Computers",
+            "Coordination",
+            "Discipline",
+            "Knowledge: Outer Rim",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Education",
+        "Knowledge: Underworld",
+        "Mechanics",
+        "Streetwise",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.analyst",
+      "id": "5f3fa61ee083a405",
+      "names": {
+        "fr": "Analyste",
+        "en": "Analyst"
+      },
+      "careers": [
+        {
+          "key": "career.diplomat",
+          "names": {
+            "fr": "Diplomate",
+            "en": "Diplomat"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Knowledge: Education",
+        "Perception",
+        "Knowledge: Warfare",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.forcesensitiveexile",
+      "id": "ba8ea952aced2e9e",
+      "names": {
+        "fr": "Exilé sensible à la Force",
+        "en": "Force-Sensitive Exile"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)"
+      ],
+      "universal": true,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.steelhand",
+      "id": "d95ee609eaf06d37",
+      "names": {
+        "fr": "Adepte de la main d’acier",
+        "en": "Steel Hand Adept"
+      },
+      "careers": [
+        {
+          "key": "career.warrior",
+          "names": {
+            "fr": "Guerrier",
+            "en": "Warrior"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Melee",
+            "Perception",
+            "Survival",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Brawl",
+        "Coordination",
+        "Discipline",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.marshal",
+      "id": "4372f94a4300a0ef",
+      "names": {
+        "fr": "Justicier",
+        "en": "Marshal"
+      },
+      "careers": [
+        {
+          "key": "career.colonist",
+          "names": {
+            "fr": "Colon",
+            "en": "Colonist"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Education",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Streetwise"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Ranged: Light",
+        "Knowledge: Underworld",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.entrepreneur",
+      "id": "6bf0bded65355267",
+      "names": {
+        "fr": "Entrepreneur",
+        "en": "Entrepreneur"
+      },
+      "careers": [
+        {
+          "key": "career.colonist",
+          "names": {
+            "fr": "Colon",
+            "en": "Colonist"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Education",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Streetwise"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Education",
+        "Negotiation",
+        "Knowledge: Underworld",
+        "Discipline",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.commando",
+      "id": "224e89e3453dd8b3",
+      "names": {
+        "fr": "Commando",
+        "en": "Commando"
+      },
+      "careers": [
+        {
+          "key": "career.soldier",
+          "names": {
+            "fr": "Soldat",
+            "en": "Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Knowledge: Warfare",
+            "Melee",
+            "Medicine",
+            "Ranged: Light",
+            "Survival",
+            "Ranged: Heavy"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Brawl",
+        "Melee",
+        "Resilience",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.performer",
+      "id": "3877fecc7b77d565",
+      "names": {
+        "fr": "Artiste",
+        "en": "Performer"
+      },
+      "careers": [
+        {
+          "key": "career.colonist",
+          "names": {
+            "fr": "Colon",
+            "en": "Colonist"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Education",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Streetwise"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Coordination",
+        "Deception",
+        "Melee",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.marauder",
+      "id": "882b12dbba49b3db",
+      "names": {
+        "fr": "Maraudeur",
+        "en": "Marauder"
+      },
+      "careers": [
+        {
+          "key": "career.hired-gun",
+          "names": {
+            "fr": "Mercenaire",
+            "en": "Hired Gun"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Discipline",
+            "Melee",
+            "Piloting: Planetary",
+            "Ranged: Light",
+            "Resilience",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Melee",
+        "Resilience",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.squadleader",
+      "id": "0513bb492b06ffdc",
+      "names": {
+        "fr": "Chef d’escadron",
+        "en": "Squadron Leader"
+      },
+      "careers": [
+        {
+          "key": "career.commander",
+          "names": {
+            "fr": "Stratège",
+            "en": "Commander"
+          },
+          "skills": [
+            "Coercion",
+            "Cool",
+            "Discipline",
+            "Knowledge: Warfare",
+            "Leadership",
+            "Perception",
+            "Ranged: Light",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Gunnery",
+        "Mechanics",
+        "Piloting: Planetary",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.propagandist",
+      "id": "59f685d6a2749a27",
+      "names": {
+        "fr": "Propagandiste",
+        "en": "Propagandist"
+      },
+      "careers": [
+        {
+          "key": "career.diplomat",
+          "names": {
+            "fr": "Diplomate",
+            "en": "Diplomat"
+          },
+          "skills": [
+            "Charm",
+            "Deception",
+            "Knowledge: Core Worlds",
+            "Knowledge: Lore",
+            "Leadership",
+            "Negotiation",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Deception",
+        "Perception",
+        "Knowledge: Warfare",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.rigger",
+      "id": "32e2fbcf7d358949",
+      "names": {
+        "fr": "Bidouilleur",
+        "en": "Rigger"
+      },
+      "careers": [
+        {
+          "key": "career.ace",
+          "names": {
+            "fr": "As",
+            "en": "Ace"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Gunnery",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Light"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Gunnery",
+        "Mechanics",
+        "Resilience",
+        "Knowledge: Underworld",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.figurehead",
+      "id": "e08e78fcfcddb9c0",
+      "names": {
+        "fr": "Figure de proue",
+        "en": "Figurehead"
+      },
+      "careers": [
+        {
+          "key": "career.commander",
+          "names": {
+            "fr": "Stratège",
+            "en": "Commander"
+          },
+          "skills": [
+            "Coercion",
+            "Cool",
+            "Discipline",
+            "Knowledge: Warfare",
+            "Leadership",
+            "Perception",
+            "Ranged: Light",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Knowledge: Core Worlds",
+        "Leadership",
+        "Negotiation",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.sapper",
+      "id": "71590d72512e9f05",
+      "names": {
+        "fr": "Sapeur",
+        "en": "Sapper"
+      },
+      "careers": [
+        {
+          "key": "career.engineer",
+          "names": {
+            "fr": "Ingénieur",
+            "en": "Engineer"
+          },
+          "skills": [
+            "Athletics",
+            "Computers",
+            "Knowledge: Education",
+            "Ranged: Light",
+            "Piloting: Space",
+            "Mechanics",
+            "Perception",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Mechanics",
+        "Survival",
+        "Knowledge: Warfare",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.vanguard",
+      "id": "1e5ca3b9dc79e0c4",
+      "names": {
+        "fr": "Avant-garde",
+        "en": "Vanguard"
+      },
+      "careers": [
+        {
+          "key": "career.soldier",
+          "names": {
+            "fr": "Soldat",
+            "en": "Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Knowledge: Warfare",
+            "Melee",
+            "Medicine",
+            "Ranged: Light",
+            "Survival",
+            "Ranged: Heavy"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Cool",
+        "Resilience",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.arbiter",
+      "id": "eb18f9840aa1fffa",
+      "names": {
+        "fr": "Arbitre",
+        "en": "Arbiter"
+      },
+      "careers": [
+        {
+          "key": "career.consular",
+          "names": {
+            "fr": "Consulaire",
+            "en": "Consular"
+          },
+          "skills": [
+            "Cool",
+            "Discipline",
+            "Knowledge: Education",
+            "Leadership",
+            "Knowledge: Lore",
+            "Negotiation",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Lightsaber",
+        "Negotiation",
+        "Perception",
+        "Knowledge: Xenology",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.saboteur",
+      "id": "fc98189fc7a21821",
+      "names": {
+        "fr": "Saboteur",
+        "en": "Saboteur"
+      },
+      "careers": [
+        {
+          "key": "career.engineer",
+          "names": {
+            "fr": "Ingénieur",
+            "en": "Engineer"
+          },
+          "skills": [
+            "Athletics",
+            "Computers",
+            "Knowledge: Education",
+            "Ranged: Light",
+            "Piloting: Space",
+            "Mechanics",
+            "Perception",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coordination",
+        "Mechanics",
+        "Skulduggery",
+        "Stealth",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.padawan",
+      "id": "e7103239860f9332",
+      "names": {
+        "fr": "Padawan",
+        "en": "Padawan"
+      },
+      "careers": [
+        {
+          "key": "career.jedi",
+          "names": {
+            "fr": "Jedi",
+            "en": "Jedi"
+          },
+          "skills": [
+            "Athletics",
+            "Cool",
+            "Discipline",
+            "Lightsaber",
+            "Knowledge: Lore",
+            "Piloting: Space",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coordination",
+        "Knowledge: Education",
+        "Mechanics",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.colossus",
+      "id": "8d55091817b85780",
+      "names": {
+        "fr": "Colosse",
+        "en": "Colossus"
+      },
+      "careers": [
+        {
+          "key": "career.warrior",
+          "names": {
+            "fr": "Guerrier",
+            "en": "Warrior"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Melee",
+            "Perception",
+            "Survival",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Brawl",
+        "Discipline",
+        "Melee",
+        "Resilience",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.thief",
+      "id": "2649670e6259e15f",
+      "names": {
+        "fr": "Voleur",
+        "en": "Thief"
+      },
+      "careers": [
+        {
+          "key": "career.smuggler",
+          "names": {
+            "fr": "Contrebandier",
+            "en": "Smuggler"
+          },
+          "skills": [
+            "Coordination",
+            "Deception",
+            "Knowledge: Underworld",
+            "Perception",
+            "Piloting: Space",
+            "Skulduggery",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Skulduggery",
+        "Stealth",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.instructor",
+      "id": "121ddf22fbdc17af",
+      "names": {
+        "fr": "Instructeur",
+        "en": "Instructor"
+      },
+      "careers": [
+        {
+          "key": "career.commander",
+          "names": {
+            "fr": "Stratège",
+            "en": "Commander"
+          },
+          "skills": [
+            "Coercion",
+            "Cool",
+            "Discipline",
+            "Knowledge: Warfare",
+            "Leadership",
+            "Perception",
+            "Ranged: Light",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Discipline",
+        "Knowledge: Education",
+        "Medicine",
+        "Ranged: Heavy",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.clonetro",
+      "id": "580057807ccd703d",
+      "names": {
+        "fr": "Soldat clone",
+        "en": "Clone Trooper"
+      },
+      "careers": [
+        {
+          "key": "career.clone-soldier",
+          "names": {
+            "fr": "Soldat clone",
+            "en": "Clone Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Medicine",
+            "Ranged: Light",
+            "Ranged: Heavy",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Gunnery",
+        "Perception",
+        "Ranged: Heavy",
+        "Resilience",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.warden",
+      "id": "2a391aa28d4e4016",
+      "names": {
+        "fr": "Protecteur",
+        "en": "Warden"
+      },
+      "careers": [
+        {
+          "key": "career.guardian",
+          "names": {
+            "fr": "Gardien",
+            "en": "Guardian"
+          },
+          "skills": [
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Melee",
+            "Resilience",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Brawl",
+        "Coercion",
+        "Discipline",
+        "Knowledge: Underworld",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.cybertech",
+      "id": "c029da37165239b9",
+      "names": {
+        "fr": "Cybertechnicien",
+        "en": "Cyber Tech"
+      },
+      "careers": [
+        {
+          "key": "career.technician",
+          "names": {
+            "fr": "Technicien",
+            "en": "Technician"
+          },
+          "skills": [
+            "Astrogation",
+            "Computers",
+            "Coordination",
+            "Discipline",
+            "Knowledge: Outer Rim",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Mechanics",
+        "Medicine",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.armorer",
+      "id": "34cf1915e9e0e80f",
+      "names": {
+        "fr": "Armurier",
+        "en": "Armorer"
+      },
+      "careers": [
+        {
+          "key": "career.guardian",
+          "names": {
+            "fr": "Gardien",
+            "en": "Guardian"
+          },
+          "skills": [
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Melee",
+            "Resilience",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Lightsaber",
+        "Mechanics",
+        "Knowledge: Outer Rim",
+        "Resilience",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.trader",
+      "id": "fdcd692817b3bf51",
+      "names": {
+        "fr": "Négociant",
+        "en": "Trader"
+      },
+      "careers": [
+        {
+          "key": "career.explorer",
+          "names": {
+            "fr": "Explorateur",
+            "en": "Explorer"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Knowledge: Xenology",
+            "Perception",
+            "Piloting: Space",
+            "Survival"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Deception",
+        "Knowledge: Core Worlds",
+        "Knowledge: Underworld",
+        "Negotiation",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.gambler",
+      "id": "2bb423d44089cf52",
+      "names": {
+        "fr": "Flambeur",
+        "en": "Gambler"
+      },
+      "careers": [
+        {
+          "key": "career.smuggler",
+          "names": {
+            "fr": "Contrebandier",
+            "en": "Smuggler"
+          },
+          "skills": [
+            "Coordination",
+            "Deception",
+            "Knowledge: Underworld",
+            "Perception",
+            "Piloting: Space",
+            "Skulduggery",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Cool",
+        "Deception",
+        "Skulduggery",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.scavenger",
+      "id": "824e71085153b59a",
+      "names": {
+        "fr": "Récupérateur",
+        "en": "Scavenger"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "Mechanics",
+        "Perception",
+        "Streetwise",
+        "Survival",
+        "(none)"
+      ],
+      "universal": true,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.sentry",
+      "id": "2ad839afa02e7953",
+      "names": {
+        "fr": "Vigie",
+        "en": "Sentry"
+      },
+      "careers": [
+        {
+          "key": "career.sentinel",
+          "names": {
+            "fr": "Sentinelle",
+            "en": "Sentinel"
+          },
+          "skills": [
+            "Computers",
+            "Knowledge: Core Worlds",
+            "Deception",
+            "Perception",
+            "Skulduggery",
+            "Stealth",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coordination",
+        "Lightsaber",
+        "Stealth",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.juyo",
+      "id": "0d1cb2565179dfc8",
+      "names": {
+        "fr": "Berserker Juyo",
+        "en": "Juyo Berserker"
+      },
+      "careers": [
+        {
+          "key": "career.warrior",
+          "names": {
+            "fr": "Guerrier",
+            "en": "Warrior"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Melee",
+            "Perception",
+            "Survival",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Coercion",
+        "Discipline",
+        "Lightsaber",
+        "Melee",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.reprep",
+      "id": "896a0b09548ae8bc",
+      "names": {
+        "fr": "Représentant de la République",
+        "en": "Republic Representative"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "Charm",
+        "Cool",
+        "Negotiation",
+        "(none)",
+        "(none)"
+      ],
+      "universal": true,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.ascetic",
+      "id": "33bf49021f92d5eb",
+      "names": {
+        "fr": "Ascète",
+        "en": "Ascetic"
+      },
+      "careers": [
+        {
+          "key": "career.consular",
+          "names": {
+            "fr": "Consulaire",
+            "en": "Consular"
+          },
+          "skills": [
+            "Cool",
+            "Discipline",
+            "Knowledge: Education",
+            "Leadership",
+            "Knowledge: Lore",
+            "Negotiation",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Athletics",
+        "Discipline",
+        "Resilience",
+        "Vigilance",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.navigator",
+      "id": "ee2bbbe806b43edc",
+      "names": {
+        "fr": "Navigateur",
+        "en": "Navigator"
+      },
+      "careers": [
+        {
+          "key": "career.seeker",
+          "names": {
+            "fr": "Errant",
+            "en": "Seeker"
+          },
+          "skills": [
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Survival",
+            "Vigilance",
+            "Knowledge: Xenology",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Knowledge: Outer Rim",
+        "Perception",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.sleeperagent",
+      "id": "c8e7fa3e2578bac5",
+      "names": {
+        "fr": "Agent dormant",
+        "en": "Sleeper Agent"
+      },
+      "careers": [
+        {
+          "key": "career.spy",
+          "names": {
+            "fr": "Espion",
+            "en": "Spy"
+          },
+          "skills": [
+            "Computers",
+            "Cool",
+            "Coordination",
+            "Deception",
+            "Knowledge: Warfare",
+            "Perception",
+            "Skulduggery",
+            "Stealth"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Cool",
+        "Discipline",
+        "Knowledge: Education",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.sharpshooter",
+      "id": "935d80cbd0a84206",
+      "names": {
+        "fr": "Tireur d’élite",
+        "en": "Sharpshooter"
+      },
+      "careers": [
+        {
+          "key": "career.soldier",
+          "names": {
+            "fr": "Soldat",
+            "en": "Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Knowledge: Warfare",
+            "Melee",
+            "Medicine",
+            "Ranged: Light",
+            "Survival",
+            "Ranged: Heavy"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Perception",
+        "Ranged: Heavy",
+        "Ranged: Light",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.forceoutcast",
+      "id": "a9aa1ac03546ae08",
+      "names": {
+        "fr": "Proscrit sensible à la Force",
+        "en": "Force-Sensitive Outcast"
+      },
+      "careers": [],
+      "bonusSkills": [
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)"
+      ],
+      "universal": true,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.commodore",
+      "id": "64c7a6f8ab6b6c8b",
+      "names": {
+        "fr": "Commodore",
+        "en": "Commodore"
+      },
+      "careers": [
+        {
+          "key": "career.commander",
+          "names": {
+            "fr": "Stratège",
+            "en": "Commander"
+          },
+          "skills": [
+            "Coercion",
+            "Cool",
+            "Discipline",
+            "Knowledge: Warfare",
+            "Leadership",
+            "Perception",
+            "Ranged: Light",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Computers",
+        "Knowledge: Education",
+        "Knowledge: Outer Rim",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.prophet",
+      "id": "27f9add885e020fb",
+      "names": {
+        "fr": "Prophète",
+        "en": "Prophet"
+      },
+      "careers": [
+        {
+          "key": "career.mystic",
+          "names": {
+            "fr": "Mystique",
+            "en": "Mystic"
+          },
+          "skills": [
+            "Charm",
+            "Coercion",
+            "Knowledge: Lore",
+            "Knowledge: Outer Rim",
+            "Perception",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Charm",
+        "Coercion",
+        "Deception",
+        "Leadership",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.hotshot",
+      "id": "e4449a22b8570000",
+      "names": {
+        "fr": "Tête brûlée",
+        "en": "Hotshot"
+      },
+      "careers": [
+        {
+          "key": "career.ace",
+          "names": {
+            "fr": "As",
+            "en": "Ace"
+          },
+          "skills": [
+            "Astrogation",
+            "Cool",
+            "Gunnery",
+            "Mechanics",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Light"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Coordination",
+        "Piloting: Planetary",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.trailblazer",
+      "id": "d3da27b6843e9485",
+      "names": {
+        "fr": "Pionnier",
+        "en": "Trailblazer"
+      },
+      "careers": [
+        {
+          "key": "career.soldier",
+          "names": {
+            "fr": "Soldat",
+            "en": "Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Knowledge: Warfare",
+            "Melee",
+            "Medicine",
+            "Ranged: Light",
+            "Survival",
+            "Ranged: Heavy"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Knowledge: Outer Rim",
+        "Perception",
+        "Stealth",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.operator",
+      "id": "a8c19e92998372ce",
+      "names": {
+        "fr": "Opérateur",
+        "en": "Operator"
+      },
+      "careers": [
+        {
+          "key": "career.bounty-hunter",
+          "names": {
+            "fr": "Chasseur de primes",
+            "en": "Bounty Hunter"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Perception",
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Streetwise",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Astrogation",
+        "Gunnery",
+        "Piloting: Planetary",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.racer",
+      "id": "11d485bfc1907e0b",
+      "names": {
+        "fr": "Coureur",
+        "en": "Racer"
+      },
+      "careers": [
+        {
+          "key": "career.sentinel",
+          "names": {
+            "fr": "Sentinelle",
+            "en": "Sentinel"
+          },
+          "skills": [
+            "Computers",
+            "Knowledge: Core Worlds",
+            "Deception",
+            "Perception",
+            "Skulduggery",
+            "Stealth",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Cool",
+        "Coordination",
+        "Piloting: Planetary",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.warleader",
+      "id": "403f1cc41b357b10",
+      "names": {
+        "fr": "Chef de guerre",
+        "en": "Warleader"
+      },
+      "careers": [
+        {
+          "key": "career.guardian",
+          "names": {
+            "fr": "Gardien",
+            "en": "Guardian"
+          },
+          "skills": [
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Melee",
+            "Resilience",
+            "Vigilance",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Leadership",
+        "Perception",
+        "Ranged: Light",
+        "Survival",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.clonepil",
+      "id": "dd87528a8a7c2b8c",
+      "names": {
+        "fr": "Pilote clone",
+        "en": "Clone Pilot"
+      },
+      "careers": [
+        {
+          "key": "career.clone-soldier",
+          "names": {
+            "fr": "Soldat clone",
+            "en": "Clone Soldier"
+          },
+          "skills": [
+            "Athletics",
+            "Brawl",
+            "Cool",
+            "Discipline",
+            "Medicine",
+            "Ranged: Light",
+            "Ranged: Heavy",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Gunnery",
+        "Mechanics",
+        "Piloting: Planetary",
+        "Piloting: Space",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.executioner",
+      "id": "abda260c72b13dc9",
+      "names": {
+        "fr": "Exécuteur",
+        "en": "Executioner"
+      },
+      "careers": [
+        {
+          "key": "career.seeker",
+          "names": {
+            "fr": "Errant",
+            "en": "Seeker"
+          },
+          "skills": [
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Survival",
+            "Vigilance",
+            "Knowledge: Xenology",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Discipline",
+        "Melee",
+        "Perception",
+        "Ranged: Heavy",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.droidspec",
+      "id": "44bb3bfdbe2629b8",
+      "names": {
+        "fr": "Spécialiste des droïdes",
+        "en": "Droid Specialist"
+      },
+      "careers": [
+        {
+          "key": "career.engineer",
+          "names": {
+            "fr": "Ingénieur",
+            "en": "Engineer"
+          },
+          "skills": [
+            "Athletics",
+            "Computers",
+            "Knowledge: Education",
+            "Ranged: Light",
+            "Piloting: Space",
+            "Mechanics",
+            "Perception",
+            "Vigilance"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Computers",
+        "Cool",
+        "Mechanics",
+        "Melee",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    },
+    {
+      "key": "specialization.hermit",
+      "id": "b7718de9240af248",
+      "names": {
+        "fr": "Ermite",
+        "en": "Hermit"
+      },
+      "careers": [
+        {
+          "key": "career.seeker",
+          "names": {
+            "fr": "Errant",
+            "en": "Seeker"
+          },
+          "skills": [
+            "Piloting: Planetary",
+            "Piloting: Space",
+            "Ranged: Heavy",
+            "Survival",
+            "Vigilance",
+            "Knowledge: Xenology",
+            "(none)",
+            "(none)"
+          ]
+        }
+      ],
+      "bonusSkills": [
+        "Discipline",
+        "Stealth",
+        "Survival",
+        "Knowledge: Xenology",
+        "(none)"
+      ],
+      "universal": false,
+      "img": "modules/swffg-compendium-bilingual/assets/icons/progression.svg"
+    }
+  ]
+}

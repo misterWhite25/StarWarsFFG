@@ -260,14 +260,14 @@ export class RollFFG extends Roll {
 
     // Define chat data
     if (this?.data) {
-      if (this.data.flags?.starwarsffg?.uuid) {
+      if (this.data.flags?.starwarsffg?.uuid && !this.data.flags?.starwarsffg?.rollWeaponSnapshot) {
         const item = await fromUuid(this.data.flags.starwarsffg.uuid);
         if (item) {
           this.data = item;
           this.data.system = await item.getItemDetails();
         }
       }
-      else if (this.data.flags?.starwarsffg?.ffgUuid) {
+      else if (this.data.flags?.starwarsffg?.ffgUuid && !this.data.flags?.starwarsffg?.rollWeaponSnapshot) {
         const item = await fromUuid(this.data.flags.starwarsffg.ffgUuid);
         if (item) {
           this.data = item;

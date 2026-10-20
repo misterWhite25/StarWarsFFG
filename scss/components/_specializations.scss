@@ -40,7 +40,7 @@
 .burst-8 {
   z-index: -1;
   left:7px;
-  background: white;
+  background: var(--ffg-input, white);
   width: 26px;
   height: 26px;
   position: absolute;
@@ -54,7 +54,7 @@
   left: 0;
   height: 26px;
   width: 26px;
-  background: white;
+  background: var(--ffg-input, white);
   transform: rotate(135deg);
 }
 

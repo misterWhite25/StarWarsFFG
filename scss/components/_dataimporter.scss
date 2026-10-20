@@ -14,7 +14,7 @@
   }
 
   .import-progress {
-    background-color: #f1f1f1;
+    background-color: var(--ffg-panel, #f1f1f1);
     margin: 5px 5px;
     width: 100%;
 

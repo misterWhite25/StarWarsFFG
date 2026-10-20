@@ -27,6 +27,6 @@ export async function showCalculationDetails(actor) {
   }
   if (rows.some(r=>r.notes.some(n=>n.startsWith('La base est'))))
     el('p','« Base enregistrée » désigne la valeur sauvegardée avant les effets. Si elle a été saisie manuellement, le système ne connaît pas sa répartition historique entre espèce, création, talents et ajustements. Aucun bonus n’est inventé pour justifier le total.',body);
-  return foundry.applications.api.DialogV2.wait({classes:["starwarsffg", "themed", "theme-light", "ffg-calculation-dialog"],window:{title:`Détail des calculs — ${actor.name}`},position:{width:580},content,
+  return foundry.applications.api.DialogV2.wait({classes:["starwarsffg", "themed", "ffg-calculation-dialog"],window:{title:`Détail des calculs — ${actor.name}`},position:{width:580},content,
     buttons:[{action:'close',type:'button',label:'Fermer'}]});
 }

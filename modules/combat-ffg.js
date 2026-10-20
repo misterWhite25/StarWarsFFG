@@ -1048,9 +1048,36 @@ export class CombatTrackerFFG extends foundry.applications.sidebar.tabs.CombatTr
     } catch (error) {
       CONFIG.logger.debug(`Custom combat tracker caught semi-expected render error: ${error}`)
     }
+    this._renderTalentMarkers();
     const claimElement = this.element.querySelector('a[data-claim-slot]');
     if (claimElement) {
       claimElement.addEventListener("click", this._claimInitiativeSlot.bind(this));
+    }
+  }
+
+  /** Mark the actual NPC occupying a named row, never an unclaimed initiative slot. */
+  _renderTalentMarkers() {
+    for (const marker of this.element.querySelectorAll('.ffg-combat-talent-marker')) marker.remove();
+    if (!game.user.isGM) return;
+    for (const row of this.element.querySelectorAll('li.combatant.claimed[data-combatant-id]')) {
+      // id is the claimant; altId is the original roller and may be a different actor.
+      const combatantId = row.dataset.combatantId || (!this.viewed?.started ? row.dataset.altId : undefined);
+      const actor = this.viewed?.combatants.get(combatantId)?.actor;
+      if (!actor || game.users.contents.some(user => !user.isGM && actor.testUserPermission(user, 'OWNER'))) continue;
+      const talents = (actor.talentList ?? []).filter(talent => {
+        const owned = actor.items?.get?.(talent.itemId);
+        return !owned?.flags?.starwarsffg?.characteristicIncrease?.creationTool &&
+          !['augmenter un attribut', 'increase a characteristic'].includes(String(talent.name ?? '').trim().toLowerCase());
+      });
+      const heading = row.querySelector('.token-name h4');
+      if (!talents.length || !heading) continue;
+      const hint = `Talents : ${talents.map(talent => `${talent.name}${talent.isRanked && Number(talent.rank) > 0 ? ` (rang ${talent.rank})` : ''}`).join(', ')}`;
+      const marker = document.createElement('i');
+      marker.className = 'fa-solid fa-list-check ffg-combat-talent-marker';
+      marker.setAttribute('role', 'img');
+      marker.setAttribute('aria-label', hint);
+      marker.setAttribute('title', hint);
+      heading.append(marker);
     }
   }
 

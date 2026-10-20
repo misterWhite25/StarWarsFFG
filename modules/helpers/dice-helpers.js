@@ -1,4 +1,4 @@
-import { supportsWeaponSelection, missingAccurateBoost } from "./weapon-selection.js";
+import { supportsWeaponSelection, missingAccurateBoost, prepareRememberedWeapon } from "./weapon-selection.js";
 import RollBuilderFFG from "../dice/roll-builder.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 import ImportHelpers from "../importer/import-helpers.js";
@@ -147,6 +147,9 @@ export default class DiceHelpers {
   }
 
   static async displayRollDialog(data, dicePool, description, skillName, item, flavorText, sound, weaponContext = null, rollChoices = {}) {
+    const prepared = await prepareRememberedWeapon(weaponContext, item, dicePool);
+    item = prepared.item;
+    dicePool = prepared.pool;
     const builder = new RollBuilderFFG(data, dicePool, description, skillName, item, flavorText, sound);
     builder.weaponContext = weaponContext;
     builder.roll.autoFire = Boolean(rollChoices.autoFire);
@@ -203,9 +206,14 @@ export default class DiceHelpers {
 
   static async rollItem(itemId, actorId, flavorText, sound) {
     const actor = game.actors.get(actorId);
+    const item = actor?.items?.get(itemId);
+    if (!item) return null;
+    // Existing hotbar macros must obey the same carried-inventory boundary as the selector.
+    if (item.flags?.starwarsffg?.inventoryLocation === 'possession') {
+      ui.notifications.warn(`${item.name} : équipement en Possession, non transporté. Reprenez-le dans l’inventaire avant de l’utiliser.`);
+      return null;
+    }
     const actorSheet = await actor.sheet.getData();
-
-    const item = actor.items.get(itemId);
     const itemData = item.system;
     await item.setFlag("starwarsffg", "uuid", item.uuid);
 

@@ -109,17 +109,20 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if (this.actor.type === "character" && ["talent", "specialization", "signatureability", "forcepower"].includes(itemData.type)) {
         const cost = await this.calcPurchasePrice(itemData);
         const availableXP = this.actor.system.experience.available;
+        const payable=Number.isFinite(cost)&&cost>=0;
+        const {acquisitionNotice}=await import('../helpers/creation-guide.js');
           new LegacyDialogV2(
             {
-              title: game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}),
+              title: payable?game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}):"Ajout — achat indisponible",
+              content: acquisitionNotice(this.actor,itemData,cost),
               buttons: {
                 purchase: {
                   icon: '<i class="fas fa-hourglass"></i>',
-                  label: (cost <= availableXP) ? game.i18n.localize("SWFFG.DragDrop.PurchaseItem") : game.i18n.localize("SWFFG.DragDrop.UnableToPurchase"),
-                  disabled: (cost <= availableXP) ? false : true,
+                  label: (payable && cost <= availableXP) ? game.i18n.localize("SWFFG.DragDrop.PurchaseItem") : game.i18n.localize("SWFFG.DragDrop.UnableToPurchase"),
+                  disabled: !payable || cost > availableXP,
                   callback: async (_that) => {
                     if (!this.actor.verifyEditModeIsNotEnabled()) return false;
-                    if (cost >= 0 && cost <= availableXP) {
+                    if (cost >= 0 && cost <= Number(this.actor.system.experience.available)) {
                       if (cost >= 0) {
                         const AEState = await ActorHelpers.beginEditMode(this.actor, true);
                         const updatedAvailableXP = this.actor.system.experience.available;
@@ -991,7 +994,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       content.append(message);
       const confirmed = await foundry.applications.api.DialogV2.confirm({
         window: {title: "Supprimer le talent"}, content,
-        classes: ["starwarsffg", "themed", "theme-light"]
+        classes: ["starwarsffg", "themed"]
       });
       if (confirmed && this.actor.items.has(item.id)) await item.delete();
     });
@@ -2361,7 +2364,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     if (action === "specialization") {
       const inCareer = this.object.items.find(i => i.type === "career")?.system?.specializations;
       if (!inCareer) {
-        ui.notifications.warn("Could not locate any specializations in your career! Please define them first");
+        ui.notifications.warn("Ajoutez d’abord un objet Carrière et renseignez ses spécialités. Pour une attribution initiale gratuite, glissez la spécialité puis choisissez Attribuer.");
         return;
       }
       const inCareerNames = Object.values(inCareer).map(i => i.name);
@@ -2395,7 +2398,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const baseCost = (this.object.items.filter(i => i.type === "specialization").length + 1) * 10;
       const increasedCost = baseCost + 10;
       if (baseCost > availableXP) {
-        ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
+        ui.notifications.warn(`Achat d’une spécialité : au moins ${baseCost} XP requis ; ${availableXP} XP disponibles. Pour une attribution initiale gratuite, glissez la spécialité puis choisissez Attribuer.`);
         return;
       } else if (increasedCost > availableXP) {
         outCareer = [];
@@ -2876,7 +2879,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         },
         default: "submit",
       });
-      addSource.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "theme-light", "starwarsffg-dialog"]});
+      addSource.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "starwarsffg-dialog"]});
     } else if (action === "remove") {
       const sources = foundry.utils.deepClone(this.object.system.metadata.sources);
       sources.splice(sourceIndex, 1);
@@ -2922,7 +2925,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         },
         default: "submit",
       });
-      addTag.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "theme-light", "starwarsffg-dialog"]});
+      addTag.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "starwarsffg-dialog"]});
     } else if (action === "remove") {
       const tags = foundry.utils.deepClone(this.object.system.metadata.tags);
       tags.splice(tagIndex, 1);

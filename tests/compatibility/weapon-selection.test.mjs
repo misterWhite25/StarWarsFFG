@@ -4,6 +4,39 @@ import test from 'node:test';
 import vm from 'node:vm';
 const read=file=>readFile(new URL('../../modules/'+file,import.meta.url),'utf8');
 async function load(){const m=new vm.SourceTextModule(await read('helpers/weapon-selection.js'));await m.link(()=>{});await m.evaluate();return m.namespace;}
+
+test('weapon choice survives reopening, remains per actor and skill, and recalculates current modifiers',async()=>{
+ const api=await load(), flags=new Map();
+ const gun={id:'gun',type:'weapon',system:{skill:{value:'Ranged: Light'},boost:2}};
+ const saber={id:'saber',type:'weapon',system:{skill:{value:'Lightsaber'}}};
+ const actor={isOwner:true,items:{contents:[gun,saber]},getFlag:(_s,k)=>flags.get(k),setFlag:async(_s,k,v)=>flags.set(k,v)};
+ const context={actor,skillKey:'Ranged: Light',makePool:async item=>({boost:item.system.boost})};
+ const original={boost:0};
+ await api.rememberWeapon(actor,'Ranged: Light',gun);
+ await api.rememberWeapon(actor,'Lightsaber',saber);
+ gun.system.boost=3;
+ const prepared=await api.prepareRememberedWeapon(context,{},original);
+ assert.equal(prepared.item,gun);assert.equal(prepared.pool.boost,3);assert.equal(original.boost,0);
+ assert.equal(api.rememberedWeapon(actor,'Lightsaber'),saber);
+ assert.equal(api.rememberedWeapon({...actor,getFlag:()=>undefined},'Ranged: Light'),null);
+ const second={id:'other',type:'weapon',system:{skill:{value:'Ranged: Light'}}};actor.items.contents.push(second);
+ const direct=await api.prepareRememberedWeapon(context,second,original);
+ assert.equal(direct.item,second);assert.equal(direct.pool,original);assert.equal(api.rememberedWeapon(actor,'Ranged: Light'),second);
+});
+
+test('no weapon is remembered too, deleted or incompatible weapons are ignored, readers cannot save',async()=>{
+ const api=await load(), flags=new Map();let writes=0;
+ const gun={id:'gun',type:'weapon',system:{skill:{value:'Ranged: Light'}}};
+ const actor={isOwner:true,items:{contents:[gun]},getFlag:(_s,k)=>flags.get(k),setFlag:async(_s,k,v)=>{writes++;flags.set(k,v);}};
+ await api.rememberWeapon(actor,'Ranged: Light',gun);await api.rememberWeapon(actor,'Ranged: Light',gun);assert.equal(writes,1);
+ gun.system.skill.value='Melee';assert.equal(api.rememberedWeapon(actor,'Ranged: Light'),null);gun.system.skill.value='Ranged: Light';
+ actor.items.contents=[];assert.equal(api.rememberedWeapon(actor,'Ranged: Light'),null);actor.items.contents=[gun];
+ await api.rememberWeapon(actor,'Ranged: Light',null);assert.equal(api.rememberedWeapon(actor,'Ranged: Light'),null);
+ actor.isOwner=false;await api.rememberWeapon(actor,'Ranged: Light',gun);assert.equal(writes,2);
+ const pool={boost:0};const context={actor,skillKey:'Ranged: Light',makePool:()=>{throw Error('should not calculate without a weapon');}};
+ assert.equal((await api.prepareRememberedWeapon(context,{},pool)).pool,pool);
+ assert.equal((await api.prepareRememberedWeapon(null,{},pool)).pool,pool);
+});
 test('weapon selector includes Gunnery and matches owned weapons by skill',async()=>{
  const api=await load();
  for(const key of ['Lightsaber','Melee','Ranged: Light','Ranged: Heavy'])assert.equal(api.supportsWeaponSelection(key),true);
