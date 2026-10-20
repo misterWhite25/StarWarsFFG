@@ -40,9 +40,9 @@
       line-height: 35px;
       font-size: 16pt;
       margin: 5px 5px;
-      background-color: #cccccc;
+      background-color: var(--ffg-muted-panel, #cccccc);
       &.active {
-        background: rgb(204,204,204);
+        background: var(--ffg-muted-panel, #cccccc);
         background: linear-gradient(to right, rgba(204,204,204,1) 0%, #7da9c2 100%);
         margin-right: -10px;
       }

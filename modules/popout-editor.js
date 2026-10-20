@@ -10,8 +10,8 @@ export default class PopoutEditor extends FormApplicationV2 {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: "popout-editor",
-      classes: ["starwarsffg", "sheet"],
-      title: "Pop-out Editor",
+      classes: ["starwarsffg", "sheet", "ffg-popout-editor"],
+      title: game.i18n.localize("SWFFG.Editor.Title"),
       template: "systems/starwarsffg/templates/popout-editor.html",
       width: 320,
       height: 320,

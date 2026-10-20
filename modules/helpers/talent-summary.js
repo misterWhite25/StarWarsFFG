@@ -40,10 +40,10 @@ export async function showTalentSummary(sheet, refresh = false) {
   if (!talents.length) append(body, 'p', 'Aucun talent acquis.');
   for (const talent of talents) {
     const section = append(body, 'section');
-    section.style.cssText = 'padding:8px;border-bottom:1px solid #8886;' + (talent.active ? 'background:#dce5e9;border-left:3px solid #687f8b;margin-bottom:5px;border-radius:3px' : '');
+    section.style.cssText = 'padding:8px;border-bottom:1px solid #8886;' + (talent.active ? 'background:var(--ffg-accent-surface,#dce5e9);border-left:3px solid #687f8b;margin-bottom:5px;border-radius:3px' : '');
     const rank = talent.isRanked ? ` — Rang ${talent.rank}` : '';
     const choice = talent.characteristicChoice ? ` — ${talent.characteristicChoice}` : '';
-    append(section, 'h3', `${talent.name}${choice}${rank}`).style.cssText = `font-size:14px;margin:0 0 4px;color:${talent.active ? '#354f5d' : '#582323'}`;
+    append(section, 'h3', `${talent.name}${choice}${rank}`).style.cssText = `font-size:14px;margin:0 0 4px;color:${talent.active ? 'var(--ffg-link,#354f5d)' : 'var(--ffg-ink,#582323)'}`;
     const owned = actor.items.get(talent.itemId);
     append(section, 'p', talent.active ? 'Déclenché' : 'Passif').style.cssText = 'margin:0 0 5px;opacity:.8';
     if (talent.total) append(section, 'p', talent.total).style.cssText = 'margin:0 0 5px;font-weight:bold';
@@ -60,7 +60,7 @@ export async function showTalentSummary(sheet, refresh = false) {
   const right = bounds.right + 8;
   const left = right + width <= window.innerWidth ? right : Math.max(0, bounds.left - width - 8);
   sheet._talentSummary = new foundry.applications.api.DialogV2({
-    classes: ['starwarsffg', 'themed', 'theme-light'],
+    classes: ['starwarsffg', 'themed'],
     window: {title: `Talents — ${actor.name}`, resizable:true},
     position: {width, left, top: Math.max(0, Math.min(bounds.top, window.innerHeight - 200))},
     content,

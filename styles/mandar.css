@@ -93,11 +93,11 @@ section {
 }
 
 #chat-log .message {
-  background: #eeeeee;
+  background: var(--ffg-panel, #eeeeee);
 }
 
 #chat-form textarea {
-  background: whitesmoke;
+  background: var(--ffg-panel, whitesmoke);
 }
 
 span.dietype.starwars {
@@ -292,7 +292,7 @@ img {
 }
 
 .starwarsffg .block-background {
-  background-color: #eeeeee;
+  background-color: var(--ffg-panel, #eeeeee);
   padding: 5px;
   --notchSize: 0.5rem;
   -webkit-clip-path: polygon(0% var(--notchSize), var(--notchSize) 0%, calc(100% - var(--notchSize)) 0%, 100% var(--notchSize), 100% calc(100% - var(--notchSize)), calc(100% - var(--notchSize)) 100%, var(--notchSize) 100%, 0% calc(100% - var(--notchSize)));
@@ -1173,7 +1173,7 @@ img {
 .starwarsffg .talent-background {
   position: relative;
   z-index: 10;
-  background-color: #ddd;
+  background-color: var(--ffg-panel, #ddd);
   padding: 5px;
   height: 100%;
   --notchSize: 0.25rem;
@@ -1355,7 +1355,7 @@ img {
   display: inline-block;
   width: 34px;
   height: 12px;
-  background-color: white;
+  background-color: var(--ffg-input, white);
   box-shadow: 0px 0px 25px red;
   position: absolute;
   top: -3px;
@@ -1442,7 +1442,7 @@ img {
 
 .starwarsffg .dice-pool-dialog .pool-value {
   border: 1px solid black;
-  background-color: #ddd;
+  background-color: var(--ffg-panel, #ddd);
 }
 
 .starwarsffg .dice-pool-dialog .pool-value input {
@@ -3158,7 +3158,7 @@ img {
   border: 5px double #1f1c39;
   margin: auto;
   position: absolute;
-  background-color: white;
+  background-color: var(--ffg-input, white);
 }
 
 .starwarsffg.sheet.actor .vehicle .defense-block .defense-value .defense-value-label {
@@ -3480,11 +3480,11 @@ img {
 }
 
 .starwarsffg .hover .tooltip2 .dietype {
-  background-color: white;
+  background-color: var(--ffg-input, white);
 }
 
 .starwarsffg .ffg-sendtochat.hover:hover .tooltip2 {
-  background: #fff;
+  background: var(--ffg-input, #fff);
   border: 1px solid #23221d;
   color: #23221d;
 }
@@ -3733,7 +3733,7 @@ img {
   height: 0.75rem;
   padding: 0 0.25rem 0 0.5rem;
   font-size: 0.75rem;
-  background: #ddd;
+  background: var(--ffg-panel, #ddd);
   color: rgba(0, 0, 0, 0.75);
   --notchSize: 0.5rem;
   -webkit-clip-path: polygon(0 0, var(--notchSize) 0%, calc(100% - var(--notchSize)) 0%, 100% var(--notchSize), 100% calc(100% - var(--notchSize)), calc(100% - var(--notchSize)) 100%, 0 100%, 0% calc(100% - var(--notchSize)));
@@ -3853,7 +3853,7 @@ img {
 }
 
 .starwarsffg.data-import .import-progress {
-  background-color: #f1f1f1;
+  background-color: var(--ffg-panel, #f1f1f1);
   margin: 0.25rem 0.25rem;
   width: 100%;
 }
@@ -4104,7 +4104,7 @@ img {
   height: 0.75rem;
   padding: 0 0.25rem 0 0.5rem;
   font-size: 0.75rem;
-  background: #ddd;
+  background: var(--ffg-panel, #ddd);
   color: rgba(0, 0, 0, 0.75);
   --notchSize: 0.5rem;
   -webkit-clip-path: polygon(0 0, var(--notchSize) 0%, calc(100% - var(--notchSize)) 0%, 100% var(--notchSize), 100% calc(100% - var(--notchSize)), calc(100% - var(--notchSize)) 100%, 0 100%, 0% calc(100% - var(--notchSize)));
@@ -4717,7 +4717,7 @@ img {
   height: 0.75rem;
   padding: 0 0.25rem 0 0.5rem;
   font-size: 0.75rem;
-  background: #ddd;
+  background: var(--ffg-panel, #ddd);
   color: rgba(0, 0, 0, 0.75);
   --notchSize: 0.5rem;
   -webkit-clip-path: polygon(0 0, var(--notchSize) 0%, calc(100% - var(--notchSize)) 0%, 100% var(--notchSize), 100% calc(100% - var(--notchSize)), calc(100% - var(--notchSize)) 100%, 0 100%, 0% calc(100% - var(--notchSize)));
@@ -4946,7 +4946,7 @@ img {
   letter-spacing: 0.04em;
 }
 .starwarsffg.wizard .dt-container input {
-  background-color: #eeeeee;
+  background-color: var(--ffg-panel, #eeeeee);
   border: 1px solid #999;
   padding: 0.2rem 0.4rem;
   color: #191813;
@@ -5211,7 +5211,7 @@ img {
   flex: 0 1 80px;
 }
 .starwarsffg.wizard .actor_summary .stats .block-background {
-  background-color: #eeeeee;
+  background-color: var(--ffg-panel, #eeeeee);
   padding: 4px;
   --notchSize: 0.5rem;
   -webkit-clip-path: polygon(0% var(--notchSize), var(--notchSize) 0%, calc(100% - var(--notchSize)) 0%, 100% var(--notchSize), 100% calc(100% - var(--notchSize)), calc(100% - var(--notchSize)) 100%, var(--notchSize) 100%, 0% calc(100% - var(--notchSize)));

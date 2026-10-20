@@ -29,7 +29,11 @@ test('minions fall only above each threshold and incomplete groups stay finite',
 test('skill and situational setback removals add together',async()=>{
  const actor={system:{skills:{Pilot:{rank:2,characteristic:'Agility',remsetback:1}},characteristics:{Agility:{value:3}}}};
  const context=vm.createContext({game:{actors:{get:()=>actor},i18n:{localize:s=>s}},CONFIG:{logger:{debug(){}},FFG:{skills:{Pilot:{label:'Pilot'}}}}});
- const pool=new vm.SourceTextModule(await read('dice/pool.js'),{context});await pool.link(()=>{});await pool.evaluate();
+ const core=new vm.SourceTextModule(await read('helpers/pilotage-core.js'),{context});await core.link(()=>{});await core.evaluate();
+ const vitality=new vm.SourceTextModule(await read('helpers/pilotage-vitality.js'),{context});await vitality.link(()=>{});await vitality.evaluate();
+ const pilotage=new vm.SourceTextModule(await read('helpers/pilotage-mj.js'),{context});await pilotage.link(spec=>spec.includes('vitality')?vitality:core);await pilotage.evaluate();
+ const gm=new vm.SourceTextModule(await read('helpers/gm-difficulty.js'),{context});await gm.link(()=>pilotage);await gm.evaluate();
+ const pool=new vm.SourceTextModule(await read('dice/pool.js'),{context});await pool.link(()=>gm);await pool.evaluate();
  const selection=new vm.SourceTextModule(await read('helpers/weapon-selection.js'),{context});await selection.link(()=>{});await selection.evaluate();
  const mod=new vm.SourceTextModule(await read('helpers/dice-helpers.js'),{context});
  await mod.link(spec=>spec.includes('weapon-selection')?selection:spec.endsWith('/pool.js')?pool:new vm.SyntheticModule(['default'],function(){this.setExport('default',class {});},{context}));await mod.evaluate();

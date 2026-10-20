@@ -115,7 +115,7 @@
           border: 5px double rgb(31, 28, 57);
           margin: auto;
           position: absolute;
-          background-color: white;
+          background-color: var(--ffg-input, white);
 
           .defense-value-label {
             position: absolute;

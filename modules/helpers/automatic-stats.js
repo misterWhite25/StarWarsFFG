@@ -8,7 +8,7 @@ const read = (object, path) => path.split('.').reduce((o, k) => o?.[k], object);
 
 /** Pure, repeatable calculation: never alters documents or their effects. */
 export function calculateStats(actor, config = actor.flags?.starwarsffg?.automaticStats ?? {}) {
-  const items = Array.from(actor.items ?? []);
+  const items = Array.from(actor.items ?? []).filter(item=>!(item?.flags?.starwarsffg?.inventoryLocation==='possession'));
   const species = items.filter(i => i.type === 'species');
   const errors = [], warnings = [];
   if (species.length !== 1) errors.push('Une seule espèce renseignée est nécessaire.');
@@ -39,6 +39,7 @@ export function calculateStats(actor, config = actor.flags?.starwarsffg?.automat
   for (const effect of actor.allApplicableEffects()) {
     if (!effect.active) continue;
     const parent = effect.parent?.documentName === 'Item' ? effect.parent : null;
+    if ((parent?.flags?.starwarsffg?.inventoryLocation==='possession')) continue;
     if (parent?.system?.equippable && !parent.system.equippable.equipped) continue;
     const sourceChanges = effect._source?.system?.changes ?? effect.system?.changes ?? [];
     // Species and worn armour are read directly above. Brawn already feeds soak/encumbrance.

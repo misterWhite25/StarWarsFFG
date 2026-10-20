@@ -1,0 +1,248 @@
+{
+  "_id": "2fd7883cc7e91bc7",
+  "name": "Aux Confins de l’Empire · Tables de combat et soins",
+  "ownership": {
+    "default": 2
+  },
+  "flags": {
+    "swffg-reference-tables-fr": {
+      "language": "fr"
+    }
+  },
+  "pages": [
+    {
+      "_id": "c432b372e0e30267",
+      "name": "Lire et utiliser ces tables",
+      "type": "text",
+      "sort": 0,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p>11 tableaux numériques du chapitre VI. Le texte peut être recherché, copié et modifié après import dans le monde. Les pages indiquées sont celles de l’édition française fournie. La version anglaise est une traduction de cette édition, à vérifier avec un livre anglais pour les intitulés officiels.</p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7]{Read in English}</p><p>Le bouton de tirage ouvre une fenêtre pour saisir le modificateur : 0, 5, 10, 20… Le système calcule 1d100 + modificateur. Le total peut dépasser 100 et 150 : la dernière entrée couvre 151+. Les bonus ne sont pas déduits automatiquement d’une fiche. Appliquer le résultat manuellement. Ne pas normaliser les plages.</p><p>@UUID[Compendium.swffg-reference-tables-fr.tables.RollTable.1b76a8e54ab5851a]{Ouvrir la table critique}</p><p>@UUID[Compendium.swffg-reference-tables-fr.references.JournalEntry.37964b2b80a38ed8]{Obligations et motivations}</p><p>@UUID[Compendium.swffg-reference-tables-fr.references.JournalEntry.614ce572b34a92a0]{Dégâts critiques de vaisseaux}</p>"
+      }
+    },
+    {
+      "_id": "0eb236e50de35c59",
+      "name": "6-1 · Difficulté des attaques à distance",
+      "type": "text",
+      "sort": 100000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-1, p. 205 (PDF 216). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.0eb236e50de35c59]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Portée</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Difficulté</th></tr></thead><tbody><tr><td>Au contact</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">), plus modificateurs dépendant de l’arme utilisée (cf. page 210).</td></tr><tr><td>Courte</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td></tr><tr><td>Moyenne</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td></tr><tr><td>Longue</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td></tr><tr><td>Extrême</td><td>Intimidante (4 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-1"
+        }
+      }
+    },
+    {
+      "_id": "0f6724ab77e487b7",
+      "name": "6-2 · Utilisation des avantages et triomphes au combat",
+      "type": "text",
+      "sort": 200000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-2, p. 206 (PDF 217). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.0f6724ab77e487b7]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Coût</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Options</th></tr></thead><tbody><tr><td>1 avantage ou 1 triomphe</td><td><ul><li>Éliminer 1 point de stress (cette option peut être choisie plusieurs fois).</li><li>Ajouter 1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/blue.png\" alt=\"Fortune\" title=\"Fortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> au test du personnage allié actif suivant.</li><li>Remarquer un détail important du conflit en cours, comme l’emplacement du panneau de contrôle d’une porte anti-explosion ou le point faible d’un speeder d’attaque.</li><li>Infliger 1 blessure critique en cas d’attaque réussie infligeant des dégâts supérieurs à l’encaissement de la cible (coût en avantages variable).</li><li>Activer un attribut de l’arme (coût en avantages variable).</li></ul></td></tr><tr><td>2 avantages ou 1 triomphe</td><td><ul><li>Exécuter une manœuvre gratuite immédiate (sans dépasser la limite de deux manœuvres par tour).</li><li>Ajouter 1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/black.png\" alt=\"Infortune\" title=\"Infortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> au prochain test du personnage visé.</li><li>Ajouter 1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/blue.png\" alt=\"Fortune\" title=\"Fortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> au prochain test de n’importe quel personnage allié, y compris le personnage actif.</li></ul></td></tr><tr><td>3 avantages ou 1 triomphe</td><td><ul><li>Annuler les bonus défensifs de l’ennemi visé (comme la défense que procure un abri, du matériel ou la manœuvre de posture défensive) jusqu’à la fin du round en cours.</li><li>Passer outre les effets environnementaux pénalisants tels que les mauvaises conditions météorologiques, une gravité nulle ou autres désagréments du type jusqu’à la fin du prochain tour du personnage actif.</li><li>Lorsqu’une cible subit des dégâts, l’attaque neutralise l’adversaire ou un élément de son équipement au lieu de lui infliger des blessures ou du stress. Il peut s’agir d’un tir dans la jambe qui l’entrave, d’un comlink bloqué, etc. Le MJ et le joueur doivent se mettre d’accord, sachant que c’est le MJ qui choisit les effets (la table des blessures critiques peut donner de bonnes idées). Ces effets sont censés être temporaires et modérés.</li><li>Bénéficier de +1 en défense au corps à corps ou à distance jusqu’à la fin du prochain tour du personnage actif.</li><li>La cible lâche une arme tenue de corps à corps ou à distance.</li></ul></td></tr><tr><td>1 triomphe</td><td><ul><li>Améliorer 1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> du prochain test du personnage visé.</li><li>Améliorer 1 dé du prochain test de n’importe quel personnage allié, y compris le personnage actif.</li><li>Effectuer une action cruciale pour renverser le cours de la bataille, comme tirer sur le panneau de contrôle des portes anti-explosion pour les refermer.</li></ul></td></tr><tr><td>2 triomphes</td><td><ul><li>Lorsqu’une cible subit des dégâts, l’attaque détruit un de ses éléments d’équipement, en faisant exploser son blaster ou en coupant son générateur de bouclier personnel, par exemple.</li></ul></td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-2"
+        }
+      }
+    },
+    {
+      "_id": "fe5d32f06cf188ad",
+      "name": "6-3 · Utilisation des menaces et désastres au combat",
+      "type": "text",
+      "sort": 300000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-3, p. 207 (PDF 218). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.fe5d32f06cf188ad]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Coût</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Options</th></tr></thead><tbody><tr><td>1 menace ou 1 désastre</td><td><ul><li>Le personnage actif subit 1 point de stress (cette option peut être choisie plusieurs fois).</li><li>Le personnage actif perd tout le bénéfice d’une manœuvre effectuée précédemment (comme une mise à l’abri ou une posture défensive) jusqu’à ce qu’il l’exécute à nouveau.</li></ul></td></tr><tr><td>2 menaces ou 1 désastre</td><td><ul><li>Un adversaire peut immédiatement exécuter une manœuvre gratuite en réponse au test du personnage actif.</li><li>Ajouter 1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/blue.png\" alt=\"Fortune\" title=\"Fortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> au prochain test du personnage visé.</li><li>Le personnage actif ou un personnage allié subit 1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/black.png\" alt=\"Infortune\" title=\"Infortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à sa prochaine action.</li></ul></td></tr><tr><td>3 menaces ou 1 désastre</td><td><ul><li>Le personnage actif tombe à terre.</li><li>Le personnage actif favorise son ennemi pour la rencontre en cours (exemple : il détruit accidentellement la console de contrôle d’une passerelle par laquelle il comptait s’enfuir).</li></ul></td></tr><tr><td>1 désastre</td><td><ul><li>L’arme à distance du personnage tombe immédiatement à court de munitions et ne peut plus être utilisée jusqu’à la fin de la rencontre.</li><li>Améliorer 1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> du prochain test d’un personnage allié, y compris du personnage actif.</li><li>L’outil ou l’arme de corps à corps dont se sert le personnage est endommagé (cf. page 159).</li></ul></td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-3"
+        }
+      }
+    },
+    {
+      "_id": "b67009442ff6d6ca",
+      "name": "6-4 · Modificateurs par distance",
+      "type": "text",
+      "sort": 400000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-4, p. 210 (PDF 221). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.b67009442ff6d6ca]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Condition</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Modificateur</th></tr></thead><tbody><tr><td>Au contact, avec Distance (armes légères)</td><td>Difficulté +1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"></td></tr><tr><td>Au contact, avec Distance (armes lourdes)</td><td>Difficulté +2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"></td></tr><tr><td>Au contact, avec Artillerie</td><td>Impossible d’effectuer des tests d’Artillerie lorsqu’on est au contact avec un adversaire.</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-4"
+        }
+      }
+    },
+    {
+      "_id": "bf7fe22f38130f81",
+      "name": "6-5 · Armes improvisées",
+      "type": "text",
+      "sort": 500000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-5, p. 212 (PDF 223). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.bf7fe22f38130f81]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table swffg-reference-wide\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Taille</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Dégâts</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Crit</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Portée</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Encombrement</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Spécial</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Exemple</th></tr></thead><tbody><tr><td>Petite</td><td>+1</td><td>5</td><td>Au contact</td><td>1</td><td>—</td><td>Bouteille, pierre de la taille du poing, hydrocompresseur</td></tr><tr><td>Moyenne</td><td>+2</td><td>5</td><td>Au contact</td><td>3</td><td>Encombrant 2</td><td>Pierre tenue à deux mains, chaise, écran holovid</td></tr><tr><td>Grande</td><td>+3</td><td>5</td><td>Au contact</td><td>4</td><td>Encombrant 4</td><td>Pelle, grosse branche, table, caisse</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-5"
+        }
+      }
+    },
+    {
+      "_id": "6e03f24532af8d6a",
+      "name": "6-6 · Gabarits et personnages",
+      "type": "text",
+      "sort": 600000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-6, p. 212 (PDF 223). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.6e03f24532af8d6a]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Gabarit</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Exemples</th></tr></thead><tbody><tr><td>0</td><td>Jawas, Ewoks, droïdes astromech, toute créature de petite taille.</td></tr><tr><td>1</td><td>Humains, Wookies, Gands, Rodiens, Trandosiens, Twi’leks, droïdes humanoïdes, Bothans et la plupart des espèces humanoïdes.</td></tr><tr><td>2</td><td>Dewbacks, wampas, tauntauns, banthas et la plupart des montures.</td></tr><tr><td>3</td><td>Rancors, dragons krayt et autres créatures imposantes et dangereuses.</td></tr><tr><td>4+</td><td>Certaines créatures de la galaxie sont encore plus grandes que les précédentes.</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-6"
+        }
+      }
+    },
+    {
+      "_id": "f6b5f3c207e3ce96",
+      "name": "6-7 · Camouflage",
+      "type": "text",
+      "sort": 700000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-7, p. 213 (PDF 224). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.f6b5f3c207e3ce96]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Dés ajoutés</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Exemples</th></tr></thead><tbody><tr><td>+1</td><td>Brume, ombre, herbes jusqu’à la taille.</td></tr><tr><td>+2</td><td>Brouillard, pénombre de l’aube ou du crépuscule, herbes denses jusqu’aux épaules.</td></tr><tr><td>+3</td><td>Brouillard épais, fumée grasse et étouffante, cœur de la nuit, broussailles et herbes très denses aussi hautes que le personnage.</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-7"
+        }
+      }
+    },
+    {
+      "_id": "7808523801f4c42f",
+      "name": "6-8 · Feu, acide et atmosphères corrosives",
+      "type": "text",
+      "sort": 800000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-8, p. 214 (PDF 225). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.7808523801f4c42f]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Degré</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Exemples</th></tr></thead><tbody><tr><td>1–2</td><td>Feu de camp, substances modérément caustiques comme les détergents industriels, atmosphère chargée de cendres et d’émanations d’une fournaise.</td></tr><tr><td>3–5</td><td>Liquides inflammables et projecteurs de flammes, substances dangereuses comme les acides industriels, atmosphère contaminée par des fuites chimiques.</td></tr><tr><td>6–9</td><td>Fer à souder, acides militaires, atmosphères chargées de gaz dangereux comme l’ammoniac.</td></tr><tr><td>10+</td><td>Lave, fourneaux anti-explosion, atmosphères parfaitement irrespirables et caustiques tels que les mélanges de méthane et d’ammoniac provoquant des vapeurs acides.</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-8"
+        }
+      }
+    },
+    {
+      "_id": "3d7a72e10f68fe75",
+      "name": "6-9 · Dégâts de chute",
+      "type": "text",
+      "sort": 900000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-9, p. 215 (PDF 226). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.3d7a72e10f68fe75]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">Portée</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Dégâts</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Stress</th></tr></thead><tbody><tr><td>Courte</td><td>10</td><td>10</td></tr><tr><td>Moyenne</td><td>30</td><td>20</td></tr><tr><td>Longue</td><td>Neutralisé, blessure critique à +50</td><td>30</td></tr><tr><td>Extrême</td><td>Neutralisé, blessure critique à +75 (ou mort, à l’appréciation du MJ)</td><td>40</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-9"
+        }
+      }
+    },
+    {
+      "_id": "bec6d5c8cea5a61c",
+      "name": "6-10 · Blessures critiques",
+      "type": "text",
+      "sort": 1000000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-10, p. 217 (PDF 228). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.bec6d5c8cea5a61c]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">1d100</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Gravité</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Nom</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Résultat</th></tr></thead><tbody><tr><td>01–05</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Petite entaille</td><td>La cible subit 1 stress.</td></tr><tr><td>06–10</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Ralentissement</td><td>La cible ne pourra agir à son prochain tour que durant le dernier créneau d’initiative allié.</td></tr><tr><td>11–15</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Choc</td><td>La cible lâche ce qu’elle tient.</td></tr><tr><td>16–20</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Distraction</td><td>La cible ne peut exécuter de manœuvre gratuite à son prochain tour.</td></tr><tr><td>21–25</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Déséquilibre</td><td>La cible ajoute un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/black.png\" alt=\"Infortune\" title=\"Infortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à son prochain test de compétence.</td></tr><tr><td>26–30</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Blessure Accablante</td><td>Prenez un point de Destin côté lumineux et retournez-le côté obscur (l’inverse dans le cas d’un PNJ).</td></tr><tr><td>31–35</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Étourdissement</td><td>La cible est étourdie jusqu’à la fin de son prochain tour.</td></tr><tr><td>36–40</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Piqûre</td><td>La cible ajoute un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à son prochain test.</td></tr><tr><td>41–45</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Renversement</td><td>La cible se retrouve à terre et subit 1 stress.</td></tr><tr><td>46–50</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Mal de Crâne</td><td>La cible ajoute un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à tous ses tests d’Intelligence et de Ruse jusqu’à la fin de la rencontre.</td></tr><tr><td>51–55</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Blessure Effroyable</td><td>La cible ajoute un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à tous ses tests de Présence et de Volonté jusqu’à la fin de la rencontre.</td></tr><tr><td>56–60</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Blessure Lancinante</td><td>La cible ajoute un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à tous ses tests de Vigueur et d’Agilité jusqu’à la fin de la rencontre.</td></tr><tr><td>61–65</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Hébétement</td><td>La cible est désorientée jusqu’à la fin de la rencontre.</td></tr><tr><td>66–70</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Confusion</td><td>La cible retire tous les <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/blue.png\" alt=\"Fortune\" title=\"Fortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> de ses tests de compétence jusqu’à la fin de la rencontre.</td></tr><tr><td>71–75</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Paralysé</td><td>La cible perd sa manœuvre gratuite jusqu’à la fin de la rencontre.</td></tr><tr><td>76–80</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Aux Abois</td><td>La cible ouvre sa garde, offrant aussitôt à l’attaquant une attaque gratuite contre elle avec la même réserve de dés que l’attaque responsable.</td></tr><tr><td>81–85</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Hors d’Haleine</td><td>Jusqu’à la fin de la rencontre, la cible ne peut s’infliger volontairement du stress pour activer une capacité ou bénéficier de manœuvres supplémentaires.</td></tr><tr><td>86–90</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>À Mal</td><td>La cible ajoute un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à tous ses tests de compétence jusqu’à la fin de la rencontre.</td></tr><tr><td>91–95</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Exténuation</td><td>La cible subit 1 stress chaque fois qu’elle exécute une action.</td></tr><tr><td>96–100</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Infirmité</td><td>L’un des membres de la cible (choisi par le MJ) est infirme jusqu’à ce qu’on le soigne ou le remplace. La cible ajoute un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> à tous les tests faisant intervenir ce membre.</td></tr><tr><td>101–105</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Mutilation</td><td>La cible perd définitivement l’un de ses membres (choisi par le MJ). À moins qu’elle ne dispose d’une prothèse cybernétique, elle ne pourra plus exécuter d’action faisant intervenir ce membre. Toutes ses autres actions reçoivent un <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/black.png\" alt=\"Infortune\" title=\"Infortune\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">.</td></tr><tr><td>106–110</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Blessure Épouvantable</td><td>Lancez 1d10 pour désigner l’une des caractéristiques de la cible : 1-3 pour Vigueur, 4-6 pour Agilité, 7 pour Intelligence, 8 pour Ruse, 9 pour Présence, 10 pour Volonté. Tant que cette blessure critique n’a pas été soignée, la caractéristique en question est réduite d’un point.</td></tr><tr><td>111–115</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Invalidité</td><td>Tant que cette blessure critique n’est pas soignée, la cible ne peut effectuer plus d’une manœuvre à son tour.</td></tr><tr><td>116–120</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Aveuglé</td><td>La cible est privée de la vue. Améliorez 2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\"> sur tous ses tests (3 dés pour les tests de Perception et Vigilance).</td></tr><tr><td>121–125</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Perte de Connaissance</td><td>La cible est étourdie jusqu’à la fin de la rencontre.</td></tr><tr><td>126–130</td><td>Intimidante (4 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Blessure de Cauchemar</td><td>Lancez 1d10 pour désigner l’une des caractéristiques de la cible : 1-3 pour Vigueur, 4-6 pour Agilité, 7 pour Intelligence, 8 pour Ruse, 9 pour Présence, 10 pour Volonté. Réduisez d’un point la caractéristique en question, de façon permanente (conservez un minimum de 1).</td></tr><tr><td>131–140</td><td>Intimidante (4 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>Hémorragie</td><td>À chaque round, la cible subit 1 blessure et 1 stress au début de son tour. Elle subit une blessure critique par tranche de cinq blessures reçues au-delà de son seuil de blessure. Lancez alors les dés et consultez cette table : si par ce biais elle retombe sur ce résultat, relancez les dés.</td></tr><tr><td>141–150</td><td>Intimidante (4 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td><td>La Fin est Proche</td><td>La cible va mourir après le dernier créneau d’initiative du prochain round.</td></tr><tr><td>151+</td><td>—</td><td>Mort</td><td>Décès irréversible.</td></tr></tbody></table></div></div><p>@UUID[Compendium.swffg-reference-tables-fr.tables.RollTable.1b76a8e54ab5851a]{Lancer un critique}</p>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-10"
+        }
+      }
+    },
+    {
+      "_id": "eebddaea44828734",
+      "name": "6-11 · Difficulté du test de Médecine",
+      "type": "text",
+      "sort": 1100000,
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "text": {
+        "format": 1,
+        "content": "<p><em>Source : Aux Confins de l’Empire, table 6-11, p. 220 (PDF 231). Dés représentés par les icônes du système.</em></p><p>@UUID[Compendium.swffg-reference-tables-fr.references-en.JournalEntry.2fd7883cc7e91bc7.JournalEntryPage.eebddaea44828734]{Read in English}</p><div class=\"swffg-reference-page\"><div class=\"swffg-reference-scroll\"><table class=\"swffg-reference-table\"><thead><tr><th scope=\"col\" style=\"padding:8px;text-align:left\">État de santé</th><th scope=\"col\" style=\"padding:8px;text-align:left\">Test de Médecine</th></tr></thead><tbody><tr><td>Blessures actuelles inférieures ou égales à la moitié du seuil</td><td>Facile (1 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td></tr><tr><td>Blessures actuelles supérieures à la moitié du seuil</td><td>Moyenne (2 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td></tr><tr><td>Blessures actuelles supérieures au seuil</td><td>Difficile (3 <img class=\"swffg-reference-die\" src=\"systems/starwarsffg/images/dice/starwars/purple.png\" alt=\"Difficulté\" title=\"Difficulté\" width=\"20\" height=\"20\" style=\"display:inline-block;width:20px;height:20px;max-width:none;vertical-align:middle;border:0;margin:0 2px;box-shadow:none\">)</td></tr><tr><td>Récupération de blessure critique</td><td>Gravité de la blessure critique</td></tr></tbody></table></div></div>"
+      },
+      "flags": {
+        "swffg-reference-tables-fr": {
+          "language": "fr",
+          "table": "6-11"
+        }
+      }
+    }
+  ]
+}

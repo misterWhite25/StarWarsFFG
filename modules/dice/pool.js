@@ -1,6 +1,8 @@
 /**
  * Dice pool utility specializing in the FFG special dice
  */
+import { effectivePool, gmDifficulty } from "../helpers/gm-difficulty.js";
+
 export class DicePoolFFG {
   constructor(initialObj) {
     let obj = initialObj;
@@ -240,6 +242,11 @@ export class DicePoolFFG {
    * @returns {string} a dice expression that can be used to roll the dice pool
    */
   renderDiceExpression() {
+    if (gmDifficulty().enabled && !this._gmResolved) {
+      const pool = effectivePool(this);
+      pool._gmResolved = true;
+      return pool.renderDiceExpression();
+    }
     let setbackDice = game.settings.get("starwarsffg", "ApplyRemoveSetbackMods")
       ? Math.max(0, this.setback - this.remsetback)
       : this.setback;

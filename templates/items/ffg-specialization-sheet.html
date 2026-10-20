@@ -1,33 +1,15 @@
 <form class="{{cssClass}} item-sheet-specialization" autocomplete="off">
-  <header class="sheet-header">
-    <div class="header-fields">
-      <div class="talent-background talent-block">
-        <div class="talent-header">
-          <div></div>
-          <div class="talent-name"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'SWFFG.Specialization'}}" /></div>
-        </div>
-        <div class="talent-body">
-          <div class="popout-editor" data-target="data.description" data-label="{{item.name}}">
-            <div class="popout-editor-button"><i class="fas fa-edit"></i></div>
-            {{{ data.enrichedDescription }}}
-          </div>
-        </div>
-        <div class="talent-actions {{#if isReadOnly}}talent-hidden{{/if}}">
-          <a class="talent-action hover" data-itemid="{{item._id}}"
-            ><i class="fas fa-cog"></i>
-            <div class="tooltip">Modifiers</div>
-          </a>
-          <a class="talent-action" data-action="edit"><i class="fas fa-edit"></i></a>
-          <input class="talent-hidden" name="data.isEditing" type="text" value="{{data.isEditing}}" data-dtype="Boolean" />
-          <a class="talent-action" data-action="img"><i class="fas fa-image"></i></a>
-        </div>
-      </div>
-    </div>
+  <header class="sheet-header ffg-book-header">
+    <h2 class="ffg-book-title"><strong>{{bookTree.career}}</strong> : {{bookTree.name}}</h2>
+    <p><strong>{{bookTree.careerSkillsLabel}} :</strong> {{bookTree.careerSkills}}</p>
+    <p><strong>{{bookTree.bonusSkillsLabel}} :</strong> {{bookTree.bonusSkills}}</p>
+    <div class="ffg-book-legend"><span class="ffg-book-passive">{{bookTree.passiveLabel}}</span><span class="ffg-book-active">{{bookTree.activeLabel}}</span></div>
   </header>
 
   {{!-- Sheet Tab Navigation --}}
     {{> "systems/starwarsffg/templates/parts/shared/ffg-tabs.html" displayLimited=true limited=limited items=(array
       (object tab="talents" label="SWFFG.TabTalents" icon="fab fa-superpowers" cls=classType)
+      (object tab="overview" label="SWFFG.Tree.Overview" icon="fas fa-book-open" cls=classType)
       (object tab="skills" label="SWFFG.TabClassSkills" icon="fas fa-cog" cls=classType)
       (object tab="sources" label="SWFFG.TabSources" icon="fa-light fa-book-open-cover" cls=classType)
       (object tab="tags" label="SWFFG.TabTags" icon="fa-sharp fa-regular fa-tags" cls=classType)
@@ -48,8 +30,8 @@
             </div>
           {{/if}}
 
-            <div class="talent-block talent-upgrade talent-single specialization-talent" id="{{key}}" data-itemid="{{talent.itemId}}" data-cost="{{calculateSpecializationTalentCost key}}" data-base-item-name="{{../item.name}}">
-              <div class="talent-background {{#iff talent.activationLabel 'contains' 'Passive'}}talent-passive{{else}}talent-active{{/iff}}">
+            <div class="talent-block talent-upgrade talent-single specialization-talent" id="{{key}}" data-itemid="{{talent.itemId}}" data-cost="{{calculateSpecializationTalentCost key}}" data-base-item-name="{{../item.name}}" data-link-top="{{talent.links-top-1}}" data-link-right="{{talent.links-right}}">
+              <div class="talent-background ffg-book-node talent-{{talent.bookActivation.kind}}">
                 <div class="talent-header">
                   <div>
                     {{#if talent.isForceTalent}}
@@ -59,7 +41,7 @@
                     {{/if}}
                   </div>
                   <div class="talent-name {{#if (ne talent.name '')}}talent-modifiers{{/if}}" data-name="{{talent.name}}">
-                    {{{talent.name}}}
+                    {{talent.displayName}}{{#if talent.textVerified}} <i class="fa-solid fa-circle-check ffg-text-verified-icon" data-tooltip="{{localize 'SWFFG.Talent.TextVerifiedHint'}}" aria-label="{{localize 'SWFFG.Talent.TextVerified'}}"></i>{{/if}}
                     <a class="talent-action" data-itemid="{{key}}">
                       {{#if ../item.isOwned }}
                       <i class="fa-regular fa-circle-up ffg-purchase" data-buy-action="specialization-upgrade" data-cost="{{talent.cost}}" data-base-item-name="{{../item.name}}" data-upgrade-name="{{ talent.name }}" data-upgrade-id="{{ key }}"></i>
@@ -68,7 +50,6 @@
                   </div>
                 </div>
                 <div class="talent-body">
-                  <input type="text" value="{{localize talent.activationLabel}}" disabled />
                   <div class="popout-editor" data-target="data.talents.{{key}}.description" data-label="{{talent.name}}">
                     <div class="popout-editor-button"></div>
                     {{{ talent.enrichedDescription }}}
@@ -85,6 +66,7 @@
                   </div>
                 </div>
               </div>
+              <span class="ffg-book-cost talent-{{talent.bookActivation.kind}}">{{localize 'SWFFG.Cost'}} {{calculateSpecializationTalentCost key}} {{localize 'SWFFG.DescriptionXP'}}</span>
               <div class="talent-connections">
                 <div class="talent-connection-point-top">
                   <div class="{{#if talent.links-top-1}}talent-connector{{/if}} talent-action {{#if talent.canLinkTop}}talent-connection-point-top{{else}}talent-hidden{{/if}} talent-{{talent.size}}" data-action="link-top" data-key="{{key}}" data-linknumber="1">
@@ -115,7 +97,28 @@
         {{> "systems/starwarsffg/templates/parts/shared/ffg-modifiers.html"}}
       </div>
     </div>
+    <div class="tab ffg-book-overview" data-group="primary" data-tab="overview">
+      <h2>{{bookTree.name}}</h2>
+      <div class="ffg-book-overview-layout {{#unless bookTree.hasIllustration}}ffg-book-no-illustration{{/unless}}">
+        {{#if bookTree.hasIllustration}}<figure><img src="{{bookTree.illustration}}" alt="{{bookTree.name}}" loading="lazy"></figure>{{/if}}
+        <div class="popout-editor" data-target="data.description" data-label="{{bookTree.name}}">
+          {{#unless isReadOnly}}<div class="popout-editor-button"><i class="fas fa-edit"></i></div>{{/unless}}
+          {{{data.enrichedDescription}}}
+        </div>
+      </div>
+    </div>
     <div class="tab" data-group="primary" data-tab="skills">
+      <div class="ffg-book-tools talent-actions {{#if isReadOnly}}talent-hidden{{/if}}">
+        <a class="talent-action hover" data-itemid="{{item._id}}"><i class="fas fa-cog"></i></a>
+        <a class="talent-action" data-action="edit"><i class="fas fa-edit"></i></a>
+        <a class="talent-action" data-action="img"><i class="fas fa-image"></i></a>
+        <input class="talent-hidden" name="data.isEditing" type="text" value="{{data.isEditing}}" data-dtype="Boolean" />
+      </div>
+      {{#unless isReadOnly}}{{#if data.isEditing}}
+      <label class="ffg-book-name-editor">{{localize 'SWFFG.Specialization'}}
+        <input name="name" type="text" value="{{item.name}}" />
+      </label>
+      {{/if}}{{/unless}}
       <h2>{{ localize "SWFFG.Spec.CareerSkills" }}</h2>
       <div class="container career-skills">
         {{#each data.careerSkills as |skill index|}}

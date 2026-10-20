@@ -7,7 +7,7 @@ section {
   font-family: $font-primary;
 
   .window-content {
-    background: rgb(204, 204, 204);
+    background: var(--ffg-muted-panel, #cccccc);
     font-size: 9pt;
   }
 }
@@ -27,13 +27,13 @@ section {
 
 #chat-log {
   .message {
-    background: rgb(238, 238, 238);
+    background: var(--ffg-panel, #eeeeee);
   }
 }
 
 #chat-form {
   textarea {
-    background: rgb(245, 245, 245);
+    background: var(--ffg-panel, whitesmoke);
   }
 }
 

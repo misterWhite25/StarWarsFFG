@@ -1,4 +1,10 @@
 {
+  "SWFFG.ViewEquipmentImage": "Voir l’image en grand",
+  "SWFFG.Talent.TextVerified": "Texte vérifié (FR/EN)",
+  "SWFFG.Talent.TextVerifiedHint": "Descriptions française et anglaise validées par l’utilisateur ; automatisation vérifiée séparément.",
+  "SWFFG.Editor.Title": "Éditeur de texte",
+  "SWFFG.Editor.ForDocument": "Édition — {name}",
+  "SWFFG.Editor.ForField": "Édition — {name} : {label}",
   "SWFFG.VehicleAddCargo": "Ajouter un élément",
   "SWFFG.CriticalTable.VehicleTitle": "Jet de dégât critique de vaisseau",
   "SWFFG.CriticalTable.VehicleHint": "Lancez 1d100 + le modificateur indiqué. Le total peut dépasser 100 ; la dernière plage est 154+.",
@@ -821,5 +827,6 @@
   "SWFFG.ShipAmmo.Enable": "Munitions",
   "SWFFG.ShipAmmo.Current": "Munitions restantes",
   "SWFFG.ShipAmmo.Max": "Capacité maximale",
-  "SWFFG.Ammo": "Munitions"
+  "SWFFG.Ammo": "Munitions",
+  "SWFFG.Tree.Overview": "Présentation"
 }

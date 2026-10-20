@@ -44,6 +44,13 @@ export function weaponBaseDamage(item) {
   const adjusted = Number(damage.adjusted);
   return Number.isFinite(adjusted) && adjusted !== 0 ? adjusted : num(damage.value);
 }
+// Point Blank is already included in the saved first-hit weapon snapshot.
+// Any later hit, on any target, uses the original damage. Undo releases the first hit.
+export function weaponHitDamage(item, entries = []) {
+  const bonus = num(item?.flags?.starwarsffg?.rollTalentWeapon?.damageBonus);
+  const spent = entries.some(entry => entry.kind === 'damage' && !entry.undone);
+  return weaponBaseDamage(item) - (spent ? bonus : 0);
+}
 function qualities(item) {
   const values = item?.system?.adjusteditemmodifier ?? item?.system?.itemmodifier ?? [];
   return Object.values(values).filter(Boolean).map(q => ({name: q.name ?? '', rank: num(q.system?.rank_current ?? q.system?.rank ?? 1), description: q.system?.description ?? ''}));
@@ -70,7 +77,7 @@ async function dialog(title, content, label, callback) {
   }
   const effect=body.querySelector('[name="effect"]'),cost=body.querySelector('[name="cost"]');
   if(effect&&cost) effect.addEventListener('change',()=>{cost.value=effect.selectedOptions[0].dataset.cost;});
-  return foundry.applications.api.DialogV2.prompt({window:{title},classes:['starwarsffg','themed','theme-light'],position:{width:500},content:body,
+  return foundry.applications.api.DialogV2.prompt({window:{title},classes:['starwarsffg','themed'],position:{width:500},content:body,
     ok:{label, callback:(_event,_button,app)=>callback(app.element)}, rejectClose:false});
 }
 const field = (root, name) => root.querySelector(`[name="${name}"]`)?.value;
@@ -271,7 +278,7 @@ async function spendDialog(message) {
   };
   refresh();
   const content=document.createElement('div');content.append(body);
-  const app=new foundry.applications.api.DialogV2({window:{title:t('Utiliser les avantages / menaces','Spend advantages / threats')},classes:['starwarsffg','themed','theme-light'],position:{width:740},content,buttons:[{action:'close',label:t('Fermer','Close')}],rejectClose:false});
+  const app=new foundry.applications.api.DialogV2({window:{title:t('Utiliser les avantages / menaces','Spend advantages / threats')},classes:['starwarsffg','themed'],position:{width:740},content,buttons:[{action:'close',label:t('Fermer','Close')}],rejectClose:false});
   await app.render({force:true});
   // DialogV2 serializes supplied HTML; bind to the rendered nodes, not the source.
   body=app.element.querySelector('.ffg-spending');button=body.querySelector('.apply');error=body.querySelector('.error');
@@ -292,6 +299,11 @@ async function spendDialog(message) {
           catch(e){const rollback=state(message);for(const entry of rollback.entries)if(entry.batch===batch)entry.undone=true;await message.setFlag(scope,key,rollback);throw e;}
         }
         await app.close();
+        const criticalIds=entries.filter(entry=>entry.effect==='critical').map(entry=>entry.id);
+        if(criticalIds.length) {
+          try {const {resolveCritical}=await import('./critical-actions.js');await resolveCritical(message,criticalIds);}
+          catch(error){ui.notifications.error(error.message);}
+        }
       } catch(e){error.textContent=e.message;}
     });
     busy=false;button.disabled=false;
@@ -304,25 +316,25 @@ async function speakerActor(message) {
   return game.actors.get(speaker?.actor);
 }
 async function acceptAid(message, entry) {
-  if(entry.recipient!==game.user.id || entry.undone) return;
-  const current=foundry.utils.deepClone(game.user.getFlag(scope,'rollAid') ?? {pending:[],used:[]});
-  const id=`${message.id}:${entry.id}`;
-  if(current.used.includes(id)||current.pending.some(a=>a.id===id)) {ui.notifications.info(t('Cette aide a déjà été reçue.','This assistance was already received.'));return;}
-  current.pending.push({id,message:message.id,entry:entry.id});
-  await game.user.setFlag(scope,'rollAid',current);
-  ui.notifications.info(t('Aide prête pour ton prochain jet.','Assistance ready for your next roll.'));
+  const {acceptPilotageAid}=await import('./pilotage-mj.js');
+  return acceptPilotageAid(message,entry);
 }
-export function pendingAid() {
+export function pendingAid(context) {
   return (game.user.getFlag(scope,'rollAid')?.pending ?? []).filter(a=>{
     const message=game.messages.get(a.message);
     const entry=message?.getFlag(scope,key)?.entries?.find(e=>e.id===a.entry);
-    return entry?.kind==='aid' && !entry.undone && entry.recipient===game.user.id;
+    if(!(entry?.kind==='aid' && !entry.undone && entry.recipient===game.user.id))return false;
+    if(!context)return true; // Compatibility for consumers explicitly inspecting the queue.
+    const subject=a.subjectUuid??entry.subjectUuid;
+    if(subject)return subject===context.subjectUuid||subject===context.actorUuid;
+    // Old unassigned assistance can only benefit the player's assigned character.
+    return Boolean(game.user.character?.uuid&&game.user.character.uuid===context.actorUuid);
   });
 }
-export async function consumeAid(entries) {
+export async function consumeAid(entries,context) {
   if(!entries?.length) return;
   const current=foundry.utils.deepClone(game.user.getFlag(scope,'rollAid') ?? {pending:[],used:[]});
-  const valid=new Set(pendingAid().map(a=>a.id));
+  const valid=new Set(pendingAid(context).map(a=>a.id));
   if(entries.some(a=>!valid.has(a.id)||current.used.includes(a.id))) throw Error(t('Cette aide a changé ou a déjà été utilisée. Rouvre le jet.','This assistance changed or was already used. Reopen the roll.'));
   const ids=new Set(entries.map(a=>a.id));
   current.pending=current.pending.filter(a=>!ids.has(a.id));current.used.push(...ids);
@@ -373,7 +385,7 @@ async function chooseDamageTarget(tokens, requested) {
   try {
     return await foundry.applications.api.DialogV2.prompt({
       window: {title: t('Choisir la cible','Choose target')},
-      classes: ['starwarsffg','themed','theme-light'], position: {width:500},
+      classes: ['starwarsffg','themed'], position: {width:500},
       modal: false, content: body, rejectClose:false,
       render: (_event, app) => { root = app.element; stop.refresh(); },
       ok: {label:t('Calculer','Calculate'), callback:(_event,_button,app) => field(app.element,'target')},
@@ -396,7 +408,7 @@ async function damageDialog(message) {
   const vehicle=actor.type==='vehicle', shipWeapon=item.type==='shipweapon';
   const scale=shipWeapon===vehicle?1:shipWeapon?10:0.1;
   const soak=vehicle?actor.system.stats?.armour?.value:actor.system.stats?.soak?.value;
-  const computed=calculateDamage({base:weaponBaseDamage(item),successes:result(message).success,soak,
+  const computed=calculateDamage({base:weaponHitDamage(item,state(message).entries),successes:result(message).success,soak,
     pierce:qualityRank(item,['pierce','perforant']),breach:qualityRank(item,['breach','breche']),vehicle,scale,tonioRules:tonioRulesEnabled()});
   if(request?.target===choose) {computed.raw=request.raw;computed.reduction=request.reduction;}
   const prior=state(message).entries.filter(e=>e.kind==='damage'&&!e.undone&&e.change?.actor===actor.uuid);
@@ -423,6 +435,10 @@ async function damageDialog(message) {
 async function markUndone(message,id) {const current=state(message);const entry=current.entries.find(e=>e.id===id);if(entry) entry.undone=true;await message.setFlag(scope,key,current);}
 async function undo(message,id) {
   const entry=state(message).entries.find(e=>e.id===id);if(!entry||entry.undone) return;
+  if(entry.effect==='critical') {
+    const {undoCritical}=await import('./critical-actions.js');
+    await undoCritical(message,entry);return;
+  }
   if(entry.kind==='aid') {
     const user=game.users.get(entry.recipient),aid=user?.getFlag(scope,'rollAid');
     if(aid?.pending?.some(a=>a.id===`${message.id}:${id}`)||aid?.used?.includes(`${message.id}:${id}`)) throw Error(t('Cette aide a déjà été acceptée.','This assistance was already accepted.'));
@@ -440,6 +456,15 @@ export function renderCombatActions(message,element) {
   const root=element instanceof HTMLElement?element:element?.[0];if(!root||root.querySelector('.ffg-combat-actions')) return;
   const s=state(message),left=remainingSymbols(result(message),s.entries),editable=canEdit(message);
   const box=document.createElement('section');box.className='ffg-combat-actions';box.style.cssText='border-top:1px solid currentColor;padding-top:6px;margin-top:6px';
+  const talents=message.getFlag(scope,'rollTalents')??[];
+  if(talents.length) {
+    const note=document.createElement('p');
+    note.textContent=t('Talents activés : ','Activated talents: ')+talents.map(talent=>`${talent.name}${talent.cost?` (${talent.cost} ${t('stress','strain')})`:''}`).join(' · ');
+    box.append(note);
+    const info=weapon(message)?.flags?.starwarsffg?.rollTalentWeapon;
+    if(info?.range) {const p=document.createElement('p');p.textContent=t('Portée maximale pour ce jet : ','Maximum range for this roll: ')+game.i18n.localize('SWFFG.WeaponRange'+info.range);box.append(p);}
+    if(info?.damageBonus) {const p=document.createElement('p');p.textContent=t('Bout Portant : +','Point Blank: +')+info.damageBonus+t(' dégâts sur une touche réussie ; appliqués à la première touche, pas aux suivantes.',' damage to one successful hit; applied to the first hit, not additional hits.');box.append(p);}
+  }
   if(messageCombatMode(message)==='vehicle'){const context=document.createElement('p');context.textContent=t('Combat spatial / véhicules','Space / vehicle combat');context.style.cssText='font-weight:bold;font-size:12px';box.append(context);}
   if(message.getFlag(scope,'autoFire')===true && !root.querySelector('.ffg-auto-fire-status')) {
     const status=document.createElement('p');status.className='ffg-auto-fire-status';
@@ -454,10 +479,24 @@ export function renderCombatActions(message,element) {
     if(left.advantage>0||left.triumph>0||(game.user.isGM&&(left.threat>0||left.despair>0))) addButton(t('Utiliser les avantages / menaces','Spend advantages / threats'),()=>spendDialog(message));
     if(weapon(message)&&num(result(message).success)>0) addButton(s.request?t('Demande de dégâts — valider','Damage request — review'):t('Appliquer les dégâts…','Apply damage…'),()=>edit(message,()=>damageDialog(message)));
   }
+  const criticalGroups=new Set();
   for(const entry of s.entries.filter(e=>!e.undone)) {
     const line=document.createElement('p');line.textContent=`${entry.label}${entry.note?` — ${entry.note}`:''}${entry.cost?` (${entry.cost} ${symbolNames()[entry.currency] ?? entry.currency})`:''}`;box.append(line);
     if(entry.kind==='aid'&&entry.recipient===game.user.id) addButton(t('Accepter pour mon prochain jet','Accept for my next roll'),()=>acceptAid(message,entry));
-    if(editable) addButton(t('Annuler cette application','Undo this application'),()=>edit(message,()=>undo(message,entry.id)));
+    if(entry.effect==='critical') {
+      const group=entry.batch??entry.id;
+      if(criticalGroups.has(group))continue;
+      criticalGroups.add(group);
+      const resolution=entry.criticalResolution;
+      if(resolution?.summary) {const summary=document.createElement('p');summary.textContent=resolution.summary;box.append(summary);}
+      if(editable&&resolution?.status!=='applied') {
+        const ids=s.entries.filter(candidate=>candidate.effect==='critical'&&!candidate.undone&&(entry.batch?candidate.batch===entry.batch:candidate.id===entry.id)).map(candidate=>candidate.id);
+        addButton(resolution?.status==='requested'?t('Demande de critique — valider','Critical request — review'):t('Résoudre le critique…','Resolve critical…'),()=>edit(message,async()=>{
+          const {resolveCritical}=await import('./critical-actions.js');await resolveCritical(message,ids);
+        }));
+      }
+    }
+    if(editable) addButton(entry.effect==='critical'?t('Annuler le critique et sa dépense','Undo critical and spending'):t('Annuler cette application','Undo this application'),()=>edit(message,()=>undo(message,entry.id)));
   }
   if(box.childElementCount) root.append(box);
 }

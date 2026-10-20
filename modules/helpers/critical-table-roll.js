@@ -19,7 +19,7 @@ export async function drawCriticalTable(table) {
   const rollLabel = typeof prompt.rollLabel === "string" ? prompt.rollLabel : t("Roll");
   const modifier = await foundry.applications.api.DialogV2.prompt({
     window: {title},
-    classes: ["starwarsffg", "themed", "theme-light"],
+    classes: ["starwarsffg", "themed"],
     position: {width: 400},
     content: `<p>${hint}</p><div class="form-group"><label for="critical-roll-modifier">${t("Modifier")}</label><div class="form-fields"><input id="critical-roll-modifier" name="modifier" type="number" value="0" min="0" max="999899" step="1" required autofocus></div></div>`,
     ok: {

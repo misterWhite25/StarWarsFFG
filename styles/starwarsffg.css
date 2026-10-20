@@ -41,7 +41,7 @@ section {
   font-family: "Roboto", sans-serif;
 }
 .window-app .window-content {
-  background: #cccccc;
+  background: var(--ffg-muted-panel, #cccccc);
   font-size: 9pt;
 }
 
@@ -56,11 +56,11 @@ section {
 }
 
 #chat-log .message {
-  background: #eeeeee;
+  background: var(--ffg-panel, #eeeeee);
 }
 
 #chat-form textarea {
-  background: whitesmoke;
+  background: var(--ffg-panel, whitesmoke);
 }
 
 span.dietype.starwars {
@@ -181,7 +181,7 @@ img {
   color: #490c0b;
 }
 .starwarsffg .block-background {
-  background-color: #ddd;
+  background-color: var(--ffg-panel, #ddd);
   padding: 5px;
   margin: 0 0;
   --notchSize: 9px;
@@ -813,7 +813,7 @@ img {
 .starwarsffg .talent-background {
   position: relative;
   z-index: 10;
-  background-color: #ddd;
+  background-color: var(--ffg-panel, #ddd);
   padding: 5px;
   --notchSize: 9px;
   -webkit-clip-path: polygon(0% 0, var(--notchSize) 0%, calc(100% - var(--notchSize)) 0%, 100% var(--notchSize), 100% calc(100% - var(--notchSize)), calc(100% - var(--notchSize)) 100%, var(--notchSize) 100%, 0% calc(100% - var(--notchSize)));
@@ -984,7 +984,7 @@ img {
 }
 .starwarsffg .dice-pool-dialog .pool-value {
   border: 1px solid black;
-  background-color: #ddd;
+  background-color: var(--ffg-panel, #ddd);
 }
 .starwarsffg .dice-pool-dialog .pool-value input {
   border: 0;
@@ -1326,10 +1326,10 @@ img {
   line-height: 35px;
   font-size: 16pt;
   margin: 5px 5px;
-  background-color: #cccccc;
+  background-color: var(--ffg-muted-panel, #cccccc);
 }
 .starwarsffg.v2 .tabs .item.active {
-  background: #cccccc;
+  background: var(--ffg-muted-panel, #cccccc);
   background-color: rgba(73, 12, 11, 0.85);
   margin-right: -10px;
 }
@@ -1944,7 +1944,7 @@ img {
   border: 5px double #1f1c39;
   margin: auto;
   position: absolute;
-  background-color: white;
+  background-color: var(--ffg-input, white);
 }
 .starwarsffg.sheet.actor .vehicle .defense-block .defense-value .defense-value-label {
   position: absolute;
@@ -2229,10 +2229,10 @@ img {
   text-align: left;
 }
 .starwarsffg .hover .tooltip2 .dietype {
-  background-color: white;
+  background-color: var(--ffg-input, white);
 }
 .starwarsffg .ffg-sendtochat.hover:hover .tooltip2 {
-  background: #fff;
+  background: var(--ffg-input, #fff);
   border: 1px solid #23221d;
   color: #23221d;
 }
@@ -2353,7 +2353,7 @@ img {
   bottom: -5px;
   left: 0;
   position: absolute;
-  background: #CCCCCC;
+  background: var(--ffg-muted-panel, #CCCCCC);
   z-index: 60;
   width: auto;
   padding: 0 0.25rem 0 0.5rem;
@@ -2415,7 +2415,7 @@ img {
 .starwarsffg .burst-8 {
   z-index: -1;
   left: 7px;
-  background: white;
+  background: var(--ffg-input, white);
   width: 26px;
   height: 26px;
   position: absolute;
@@ -2429,7 +2429,7 @@ img {
   left: 0;
   height: 26px;
   width: 26px;
-  background: white;
+  background: var(--ffg-input, white);
   transform: rotate(135deg);
 }
 .starwarsffg div.conflict {
@@ -2451,7 +2451,7 @@ img {
   visibility: hidden;
 }
 .starwarsffg.data-import .import-progress {
-  background-color: #f1f1f1;
+  background-color: var(--ffg-panel, #f1f1f1);
   margin: 5px 5px;
   width: 100%;
 }

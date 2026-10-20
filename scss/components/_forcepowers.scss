@@ -68,7 +68,7 @@
   bottom: -5px;
   left: 0;
   position: absolute;
-  background: #CCCCCC;
+  background: var(--ffg-muted-panel, #CCCCCC);
   z-index: 60;
     width: auto;
   padding: 0 0.25rem 0 0.5rem;

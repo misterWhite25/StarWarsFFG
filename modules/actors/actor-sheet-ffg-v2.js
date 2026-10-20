@@ -1,6 +1,9 @@
+import {isPossession} from '../helpers/inventory-location.js';
+import {activateInventoryPossessions,dropPossession} from '../helpers/inventory-possessions.js';
+import {showEquipmentSummary} from "../helpers/equipment-summary.js";
 import {showCalculationDetails} from "../helpers/stat-calculation-dialog.js";
-import {showTalentSummary} from "../helpers/talent-summary.js";
-import { activateSheetPortrait } from "../helpers/sheet-portrait.js";
+import {showTalentSummary, summaryTalents} from "../helpers/talent-summary.js";
+import { activateSheetPortrait, activateInventoryImagePreview } from "../helpers/sheet-portrait.js";
 import { ActorSheetFFG } from "./actor-sheet-ffg.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -9,7 +12,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 /** ApplicationV2 and Handlebars host for the Star Wars FFG actor sheet. */
 export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
-    classes: ["starwarsffg", "sheet", "actor", "v2", "themed", "theme-light"],
+    classes: ["starwarsffg", "sheet", "actor", "v2", "themed"],
     editable: true,
     position: { width: 710, height: 650 },
     window: { resizable: true },
@@ -48,6 +51,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   // V2 supplies an Item document; the FFG handler still consumes drag data.
   async _onDropItem(event, item) {
     if (!this.isEditable || !this.actor.isOwner) return false;
+    if(item?.documentName==='Item'&&await dropPossession(this,event,item))return false;
     const data = item?.documentName === "Item" ? item.toDragData() : item;
     return ActorSheetFFG.prototype._onDropItem.call(this, event, data);
   }
@@ -88,6 +92,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       onClick: () => this.sheetoptions?.handler(),
     });
     if (this.actor.type === "character") controls.splice(1, 0, {action: "ffgCalculationDetails", icon: "fas fa-calculator", label: "Détail des calculs", onClick: () => showCalculationDetails(this.actor)});
+    if(this.actor.type==='character') controls.push({action:'ffgCreationGuide',icon:'fas fa-graduation-cap',label:'Création et XP',onClick:async()=>{const {showCreationGuide}=await import('../helpers/creation-guide.js');return showCreationGuide(this.actor);}});
     const detachIndex = controls.findIndex(control => control.action === "detach");
     if (detachIndex > 0) controls.unshift(controls.splice(detachIndex, 1)[0]);
     return controls;
@@ -103,8 +108,40 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     return parts;
   }
 
-  async _prepareContext(options) {
-    return ActorSheetFFG.prototype.getData.call(this, options);
+  async _prepareContext(options={}) {
+    const previousPosition={width:this.position.width,height:this.position.height};
+    const context=await ActorSheetFFG.prototype.getData.call(this,options);
+    context.inventoryPossessionsEnabled=['character','minion','rival','nemesis'].includes(this.actor.type);
+    if(context.inventoryPossessionsEnabled){
+      const items=Array.from(context.items?.contents??context.items??[]);
+      context.possessions=items.filter(isPossession).map(item=>({...item.toObject?.()??item,possessionTypeLabel:game.i18n.localize(`TYPES.Item.${item.type}`)}));
+      context.items=items.filter(item=>!isPossession(item));
+    }
+    const legacySize={width:this.position.width,height:this.position.height};
+    Object.assign(this.position,previousPosition);
+    if(!this._ffgInitialSizeApplied){
+      const requested={...options.position};
+      for(const dimension of ['width','height']){
+        if(requested[dimension]===undefined||requested[dimension]===this.constructor.DEFAULT_OPTIONS.position[dimension])requested[dimension]=legacySize[dimension];
+      }
+      options.position=requested;this._ffgInitialSizeApplied=true;
+    }
+    return context;
+  }
+
+  async _renderFrame(options) {
+    const frame=await super._renderFrame(options);
+    frame.classList.add('ffg-sheet-pending');
+    frame.classList.add(this.actor.type,this.isEditable?'editable':'locked');frame.querySelector('.window-content')?.classList.add(this.actor.type);
+    return frame;
+  }
+
+  async _postRender(context,options) {
+    await super._postRender(context,options);
+    if(options.isFirstRender&&this.element?.classList.contains('ffg-sheet-pending')){
+      this.setPosition(options.position??this.position);
+      this.element.classList.remove('ffg-sheet-pending');
+    }
   }
 
   async getData(options={}) { return this._prepareContext(options); }
@@ -112,6 +149,10 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _onRender(context, options) {
     await super._onRender(context, options);
     activateSheetPortrait(this);
+    activateInventoryImagePreview(this);
+    activateInventoryPossessions(this);
+    const {renderDodgeButton}=await import('../helpers/dodge-reaction.js');
+    renderDodgeButton(this);
     const actorClasses = ["character", "nemesis", "rival", "minion", "vehicle", "homestead", "editable", "locked"];
     this.element.classList.remove(...actorClasses);
     this.element.classList.add(this.actor.type, this.isEditable ? "editable" : "locked");
@@ -119,17 +160,38 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     const content = this.element.querySelector(".window-content");
     content.classList.remove(...actorClasses);
     content.classList.add(this.actor.type);
-    if (this.actor.type === "character") {
-      const heading = this.element.querySelector('.header-name h2');
-      if (heading) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.textContent = 'Récapitulatif des talents';
-        button.style.cssText = 'width:auto;font-size:12px;margin:2px 0 6px';
-        button.addEventListener('click', () => showTalentSummary(this));
-        heading.after(button);
+    const isCharacter = this.actor.type === 'character';
+    const npcWithTalents = ['minion', 'rival', 'nemesis'].includes(this.actor.type) && summaryTalents(this.actor).length > 0;
+    {
+      const sidebar = this.element.querySelector('.sheet-tabs');
+      if (sidebar) {
+        sidebar.querySelectorAll('.ffg-summary-button').forEach(button => button.remove());
+        const summaryButtons = [];
+        if (isCharacter || npcWithTalents) summaryButtons.push(['Récapitulatif des talents', 'fa-list-check', showTalentSummary]);
+        if (isCharacter) summaryButtons.push(['Récapitulatif de l’équipement', 'fa-suitcase', showEquipmentSummary]);
+        for (const [label, icon, show] of summaryButtons) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'ffg-summary-button';
+          button.title = label;
+          button.setAttribute('aria-label', label);
+          const symbol = document.createElement('i');
+          symbol.className = `fa-solid ${icon}`;
+          symbol.setAttribute('aria-hidden', 'true');
+          button.append(symbol);
+          button.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            void show(this);
+          });
+          sidebar.append(button);
+        }
       }
-      void showTalentSummary(this, true);
+    }
+    if (isCharacter || npcWithTalents) void showTalentSummary(this, true);
+    else if (this._talentSummary?.rendered) void this._talentSummary.close();
+    if (isCharacter) {
+      void showEquipmentSummary(this, true);
       if (this.actor.flags?.starwarsffg?.automaticStats?.enabled) {
         for (const path of ["wounds.max", "strain.max", "soak.value", "defence.melee", "defence.ranged", "encumbrance.max"]) {
           const input = this.element.querySelector(`[name="data.stats.${path}"], [name="system.stats.${path}"]`);
@@ -138,6 +200,11 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     }
     this._activateLegacyListeners($(this.element));
+    if(this.element?.ownerDocument){
+      const {renderSkillModifierSummary}=await import('../helpers/skill-modifier-summary.js');
+      renderSkillModifierSummary(this);
+    }
+
   }
 
   _activateLegacyListeners(html) {

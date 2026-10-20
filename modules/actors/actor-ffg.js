@@ -615,6 +615,7 @@ export class ActorFFG extends Actor {
 
     // handle indirect active effects - which come from items
     for (const item of actorData.items) {
+      if((item?.flags?.starwarsffg?.inventoryLocation==='possession'))continue;
       const itemActiveEffects = item.getEmbeddedCollection("ActiveEffect");
       for (const effect of itemActiveEffects) {
         if (!effect.disabled) {
@@ -652,6 +653,7 @@ export class ActorFFG extends Actor {
 
     // Loop through all items
     items.forEach(function(item) {
+      if((item?.flags?.starwarsffg?.inventoryLocation==='possession'))return;
       try {
         // Calculate encumbrance, only if encumbrance value exists
         if (item.system?.encumbrance?.adjusted !== undefined || item.system?.encumbrance?.value !== undefined) {
@@ -747,6 +749,13 @@ export class ActorFFG extends Actor {
   }
 
   /** @override **/
+  *allApplicableEffects() {
+    for(const effect of super.allApplicableEffects()){
+      if((effect.parent?.flags?.starwarsffg?.inventoryLocation==='possession'))continue;
+      yield effect;
+    }
+  }
+
   applyActiveEffects(phase) {
     // v14 calls this again after derived data. Do not count initial bonuses twice.
     if (phase && phase !== "initial") {

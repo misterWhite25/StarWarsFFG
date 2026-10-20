@@ -42,7 +42,7 @@
       text-align: left;
     }
     .dietype {
-      background-color: white;
+      background-color: var(--ffg-input, white);
     }
     width: 100%;
     height: max-content;
@@ -68,7 +68,7 @@
 .ffg-sendtochat.hover {
   &:hover {
     .tooltip2 {
-      background: #fff;
+      background: var(--ffg-input, #fff);
       border: 1px solid #23221d;
       color: #23221d
     }

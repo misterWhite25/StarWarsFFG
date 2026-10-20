@@ -1,4 +1,8 @@
 import { weaponQualityName } from "./helpers/weapon-selection.js";
+import { registerGMDifficulty, renderGMDifficultyButton } from "./helpers/gm-difficulty.js";
+Hooks.once("init", registerGMDifficulty);
+Hooks.on("renderChatInput", renderGMDifficultyButton);
+
 import { tonioRulesEnabled, weaponSuccessDamage } from "./helpers/custom-rules.js";
 import { renderCombatActions } from "./helpers/combat-actions.js";
 import { registerCriticalTableRolls } from "./helpers/critical-table-roll.js";
@@ -284,7 +288,7 @@ Hooks.once("init", async function () {
   SettingsHelpers.initLevelSettings();
 
   // Shared v14 sheet layout stays enabled when an alternate theme replaces the main CSS.
-  $("head").append('<link href="systems/starwarsffg/styles/v14-sheets.css" rel="stylesheet" type="text/css" media="all">');
+
   const uitheme = game.settings.get("starwarsffg", "ui-uitheme");
 
   switch (uitheme) {
@@ -297,6 +301,8 @@ Hooks.once("init", async function () {
       $('link[href*="styles/starwarsffg.css"]').prop("disabled", false);
     }
   }
+
+  $("head").append('<link href="systems/starwarsffg/styles/v14-sheets.css" rel="stylesheet" type="text/css" media="all">');
 
   /**
    * Register default XP spend notification

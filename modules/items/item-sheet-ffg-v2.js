@@ -1,4 +1,4 @@
-import { activateSheetPortrait } from "../helpers/sheet-portrait.js";
+import { activateSheetPortrait, activateEquipmentImagePreview } from "../helpers/sheet-portrait.js";
 import { ItemSheetFFG } from "./item-sheet-ffg.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -7,7 +7,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 /** ApplicationV2 and Handlebars host for the Star Wars FFG item sheet. */
 export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
-    classes: ["starwarsffg", "sheet", "item", "v2", "themed", "theme-light"],
+    classes: ["starwarsffg", "sheet", "item", "v2", "themed"],
     editable: true,
     position: { width: 550, height: 650 },
     window: { resizable: true },
@@ -32,6 +32,7 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   async close(options = {}) {
+    this._bookTreeObserver?.disconnect();
     const result = await super.close(options);
     // Keep the selected tab during edits, but start at the first tab on reopening.
     if (!this.rendered) this._sheetTab = undefined;
@@ -66,8 +67,34 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
     return parts;
   }
 
-  async _prepareContext(options) {
-    return ItemSheetFFG.prototype.getData.call(this, options);
+  async _prepareContext(options={}) {
+    const previousPosition={width:this.position.width,height:this.position.height};
+    const context=await ItemSheetFFG.prototype.getData.call(this,options);
+    const legacySize={width:this.position.width,height:this.position.height};
+    Object.assign(this.position,previousPosition);
+    if(!this._ffgInitialSizeApplied){
+      const requested={...options.position};
+      for(const dimension of ['width','height']){
+        if(requested[dimension]===undefined||requested[dimension]===this.constructor.DEFAULT_OPTIONS.position[dimension])requested[dimension]=legacySize[dimension];
+      }
+      options.position=requested;this._ffgInitialSizeApplied=true;
+    }
+    return context;
+  }
+
+  async _renderFrame(options) {
+    const frame=await super._renderFrame(options);
+    frame.classList.add('ffg-sheet-pending');
+    frame.classList.toggle('ffg-specialization-tree',this.item.type==='specialization');
+    return frame;
+  }
+
+  async _postRender(context,options) {
+    await super._postRender(context,options);
+    if(options.isFirstRender&&this.element?.classList.contains('ffg-sheet-pending')){
+      this.setPosition(options.position??this.position);
+      this.element.classList.remove('ffg-sheet-pending');
+    }
   }
 
   async getData(options={}) { return this._prepareContext(options); }
@@ -75,16 +102,23 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
   async _onRender(context, options) {
     await super._onRender(context, options);
     activateSheetPortrait(this);
+    activateEquipmentImagePreview(this);
+    this.element?.classList?.toggle('ffg-specialization-tree', this.item.type === 'specialization');
+    this.element?.classList?.toggle('ffg-book-editing', this.item.type === 'specialization' && this.isEditable && context.data?.isEditing === true);
     const html = $(this.element);
     ItemSheetFFG.prototype._activateFFGListeners.call(this, html);
     this._activateLegacyTabs(html);
+    if(this.item.type==='specialization'){const {installBookTreeConnections}=await import('../helpers/book-tree-presentation.js');installBookTreeConnections(this);}
   }
 
   _activateLegacyTabs(html) {
     const nav = html.find(".sheet-tabs");
     nav.find("[data-tab]").off("click.ffg-v2-tabs").on("click.ffg-v2-tabs", event => {
       event.preventDefault();
+      event.stopImmediatePropagation();
       const tab = event.currentTarget.dataset.tab;
+      this._sheetTab = tab;
+      this._tabs?.[0]?.activate(tab);
       nav.find("[data-tab]").removeClass("active");
       $(event.currentTarget).addClass("active");
       html.find(".sheet-body > .tab[data-tab]").removeClass("active");
@@ -106,7 +140,8 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   static async _onSubmitForm(event, _form, formData) {
     if (!this.isEditable) return;
-    return this._updateObject(event, { ...formData.object });
+    const updateData={...formData.object};
+    return this._updateObject(event, updateData);
   }
 }
 
