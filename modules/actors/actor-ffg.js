@@ -1,3 +1,6 @@
+import {vehicleMalfunctionEffects,clampMalfunctionStats} from '../helpers/vehicle-malfunction-engine.js';
+import {applyReviewedActorData} from "../helpers/reviewed-talent-state.js";
+import { reviewedPassiveEffects, withoutReviewedChanges } from "../helpers/reviewed-passives.js";
 import CharacteristicIncrease from "../helpers/characteristic-increase.js";
 import AutomaticStats from "../helpers/automatic-stats.js";
 import { getPreparedActiveEffectChanges } from "../compatibility/active-effects.js";
@@ -8,6 +11,13 @@ import ModifierHelpers from "../helpers/modifiers.js";
  * @extends {Actor}
  */
 export class ActorFFG extends Actor {
+
+  static getDefaultArtwork(actorData){
+    const artwork=super.getDefaultArtwork(actorData);
+    if(actorData.type!=='homestead')return artwork;
+    return {...artwork,img:'icons/svg/city.svg',texture:{...artwork.texture,src:'icons/svg/city.svg'}};
+  }
+
 
   // returns true if EditMode is not enabled, false otherwise. sends warning notification if EditMode is enabled and sendWarn is true
   verifyEditModeIsNotEnabled(sendWarn = true){
@@ -96,6 +106,7 @@ export class ActorFFG extends Actor {
       nemesis: "systems/starwarsffg/images/defaults/actors/nemesis.png",
       rival: "systems/starwarsffg/images/defaults/actors/rival.png",
       vehicle: "systems/starwarsffg/images/defaults/actors/vehicle.png",
+      homestead: "icons/svg/city.svg",
     }
     if (game.user.id === user.id && (!data?.img || data?.img === "icons/svg/mystery-man.svg")) {
       if (Object.keys(defaultImages).includes(data.type)) {
@@ -258,7 +269,6 @@ export class ActorFFG extends Actor {
       data.stats.systemStrainOverThreshold = data.stats.systemStrain.value - data.stats.systemStrain.max;
     }
 
-    this._prepareSharedData.bind(this);
     this._prepareSharedData(actor);
     if (actor.type === "minion") this._prepareMinionData(actor);
     if (["character", "nemesis", "rival"].includes(actor.type)) {
@@ -270,6 +280,9 @@ export class ActorFFG extends Actor {
       this._calculateDerivedValues(this);
       AutomaticStats.apply(this);
     }
+
+    clampMalfunctionStats(this);
+    applyReviewedActorData(this);
 
     // Embedded weapons prepare before initial actor effects in V14. Rebuild
     // their derived damage from source after species/implant characteristics apply.
@@ -447,7 +460,7 @@ export class ActorFFG extends Actor {
         if (linkedCharacteristicTalents.has(`${element.id}.${talent}`)) return;
         const item = JSON.parse(JSON.stringify(element.system.talents[talent]));
         item.firstSpecialization = element.id;
-        item.source = [{ type: "specialization", typeLabel: "SWFFG.Specialization", name: element.name, id: element.id }];
+        item.source = [{ type: "specialization", typeLabel: "SWFFG.Specialization", name: element.name, id: element.id, slot: talent }];
         if (item.isRanked) {
           item.rank = element.system.talents[talent]?.rank ? element.system.talents[talent].rank : 1;
         } else {
@@ -460,7 +473,7 @@ export class ActorFFG extends Actor {
         if (index < 0 || !item.isRanked) {
           globalTalentList.push(item);
         } else {
-          globalTalentList[index].source.push({ type: "specialization", typeLabel: "SWFFG.Specialization", name: element.name, id: element.id });
+          globalTalentList[index].source.push({ type: "specialization", typeLabel: "SWFFG.Specialization", name: element.name, id: element.id, slot: talent });
           globalTalentList[index].rank += element.system.talents[talent]?.rank ? element.system.talents[talent].rank : 1;
         }
       });
@@ -752,8 +765,12 @@ export class ActorFFG extends Actor {
   *allApplicableEffects() {
     for(const effect of super.allApplicableEffects()){
       if((effect.parent?.flags?.starwarsffg?.inventoryLocation==='possession'))continue;
-      yield effect;
+      const remaining=withoutReviewedChanges(effect);
+      if(remaining){if(remaining.length){const data=effect.toObject();data.system.changes=remaining;yield new CONFIG.ActiveEffect.documentClass(data,{parent:effect.parent});}}
+      else yield effect;
     }
+    yield* reviewedPassiveEffects(this,CONFIG.ActiveEffect?.documentClass);
+    yield* vehicleMalfunctionEffects(this,CONFIG.ActiveEffect?.documentClass);
   }
 
   applyActiveEffects(phase) {

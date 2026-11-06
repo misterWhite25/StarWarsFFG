@@ -1,3 +1,4 @@
+import {loadActorModule} from './load-system-module.mjs';
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -155,13 +156,7 @@ test('the final effect phase does not count initial Force Rating bonuses a secon
     applyActiveEffects(phase) { this.phases.push(phase); }
   }
   const context = vm.createContext({ Actor: ActorStub, game: {release: {generation: 14}}, structuredClone });
-  const effects = new vm.SourceTextModule(await readFile(new URL('../modules/compatibility/active-effects.js', import.meta.url), 'utf8'), {context});
-  await effects.link(() => { throw new Error('Unexpected Active Effect helper import'); });
-  const module = new vm.SourceTextModule(await readFile(new URL('../modules/actors/actor-ffg.js', import.meta.url), 'utf8'), { context });
-  await module.link(specifier => specifier.includes('/compatibility/') ? effects : new vm.SyntheticModule(['default'], function () {
-    this.setExport('default', class {});
-  }, { context }));
-  await module.evaluate();
+  const module = await loadActorModule(context);
   const actor = new module.namespace.ActorFFG();
   actor.phases = [];
   actor.system = { stats: { forcePool: { max: 2, value: 1 } } };

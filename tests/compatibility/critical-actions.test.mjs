@@ -5,10 +5,12 @@ import vm from 'node:vm';
 async function load() {
  const actors=new Map(),messages=[];
  const context=vm.createContext({game:{user:{id:'gm',isGM:true},i18n:{lang:'fr'},actors:{get:id=>actors.get(id)},tables:{contents:[]},packs:[]},
- foundry:{utils:{deepClone:structuredClone}},fromUuid:async id=>({actor:actors.get(id)}),
+ foundry:{utils:{deepClone:structuredClone}},fromUuid:async id=>id.startsWith('Actor.')?[...actors.values()].find(a=>a.uuid===id):(actors.has(id)?{uuid:id,actorLink:true,actor:actors.get(id)}:undefined),
  CONST:{CHAT_MESSAGE_STYLES:{ROLL:5}},ChatMessage:{create:async data=>messages.push(data)},Roll:{fromJSON:json=>JSON.parse(json)},ui:{notifications:{warn(){}}}});
  const talent=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/roll-talents.js',import.meta.url),'utf8'),{context});await talent.link(()=>{});await talent.evaluate();
- const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-actions.js',import.meta.url),'utf8'),{context});await module.link(()=>talent);await module.evaluate();
+ const targetHelper=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-target.js',import.meta.url),'utf8'),{context});await targetHelper.link(()=>{});await targetHelper.evaluate();
+ const picker=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/token-target-picker.js',import.meta.url),'utf8'),{context});await picker.link(()=>{});await picker.evaluate();
+ const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-actions.js',import.meta.url),'utf8'),{context});await module.link(specifier=>specifier.includes('token-target-picker')?picker:specifier.includes('critical-target')?targetHelper:talent);await module.evaluate();
  return {api:module.namespace,actors,messages,game:context.game};
 }
 function message() {
@@ -37,7 +39,7 @@ test('a saved critical creates one injury, supports safe undo and keeps original
  async createEmbeddedDocuments(_type,data){creates++;const item={...structuredClone(data[0]),id:'injury',getFlag(_s,k){return this.flags.starwarsffg[k];},toObject(){return {name:this.name,system:this.system};}};items.push(item);return [item];},
  async deleteEmbeddedDocuments(_type,ids){for(const id of ids){items.splice(items.findIndex(item=>item.id===id),1);}}};actors.set('Token.target',target);
  const data=api.criticalItemData({name:'Injury',description:'Rule',range:[1,5],flags:{starwarsffg:{severity:1}}},3,{message:msg.uuid,group:'a:t',kind:'character'});
- const saved={status:'rolled',target:'Token.target',data,roll:'{"total":3}',summary:'Injury (3)'};
+ const saved={status:'rolled',target:'Token.target',targetIdentity:{tokenUuid:'Token.target',actorUuid:target.uuid,linked:true},data,roll:'{"total":3}',summary:'Injury (3)'};
  const applied=await api.applyRolledCritical(msg,['a','t'],saved);assert.equal(creates,1);assert.equal(items.length,1);
  assert.deepEqual(messages[0].whisper,['gm']);assert.equal(messages[0].blind,true);
  // Simulate retry after Actor creation succeeded but the ChatMessage save failed.
@@ -48,7 +50,7 @@ test('a saved critical creates one injury, supports safe undo and keeps original
 test('non-owners cannot apply and minion undo preserves later damage',async()=>{
  const {api,actors}=await load(),msg=message();
  const target={uuid:'Actor.target',isOwner:false,system:{stats:{wounds:{value:0}}},async update(data){this.system.stats.wounds.value=data['system.stats.wounds.value'];}};actors.set('Token.target',target);
- const saved={status:'rolled',target:'Token.target',minion:true,change:{path:'system.stats.wounds.value',before:0,after:6}};
+ const saved={status:'rolled',target:'Token.target',minion:true,change:{actor:target.uuid,path:'system.stats.wounds.value',before:0,after:6}};
  await assert.rejects(()=>api.applyRolledCritical(msg,['a','t'],saved));assert.equal(target.system.stats.wounds.value,0);
  target.isOwner=true;await api.applyRolledCritical(msg,['a','t'],saved);assert.equal(target.system.stats.wounds.value,6);
  target.system.stats.wounds.value=7;await assert.rejects(()=>api.undoCritical(msg,msg.flags.entries[0]));assert.equal(target.system.stats.wounds.value,7);
@@ -61,4 +63,20 @@ test('French compendium Coup mortel and Dur au Mal contribute their acquired ran
  const attacker={talentList:[{name:'Coup mortel',isRanked:true,rank:1}]};
  const modifiers=api.criticalModifiers(target,attacker,{},1);
  assert.equal(modifiers.lethal,10);assert.equal(modifiers.durable,-20);assert.equal(modifiers.total,-10);
+});
+
+test('Lethal Blows can be declined without removing other critical modifiers',async()=>{const {api}=await load();const target={type:'character',items:{contents:[]}},attacker={talentList:[{name:'Coup mortel',isRanked:true,rank:2}]};assert.equal(api.criticalModifiers(target,attacker,{},2,5,false).total,15);assert.equal(api.criticalModifiers(target,attacker,{},2,5,true).total,35);});
+
+test('a minion critical cannot be applied or undone on a replacement token actor', async () => {
+  const {api,actors} = await load(), msg = message();
+  const replacement = {uuid:'Actor.new',isOwner:true,system:{stats:{wounds:{value:6}}},update:assert.fail};
+  actors.set('Token.target', replacement);
+  const old = {status:'rolled',target:'Token.target',minion:true,change:{actor:'Actor.old',path:'system.stats.wounds.value',before:0,after:6}};
+  for (const saved of [old, {...old,targetIdentity:{tokenUuid:'Token.target',actorUuid:'Actor.old',linked:true}}]) {
+    await assert.rejects(() => api.applyRolledCritical(msg,['a','t'],saved), /changé/);
+    const applied = {...saved,status:'applied'};
+    for (const e of msg.flags.entries) e.criticalResolution = applied;
+    await assert.rejects(() => api.undoCritical(msg,msg.flags.entries[0]), /changé/);
+    assert.equal(replacement.system.stats.wounds.value,6);
+  }
 });

@@ -16,11 +16,12 @@ async function loadSheet() {
   const module = new vm.SourceTextModule(fs.readFileSync(root + "modules/items/item-sheet-ffg-v2.js", "utf8"), {
     context,
     importModuleDynamically: async () => {
-      const helper = new vm.SyntheticModule(["installBookTreeConnections"], function () { this.setExport("installBookTreeConnections", () => {}); }, {context});
+      const helper = new vm.SyntheticModule(["installBookTreeConnections","annotateTalentMechanisms"], function () { this.setExport("installBookTreeConnections", () => {}); this.setExport("annotateTalentMechanisms", () => {}); }, {context});
       await helper.link(() => {}); await helper.evaluate(); return helper;
     },
   });
   await module.link(specifier => {
+    if (specifier.endsWith("legacy-sheet-layout.js")) return new vm.SourceTextModule(fs.readFileSync(root+"modules/applications/legacy-sheet-layout.js","utf8"),{context});
     const legacy = specifier.endsWith("item-sheet-ffg.js");
     const names = legacy ? ["ItemSheetFFG"] : ["activateSheetPortrait", "activateEquipmentImagePreview"];
     return new vm.SyntheticModule(names, function () { for (const name of names) this.setExport(name, legacy ? Legacy : () => {}); }, {context});

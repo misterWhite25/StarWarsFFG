@@ -1,5 +1,16 @@
 import {isInventoryEquipment,isPossession,possessionUpdate,possessionData} from './inventory-location.js';
 const allowed=sheet=>sheet.isEditable&&sheet.actor.isOwner&&sheet.actor.verifyEditModeIsNotEnabled();
+export async function moveInventoryEquipment(sheet,itemId,stored){
+ if(!allowed(sheet))return false;
+ const item=sheet.actor.items.get(itemId);
+ if(!isInventoryEquipment(item))throw Error('Cet équipement n’est plus présent sur la fiche.');
+ await item.update(possessionUpdate(stored));
+ const current=sheet.actor.items.get(itemId);
+ if(!current||isPossession(current)!==stored)throw Error('Le rangement de cet équipement n’a pas été enregistré.');
+ // Foundry refreshes the actor sheet after this embedded Item update.
+ // A second forced render resets the inventory view and can race with that refresh.
+ return true;
+}
 export async function dropPossession(sheet,event,item) {
  if(!event.target?.closest?.('[data-possession-section]')||!isInventoryEquipment(item))return false;
  if(!allowed(sheet))return true;
@@ -18,7 +29,7 @@ export function activateInventoryPossessions(sheet) {
   const button=document.createElement('button');button.type='button';button.className='ffg-possession-toggle';
   const stored=isPossession(item);button.title=stored?'Transporter cet équipement':'Ranger dans Possession (non transporté)';button.setAttribute('aria-label',button.title+' : '+item.name);
   const icon=document.createElement('i');icon.className=stored?'fa-solid fa-person-walking-luggage':'fa-solid fa-box-archive';icon.setAttribute('aria-hidden','true');button.append(icon);
-  button.addEventListener('click',async event=>{event.preventDefault();event.stopPropagation();if(!allowed(sheet))return;button.disabled=true;try{await item.update(possessionUpdate(!stored));}catch(error){ui.notifications.error(error.message);}finally{button.disabled=false;}});
+  button.addEventListener('click',async event=>{event.preventDefault();event.stopPropagation();if(button.disabled)return;button.disabled=true;try{const current=sheet.actor.items.get(item.id);await moveInventoryEquipment(sheet,item.id,!isPossession(current));}catch(error){ui.notifications.error(error.message);}finally{button.disabled=false;}});
   button.addEventListener('dblclick',event=>event.stopPropagation());
   row.querySelector('.item-controls')?.prepend(button);
  }

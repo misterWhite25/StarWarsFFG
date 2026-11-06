@@ -1,8 +1,15 @@
+import {prepareLegacySheetContext, revealSheetFrame} from '../applications/legacy-sheet-layout.js';
+import {activateHomesteadFields} from '../helpers/homestead-fields.js';
+import {vehicleMaintenance,applyVehicleMaintenanceEdit} from '../helpers/vehicle-maintenance.js';
+import {prepareVehicleMalfunctions,vehicleMalfunctionAction} from '../helpers/vehicle-malfunctions.js';
+import {prepareVehicleLogbook,activateVehicleLogbook} from '../helpers/vehicle-logbook.js';
+import {prepareVehicleOwners,dropVehicleOwner,activateVehicleOwners} from '../helpers/vehicle-owners.js';
+import {vehicleConsumables, applyConsumableStockEdit, vehicleFuel, applyVehicleFuelEdit} from '../helpers/vehicle-consumables.js';
 import {isPossession} from '../helpers/inventory-location.js';
 import {activateInventoryPossessions,dropPossession} from '../helpers/inventory-possessions.js';
 import {showEquipmentSummary} from "../helpers/equipment-summary.js";
 import {showCalculationDetails} from "../helpers/stat-calculation-dialog.js";
-import {showTalentSummary, summaryTalents} from "../helpers/talent-summary.js";
+import {annotateTalentMechanisms, showTalentSummary, hasSummaryTalents} from "../helpers/talent-summary.js";
 import { activateSheetPortrait, activateInventoryImagePreview } from "../helpers/sheet-portrait.js";
 import { ActorSheetFFG } from "./actor-sheet-ffg.js";
 
@@ -14,6 +21,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["starwarsffg", "sheet", "actor", "v2", "themed"],
     editable: true,
+    actions: {vehicleMalfunction: vehicleMalfunctionAction},
     position: { width: 710, height: 650 },
     window: { resizable: true },
     form: {
@@ -48,6 +56,11 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.pools = new Map();
   }
 
+  async _onDrop(event) {
+    if(await dropVehicleOwner(this,event))return;
+    return super._onDrop(event);
+  }
+
   // V2 supplies an Item document; the FFG handler still consumes drag data.
   async _onDropItem(event, item) {
     if (!this.isEditable || !this.actor.isOwner) return false;
@@ -62,6 +75,8 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   async close(options = {}) {
+    await this._triggeredTalentsWindow?.close();
+    this._triggeredTalentsWindow = undefined;
     const result = await super.close(options);
     // Keep the selected tab during edits, but start at the first tab on reopening.
     if (!this.rendered) this._sheetTab = undefined;
@@ -109,65 +124,80 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   async _prepareContext(options={}) {
-    const previousPosition={width:this.position.width,height:this.position.height};
-    const context=await ActorSheetFFG.prototype.getData.call(this,options);
+    const context = await prepareLegacySheetContext(this, options, ActorSheetFFG.prototype.getData);
+    if (this.actor.type === 'vehicle') {
+      const editable = this.isEditable && this.actor.isOwner;
+      context.vehicleConsumables = vehicleConsumables(this.actor);
+      context.vehicleFuel = vehicleFuel(this.actor);
+      context.vehicleMaintenance = vehicleMaintenance(this.actor);
+      context.maintenanceInputId = this.id + '-maintenance';
+      context.canEditConsumableStock = editable && game.user.isGM;
+      context.canEditVehicle = editable;
+      context.vehicleJourneys = prepareVehicleLogbook(this.actor);
+      [context.vehicleOwners, context.vehicleMalfunctions] = await Promise.all([
+        prepareVehicleOwners(this.actor), prepareVehicleMalfunctions(this.actor)
+      ]);
+    }
     context.inventoryPossessionsEnabled=['character','minion','rival','nemesis'].includes(this.actor.type);
     if(context.inventoryPossessionsEnabled){
       const items=Array.from(context.items?.contents??context.items??[]);
       context.possessions=items.filter(isPossession).map(item=>({...item.toObject?.()??item,possessionTypeLabel:game.i18n.localize(`TYPES.Item.${item.type}`)}));
       context.items=items.filter(item=>!isPossession(item));
     }
-    const legacySize={width:this.position.width,height:this.position.height};
-    Object.assign(this.position,previousPosition);
-    if(!this._ffgInitialSizeApplied){
-      const requested={...options.position};
-      for(const dimension of ['width','height']){
-        if(requested[dimension]===undefined||requested[dimension]===this.constructor.DEFAULT_OPTIONS.position[dimension])requested[dimension]=legacySize[dimension];
-      }
-      options.position=requested;this._ffgInitialSizeApplied=true;
-    }
     return context;
   }
 
-  async _renderFrame(options) {
-    const frame=await super._renderFrame(options);
-    frame.classList.add('ffg-sheet-pending');
-    frame.classList.add(this.actor.type,this.isEditable?'editable':'locked');frame.querySelector('.window-content')?.classList.add(this.actor.type);
-    return frame;
+  _preSyncPartState(partId, newElement, priorElement, state) {
+    super._preSyncPartState(partId, newElement, priorElement, state);
+    if (partId !== 'sheet') return;
+    state.ffgActiveTab = this._sheetTab;
+    // Foundry's generic ".tab" selector only saves the first tab. The root
+    // window-content and the equipment tab can both be scrolled independently.
+    const selectors = ['', '.sheet-body', '.sheet-tabs', '.header-description-block',
+      ...Array.from(priorElement.querySelectorAll('.tab[data-tab]'),
+        tab => `.tab[data-tab="${CSS.escape(tab.dataset.tab)}"]`)];
+    state.scrollPositions = selectors.flatMap(selector => {
+      const element = selector ? priorElement.querySelector(selector) : priorElement;
+      return element ? [[selector, element.scrollTop, element.scrollLeft]] : [];
+    });
   }
 
-  async _postRender(context,options) {
-    await super._postRender(context,options);
-    if(options.isFirstRender&&this.element?.classList.contains('ffg-sheet-pending')){
-      this.setPosition(options.position??this.position);
-      this.element.classList.remove('ffg-sheet-pending');
+  _syncPartState(partId, newElement, priorElement, state) {
+    // Restore visibility synchronously, before restoring scroll offsets. Hidden
+    // tabs clamp scrollTop to zero; legacy listeners are attached later.
+    if (partId === 'sheet' && state.ffgActiveTab) {
+      for (const tab of newElement.querySelectorAll('.tab[data-tab], .sheet-tabs [data-tab]')) {
+        tab.classList.toggle('active', tab.dataset.tab === state.ffgActiveTab);
+      }
     }
+    super._syncPartState(partId, newElement, priorElement, state);
   }
 
-  async getData(options={}) { return this._prepareContext(options); }
+  async _renderHTML(context, options) {
+    const result = await super._renderHTML(context, options);
+    const element = result.sheet;
+    if (element) {
+      // Finish the sidebar while the new template is still detached. Adding
+      // these controls after awaited render hooks visibly shrinks and regrows it.
+      this._prepareSidebar(element);
+      const active = this._sheetTab ?? element.querySelector('.sheet-tabs [data-tab]')?.dataset.tab;
+      for (const tab of element.querySelectorAll('.tab[data-tab], .sheet-tabs [data-tab]')) {
+        tab.classList.toggle('active', tab.dataset.tab === active);
+      }
+    }
+    return result;
+  }
 
-  async _onRender(context, options) {
-    await super._onRender(context, options);
-    activateSheetPortrait(this);
-    activateInventoryImagePreview(this);
-    activateInventoryPossessions(this);
-    const {renderDodgeButton}=await import('../helpers/dodge-reaction.js');
-    renderDodgeButton(this);
-    const actorClasses = ["character", "nemesis", "rival", "minion", "vehicle", "homestead", "editable", "locked"];
-    this.element.classList.remove(...actorClasses);
-    this.element.classList.add(this.actor.type, this.isEditable ? "editable" : "locked");
-    // Legacy styles expect the actor type on the content inside the sheet host.
-    const content = this.element.querySelector(".window-content");
-    content.classList.remove(...actorClasses);
-    content.classList.add(this.actor.type);
+  _prepareSidebar(element) {
     const isCharacter = this.actor.type === 'character';
-    const npcWithTalents = ['minion', 'rival', 'nemesis'].includes(this.actor.type) && summaryTalents(this.actor).length > 0;
+    const npcWithTalents = ['minion', 'rival', 'nemesis'].includes(this.actor.type) && hasSummaryTalents(this.actor);
     {
-      const sidebar = this.element.querySelector('.sheet-tabs');
+      const sidebar = element.querySelector('.sheet-tabs');
       if (sidebar) {
         sidebar.querySelectorAll('.ffg-summary-button').forEach(button => button.remove());
         const summaryButtons = [];
         if (isCharacter || npcWithTalents) summaryButtons.push(['Récapitulatif des talents', 'fa-list-check', showTalentSummary]);
+        if (isCharacter || npcWithTalents) summaryButtons.push(['Déclencher un talent', 'fa-bolt', async sheet => {try {await (await import('../helpers/triggered-talents.js')).showTriggeredTalents(sheet);} catch(error) {ui.notifications.error(error.message);}}]);
         if (isCharacter) summaryButtons.push(['Récapitulatif de l’équipement', 'fa-suitcase', showEquipmentSummary]);
         for (const [label, icon, show] of summaryButtons) {
           const button = document.createElement('button');
@@ -188,6 +218,44 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
         }
       }
     }
+  }
+
+  async _renderFrame(options) {
+    const frame=await super._renderFrame(options);
+    frame.classList.add('ffg-sheet-pending');
+    frame.classList.add(this.actor.type,this.isEditable?'editable':'locked');frame.querySelector('.window-content')?.classList.add(this.actor.type);
+    return frame;
+  }
+
+  async _postRender(context,options) {
+    await super._postRender(context,options);
+    revealSheetFrame(this, options);
+  }
+
+  async getData(options={}) { return this._prepareContext(options); }
+
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    activateSheetPortrait(this);
+    activateHomesteadFields(this);
+    activateInventoryImagePreview(this);
+    activateInventoryPossessions(this);
+    activateVehicleOwners(this);
+    activateVehicleLogbook(this);
+
+    const {renderDodgeButton}=await import('../helpers/dodge-reaction.js');
+    renderDodgeButton(this);
+    annotateTalentMechanisms(this);
+    const {renderReviewedTalentControls}=await import('../helpers/reviewed-talent-ui.js');renderReviewedTalentControls(this);
+    const actorClasses = ["character", "nemesis", "rival", "minion", "vehicle", "homestead", "editable", "locked"];
+    this.element.classList.remove(...actorClasses);
+    this.element.classList.add(this.actor.type, this.isEditable ? "editable" : "locked");
+    // Legacy styles expect the actor type on the content inside the sheet host.
+    const content = this.element.querySelector(".window-content");
+    content.classList.remove(...actorClasses);
+    content.classList.add(this.actor.type);
+    const isCharacter = this.actor.type === 'character';
+    const npcWithTalents = ['minion', 'rival', 'nemesis'].includes(this.actor.type) && hasSummaryTalents(this.actor);
     if (isCharacter || npcWithTalents) void showTalentSummary(this, true);
     else if (this._talentSummary?.rendered) void this._talentSummary.close();
     if (isCharacter) {
@@ -199,7 +267,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
         }
       }
     }
-    this._activateLegacyListeners($(this.element));
+    this._activateLegacyListeners($(this.element), context);
     if(this.element?.ownerDocument){
       const {renderSkillModifierSummary}=await import('../helpers/skill-modifier-summary.js');
       renderSkillModifierSummary(this);
@@ -207,8 +275,8 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   }
 
-  _activateLegacyListeners(html) {
-    return ActorSheetFFG.prototype._activateFFGListeners.call(this, html);
+  _activateLegacyListeners(html, context) {
+    return ActorSheetFFG.prototype._activateFFGListeners.call(this, html, context);
   }
 
   render(force={}, options={}) {
@@ -226,6 +294,9 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onSubmitForm(event, _form, formData) {
     if (!this.isEditable) return;
     const updateData = { ...formData.object };
+    // User-reviewed career and armour bonuses are derived, including in manual edit mode.
+    for(const key of this.actor._reviewedTalentPaths??[]){delete updateData[key];delete updateData[key.replace(/^system\./,'data.')];}
+
     const overrides = this._manualEditMode && !this.actor.flags?.starwarsffg?.automaticStats?.enabled ? {} : foundry.utils.flattenObject(this.actor.overrides);
     for (const key of Object.keys(overrides)) {
       delete updateData[key];
@@ -236,6 +307,33 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     for (const input of this.form?.querySelectorAll('[data-dtype="Number"], input[type="number"]') ?? []) {
       const value = updateData[input.name];
       if (input.disabled || value === null || value === "" || (value !== undefined && !Number.isFinite(Number(value)))) delete updateData[input.name];
+    }
+    if (this.actor.type === 'vehicle') {
+      const changedName = event?.target?.name;
+      const virtualEdit = {
+        vehicleMaintenanceAmount: ['vehicleMaintenanceRevision', applyVehicleMaintenanceEdit],
+        vehicleConsumablesAmount: ['vehicleConsumablesRevision', applyConsumableStockEdit],
+        vehicleFuelCurrent: ['vehicleFuelRevision', applyVehicleFuelEdit]
+      };
+      const options = {changedName, isGM: game.user.isGM};
+      try {
+        if (Object.hasOwn(virtualEdit, changedName)) {
+          const [revision, apply] = virtualEdit[changedName];
+          const update = {[changedName]: updateData[changedName], [revision]: updateData[revision]};
+          apply(this.actor, update, options);
+          return await this.actor.update(update);
+        }
+        for (const [name, [revision]] of Object.entries(virtualEdit)) {
+          delete updateData[name];
+          delete updateData[revision];
+        }
+        // Fuel capacity is a regular actor flag, validated against the current reserve.
+        if (Object.hasOwn(updateData, 'flags.starwarsffg.fuelCapacity')) applyVehicleFuelEdit(this.actor, updateData, options);
+      } catch (error) {
+        ui.notifications.warn(error.message);
+        this.render();
+        return;
+      }
     }
     return this._updateObject(event, updateData);
   }

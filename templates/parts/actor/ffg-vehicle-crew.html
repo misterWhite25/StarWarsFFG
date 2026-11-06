@@ -23,16 +23,17 @@
       </div>
       <div class="crew_role">
         <div>{{#if (eq item.role "Pilot")}}{{localize "SWFFG.WeaponCrew.pilot"}}{{else}}{{#if (eq item.role "Co-Pilot")}}{{localize "SWFFG.WeaponCrew.copilot"}}{{else}}{{ item.role }}{{/if}}{{/if}}</div>
+        {{#if item.assignedWeaponName}}<small class="crew-assigned-weapon" style="display:block;font-style:italic;font-size:11px">{{item.assignedWeaponName}}</small>{{/if}}
       </div>
       <div class="crew skillsGrid">
         {{#if item.pilotRoll}}
           <button type="button" class="crew dice-pool crew-roll" aria-label="{{localize 'SWFFG.Crew.PilotingColumn'}}" style="width:auto;height:auto;min-height:24px;padding:0;border:0;background:transparent;">{{{item.pilotRoll}}}</button>
-        {{else}}—{{/if}}
+        {{else}}-{{/if}}
       </div>
       <div class="crew skillsGrid">
         {{#if item.gunneryRoll}}
           <button type="button" class="crew dice-pool crew-gunnery-roll" aria-label="{{localize 'SWFFG.Crew.GunneryColumn'}}" style="width:auto;height:auto;min-height:24px;padding:0;border:0;background:transparent;">{{{item.gunneryRoll}}}</button>
-        {{else}}—{{/if}}
+        {{else}}-{{/if}}
       </div>
       <div class="item-controls">
         <a class="item-control crew-edit" title="Edit Role"><i class="fas fa-edit"></i></a>
@@ -40,5 +41,8 @@
       </div>
     </li>
     {{/iff}} {{/each}}
+    {{#unless crew}}
+    <li class="vehicle-crew-empty">{{localize "SWFFG.Crew.DropHint"}}</li>
+    {{/unless}}
   </ul>
 </ul>

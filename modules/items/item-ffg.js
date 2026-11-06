@@ -1,3 +1,4 @@
+import {applyJuryItemData, talentChoiceDescription} from '../helpers/reviewed-talent-state.js';
 import { getActiveEffectChanges, activeEffectChangesUpdate } from "../compatibility/active-effects.js";
 import EffectHelpers from "../helpers/effects.js";
 import ItemBaseFFG from "./itembase-ffg.js";
@@ -549,6 +550,7 @@ export class ItemFFG extends ItemBaseFFG {
     if (this.type === "signatureability") {
       this._prepareSignatureAbilities();
     }
+    applyJuryItemData(this);
   }
   /**
    * Capitalize string
@@ -690,6 +692,8 @@ export class ItemFFG extends ItemBaseFFG {
     if (["talent"].includes(this.type) && data.longDesc) {
       data.description = data.longDesc;
     }
+
+    if(this.type==='talent'&&this.parent?.documentName==='Actor')data.description=(data.description??'')+talentChoiceDescription(this.parent,this.id);
 
     if (this.type === "weapon") {
       const ammoEnabled = this.getFlag("starwarsffg", "config.enableAmmo");

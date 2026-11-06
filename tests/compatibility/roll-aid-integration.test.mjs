@@ -12,7 +12,8 @@ test('real roll builder adds aid once, consumes on posting and restores it on fa
  }});
  const selection=new vm.SourceTextModule(await read('helpers/weapon-selection.js'),{context});await selection.link(()=>{});await selection.evaluate();
  const customRules=new vm.SourceTextModule(await read('helpers/custom-rules.js'),{context});await customRules.link(()=>{});await customRules.evaluate();
- const helper=new vm.SourceTextModule(await read('helpers/combat-actions.js'),{context});await helper.link(spec=>spec.includes('custom-rules')?customRules:selection);await helper.evaluate();
+ const picker=new vm.SourceTextModule(await read('helpers/token-target-picker.js'),{context});await picker.link(()=>{});await picker.evaluate();
+ const helper=new vm.SourceTextModule(await read('helpers/combat-actions.js'),{context});await helper.link(spec=>spec.includes('token-target-picker')?picker:spec.includes('custom-rules')?customRules:selection);await helper.evaluate();
  const core=new vm.SourceTextModule(await read('helpers/pilotage-core.js'),{context});await core.link(()=>{});await core.evaluate();
  const vitality=new vm.SourceTextModule(await read('helpers/pilotage-vitality.js'),{context});await vitality.link(()=>{});await vitality.evaluate();
  const pilotage=new vm.SourceTextModule(await read('helpers/pilotage-mj.js'),{context});await pilotage.link(spec=>spec.includes('vitality')?vitality:core);await pilotage.evaluate();

@@ -272,14 +272,16 @@ export class DicePoolFFG {
    * @param container {HTMLElement} where to place the preview. A container will be generated if this is undefined
    * @returns {HTMLElement}
    */
-  renderPreview(initialContainer) {
+  renderPreview(initialContainer, setbackPreview = null) {
     let container = initialContainer;
     if (container === undefined) {
       container = document.createElement("div");
       container.classList.add("dice-pool");
     }
 
-    const totalDice = +this.proficiency + +this.ability + +this.challenge + +this.difficulty + +this.boost + +this.setback + +this.force;
+    const setbackTotal = setbackPreview ? Math.max(0, Math.floor(Number(setbackPreview.total)||0)) : Math.max(0,Number(this.setback)||0);
+    const cancelledSetback = setbackPreview ? Math.min(setbackTotal,Math.max(0,Math.floor(Number(setbackPreview.cancelled)||0))) : 0;
+    const totalDice = +this.proficiency + +this.ability + +this.challenge + +this.difficulty + +this.boost + setbackTotal + +this.force;
 
     let height = 36;
     let width = 36;
@@ -297,8 +299,14 @@ export class DicePoolFFG {
     this._addIcons(container, CONFIG.FFG.CHALLENGE_ICON, this.challenge, height, width);
     this._addIcons(container, CONFIG.FFG.DIFFICULTY_ICON, this.difficulty, height, width);
     this._addIcons(container, CONFIG.FFG.BOOST_ICON, this.boost, height, width);
-    this._addIcons(container, CONFIG.FFG.SETBACK_ICON, this.setback, height, width);
-    this._addIcons(container, CONFIG.FFG.REMOVESETBACK_ICON, this.remsetback, height, width);
+    this._addIcons(container, CONFIG.FFG.SETBACK_ICON, setbackTotal-cancelledSetback, height, width);
+    for(let i=0;i<cancelledSetback;i++){
+      const die=document.createElement('span');die.classList.add('ffg-cancelled-setback');die.style.width=width+'px';die.style.height=height+'px';
+      const label=game.i18n?.lang==='fr'?'Dé d’Infortune annulé - non lancé':'Cancelled Setback die - not rolled';
+      die.title=label;die.setAttribute('role','img');die.setAttribute('aria-label',label);
+      const img=document.createElement('img');img.src=CONFIG.FFG.SETBACK_ICON;img.width=width;img.height=height;img.setAttribute('aria-hidden','true');die.appendChild(img);container.appendChild(die);
+    }
+    if(!setbackPreview)this._addIcons(container, CONFIG.FFG.REMOVESETBACK_ICON, this.remsetback, height, width);
     this._addIcons(container, CONFIG.FFG.FORCE_ICON, this.force, height, width);
     this._addIcons(container, CONFIG.FFG.SUCCESS_ICON, this.success, height, width);
     this._addIcons(container, CONFIG.FFG.ADVANTAGE_ICON, this.advantage, height, width);

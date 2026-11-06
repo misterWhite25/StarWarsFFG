@@ -1,3 +1,4 @@
+import {isMalfunctionTable,promptVehicleMalfunction} from './vehicle-malfunctions.js';
 /** Critical tables carry this flag when shipped or imported from a compendium. */
 export function isCriticalTable(table) {
   if (table.getFlag?.("starwarsffg", "criticalTable") === true) return true;
@@ -9,6 +10,7 @@ export function isCriticalTable(table) {
 }
 
 export async function drawCriticalTable(table) {
+  if(isMalfunctionTable(table)) return promptVehicleMalfunction(table);
   const t = key => game.i18n.localize(`SWFFG.CriticalTable.${key}`);
   const vehicle = table.getFlag?.("starwarsffg", "criticalKind") === "vehicle";
   // Optional world-table labels: keep the shared critical-roll mechanics.
@@ -21,7 +23,7 @@ export async function drawCriticalTable(table) {
     window: {title},
     classes: ["starwarsffg", "themed"],
     position: {width: 400},
-    content: `<p>${hint}</p><div class="form-group"><label for="critical-roll-modifier">${t("Modifier")}</label><div class="form-fields"><input id="critical-roll-modifier" name="modifier" type="number" value="0" min="0" max="999899" step="1" required autofocus></div></div>`,
+    content: `<p>${hint}</p><div class="form-group"><label for="critical-roll-modifier">${t("Modifier")}</label><div class="form-fields"><input id="critical-roll-modifier" name="modifier" type="number" value="0" min="-999899" max="999899" step="1" required autofocus></div></div>`,
     ok: {
       label: rollLabel,
       icon: "fa-solid fa-dice-d20",
@@ -31,12 +33,12 @@ export async function drawCriticalTable(table) {
   });
   // Closing the prompt must never perform a roll (zero is a valid modifier).
   if (modifier === null || modifier === undefined) return;
-  if (!Number.isSafeInteger(modifier) || modifier < 0 || modifier > 999899) {
+  if (!Number.isSafeInteger(modifier) || modifier < -999899 || modifier > 999899) {
     ui.notifications.warn(t("Invalid"));
     return;
   }
-  const roll = await new Roll("1d100 + @modifier", {modifier}).evaluate();
-  // Use the supplied total without normalization, rerolls or changing the stored formula.
+  const roll = await new Roll("max(1, 1d100 + @modifier)", {modifier}).evaluate();
+  // Keep the critical minimum of 1, totals above 100, and the stored table formula.
   const results = table.getResultsForRoll(roll.total);
   if (!results.length) {
     ui.notifications.warn(t("NoResult"));
@@ -47,14 +49,15 @@ export async function drawCriticalTable(table) {
 
 export function registerCriticalTableRolls() {
   Hooks.on("renderRollTableSheet", (app, element) => {
-    const referenceTable = app.document.getFlag?.('swffg-reference-tables-fr', 'table');
+    const referenceTable = app.document.flags?.['swffg-reference-tables-fr']?.table;
     if (['2-1', '2-6', '2-7', '2-8'].includes(referenceTable)) {
       for (const cell of element.querySelectorAll('table[data-results] tbody td.image')) {
         cell.style.alignSelf = 'center';
       }
     }
-    if (!isCriticalTable(app.document)) return;
-    decorateCriticalTable(app.document, element);
+    const critical = isCriticalTable(app.document);
+    if (!critical && !isMalfunctionTable(app.document)) return;
+    if (critical) decorateCriticalTable(app.document, element);
     const button = element.querySelector('button[data-action="drawResult"]');
     if (!button || button.dataset.ffgCriticalPrompt) return;
     button.dataset.ffgCriticalPrompt = "true";
@@ -74,8 +77,8 @@ export function decorateCriticalTable(table, element) {
   const grid = element.querySelector('table[data-results]');
   const heading = grid?.querySelector('thead th.details');
   if (!heading) return;
-  const en = (table.getFlag?.('starwarsffg', 'language') ?? table.getFlag?.('swffg-reference-tables-fr', 'language')) === 'en';
-  const labels = en ? ['—','Easy','Average','Hard','Daunting'] : ['—','Facile','Moyenne','Difficile','Intimidante'];
+  const en = (table.getFlag?.('starwarsffg', 'language') ?? table.flags?.['swffg-reference-tables-fr']?.language) === 'en';
+  const labels = en ? ['-','Easy','Average','Hard','Daunting'] : ['-','Facile','Moyenne','Difficile','Intimidante'];
   function makeCell(tag, text) {
     const cell = element.ownerDocument.createElement(tag);
     cell.className = 'ffg-critical-severity';
@@ -97,8 +100,8 @@ export function decorateCriticalTable(table, element) {
     if (range && result.range[1] === 999999) range.textContent = `${result.range[0]}+`;
     const details = row.querySelector('td.details');
     if (!details || row.querySelector('.ffg-critical-severity')) continue;
-    const level = result.getFlag?.('starwarsffg', 'severity') ?? result.getFlag?.('swffg-reference-tables-fr', 'severity');
-    const label = labels[level] ?? '—';
+    const level = result.getFlag?.('starwarsffg', 'severity') ?? result.flags?.['swffg-reference-tables-fr']?.severity;
+    const label = labels[level] ?? '-';
     const cell = makeCell('td', label);
     if (Number.isInteger(level) && level > 0 && level <= 4) {
       const dice = element.ownerDocument.createElement('span');

@@ -1,4 +1,4 @@
-const supported = new Set(['Gunnery', 'Lightsaber', 'Melee', 'RangedLight', 'RangedHeavy', 'Ranged: Light', 'Ranged: Heavy']);
+const supported = new Set(['Brawl', 'Gunnery', 'Lightsaber', 'Melee', 'RangedLight', 'RangedHeavy', 'Ranged: Light', 'Ranged: Heavy']);
 // Presentation only: keep imported Item names intact for rules/import matching.
 const qualityLabels = [
   ['accurate','Précision','passive'], ['inaccurate','Imprécision','passive'],
@@ -26,7 +26,7 @@ export function describeWeaponQuality(quality, language = 'en') {
   const rank=raw?.value ?? raw;
   const suffix=rank!==undefined&&rank!==null&&rank!==''?` ${rank}`:'';
   if(entry) {
-    const mode=entry[2]==='before'?(fr?'choix avant le jet, déclenché après':'choose before rolling, trigger after'):entry[2]==='active'?(fr?'déclenché':'active'):entry[2]==='setting'?(fr?'passif — réglage avant le tir':'passive — set before firing'):(fr?'passif':'passive');
+    const mode=entry[2]==='before'?(fr?'choix avant le jet, déclenché après':'choose before rolling, trigger after'):entry[2]==='active'?(fr?'déclenché':'active'):entry[2]==='setting'?(fr?'passif - réglage avant le tir':'passive - set before firing'):(fr?'passif':'passive');
     return `${fr?entry[1]:entry[0]}${suffix} (${mode})`;
   }
   const mods={
@@ -118,4 +118,55 @@ export function combatModeForRoll(skill,item,explicit) {
   if(['personal','vehicle'].includes(explicit))return explicit;
   if(combatSkillKind(skill)==='piloting' || item?.type==='shipweapon' || item?.crew?.crew_card)return 'vehicle';
   return 'personal';
+}
+
+// Per-roll intent: a setting is available equipment, never proof that it was used.
+export function weaponStunProfile(item) {
+  const adjusted=Object.values(item?.system?.adjusteditemmodifier??{}).filter(Boolean);
+  const values=adjusted.length?adjusted:Object.values(item?.system?.itemmodifier??{}).filter(Boolean);
+  const names=values.map(q=>cleanQualityName(q.name));
+  return {fixed:names.some(n=>['stun damage','degats etourdissants'].includes(n)),setting:names.some(n=>['stun setting','reglage etourdissant'].includes(n))};
+}
+export function resolveShot(item,{mode,targetRange}={}) {
+  const fr=globalThis.game?.i18n?.lang==='fr',profile=weaponStunProfile(item);
+  if(profile.fixed)return {damageType:'strain',weaponMode:'fixed-stun',shortOnly:false};
+  if(mode==='stun') {
+    if(!profile.setting)throw Error(fr?'Cette arme ne propose plus de réglage étourdissant. Rouvre le jet.':'This weapon no longer has a stun setting. Reopen the roll.');
+    if(!['engaged','short'].includes(targetRange))throw Error(fr?'Réglage étourdissant : confirme une cible au contact ou à courte portée avant de lancer.':'Stun setting: confirm engaged or short range before rolling.');
+    return {damageType:'strain',weaponMode:'stun',shortOnly:true,targetRange};
+  }
+  if(mode!==undefined&&mode!=='normal')throw Error(fr?'Mode de tir invalide.':'Invalid firing mode.');
+  return {damageType:'wounds',weaponMode:'normal',shortOnly:false};
+}
+export function damageModeFromSnapshot(snapshot,item) {
+  if(['wounds','strain'].includes(snapshot?.damageType))return {damageType:snapshot.damageType,source:'snapshot'};
+  const profile=weaponStunProfile(item);
+  if(profile.fixed)return {damageType:'strain',source:'fixed-quality'};
+  if(profile.setting)return {requiresConfirmation:true,source:'old-message-with-setting'};
+  return {damageType:'wounds',source:'ordinary'};
+}
+
+export function isBrawlSkill(skill){
+ const key=String(skill??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'').replace(/^swffgskillsname/,'');
+ return ['brawl','pugilat'].includes(key);
+}
+/** Per-roll combat profile only. Never creates an owned weapon or alters its damage. */
+export function brawlAttackProfile(actor,skill,item={}){
+ if(!isBrawlSkill(skill))return item;
+ const armed=item?.type==='weapon';
+ const profile=armed?JSON.parse(JSON.stringify(item.toObject?item.toObject():item)):{name:globalThis.game?.i18n?.lang==='fr'?'Mains nues':'Unarmed',type:'weapon',img:'icons/svg/fist.svg',system:{}};
+ if(armed)profile.system=JSON.parse(JSON.stringify(item.system));
+ const data=profile.system??={},brawn=Number(actor?.system?.characteristics?.Brawn?.value);
+ if(!armed&&!Number.isFinite(brawn))throw Error(globalThis.game?.i18n?.lang==='fr'?'Vigueur introuvable : dégâts de Pugilat impossibles à calculer.':'Missing Brawn: cannot calculate unarmed damage.');
+ if(!armed){data.damage={value:brawn,adjusted:brawn};data.range={value:'Engaged',adjusted:'Engaged'};data.skill={value:'Brawl'};data.characteristic={value:'Brawn'};}
+ const critical=Number(data.crit?.adjusted??data.crit?.value);data.crit={...(data.crit??{}),value:critical>0?Math.min(5,critical):5,adjusted:critical>0?Math.min(5,critical):5};
+ const adjustedQualities=Object.values(data.adjusteditemmodifier??{}).filter(Boolean);
+ const qualityList=(adjustedQualities.length?adjustedQualities:Object.values(data.itemmodifier??{}).filter(Boolean)).map(q=>JSON.parse(JSON.stringify(q)));
+ for(const [name,rank,aliases]of [['Disorient',1,['disorient','desorientation']],['Knockdown',null,['knockdown','renversement']]]){
+  const current=qualityList.find(q=>aliases.includes(cleanQualityName(q.name)));
+  if(!current)qualityList.push({name,system:{rank,rank_current:rank}});
+ }
+ data.adjusteditemmodifier=qualityList;
+ profile.flags??={};profile.flags.starwarsffg??={};profile.flags.starwarsffg.rollWeaponSnapshot=true;profile.flags.starwarsffg.brawlAttack={unarmed:!armed,brawn:Number.isFinite(brawn)?brawn:null,source:'SWR02 p.212 / PDF223 ; AoR p.224 / PDF225'};
+ return profile;
 }

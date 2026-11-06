@@ -1,3 +1,4 @@
+import {loadActorModule} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
@@ -5,9 +6,7 @@ import vm from 'node:vm';
 const read=file=>readFile(new URL('../../modules/'+file,import.meta.url),'utf8');
 async function actorClass(){
  const context=vm.createContext({Actor:class {},CONFIG:{FFG:{theme:'starwars'},logger:{error:e=>{throw e;}}}});
- const mod=new vm.SourceTextModule(await read('actors/actor-ffg.js'),{context});
- await mod.link(()=>new vm.SyntheticModule(['default','getPreparedActiveEffectChanges'],function(){this.setExport('default',class {});this.setExport('getPreparedActiveEffectChanges',()=>[]);},{context}));
- await mod.evaluate();return mod.namespace.ActorFFG;
+ const mod = await loadActorModule(context);return mod.namespace.ActorFFG;
 }
 test('carried and worn armour counts all copies and respects adjusted zero',async()=>{
  const ActorFFG=await actorClass();const actor=new ActorFFG();actor.system={stats:{encumbrance:{}}};

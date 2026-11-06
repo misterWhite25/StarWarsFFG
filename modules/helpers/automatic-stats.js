@@ -35,6 +35,11 @@ export function calculateStats(actor, config = actor.flags?.starwarsffg?.automat
     }, {value: 0, name: ''});
     if (best.value) { const row = rows.find(r => r.id === id); row.total += best.value; row.sources.push({name: best.name, operation: '+', value: best.value}); }
   }
+  for(const item of armour){
+    const effect=item.system.reviewedJuryRigged?.effect;
+    const id=effect==='defence-melee'?'melee':effect==='defence-ranged'?'ranged':null;
+    if(id){const row=rows.find(r=>r.id===id);row.total+=1;row.sources.push({name:item.name+' - Bidouillage',operation:'+',value:1});}
+  }
   const changes = [];
   for (const effect of actor.allApplicableEffects()) {
     if (!effect.active) continue;
@@ -61,7 +66,7 @@ export function calculateStats(actor, config = actor.flags?.starwarsffg?.automat
         errors.push(`${parent?.name ?? effect.name} : effet non numérique ou personnalisé sur ${row.label.toLowerCase()}, à configurer.`); continue;
       }
       const priority = number(change.priority) ?? ({multiply: 10, add: 20, downgrade: 30, upgrade: 40, override: 50})[type];
-      changes.push({row, value, type, priority, phase: change.phase === 'final' ? 1 : 0, name: parent ? `${parent.name} — ${effect.name}` : effect.name});
+      changes.push({row, value, type, priority, phase: change.phase === 'final' ? 1 : 0, name: parent ? `${parent.name} - ${effect.name}` : effect.name});
     }
   }
   for (const {row, value, type, name} of changes.sort((a,b) => a.phase - b.phase || a.priority - b.priority)) {

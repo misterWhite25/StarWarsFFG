@@ -47,3 +47,10 @@ test('flags suspect weapon effects and missing talent effects without changing d
  const before=JSON.stringify(a),result=calculateStats(a);assert.equal(JSON.stringify(a),before);
  assert.equal(totals(result).wounds,14);assert.ok(result.warnings.length>=3);
 });
+
+test('jury armour defence affects only the selected direction and automatic recalculation stays repeatable',()=>{
+ const {a,armour}=fixture();armour.system.reviewedJuryRigged={effect:'defence-ranged'};
+ const first=totals(calculateStats(a));assert.equal(first.melee,1);assert.equal(first.ranged,2);
+ AutomaticStats.apply(a);AutomaticStats.apply(a);assert.equal(a.system.stats.defence.ranged,2);
+ armour.system.equippable.equipped=false;AutomaticStats.apply(a);assert.equal(a.system.stats.defence.ranged,0);
+});

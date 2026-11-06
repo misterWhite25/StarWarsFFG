@@ -8,7 +8,7 @@ async function load() {
  return {api:module.namespace,game:context.game};
 }
 function actor() {
- return {isOwner:true,system:{stats:{strain:{value:2}}},flags:{starwarsffg:{rollTalentUsage:{}}},
+ return {isOwner:true,system:{stats:{strain:{max:20,value:2}}},flags:{starwarsffg:{rollTalentUsage:{}}},
  talentList:[{name:'Concentration Intense',isRanked:false},{name:'Attaque frénétique',isRanked:true,rank:2},{name:'Visée précise',isRanked:true,rank:2}],
  getFlag(_scope,key){return this.flags.starwarsffg[key];},
  async update(data){for(const [path,value]of Object.entries(data)){const parts=path.split('.');let target=this;for(const part of parts.slice(0,-1)){target[part]??={};target=target[part];}target[parts.at(-1)]=value;}}};
