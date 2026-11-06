@@ -1,4 +1,5 @@
 import {registerSystemGuideTours} from './system-guide.js';
+import {registerLegacyTourCategory} from './legacy-tour-category.js';
 import EffectHelpers from "./effects.js";
 class CharacterTour extends foundry.nue.Tour {
   #originalDeactivate = null;
@@ -165,6 +166,7 @@ class EditModeTour extends foundry.nue.Tour {
  * @returns {Promise<void>}
  */
 export async function register_system_tours() {
+  registerLegacyTourCategory();
   registerSystemGuideTours();
   try {
     game.tours.register("starwarsffg", 'character', await CharacterTour.fromJSON('/systems/starwarsffg/modules/tours/character.json'));
