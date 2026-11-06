@@ -1,3 +1,4 @@
+import {prepareLegacySheetContext, revealSheetFrame} from '../applications/legacy-sheet-layout.js';
 import { activateSheetPortrait, activateEquipmentImagePreview } from "../helpers/sheet-portrait.js";
 import { ItemSheetFFG } from "./item-sheet-ffg.js";
 
@@ -67,19 +68,8 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
     return parts;
   }
 
-  async _prepareContext(options={}) {
-    const previousPosition={width:this.position.width,height:this.position.height};
-    const context=await ItemSheetFFG.prototype.getData.call(this,options);
-    const legacySize={width:this.position.width,height:this.position.height};
-    Object.assign(this.position,previousPosition);
-    if(!this._ffgInitialSizeApplied){
-      const requested={...options.position};
-      for(const dimension of ['width','height']){
-        if(requested[dimension]===undefined||requested[dimension]===this.constructor.DEFAULT_OPTIONS.position[dimension])requested[dimension]=legacySize[dimension];
-      }
-      options.position=requested;this._ffgInitialSizeApplied=true;
-    }
-    return context;
+  _prepareContext(options={}) {
+    return prepareLegacySheetContext(this, options, ItemSheetFFG.prototype.getData);
   }
 
   async _renderFrame(options) {
@@ -91,10 +81,7 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   async _postRender(context,options) {
     await super._postRender(context,options);
-    if(options.isFirstRender&&this.element?.classList.contains('ffg-sheet-pending')){
-      this.setPosition(options.position??this.position);
-      this.element.classList.remove('ffg-sheet-pending');
-    }
+    revealSheetFrame(this, options);
   }
 
   async getData(options={}) { return this._prepareContext(options); }
@@ -103,6 +90,7 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
     await super._onRender(context, options);
     activateSheetPortrait(this);
     activateEquipmentImagePreview(this);
+    if(['talent','specialization'].includes(this.item.type)){const {annotateTalentMechanisms}=await import('../helpers/talent-summary.js');annotateTalentMechanisms(this);}
     this.element?.classList?.toggle('ffg-specialization-tree', this.item.type === 'specialization');
     this.element?.classList?.toggle('ffg-book-editing', this.item.type === 'specialization' && this.isEditable && context.data?.isEditing === true);
     const html = $(this.element);

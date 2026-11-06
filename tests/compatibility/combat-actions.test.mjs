@@ -9,7 +9,8 @@ async function load(){
  const context=vm.createContext({game:{user:{id:'p2',getFlag:()=>flags,setFlag:async(_s,_k,value)=>{flags=value;}},messages:{get:()=>({getFlag:()=>({entries})})},i18n:{lang:'fr'}},foundry:{utils:{deepClone:structuredClone}}});
  const selection=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/weapon-selection.js',import.meta.url),'utf8'),{context});await selection.link(()=>{});await selection.evaluate();
  const customRules=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/custom-rules.js',import.meta.url),'utf8'),{context});await customRules.link(()=>{});await customRules.evaluate();
- const mod=new vm.SourceTextModule(source,{context});await mod.link(specifier=>specifier.endsWith('custom-rules.js')?customRules:selection);await mod.evaluate();return {api:mod.namespace,entries,setFlags:value=>{flags=value;},flags:()=>flags};
+ const picker=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/token-target-picker.js',import.meta.url),'utf8'),{context});await picker.link(()=>{});await picker.evaluate();
+ const mod=new vm.SourceTextModule(source,{context});await mod.link(specifier=>specifier.endsWith('token-target-picker.js')?picker:specifier.endsWith('custom-rules.js')?customRules:selection);await mod.evaluate();return {api:mod.namespace,entries,setFlags:value=>{flags=value;},flags:()=>flags};
 }
 test('post-roll damage never heals, supports soak/pierce and vehicle scale',async()=>{
  const {api}=await load();

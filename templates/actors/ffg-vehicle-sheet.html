@@ -45,106 +45,82 @@
         </div>
       </div>
       {{#if limited}}{{else}}
-      <div class="container characteristics flex-group-center">
-        <div class="grid grid-3col">
-          <div class="characteristic-item flex-group-center">
-            <div class="characteristic">
-              <div class="characteristic-value">
-                <input type="text" name="data.stats.armour.value" value="{{data.stats.armour.value}}" data-dtype="Number" {{#if disabled }} disabled{{/if}}/>
-              </div>
-            </div>
-            <div class="characteristic-label">
-              {{localize "SWFFG.VehicleArmor"}}
-            </div>
-          </div>
-          <div class="characteristic-item flex-group-center">
-            <div class="characteristic">
-              <div class="characteristic-value">
-                <input type="text" name="data.stats.silhouette.value" value="{{data.stats.silhouette.value}}" data-dtype="Number" maxlength="2" type="text" pattern="^(10|[0-9])$" />
-              </div>
-            </div>
-            <div class="characteristic-label">
-              {{localize "SWFFG.VehicleSilhouette"}}
-            </div>
-          </div>
-          <div class="characteristic-item flex-group-center">
-            <div class="characteristic">
-              <div class="characteristic-value">
-                <input type="text" name="data.stats.handling.value" value="{{data.stats.handling.value}}" data-dtype="Number" {{#if disabled }} disabled{{/if}} />
-              </div>
-            </div>
-            <div class="characteristic-label">
-              {{localize "SWFFG.VehicleHandling"}}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="container flex-group-center">
-        <div class="grid grid-4col">
-          {{!-- Speed Box --}}
-          {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.VehicleSpeed" fields=(array (object name="data.stats.speed.max" value=data.stats.speed.max type="Number" label="SWFFG.Threshold" disabled=disabled) (object name="data.stats.speed.value" value=data.stats.speed.value type="Number" label="SWFFG.Current") ))}}
-
-          {{!-- Hull Trauma Box --}}
-          {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.VehicleHullTrauma" fields=(array (object name="data.stats.hullTrauma.max" value=data.stats.hullTrauma.max type="Number" label="SWFFG.Threshold" disabled=disabled) (object name="data.stats.hullTrauma.value" value=data.stats.hullTrauma.value type="Number" label="SWFFG.Current") ))}}
-
-          {{!-- System Strain Box --}}
-          {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.VehicleHullStrain" fields=(array (object name="data.stats.systemStrain.max" value=data.stats.systemStrain.max type="Number" label="SWFFG.Threshold" disabled=disabled) (object name="data.stats.systemStrain.value" value=data.stats.systemStrain.value type="Number" label="SWFFG.Current") ))}}
-
-          {{!-- Encumbrance Capacity Box --}}
-          {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.VehicleEncumbranceCapacity" fields=(array (object name="data.stats.encumbrance.max" value=data.stats.encumbrance.max type="Number" label="SWFFG.Threshold" disabled=disabled) (object name="data.stats.encumbrance.value" value=data.stats.encumbrance.value type="Number" label="SWFFG.Current") ))}}
-        </div>
-      </div>
+<section class="ffg-vehicle-stats ffg-vehicle-technical ffg-vehicle-dashboard-row dashboard-row-1"><div class="ffg-vehicle-stat-grid">
+<article class="ffg-vehicle-stat simple"><h3>{{localize "SWFFG.VehicleArmor"}}</h3><label><input type="text" name="data.stats.armour.value" value="{{data.stats.armour.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleArmor"}}" {{#if disabled}}disabled{{/if}}/></label></article>
+<article class="ffg-vehicle-stat simple"><h3>{{localize "SWFFG.VehicleSilhouette"}}</h3><label><input type="text" name="data.stats.silhouette.value" value="{{data.stats.silhouette.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleSilhouette"}}" {{#if disabled}}disabled{{/if}}/></label></article>
+<article class="ffg-vehicle-stat simple"><h3>{{localize "SWFFG.VehicleHandling"}}</h3><label><input type="text" name="data.stats.handling.value" value="{{data.stats.handling.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleHandling"}}" {{#if disabled}}disabled{{/if}}/></label></article>
+<article class="ffg-vehicle-stat technical-card single-value"><h3>{{localize "SWFFG.VehicleHardPoints"}}</h3><label><input type="text" name="data.stats.customizationHardPoints.value" value="{{data.stats.customizationHardPoints.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleHardPoints"}}" {{#if disabled}}disabled{{/if}}/></label></article>
+<article class="ffg-vehicle-stat technical-card single-value"><h3>{{localize "SWFFG.VehiclePassengerCapacity"}}</h3><label><input type="text" name="data.stats.passengerCapacity.value" value="{{data.stats.passengerCapacity.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehiclePassengerCapacity"}}" {{#if disabled}}disabled{{/if}}/></label></article>
+</div></section>
+<section class="ffg-vehicle-stats ffg-vehicle-technical ffg-vehicle-dashboard-row dashboard-row-2"><div class="ffg-vehicle-stat-grid">
+<article class="ffg-vehicle-stat paired"><h3>{{localize "SWFFG.VehicleSpeed"}}</h3><div class="ffg-vehicle-stat-values">
+<label><span>{{localize "SWFFG.Threshold"}}</span><input type="text" name="data.stats.speed.max" value="{{data.stats.speed.max}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleSpeed"}} - {{localize "SWFFG.Threshold"}}" {{#if disabled}}disabled{{/if}}/></label>
+<label><span>{{localize "SWFFG.Current"}}</span><input type="text" name="data.stats.speed.value" value="{{data.stats.speed.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleSpeed"}} - {{localize "SWFFG.Current"}}" /></label>
+</div></article>
+<article class="ffg-vehicle-stat paired"><h3>{{localize "SWFFG.VehicleHullTrauma"}}</h3><div class="ffg-vehicle-stat-values">
+<label><span>{{localize "SWFFG.Threshold"}}</span><input type="text" name="data.stats.hullTrauma.max" value="{{data.stats.hullTrauma.max}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleHullTrauma"}} - {{localize "SWFFG.Threshold"}}" {{#if disabled}}disabled{{/if}}/></label>
+<label><span>{{localize "SWFFG.Current"}}</span><input type="text" name="data.stats.hullTrauma.value" value="{{data.stats.hullTrauma.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleHullTrauma"}} - {{localize "SWFFG.Current"}}" /></label>
+</div></article>
+<article class="ffg-vehicle-stat paired"><h3>{{localize "SWFFG.VehicleHullStrain"}}</h3><div class="ffg-vehicle-stat-values">
+<label><span>{{localize "SWFFG.Threshold"}}</span><input type="text" name="data.stats.systemStrain.max" value="{{data.stats.systemStrain.max}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleHullStrain"}} - {{localize "SWFFG.Threshold"}}" {{#if disabled}}disabled{{/if}}/></label>
+<label><span>{{localize "SWFFG.Current"}}</span><input type="text" name="data.stats.systemStrain.value" value="{{data.stats.systemStrain.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleHullStrain"}} - {{localize "SWFFG.Current"}}" /></label>
+</div></article>
+{{#if (or (eq actor.flags.starwarsffg.config.enableHyperdrive undefined) (eq actor.flags.starwarsffg.config.enableHyperdrive true))}}
+<article class="ffg-vehicle-stat technical-card hyperdrive"><h3>{{localize "SWFFG.Hyperdrive"}}</h3><div class="ffg-vehicle-stat-values">
+<label><span>{{localize "SWFFG.HyperdrivePrimary"}}</span><input type="text" name="data.stats.hyperdrive.value" value="{{data.stats.hyperdrive.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.Hyperdrive"}} - {{localize "SWFFG.HyperdrivePrimary"}}" {{#if disabled}}disabled{{/if}}/></label>
+<label><span>{{localize "SWFFG.HyperdriveBackup"}}</span><input type="text" name="data.stats.hyperdrive.backup" value="{{data.stats.hyperdrive.backup}}" data-dtype="Number" aria-label="{{localize "SWFFG.Hyperdrive"}} - {{localize "SWFFG.HyperdriveBackup"}}" {{#if disabled}}disabled{{/if}}/></label>
+</div></article>
+{{/if}}
+</div></section>
+<section class="ffg-vehicle-stats ffg-vehicle-technical ffg-vehicle-dashboard-row dashboard-row-3"><div class="ffg-vehicle-stat-grid">
+<article class="ffg-vehicle-stat paired"><h3>{{localize "SWFFG.VehicleEncumbranceCapacity"}}</h3><div class="ffg-vehicle-stat-values">
+<label><span>{{localize "SWFFG.Threshold"}}</span><input type="text" name="data.stats.encumbrance.max" value="{{data.stats.encumbrance.max}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleEncumbranceCapacity"}} - {{localize "SWFFG.Threshold"}}" {{#if disabled}}disabled{{/if}}/></label>
+<label><span>{{localize "SWFFG.Current"}}</span><input type="text" name="data.stats.encumbrance.value" value="{{data.stats.encumbrance.value}}" data-dtype="Number" aria-label="{{localize "SWFFG.VehicleEncumbranceCapacity"}} - {{localize "SWFFG.Current"}}" /></label>
+</div></article>
+<article class="ffg-vehicle-stat technical-card consumables"><h3>{{localize "SWFFG.Consumables"}}</h3>
+<div class="ffg-consumables-columns">
+<div><label><span>Capacité max.</span><div class="ffg-consumables-quantity"><input type="number" min="0" step="any" name="data.stats.consumables.value" value="{{data.stats.consumables.value}}" data-dtype="Number" aria-label="Consommables - Capacité maximale" {{#if disabled}}disabled{{/if}}/>
+{{#if disabled}}<span class="ffg-consumables-unit locked">{{vehicleConsumables.unitLabel}}</span>{{else}}<select name="data.stats.consumables.duration" aria-label="Consommables - Unité de capacité">{{#each vehicleConsumables.units}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}
+</div></label><small>{{vehicleConsumables.capacityText}}</small></div>
+<div><label><span>Actuel</span><div class="ffg-consumables-quantity"><input type="number" min="0" max="{{vehicleConsumables.maxAmount}}" step="any" name="vehicleConsumablesAmount" value="{{vehicleConsumables.currentAmount}}" aria-label="Consommables - Réserve actuelle en {{vehicleConsumables.unitLabel}}" placeholder="À initialiser" {{#unless canEditConsumableStock}}disabled{{/unless}}/><span class="ffg-consumables-unit">{{vehicleConsumables.unitLabel}}</span></div></label><small>{{vehicleConsumables.currentText}}</small></div>
+</div>
+<input type="hidden" name="vehicleConsumablesRevision" value="{{vehicleConsumables.revision}}"/>
+{{#if vehicleConsumables.overCapacity}}<small class="ffg-consumables-warning">Réserve supérieure à la capacité maximale.</small>{{/if}}
+</article>
+<article class="ffg-vehicle-stat technical-card fuel-card"><h3>Carburant</h3><div class="ffg-vehicle-stat-values">
+<label><span>Seuil</span><input type="number" min="0" step="any" name="flags.starwarsffg.fuelCapacity" value="{{vehicleFuel.max}}" aria-label="Carburant - Capacité maximale en unités" {{#if disabled}}disabled{{/if}}/></label>
+<label><span>Actuel</span><input type="number" min="0" max="{{vehicleFuel.max}}" step="any" name="vehicleFuelCurrent" value="{{vehicleFuel.current}}" aria-label="Carburant - Réserve actuelle en unités" placeholder="?" {{#unless canEditConsumableStock}}disabled{{/unless}}/></label>
+</div><input type="hidden" name="vehicleFuelRevision" value="{{vehicleFuel.revision}}"/></article>
+{{#if (or (eq actor.flags.starwarsffg.config.enableSensors undefined) (eq actor.flags.starwarsffg.config.enableSensors true))}}
+<article class="ffg-vehicle-stat technical-card sensor-card"><h3>{{localize "SWFFG.VehicleSensorRange"}}</h3><label><select name="data.stats.sensorRange.value" {{#if disabled}}disabled{{/if}} aria-label="{{localize "SWFFG.VehicleSensorRange"}}">{{#selectFfg data.stats.sensorRange.value}}{{#each FFG.sensor_ranges}}<option value="{{#if (eq value undefined)}}{{_id}}{{else}}{{value}}{{/if}}">{{localize label}}{{name}}</option>{{/each}}{{/selectFfg}}</select></label></article>
+{{/if}}
+<article class="ffg-vehicle-stat technical-card"><h3>{{localize "SWFFG.VehicleNavicomputer"}}</h3><label class="toggle-value"><input type="checkbox" class="ranked-toggle" name="data.stats.navicomputer.value" {{#if disabled}}disabled{{/if}} data-dtype="Boolean" {{checked data.stats.navicomputer.value}} aria-label="{{localize "SWFFG.VehicleNavicomputer"}}"/></label></article>
+<article class="ffg-vehicle-stat technical-card"><h3>{{localize "SWFFG.VehicleDashboard.SpaceVehicle"}}</h3><label class="toggle-value"><input type="checkbox" class="ranked-toggle" name="data.spaceShip" {{#if disabled}}disabled{{/if}} data-dtype="Boolean" {{checked data.spaceShip}} aria-label="{{localize "SWFFG.VehicleDashboard.SpaceVehicle"}}"/></label></article>
+</div></section>
      {{/if}}
     </div>
   </header>
   {{#if limited}}{{else}}
   {{!-- Sheet Tab Navigation --}}
   {{> "systems/starwarsffg/templates/parts/shared/ffg-tabs.html" displayLimited=true limited=limited items=(array
-      (object tab="components" label="SWFFG.VehicleTabComponents" icon="fa-solid fa-cannon" cls=classType)
-      (object tab="crew" label="SWFFG.VehicleTabCrew" icon="fa-solid fa-person" cls=classType)
+      (object tab="components" label="SWFFG.VehicleTabComponents" icon="ffg-yt1300-icon" cls=classType)
       (object tab="items" label="SWFFG.VehicleTabCargo" icon="fas fa-toolbox" cls=classType)
-      (object tab="description" label="SWFFG.VehicleTabDescription" icon="fas fa-sticky-note" cls=classType)
-      (object tab="damage" label="SWFFG.CriticalDamage" icon="fas fa-exclamation-triangle" cls=classType)
-      (object tab="sources" label="SWFFG.TabSources" icon="fa-light fa-book-open-cover" cls=classType)
+      (object tab="description" label="SWFFG.VehicleOwners.Tab" icon="fa-light fa-book-open-cover" cls=classType)
+      (object tab="damage" label="SWFFG.VehicleCriticalDamageAndMalfunctions" icon="fas fa-exclamation-triangle" cls=classType)
+      (object tab="logbook" label="SWFFG.VehicleLogbook.Title" icon="fas fa-book" cls=classType)
       (object tab="tags" label="SWFFG.TabTags" icon="fa-sharp fa-regular fa-tags" cls=classType)
   )}}
   {{!-- Sheet Body --}}
   <section class="sheet-body vehicle">
     {{!-- Components Tab --}}
     <div class="tab components" data-group="primary" data-tab="components">
+      <section class="ffg-vehicle-maintenance" aria-label="{{localize 'SWFFG.VehicleMaintenance.Title'}}">
+        <label for="{{maintenanceInputId}}">{{localize "SWFFG.VehicleMaintenance.Title"}}</label>
+        <div class="ffg-vehicle-maintenance-amount"><input id="{{maintenanceInputId}}" type="number" name="vehicleMaintenanceAmount" min="0" max="1000000000000" step="0.01" value="{{vehicleMaintenance.amount}}" aria-label="{{localize 'SWFFG.VehicleMaintenance.Title'}}" title="{{localize 'SWFFG.VehicleMaintenance.Help'}}" {{#unless canEditVehicle}}disabled{{/unless}}/><span>{{localize "SWFFG.VehicleMaintenance.Credits"}}</span></div>
+        <input type="hidden" name="vehicleMaintenanceRevision" value="{{vehicleMaintenance.revision}}"/>
+        {{#if vehicleMaintenance.unpriced}}<small>{{localize "SWFFG.VehicleMaintenance.Unpriced"}}</small>{{/if}}
+      </section>
       {{> "systems/starwarsffg/templates/parts/actor/ffg-vehicle-weapon-attachments.html"}}
-    </div>
-
-    {{!-- Crew Tab --}}
-    <div class="tab crew" data-group="primary" data-tab="crew">
-      {{!-- Additional vehicle info --}}
-      <div class="container flex-group-center biography-values">
-        {{!-- Hyperdrive Box --}}
-        {{#if (or (eq actor.flags.starwarsffg.config.enableHyperdrive undefined) (eq actor.flags.starwarsffg.config.enableHyperdrive true) )}}
-          {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.Hyperdrive" fields=(array (object name="data.stats.hyperdrive.value" value=data.stats.hyperdrive.value type="Number" label="SWFFG.HyperdrivePrimary") (object name="data.stats.hyperdrive.backup" value=data.stats.hyperdrive.backup type="Number" label="SWFFG.HyperdriveBackup") ))}}
-        {{/if}}
-        {{!-- Hard Points Box --}}
-        {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.VehicleHardPoints" type="Number" name="data.stats.customizationHardPoints.value" value=data.stats.customizationHardPoints.value disabled=disabled)}}
-        {{!-- Passenger Capacity Box --}}
-        {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.VehiclePassengerCapacity" type="Number" name="data.stats.passengerCapacity.value" value=data.stats.passengerCapacity.value )}}
-        {{!-- Consumables Box --}}
-        {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.Consumables" fields=(array (object name="data.stats.consumables.value" value=data.stats.consumables.value type="Number" label="SWFFG.ConsumablesAmount") (object name="data.stats.consumables.duration" value=data.stats.consumables.duration type="String" label="SWFFG.ConsumablesDuration") ))}}
-      </div>
-      <div class="container flex-group-center biography-values">
-        {{!-- Sensor Range Box --}}
-        {{#if (or (eq actor.flags.starwarsffg.config.enableSensors undefined) (eq actor.flags.starwarsffg.config.enableSensors true) )}}
-          {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.VehicleSensorRange" type="Dropdown" name="data.stats.sensorRange.value" value=data.stats.sensorRange.value options=this.FFG.sensor_ranges)}}
-        {{/if}}
-
-        {{!-- Navicomputer Box --}}
-        {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.VehicleNavicomputer" type="Boolean" name="data.stats.navicomputer.value" value=data.stats.navicomputer.value)}}
-
-        {{!-- Vehicle type box --}}
-        {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="Space Vehicle" type="Boolean" name="data.spaceShip" value=data.spaceShip)}}
-      </div>
-
-      {{!-- Crew List --}}
       {{> "systems/starwarsffg/templates/parts/actor/ffg-vehicle-crew.html"}}
     </div>
 
@@ -154,26 +130,116 @@
       {{> "systems/starwarsffg/templates/parts/actor/ffg-vehicle-cargo.html"}}
     </div>
 
-    {{!-- Bio Tab --}}
-    <div class="tab biography active" data-group="primary" data-tab="description">
-      <div class="biography-editor">
-        {{editor data.enrichedBio target="system.biography" button=true editable=editable engine="prosemirror"}}
-      </div>
+    {{!-- Biography and references use the character basic-information layout. --}}
+    <div class="tab biography" data-group="primary" data-tab="description">
+      <section class="ffg-basic-table-block ffg-vehicle-owners" aria-label="{{localize 'SWFFG.VehicleOwners.Title'}}">
+        <table class="ffg-basic-table vehicle-owners-table">
+          <thead><tr><th scope="col">{{localize "SWFFG.VehicleOwners.Title"}}</th><th scope="col" class="ffg-basic-table-controls"></th></tr></thead>
+          <tbody>
+          {{#each vehicleOwners}}
+            <tr data-owner-uuid="{{uuid}}">
+              <td><div class="vehicle-owner-identity">
+              {{#if img}}<img src="{{img}}" alt="" loading="lazy"/>{{/if}}
+              {{#if canOpen}}<a data-owner-action="open" role="button" aria-label="{{localize 'SWFFG.VehicleOwners.Open'}} : {{name}}">{{name}}</a>{{else}}<span>{{name}}</span>{{/if}}
+              {{#if missing}}<small>{{localize "SWFFG.VehicleOwners.Missing"}}</small>{{/if}}
+              </div></td>
+              <td class="ffg-basic-table-controls">{{#if ../canEditVehicle}}<a data-owner-action="remove" role="button" aria-label="{{localize 'SWFFG.VehicleOwners.Remove'}} : {{name}}" title="{{localize 'SWFFG.VehicleOwners.Remove'}}"><i class="fas fa-trash"></i></a>{{/if}}</td>
+            </tr>
+          {{else}}
+            <tr><td colspan="2" class="vehicle-owners-empty">{{localize "SWFFG.VehicleOwners.DropHint"}}</td></tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </section>
+      <section class="ffg-basic-biography">
+        <h3>{{localize "SWFFG.VehicleTabDescription"}}</h3>
+        <div class="biography-editor popout-editor" data-target="system.biography" data-label="{{localize 'SWFFG.VehicleTabDescription'}}">
+          {{#if editable}}<button type="button" class="popout-editor-button" aria-label="{{localize 'SWFFG.VehicleTabDescription'}}"><i class="fas fa-edit"></i></button>{{/if}}
+          {{{data.enrichedBio}}}
+        </div>
+      </section>
+      {{#if data.hasLongDesc}}
+      <section class="ffg-basic-biography">
+        <h3>{{localize "SWFFG.LongDescription"}}</h3>
+        <div class="biography-editor popout-editor" data-target="system.longDesc" data-label="{{localize 'SWFFG.LongDescription'}}">
+          {{#if editable}}<button type="button" class="popout-editor-button" aria-label="{{localize 'SWFFG.LongDescription'}}"><i class="fas fa-edit"></i></button>{{/if}}
+          {{{data.enrichedLongDesc}}}
+        </div>
+      </section>
+      {{/if}}
+      <section class="ffg-basic-table-block">
+        <table class="ffg-basic-table">
+          <thead><tr>
+            <th scope="col">{{localize "SWFFG.Sources"}}</th>
+            <th scope="col" class="ffg-basic-table-controls"><a class="source-control" data-action="add" aria-label="{{localize 'SWFFG.Sources'}}"><i class="fa-light fa-square-plus"></i></a></th>
+          </tr></thead>
+          <tbody>
+            {{#each data.metadata.sources}}
+            <tr><td>{{this}}</td><td class="ffg-basic-table-controls"><a class="source-control" data-action="remove" data-index="{{@index}}" title="Remove Source"><i class="fas fa-trash"></i></a></td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </section>
     </div>
 
     {{!-- Critical Damage Tab --}}
     <div class="tab damage" data-group="primary" data-tab="damage">
       {{> "systems/starwarsffg/templates/parts/actor/ffg-criticalinjury.html" type="criticaldamage"}}
-    </div>
-
-    {{!-- Long Description and Sources Tab --}}
-    <div class="tab sources" data-group="primary" data-tab="sources">
-      {{> "systems/starwarsffg/templates/parts/shared/ffg-sources.html" data=data}}
+      <section class="ffg-basic-table-block ffg-vehicle-malfunctions" aria-label="{{localize 'SWFFG.VehicleMalfunctions.Title'}}">
+        <table class="ffg-basic-table">
+          <thead>
+            <tr><th colspan="4">{{localize "SWFFG.VehicleMalfunctions.Title"}}</th><th class="ffg-basic-table-controls">{{#if canEditVehicle}}<a role="button" data-action="vehicleMalfunction" data-malfunction-action="roll" title="{{localize 'SWFFG.VehicleMalfunctions.RollCheck'}}" aria-label="{{localize 'SWFFG.VehicleMalfunctions.RollCheck'}}"><i class="fas fa-dice-d20"></i></a> <a role="button" data-action="vehicleMalfunction" data-malfunction-action="add" title="{{localize 'SWFFG.VehicleMalfunctions.Add'}}" aria-label="{{localize 'SWFFG.VehicleMalfunctions.Add'}}"><i class="fas fa-plus"></i></a>{{/if}}</th></tr>
+            <tr class="vehicle-malfunction-columns"><th>{{localize "SWFFG.VehicleMalfunctions.Result"}}</th><th>{{localize "SWFFG.VehicleMalfunctions.Roll"}}</th><th>{{localize "SWFFG.VehicleMalfunctions.Effect"}}</th><th>{{localize "SWFFG.VehicleMalfunctions.RepairCost"}}</th><th></th></tr>
+          </thead>
+          <tbody>
+            {{#each vehicleMalfunctions}}
+            <tr data-malfunction-id="{{id}}"><td><strong>{{title}}</strong></td><td class="vehicle-malfunction-roll">{{totalLabel}}</td><td class="vehicle-malfunction-description">{{{descriptionHTML}}}</td><td class="vehicle-malfunction-repair">{{repairLabel}}</td><td class="ffg-basic-table-controls">{{#if ../canEditVehicle}}<a role="button" data-action="vehicleMalfunction" data-malfunction-action="remove" title="{{localize 'SWFFG.VehicleMalfunctions.Remove'}}" aria-label="{{localize 'SWFFG.VehicleMalfunctions.Remove'}} - {{title}}"><i class="fas fa-trash"></i></a>{{/if}}</td></tr>
+            {{else}}
+            <tr><td colspan="5" class="vehicle-malfunction-empty">{{localize "SWFFG.VehicleMalfunctions.Empty"}}</td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </section>
     </div>
 
     {{!-- Tags Tab --}}
+    <div class="tab logbook" data-group="primary" data-tab="logbook">
+      <section class="ffg-basic-table-block ffg-vehicle-logbook" aria-label="{{localize 'SWFFG.VehicleLogbook.Title'}}">
+        <div class="vehicle-logbook-scroll">
+        <table class="ffg-basic-table vehicle-journeys-table">
+          <thead>
+            <tr><th colspan="6">{{localize "SWFFG.VehicleLogbook.Journeys"}}</th><th class="ffg-basic-table-controls">{{#if canEditVehicle}}<a role="button" data-logbook-action="add" aria-label="{{localize 'SWFFG.VehicleLogbook.Add'}}" title="{{localize 'SWFFG.VehicleLogbook.Add'}}"><i class="fas fa-plus"></i></a>{{/if}}</th></tr>
+            <tr class="vehicle-logbook-columns"><th>{{localize "SWFFG.VehicleLogbook.Date"}}</th><th>{{localize "SWFFG.VehicleLogbook.From"}}</th><th>{{localize "SWFFG.VehicleLogbook.To"}}</th><th>{{localize "SWFFG.VehicleLogbook.Navigator"}}</th><th>{{localize "SWFFG.VehicleLogbook.Duration"}}</th><th>{{localize "SWFFG.VehicleLogbook.Status"}}</th><th></th></tr>
+          </thead>
+          <tbody>
+          {{#each vehicleJourneys}}
+            <tr data-journey-id="{{id}}">
+              <td>{{dateLabel}}</td><td>{{from}}</td><td>{{to}}</td><td>{{navigator}}</td><td class="journey-duration">{{hoursLabel}}</td><td>{{statusLabel}}{{#unless automatic}}<small>{{localize "SWFFG.VehicleLogbook.Manual"}}</small>{{/unless}}</td>
+              <td class="vehicle-logbook-actions"><a role="button" data-logbook-action="view" title="{{localize 'SWFFG.VehicleLogbook.View'}}" aria-label="{{localize 'SWFFG.VehicleLogbook.View'}} : {{from}} - {{to}}"><i class="fas fa-eye"></i></a>{{#if canEdit}}<a role="button" data-logbook-action="edit" title="{{localize 'SWFFG.VehicleLogbook.Edit'}}" aria-label="{{localize 'SWFFG.VehicleLogbook.Edit'}} : {{from}} - {{to}}"><i class="fas fa-edit"></i></a>{{/if}}{{#if canDelete}}<a role="button" data-logbook-action="delete" title="{{localize 'SWFFG.VehicleLogbook.Delete'}}" aria-label="{{localize 'SWFFG.VehicleLogbook.Delete'}} : {{from}} - {{to}}"><i class="fas fa-trash"></i></a>{{/if}}</td>
+            </tr>
+          {{else}}
+            <tr><td colspan="7" class="vehicle-logbook-empty">{{localize "SWFFG.VehicleLogbook.Empty"}}</td></tr>
+          {{/each}}
+          </tbody>
+        </table>
+        </div>
+      </section>
+    </div>
+
     <div class="tab tags" data-group="primary" data-tab="tags">
-      {{> "systems/starwarsffg/templates/parts/shared/ffg-tags.html" data=data}}
+      <section class="ffg-basic-table-block">
+        <table class="ffg-basic-table">
+          <thead><tr>
+            <th scope="col">{{localize "SWFFG.TabTags"}} <span data-tooltip="{{localize 'SWFFG.Meta.Tags.AddTag.Helper'}}" data-tooltip-direction="DOWN"><i class="fa-regular fa-circle-question"></i></span></th>
+            <th scope="col" class="ffg-basic-table-controls"><a class="tag-control" data-action="add" aria-label="{{localize 'SWFFG.TabTags'}}"><i class="fa-light fa-square-plus"></i></a></th>
+          </tr></thead>
+          <tbody>
+            {{#each data.metadata.tags}}
+            <tr><td>{{this}}</td><td class="ffg-basic-table-controls"><a class="tag-control" data-action="remove" data-index="{{@index}}" title="Remove Tag"><i class="fas fa-trash"></i></a></td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </section>
     </div>
   </section>
   {{/if}}

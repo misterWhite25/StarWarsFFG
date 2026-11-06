@@ -1,78 +1,19 @@
+import SheetOptions from '../applications/sheet-options.js';
 
-const { DialogV2 } = foundry.applications.api;
+export default class ActorOptions extends SheetOptions {
+  static sheetLabel = 'SWFFG.CharacterSheet';
 
-async function renderOptionsContent(options) {
-  const content = document.createElement("div");
-  content.innerHTML = await foundry.applications.handlebars.renderTemplate(
-    "systems/starwarsffg/templates/dialogs/ffg-sheet-options.html",
-    {options},
-  );
-  return content;
-}
-
-export default class ActorOptions {
-  constructor(data) {
-    this.data = data;
-    this.options = {};
-    this.suspended = {};
+  optionValue(name, fallback) {
+    return name === 'enableEditMode' ? Boolean(this.data._manualEditMode) : super.optionValue(name, fallback);
   }
 
-  async handler() {
-    const title = `${game.i18n.localize("SWFFG.CharacterSheet")} ${game.i18n.localize("SWFFG.Options")}: ${this.data.actor.name}`;
-    await DialogV2.wait({
-      window: {title},
-      classes: ["starwarsffg"],
-      content: await renderOptionsContent(this.options),
-      buttons: [{
-        action: "accept",
-        icon: "fas fa-check",
-        label: game.i18n.localize("SWFFG.ButtonAccept"),
-        default: true,
-        callback: async (_event, _button, dialog) => {
-          const controls = $(dialog.element).find("input, select");
-          const updateObject = {};
-
-          for (const control of controls) {
-            const value = control.dataset.dtype === "Boolean" ? control.checked : control.value;
-            updateObject[`flags.starwarsffg.${control.name}`] = value;
-            this.options[control.id].value = value;
-          }
-
-          this.data._manualEditMode = Boolean(updateObject["flags.starwarsffg.config.enableEditMode"]);
-          delete updateObject["flags.starwarsffg.config.enableEditMode"];
-          delete updateObject["flags.starwarsffg.config.editModeActor"];
-
-          await this.data.object.update(updateObject);
-          this.data.object.sheet.render(true);
-        },
-      }, {
-        action: "cancel",
-        icon: "fas fa-times",
-        label: game.i18n.localize("SWFFG.Cancel"),
-        type: "button",
-      }],
-    });
-  }
-
-  async register(optionName, options) {
-    if (!this.options[optionName]) this.options[optionName] = {...options};
-    if (typeof this.data.object.flags?.starwarsffg?.config === "undefined") {
-      await this.data.object.setFlag("starwarsffg", "config", {});
-    }
-    this.options[optionName].value = this.data.object.flags?.starwarsffg?.config[optionName]
-      ?? this.options[optionName].default;
-    if (optionName === "enableEditMode") this.options[optionName].value = Boolean(this.data._manualEditMode);
-  }
-
-  registerMany(optionsArray) {
-    optionsArray.forEach(option => this.register(option.name, option.options));
-  }
-
-  unregister(optionName) {
-    delete this.options[optionName];
-  }
-
-  clear() {
-    this.options = {};
+  async save(changes) {
+    const previousMode = Boolean(this.data._manualEditMode);
+    this.data._manualEditMode = Boolean(changes['flags.starwarsffg.config.enableEditMode']);
+    delete changes['flags.starwarsffg.config.enableEditMode'];
+    delete changes['flags.starwarsffg.config.editModeActor'];
+    const saved = await this.updateFlags(this.data.object, changes);
+    // A document update refreshes its sheets. A local edit-mode change has no such event.
+    if (!saved && previousMode !== this.data._manualEditMode) await this.data.object.sheet.render(false);
   }
 }

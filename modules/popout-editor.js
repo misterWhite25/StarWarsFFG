@@ -1,3 +1,4 @@
+import {normalizeBoldTags} from './helpers/legacy-text-format.js';
 import { FormApplicationV2 } from "./applications/form-application-v2.js";
 import {migrateDataToSystem} from "./helpers/migration.js";
 
@@ -59,7 +60,7 @@ export default class PopoutEditor extends FormApplicationV2 {
    * @param  {String} string
    */
   static async renderDiceImages(str, actorData) {
-    let html = str || "";
+    let html = normalizeBoldTags(str);
 
     html = this.replaceRollTags(html, actorData);
     try {

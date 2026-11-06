@@ -1,3 +1,4 @@
+import {prepareInitiativeParticipants, initiativeIdentity, revalidateInitiativeParticipant, initiativeSkipSummary} from './helpers/initiative-participants.js';
 import { LegacyDialogV2 } from "./applications/legacy-dialog-v2.js";
 
 const { DialogV2 } = foundry.applications.api;
@@ -172,7 +173,12 @@ export class CombatFFG extends Combat {
 
   /** @override */
   async rollInitiative(initialIds, { formula = null, updateTurn = true, messageOptions = {} } = {}) {
-    let ids = initialIds;
+    const plan = prepareInitiativeParticipants(this, initialIds);
+    let ids = plan.selected.map(c => c.id);
+    const identities = new Map(plan.selected.map(c => [c.id, initiativeIdentity(c)]));
+    const skipped = [...plan.skipped];
+    const reportSkipped = () => {if(skipped.length)ui.notifications.warn(initiativeSkipSummary(skipped,game.i18n.lang==='fr'));};
+    if(!ids.length){reportSkipped();return this;}
     let initiative = this;
 
       const id = foundry.utils.randomID();
@@ -189,10 +195,7 @@ export class CombatFFG extends Combat {
       } else {
         // Make sure we are dealing with an array of ids
         ids = typeof ids === "string" ? [ids] : ids;
-        const c = initiative.getCombatantByToken(
-            initiative.combatants.map(combatant => combatant)
-            .filter(combatantData => combatantData._id == ids[0])[0]
-            .tokenId);
+        const c = initiative.combatants.get(ids[0]);
         //const data = c.actor.system;
         const data = _findActorForInitiative(c);
         whosInitiative = c.actor.name;
@@ -250,95 +253,55 @@ export class CombatFFG extends Combat {
             icon: '<i class="fas fa-check"></i>',
             label: game.i18n.localize("SWFFG.InitiativeRoll"),
             callback: async () => {
-              const container = document.getElementById(id);
-              const currentId = initiative.combatant?.id;
-
-              const baseFormulaType = container.querySelector('input[name="skill"]:checked').value;
-
-              // Iterate over Combatants, performing an initiative roll for each
-              const [updates, messages] = await ids.reduce(
-                async (results, id, i) => {
-                  let [updates, messages] = await results;
-                  // Get Combatant data
-                  const c = initiative.getCombatantByToken(
-                    initiative.combatants.map(combatant => combatant)
-                    .filter(combatantData => combatantData._id == id)[0]
-                    .tokenId);
-                  if (!c || !c.isOwner) return resolve(results);
-
-                  // Detemine Formula
-                  const data = _findActorForInitiative(c);
-                  let pool = _buildInitiativePool(data, baseFormulaType);
-
-                  const addPool = DicePoolFFG.fromContainer(container.querySelector(`.addDicePool`));
-                  pool.success += +addPool.success;
-                  pool.advantage += +addPool.advantage;
-                  pool.failure += +addPool.failure;
-                  pool.threat += +addPool.threat;
-                  pool.boost += +addPool.boost;
-                  pool.setback += +addPool.setback;
-                  pool.force = +addPool.force;
-                  pool.upgrade(addPool.upgrades)
-
-                  const rollData = c.actor ? c.actor.getRollData() : {};
-                  let roll = await new RollFFG(pool.renderDiceExpression(), rollData, { success: pool.success, advantage: pool.advantage, failure: pool.failure, threat: pool.threat }).roll();
-                  const total = roll.ffg.success + roll.ffg.advantage * 0.01;
-                  roll._result = total;
-                  roll._total = total;
-
-                  // Roll initiative
-                  updates.push({ _id: id, initiative: roll.total });
-
-                  // Determine the roll mode
-                  let messageMode = getMessageMode(messageOptions);
-                  if ((c.token.hidden || c.hidden) && ["public", "ic"].includes(messageMode)) messageMode = "gm";
-
-                  // Construct chat message data
-                  let messageData = foundry.utils.mergeObject(
-                    {
-                      speaker: {
-                        scene: canvas.scene.id,
-                        actor: c.actor ? c.actor.id : null,
-                        token: c.token.id,
-                        alias: c.token.name,
-                      },
-                      flavor: `${c.token.name} ${game.i18n.localize("SWFFG.InitiativeRoll")} (${game.i18n.localize(`SWFFG.SkillsName${baseFormulaType.replace(/[: ]/g, "")}`)})`,
-                      flags: { "core.initiativeRoll": true },
-                    },
-                    messageOptions
-                  );
-                  const chatData = await roll.toMessage(messageData, { create: false, messageMode });
-
-                  // Play 1 sound for the whole rolled set
-                  if (i > 0) chatData.sound = null;
-                  messages.push(chatData);
-
-                  // Return the Roll and the chat data
-                  return results;
-                },
-                [[], []]
-              );
-              if (!updates.length) return resolve(initiative);
-
-              // Update multiple combatants
-              await initiative.updateEmbeddedDocuments("Combatant", updates);
-
-              // Ensure the turn order remains with the same combatant if there was one active
-              if (updateTurn && !!currentId) {
-                await initiative.update({ turn: initiative.turns.findIndex((t) => t.id === currentId) });
-              }
-
-              // Create multiple chat messages
-              await CONFIG.ChatMessage.documentClass.create(messages);
-
-              resolve(initiative);
+              try {
+                const container = document.getElementById(id);
+                const currentId = initiative.combatant?.id;
+                const baseFormulaType = container.querySelector('input[name="skill"]:checked')?.value;
+                if(!baseFormulaType)throw Error(game.i18n.lang==='fr'?'Choisis la compétence d’initiative.':'Choose the initiative skill.');
+                const prepared=[];
+                for(const combatantId of ids) {
+                  const checked=revalidateInitiativeParticipant(initiative,combatantId,identities.get(combatantId));
+                  if(!checked.combatant){skipped.push({id:combatantId,reason:checked.reason});continue;}
+                  const c=checked.combatant;
+                  try {
+                    const data=_findActorForInitiative(c),pool=_buildInitiativePool(data,baseFormulaType);
+                    const addPool=DicePoolFFG.fromContainer(container.querySelector('.addDicePool'));
+                    for(const name of ['success','advantage','failure','threat','boost','setback'])pool[name]+=Number(addPool[name]);
+                    pool.force=Number(addPool.force);pool.upgrade(addPool.upgrades);
+                    const roll=await new RollFFG(pool.renderDiceExpression(),c.actor.getRollData(),{success:pool.success,advantage:pool.advantage,failure:pool.failure,threat:pool.threat}).roll();
+                    roll._result=roll._total=roll.ffg.success+roll.ffg.advantage*0.01;
+                    const stillValid=revalidateInitiativeParticipant(initiative,combatantId,identities.get(combatantId));
+                    if(!stillValid.combatant){skipped.push({id:combatantId,reason:stillValid.reason});continue;}
+                    let messageMode=getMessageMode(messageOptions);
+                    if((c.token.hidden||c.hidden)&&['public','ic'].includes(messageMode))messageMode='gm';
+                    const messageData=foundry.utils.mergeObject({speaker:{scene:c.token.parent?.id??initiative.scene?.id,actor:c.actor.id,token:c.token.id,alias:c.token.name},flavor:`${c.token.name} ${game.i18n.localize('SWFFG.InitiativeRoll')} (${game.i18n.localize(`SWFFG.SkillsName${baseFormulaType.replace(/[: ]/g,'')}`)})`,flags:{'core.initiativeRoll':true}},messageOptions);
+                    const chatData=await roll.toMessage(messageData,{create:false,messageMode});
+                    prepared.push({id:combatantId,initiative:roll.total,chatData});
+                  } catch(error) {CONFIG.logger.warn('Initiative roll failed',error);skipped.push({id:combatantId,reason:'failed'});}
+                }
+                // Revalidate every prepared result immediately before the grouped write.
+                const ready=prepared.filter(entry=>{const check=revalidateInitiativeParticipant(initiative,entry.id,identities.get(entry.id));if(check.combatant)return true;skipped.push({id:entry.id,reason:check.reason});return false;});
+                if(!ready.length){reportSkipped();return resolve(initiative);}
+                await initiative.updateEmbeddedDocuments('Combatant',ready.map(entry=>({_id:entry.id,initiative:entry.initiative})));
+                if(updateTurn&&currentId){const turn=initiative.turns.findIndex(t=>t.id===currentId);if(turn>=0)await initiative.update({turn});}
+                // No public message for a now-hidden participant; no message for a removed/replaced one.
+                const messages=[];
+                for(const entry of ready){const check=revalidateInitiativeParticipant(initiative,entry.id,identities.get(entry.id));if(!check.combatant){skipped.push({id:entry.id,reason:check.reason});continue;}
+                  if((check.combatant.hidden||check.combatant.token.hidden)&&!entry.chatData.whisper?.length){entry.chatData.whisper=ChatMessage.getWhisperRecipients('GM').map(user=>user.id);}
+                  if(messages.length)entry.chatData.sound=null;messages.push(entry.chatData);
+                }
+                if(messages.length)await CONFIG.ChatMessage.documentClass.create(messages);
+                reportSkipped();resolve(initiative);
+              } catch(error) {ui.notifications.error(error.message);resolve(initiative);}
             },
           },
           two: {
             icon: '<i class="fas fa-times"></i>',
             label: game.i18n.localize("SWFFG.Cancel"),
+            callback: () => resolve(initiative),
           },
         },
+        close: () => resolve(initiative),
         }).render(true);
       });
   }

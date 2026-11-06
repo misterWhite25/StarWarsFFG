@@ -5,6 +5,13 @@
       <option value="Pilot" {{#iff rolesInUse 'contains' 'Pilot' }} selected{{/iff}}>{{localize "SWFFG.Crew.Roles.Pilot"}}</option>
       <option value="Co-Pilot" {{#iff rolesInUse 'contains' 'Co-Pilot' }} selected{{/iff}}>{{localize "SWFFG.WeaponCrew.copilot"}}</option>
     </optgroup>
+    {{#if weapons}}
+    <optgroup label="{{localize 'SWFFG.Crew.WeaponAssignment.Weapons'}}">
+      {{#each weapons as |weapon|}}
+      <option value="{{weapon.value}}" {{#if weapon.selected}}selected{{/if}}>{{weapon.label}}</option>
+      {{/each}}
+    </optgroup>
+    {{/if}}
     <optgroup label="{{localize 'SWFFG.Crew.Role.Custom'}}">
       {{# each roles as |role| }}
         <option value="{{ role.role_name }}"{{#iff ../rolesInUse 'contains' role.role_name }} selected{{/iff}}>{{ role.role_name }}</option>

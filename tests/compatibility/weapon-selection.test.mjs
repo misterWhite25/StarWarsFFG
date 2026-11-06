@@ -40,7 +40,7 @@ test('no weapon is remembered too, deleted or incompatible weapons are ignored, 
 test('weapon selector includes Gunnery and matches owned weapons by skill',async()=>{
  const api=await load();
  for(const key of ['Lightsaber','Melee','Ranged: Light','Ranged: Heavy'])assert.equal(api.supportsWeaponSelection(key),true);
- assert.equal(api.supportsWeaponSelection('Gunnery'),true);assert.equal(api.supportsWeaponSelection('Brawl'),false);
+ assert.equal(api.supportsWeaponSelection('Gunnery'),true);assert.equal(api.supportsWeaponSelection('Brawl'),true);
  const gun={id:'gun',type:'weapon',system:{skill:{value:'Ranged: Light'}}};
  const actor={items:{contents:[gun,{type:'weapon',system:{skill:{value:'Melee'}}},{type:'gear',system:{skill:{value:'Ranged: Light'}}}]}};
  assert.equal(api.matchingWeapons(actor,'Ranged: Light').length,1);assert.equal(api.matchingWeapons(actor,'Ranged: Light')[0],gun);

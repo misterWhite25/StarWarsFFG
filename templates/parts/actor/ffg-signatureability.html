@@ -1,7 +1,8 @@
 {{#contains items "type" "signatureability"}}
 <ul class="talent-list">
   <li class="talents-header flexrow">
-    <div class="header-name">{{localize "SWFFG.SignatureAbility"}}</div>
+    <div class="header-name">{{#if sectionLabel}}{{localize sectionLabel}}{{else}}{{localize "SWFFG.SignatureAbility"}}{{/if}}</div>
+    {{#if alwaysShow}}<div class="item-controls"><a class="ffg-purchase" data-buy-action="signatureability" title="{{localize 'SWFFG.Actors.Sheets.Purchase.Tooltip.SignatureAbility'}}"><i class="fa-regular fa-circle-up"></i></a></div>{{/if}}
     <div></div>
     <div></div>
   </li>
@@ -37,4 +38,13 @@
     {{/iff}} {{/each}}
   </ul>
 </ul>
+{{else}}
+{{#if alwaysShow}}
+<ul class="items-list">
+  <li class="items-header flexrow">
+    <div class="header-name">{{#if sectionLabel}}{{localize sectionLabel}}{{else}}{{localize "SWFFG.SignatureAbility"}}{{/if}}</div>
+    {{#if alwaysShow}}<div class="item-controls"><a class="ffg-purchase" data-buy-action="signatureability" title="{{localize 'SWFFG.Actors.Sheets.Purchase.Tooltip.SignatureAbility'}}"><i class="fa-regular fa-circle-up"></i></a></div>{{/if}}
+  </li>
+</ul>
+{{/if}}
 {{/contains}}

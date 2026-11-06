@@ -1,3 +1,5 @@
+import {vehicleCrew} from '../helpers/crew-gunners.mjs';
+import {malfunctionNavigation} from '../helpers/vehicle-malfunction-engine.js';
 import CharacteristicIncrease from "../helpers/characteristic-increase.js";
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import { deleteDataField } from "../compatibility/data-operators.js";
@@ -15,12 +17,11 @@ import EmbeddedItemHelpers from "../helpers/embeddeditem-helpers.js";
 import EffectHelpers from "../helpers/effects.js";
 import {
   deregister_crew,
-  canCrewUseWeapon,
   hasWeaponCrewAccess,
   weaponCrewCandidates,
   crewStationWeapons,
   build_crew_roll,
-  updateRoles,
+  selectRoles,
   handlePilotCheck,
   buildPilotRoll
 } from "../helpers/crew.js";
@@ -83,6 +84,8 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         if (!itemData) return false;
       }
 
+      if(itemData.type==='talent'){const {configureTalentDrop}=await import('../helpers/reviewed-talent-ui.js');itemData=await configureTalentDrop(this.actor,itemData);if(!itemData)return false;}
+
       if (["character", "minion", "rival"].includes(this.actor.type) && ["itemmodifier", "itemattachment"].includes(itemData.type)) {
         ui.notifications.warn("You cannot add Item Modifiers or Attachments directly to actors.");
         return false;
@@ -113,7 +116,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         const {acquisitionNotice}=await import('../helpers/creation-guide.js');
           new LegacyDialogV2(
             {
-              title: payable?game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}):"Ajout — achat indisponible",
+              title: payable?game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}):"Ajout - achat indisponible",
               content: acquisitionNotice(this.actor,itemData,cost),
               buttons: {
                 purchase: {
@@ -241,6 +244,9 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       }
       if (this.actor.flags?.starwarsffg?.automaticStats?.enabled) actorData.system.stats = foundry.utils.deepClone(this.actor.system.stats);
     }
+    for(const path of this.actor._reviewedTalentPaths??[]){
+      if(path.endsWith('.careerskill'))foundry.utils.setProperty(actorData,path,true);
+    }
     data.actor = actorData;
     data.data = actorData.system;
     data.talentList = this.actor.talentList;
@@ -311,8 +317,10 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         // add the crew to the items of the vehicle
         data.crew = [];
         // look up the flag data
-        const crew = this.actor.getFlag('starwarsffg', 'crew');
-        if (crew) {
+        const crew = vehicleCrew(this.actor);
+        if (crew.length) {
+          const registeredRoles = game.settings.get('starwarsffg', 'arrayCrewRoles');
+          const navigation = malfunctionNavigation(this.actor);
           for (let i = 0; i < crew.length; i++) {
             try {
               // iterate over the crew members in the flag data
@@ -335,7 +343,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                 roll = 'N/A';
               }
               const pilotStation = crew[i].role === "Pilot" || crew[i].role === "Co-Pilot";
-              const stationWeapons = crewStationWeapons(this.actor, crew[i], game.settings.get("starwarsffg", "arrayCrewRoles"));
+              const stationWeapons = crewStationWeapons(this.actor, crew[i], registeredRoles, navigation);
               const gunneryRoll = actor && stationWeapons.length
                 ? get_dice_pool(crew[i].actor_id, "Gunnery", new DicePoolFFG({difficulty: 0})).renderPreview().innerHTML
                 : null;
@@ -348,6 +356,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                 'roll': roll,
                 'pilotRoll': pilotStation ? roll : null,
                 'gunneryRoll': gunneryRoll,
+                'assignedWeaponName': crew[i].weapon_id ? this.actor.items.get(crew[i].weapon_id)?.name : null,
                 'link': crew[i]?.link,
               });
             } catch {
@@ -417,9 +426,10 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    * Bind Star Wars FFG-specific listeners independently from the legacy
    * ApplicationV1 lifecycle so they can also be used by ActorSheetFFGV2.
    * @param {jQuery} html
+   * @param {object} [context] Prepared data for this render.
    * @returns {void}
    */
-  _activateFFGListeners(html) {
+  _activateFFGListeners(html, context) {
     // convert jquery element to HTMLElement for usage with Foundry calls
     const htmlElement = html.get(0);
 
@@ -448,10 +458,13 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     });
     html.find(".popout-editor .popout-editor-button").on("click", this._onPopoutEditor.bind(this));
 
-    // Setup dice pool image and hide filtered skills
-    html.find(".skill").each(async (_, elem) => {
-      await DiceHelpers.addSkillDicePool(await this.getData({}), elem);
-    });
+    // V2 supplies the context it just rendered. V1 listeners prepare it once for all rows.
+    const skills = html.find(".skill");
+    if (skills.length) {
+      const renderPools = data => Promise.all(Array.from(skills, row => DiceHelpers.addSkillDicePool(data, row)));
+      const previews = context ? renderPools(context) : this.getData({}).then(renderPools);
+      previews.catch(error => CONFIG.logger.error(error));
+    }
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -1059,7 +1072,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const crew_role = $(ev.currentTarget).parents(".item").data("role-name");
       const actor = this.actor;
 
-      deregister_crew(actor, crew_member_id, crew_role);
+      await deregister_crew(actor, crew_member_id, crew_role);
     });
 
     // Edit Crew
@@ -1068,41 +1081,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         return;
       }
       const crew_member_id = $(ev.currentTarget).parents(".item").data("actor-id");
-      const crew_member = game.actors.get(crew_member_id);
-      const registeredRoles = game.settings.get('starwarsffg', 'arrayCrewRoles');
-      const actor = this.actor;
-      const vehicleRoles = actor.getFlag('starwarsffg', 'crew');
-
-      const crewMemberRoles = vehicleRoles.filter(role => role.actor_id === crew_member_id);
-      const rolesInUse = crewMemberRoles.map(role => role.role);
-
-      const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/starwarsffg/templates/dialogs/ffg-crew-change.html",
-        {
-          actor: crew_member,
-          roles: registeredRoles,
-          rolesInUse: rolesInUse,
-        }
-      );
-
-      new LegacyDialogV2(
-        {
-          title: game.i18n.localize("SWFFG.Crew.Title"),
-          content: content,
-          buttons: {
-            confirm: {
-              label: game.i18n.localize("SWFFG.Crew.Role.Update"),
-              callback: async (html) => {
-                if(!this.actor.verifyEditModeIsNotEnabled()) {
-                  return;
-                }
-                const newRoles = html.find('[name="select-many-things"]').val();
-                await updateRoles(actor, crew_member_id, newRoles);
-              }
-            }
-          }
-        },
-      ).render(true);
+      await selectRoles(this.actor, crew_member_id);
     });
 
     html.find(".item-info").click((ev) => {
@@ -1251,7 +1230,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       event.preventDefault();
       event.stopPropagation();
       const row = event.currentTarget.closest(".item");
-      const member = (this.actor.getFlag("starwarsffg", "crew") ?? []).find(entry =>
+      const member = vehicleCrew(this.actor).find(entry =>
         entry.actor_id === row.dataset.actorId && entry.role === row.dataset.roleName);
       if (!member) return;
       const weapons = crewStationWeapons(this.actor, member, game.settings.get("starwarsffg", "arrayCrewRoles"));
@@ -1332,7 +1311,8 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if (role_info[0].use_weapons) {
         // build the dialog to select which weapon to use
         const weapons = {};
-        const raw_weapons = this.actor.items.filter(i => i.type === 'shipweapon' && canCrewUseWeapon(i, crew_role));
+        const station = vehicleCrew(this.actor).find(e => e.actor_id === crew_id && e.role === crew_role);
+        const raw_weapons = station ? crewStationWeapons(this.actor, station, registeredRoles) : [];
         if (!raw_weapons.length) {
           ui.notifications.warn(game.i18n.localize('SWFFG.WeaponCrew.NoWeapons'));
           return;
@@ -1342,19 +1322,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           weapons['weapon ' + i] = {
             icon: `<img src="${raw_weapons[i].img}" style="max-width: 24px; max-height: 24px">`,
             label: raw_weapons[i].name,
-            callback: async (_html) => {
-              const skill = raw_weapons[i].system.skill.value;
-              let pool = new DicePoolFFG({'difficulty': 2});
-              pool = get_dice_pool(crew_id, skill, pool);
-              pool = await DiceHelpers.getModifiers(pool, raw_weapons[i]);
-              await DiceHelpers.displayRollDialog(
-                crewSheet,
-                pool,
-                `${game.i18n.localize("SWFFG.Rolling")} ${skill}`,
-                skill,
-                foundry.utils.mergeObject(raw_weapons[i], card_data)
-              );
-            }
+            callback: () => this.vehicleCrewGunneryRoll(raw_weapons[i], raw_weapons[i].system.skill.value, station)
           }
         }
 
@@ -1392,19 +1360,16 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Weapon.Removed"));
         return;
       }
+      const navigation = malfunctionNavigation(ship);
+      if(navigation.disabledWeapons.includes(weapon.id)){ui.notifications.warn('Arme hors service : réparer son avarie.');return;}
       const weaponSkill = weapon.system.skill.value;
-      const crew = await ship.getFlag("starwarsffg", "crew");
+      const crew = vehicleCrew(ship);
       const skillRoles = game.settings.get("starwarsffg", "arrayCrewRoles").filter(role => role.role_skill === weaponSkill);
-      if (hasWeaponCrewAccess(weapon) && !weaponCrewCandidates(weapon, crew ?? [], skillRoles).length) {
+      const crewGunners = weaponCrewCandidates(weapon, crew, skillRoles, navigation);
+      if (hasWeaponCrewAccess(weapon) && !crewGunners.length) {
         ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoCrew"));
         return;
       }
-      // validate the vehicle has a crew and there is a role that matches the weapon skill
-      if (!crew || crew.length === 0) {
-        CONFIG.logger.warn("Could not find crew for vehicle or could not find relevant skill; presenting default roller");
-        return await DiceHelpers.rollSkill(this, event, null);
-      }
-      const crewGunners = weaponCrewCandidates(weapon, crew, skillRoles);
       if (crewGunners.length === 0) {
         CONFIG.logger.warn("Could not find crew for this skill type; presenting default roller");
         return await DiceHelpers.rollSkill(this, event, null);
@@ -1610,22 +1575,23 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    * @returns {Promise<void>}
    */
   async vehicleCrewGunneryRoll(weapon, weaponSkill, selectedGunner) {
-    const starting_pool = {'difficulty': 2};
-    const ship = this.actor;
-    const crewSheet = game.actors.get(selectedGunner.actor_id)?.sheet;
-    // create chat card data
-    const card_data = {
-      "crew": {
-        "name": ship.name,
-        "img": ship.img,
-        "crew_card": true,
-        "role": selectedGunner.role,
-      }
+    const malfunctions=malfunctionNavigation(this.actor);
+    if(malfunctions.disabledWeapons.includes(weapon.id)){ui.notifications.warn('Arme hors service : réparer son avarie.');return;}
+    const current = vehicleCrew(this.actor).find(e => e.actor_id === selectedGunner.actor_id && e.role === selectedGunner.role);
+    const roles = game.settings.get('starwarsffg', 'arrayCrewRoles').filter(role => role.role_skill === weaponSkill);
+    if (!current || !weaponCrewCandidates(weapon, [current], roles, malfunctions).length) {
+      ui.notifications.warn(game.i18n.localize('SWFFG.WeaponCrew.NoWeapons'));
+      return;
     }
+
+    const starting_pool = {'difficulty': 2, 'setback': malfunctions.weaponSetbacks[weapon.id]??0};
+    const crewSheet = game.actors.get(current.actor_id)?.sheet;
+    if (!crewSheet) return ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
+    const crew = {name: this.actor.name, img: this.actor.img, crew_card: true, role: current.role};
     // create the starting pool
     let pool = new DicePoolFFG(starting_pool);
     // update the pool with actor data
-    pool = get_dice_pool(selectedGunner.actor_id, weaponSkill, pool);
+    pool = get_dice_pool(current.actor_id, weaponSkill, pool);
     pool = await DiceHelpers.getModifiers(pool, weapon);
     // display the roll dialog
     await DiceHelpers.displayRollDialog(
@@ -1633,7 +1599,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       pool,
       `${game.i18n.localize("SWFFG.Rolling")} ${weaponSkill}`,
       weaponSkill,
-      foundry.utils.mergeObject(weapon, card_data)
+      weapon, undefined, undefined, null, {crew}
     );
   }
 
@@ -1651,9 +1617,39 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       let details = li.children(".item-details");
       details.slideUp(200, () => details.remove());
     } else {
-      let div = $(`<div class="item-details">${await PopoutEditor.renderDiceImages(itemDetails.description, this.actor)}</div>`);
-      let props = $(`<div class="item-properties"></div>`);
-      itemDetails.properties.forEach((p) => props.append(`<span class="tag">${p}</span>`));
+      const description = await PopoutEditor.renderDiceImages(itemDetails.description, this.actor);
+      const equipment = ['weapon', 'armour', 'armor', 'gear', 'shipweapon'].includes(item.type);
+      let div = $('<div class="item-details"></div>');
+      let props = $('<div class="item-properties"></div>');
+      if (equipment) {
+        div.addClass('ffg-equipment-details');
+        div.append($('<div class="ffg-equipment-details-description"></div>').html(description.replace(/\u2014/g, '-')));
+        const qualities = property => property.includes('<ul>');
+        const properties = [...itemDetails.properties.filter(p => !qualities(p)),
+          ...itemDetails.properties.filter(qualities)];
+        const encumbrance = properties.find(p => p.startsWith(`${game.i18n.localize('SWFFG.Encumbrance')}:`));
+        const rarity = properties.find(p => p.startsWith(`${game.i18n.localize('SWFFG.ItemsRarity')}:`));
+        let combined = false;
+        for (const property of properties) {
+          if (encumbrance && rarity && (property === encumbrance || property === rarity)) {
+            if (!combined) {
+              const row = $('<div class="tag ffg-equipment-compact-stats"></div>');
+              row.append($('<span></span>').html(encumbrance), $('<span></span>').html(rarity));
+              props.append(row);
+              combined = true;
+            }
+            continue;
+          }
+          const text = property.replace(/^Skill:\s*/, 'Compétence : ')
+            .replace(/<ul>([\s\S]*)<ul>/, '<ul>$1</ul>');
+          const tag = $('<div class="tag"></div>').html(text);
+          tag.find('ul > .item-pill-hover').each((_index, quality) => $(quality).wrap('<li></li>'));
+          props.append(tag);
+        }
+      } else {
+        div.html(description);
+        itemDetails.properties.forEach(p => props.append(`<span class="tag">${p}</span>`));
+      }
       div.append(props);
       li.append(div.hide());
       div.slideDown(200);

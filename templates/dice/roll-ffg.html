@@ -27,9 +27,9 @@
           {{/each}} {{/if}} {{/each}}
         </ol>
       </div>
-      <div>
+      <div class="ffg-added-results" style="display:flex;align-items:center;gap:10px;white-space:nowrap">
         {{#each addedResults}} {{#if (ne this.value 0)}}
-        <div>{{#if this.negative}}-{{else}}+{{/if}}{{this.value}}{{{this.symbol}}}</div>
+        <div class="ffg-added-result" style="display:inline-flex;align-items:center;gap:2px">{{#if this.negative}}-{{else}}+{{/if}}{{this.value}}{{{this.symbol}}}</div>
         {{/if}} {{/each}}
       </div>
     {{/if}}

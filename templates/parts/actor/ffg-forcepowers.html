@@ -2,7 +2,8 @@
 {{#if (or (eq actor.flags.starwarsffg.config.enableForcePool undefined) (eq actor.flags.starwarsffg.config.enableForcePool true) )}}
 <ul class="talent-list">
   <li class="talents-header flexrow">
-    <div class="header-name">{{localize "SWFFG.ForcePower"}}</div>
+    <div class="header-name">{{#if sectionLabel}}{{localize sectionLabel}}{{else}}{{localize "SWFFG.ForcePower"}}{{/if}}</div>
+    {{#if alwaysShow}}<div class="item-controls"><a class="ffg-purchase" data-buy-action="forcepower" title="{{localize 'SWFFG.Actors.Sheets.Purchase.Tooltip.ForcePower'}}"><i class="fa-regular fa-circle-up"></i></a></div>{{/if}}
     <div></div>
   </li>
 
@@ -45,5 +46,14 @@
     <input type="button" class="remove-force-powers" value="Remove Force Powers"/>
   </div>
 </div>
+{{/if}}
+{{else}}
+{{#if alwaysShow}}
+<ul class="items-list">
+  <li class="items-header flexrow">
+    <div class="header-name">{{#if sectionLabel}}{{localize sectionLabel}}{{else}}{{localize "SWFFG.ForcePower"}}{{/if}}</div>
+    {{#if alwaysShow}}<div class="item-controls"><a class="ffg-purchase" data-buy-action="forcepower" title="{{localize 'SWFFG.Actors.Sheets.Purchase.Tooltip.ForcePower'}}"><i class="fa-regular fa-circle-up"></i></a></div>{{/if}}
+  </li>
+</ul>
 {{/if}}
 {{/contains}}

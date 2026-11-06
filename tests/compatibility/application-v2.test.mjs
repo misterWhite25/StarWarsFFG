@@ -97,8 +97,7 @@ test("persisted field deletions use native V14 operators", async () => {
 
 test("simple system prompts use DialogV2 factory methods directly", async () => {
   for (const path of [
-    "modules/actors/actor-ffg-options.js",
-    "modules/items/item-ffg-options.js",
+    "modules/applications/sheet-options.js",
     "modules/helpers/crew.js",
     "modules/swffg-main.js",
   ]) {

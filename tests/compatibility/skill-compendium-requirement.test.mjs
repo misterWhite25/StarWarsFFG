@@ -20,3 +20,5 @@ for(const active of [null,false])test(`missing or disabled dependency opens info
  const {api,seen}=await load(new Map(active===null?[]:[['swffg-compendium-bilingual',{active}]]));const pool={ability:2,boost:1,difficulty:2};const builder={dicePool:pool,element:{getBoundingClientRect:()=>({left:100,top:30,width:350,right:450})},setPosition(){}};
  await api.openSkillInformation(builder);assert.equal(seen.descriptions,0);assert.equal(seen.tables,0);assert.equal(seen.dialogs.length,1);assert.match(seen.dialogs[0].content.innerHTML,/Compendium requis/);assert(seen.dialogs[0].classes.includes('themed'));assert(!seen.dialogs[0].classes.includes('theme-light'));assert(!seen.dialogs[0].classes.includes('theme-dark'));assert.deepEqual(pool,{ability:2,boost:1,difficulty:2});
 });
+
+test('split core_rule active replaces the disabled monolith for skill information',async()=>{const {api}=await load(new Map([['swffg-compendium-bilingual',{active:false}],['swffg-compendium-bilingual-steelers-core_rule',{active:true}]]));assert.equal(api.skillCompendiumRequirement(),null);});

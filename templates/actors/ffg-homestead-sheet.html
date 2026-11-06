@@ -18,13 +18,18 @@
   <section class="sheet-body homestead">
 
     {{!-- Biography Tab --}}
-    <div class="tab biography active" data-group="primary" data-tab="description">
+    <div class="tab homestead-description active" data-group="primary" data-tab="description">
+      <div class="ffg-homestead-resources">
+        <article class="ffg-homestead-card"><h3>{{localize "SWFFG.ItemsPrice"}}</h3>
+          <label><span>{{localize "SWFFG.Homestead.Credits"}}</span><input type="number" min="0" step="any" name="data.stats.cost.value" value="{{data.stats.cost.value}}" data-dtype="Number" aria-label="{{localize 'SWFFG.Homestead.PriceLabel'}}" {{#unless editable}}disabled{{/unless}}/></label>
+        </article>
+        <article class="ffg-homestead-card"><h3>{{localize "SWFFG.Consumables"}}</h3><div class="ffg-homestead-consumables">
+          <label><span>{{localize "SWFFG.ConsumablesAmount"}}</span><input type="number" min="0" step="any" name="data.stats.consumables.value" value="{{data.stats.consumables.value}}" data-dtype="Number" aria-label="{{localize 'SWFFG.Homestead.QuantityLabel'}}" {{#unless editable}}disabled{{/unless}}/></label>
+          <label><span>{{localize "SWFFG.ConsumablesDuration"}}</span><input type="text" name="data.stats.consumables.duration" value="{{data.stats.consumables.duration}}" placeholder="{{localize 'SWFFG.Homestead.DurationHint'}}" aria-label="{{localize 'SWFFG.Homestead.DurationLabel'}}" {{#unless editable}}disabled{{/unless}}/></label>
+        </div></article>
+      </div>
       <div class="biography-editor">
         {{editor data.biography target="system.biography" button=true owner=owner editable=editable engine="prosemirror"}}
-      </div>
-      <div class="container flex-group-center biography-values">
-        {{!-- Cost Box --}} {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.ItemsPrice" type="Number" name="data.stats.cost.value" value=data.stats.cost.value )}}
-        {{!-- Consumables Box --}} {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.Consumables" fields=(array (object name="data.stats.consumables.value" value=data.stats.consumables.value type="Number" label="SWFFG.ConsumablesAmount") (object name="data.stats.consumables.duration" value=data.stats.consumables.duration type="String" label="SWFFG.ConsumablesDuration") ))}}
       </div>
     </div>
 

@@ -148,11 +148,12 @@ export default class DiceHelpers {
 
   static async displayRollDialog(data, dicePool, description, skillName, item, flavorText, sound, weaponContext = null, rollChoices = {}) {
     const prepared = await prepareRememberedWeapon(weaponContext, item, dicePool);
-    item = prepared.item;
-    dicePool = prepared.pool;
-    const builder = new RollBuilderFFG(data, dicePool, description, skillName, item, flavorText, sound);
+    const builder = new RollBuilderFFG(data, prepared.pool, description, skillName, prepared.item, flavorText, sound);
     builder.weaponContext = weaponContext;
+    builder.roll.crew = rollChoices.crew ?? prepared.item?.crew;
     builder.roll.autoFire = Boolean(rollChoices.autoFire);
+    builder.roll.shotMode = rollChoices.shotMode;
+    builder.roll.shotRange = rollChoices.shotRange;
     if(['personal','vehicle'].includes(rollChoices.combatMode)) {
       builder.roll.combatMode=rollChoices.combatMode;
       builder._combatModeExplicit=true;
@@ -271,7 +272,7 @@ export default class DiceHelpers {
     const makePool = async (itemData = {}) => {
     const status = this.getWeaponStatus(itemData);
     if (!status) throw new Error(game.i18n.localize("SWFFG.ItemTooDamagedToUse"));
-    const defenseDice = this.getDefenseDice(skill, itemData);
+    const defenseDice = context.nonAttack ? 0 : this.getDefenseDice(skill, itemData);
     let dicePool = new DicePoolFFG({
       ability: Math.max(characteristic.value, skill.rank),
       boost: skill.boost,
@@ -296,7 +297,7 @@ export default class DiceHelpers {
     };
 
     const dicePool = await makePool({});
-    const weaponContext = actor && supportsWeaponSelection(skillKey, skill) ? {actor, skillKey, makePool} : null;
+    const weaponContext = !context.nonAttack && actor && supportsWeaponSelection(skillKey, skill) ? {actor, skillKey, makePool} : null;
     return this.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, {}, flavorText, sound, weaponContext);
   }
 

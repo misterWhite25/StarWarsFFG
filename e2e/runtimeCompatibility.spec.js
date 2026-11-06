@@ -352,3 +352,33 @@ test('runtime: destiny rolls and spending synchronize between player and GM', as
     await context.close();
   }
 });
+
+test('runtime: skill previews use one actor sheet context per render', async ({page}) => {
+  const results = await page.evaluate(async () => {
+    const actor = await game.ffg.ActorFFG.create({name:'Skill previews test',type:'character'}, {renderSheet:false});
+    const sheet = actor.sheet;
+    const prepare = sheet._prepareContext.bind(sheet);
+    let calls = 0;
+    sheet._prepareContext = (...args) => { calls++; return prepare(...args); };
+    try {
+      await actor.update({'system.characteristics.Brawn.value':3, 'system.skills.Athletics.rank':1});
+      const measurements = [];
+      for (let i = 0; i < 2; i++) {
+        const before = calls;
+        await sheet.render({force:true});
+        const pools = sheet.element.querySelectorAll('.skill[data-ability] .roll-button');
+        measurements.push({contexts:calls-before,rows:pools.length,hasDice:[...pools].some(pool=>pool.childElementCount>0)});
+      }
+      return measurements;
+    } finally {
+      delete sheet._prepareContext;
+      await sheet.close({animate:false});
+      await actor.delete();
+    }
+  });
+  for (const result of results) {
+    expect(result.contexts).toBe(1);
+    expect(result.rows).toBeGreaterThan(1);
+    expect(result.hasDice).toBe(true);
+  }
+});

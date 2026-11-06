@@ -20,19 +20,20 @@ async function openNeighbour(builder,title,html){
 }
 
 export function skillCompendiumRequirement(modules=game.modules){
-  const module=modules?.get('swffg-compendium-bilingual');
-  if(!module)return 'Pour afficher les informations de la compétence, il faut installer le compendium « Star Wars FFG — Compendium FR / EN », puis l’activer dans ce monde. Demandez au MJ de l’installer.';
-  if(module.active!==true)return 'Le compendium « Star Wars FFG — Compendium FR / EN » est installé mais désactivé. Le MJ doit l’activer dans la gestion des modules de ce monde pour afficher les informations de la compétence.';
+  const candidates=[modules?.get('swffg-compendium-bilingual-steelers-core_rule'),modules?.get('swffg-compendium-bilingual')];
+  const module=candidates.find(m=>m?.active===true)??candidates.find(Boolean);
+  if(!module)return 'Pour afficher les informations de la compétence, il faut installer le compendium « Star Wars FFG - Compendium FR / EN », puis l’activer dans ce monde. Demandez au MJ de l’installer.';
+  if(module.active!==true)return 'Le compendium « Star Wars FFG - Compendium FR / EN » est installé mais désactivé. Le MJ doit l’activer dans la gestion des modules de ce monde pour afficher les informations de la compétence.';
   return null;
 }
 
 export async function openSkillInformation(builder){
   const skill=skillDescriptor(builder);if(!skill)return;
   const requirement=skillCompendiumRequirement();
-  if(requirement)return openNeighbour(builder,`Informations — ${skill.label}`,`<h2>${escapeText(skill.label)}</h2><h3>Compendium requis</h3><p role="status">${escapeText(requirement)}</p>`);
+  if(requirement)return openNeighbour(builder,`Informations - ${skill.label}`,`<h2>${escapeText(skill.label)}</h2><h3>Compendium requis</h3><p role="status">${escapeText(requirement)}</p>`);
   const description=await skillDescription(skill);
   let html=`<h2>${escapeText(skill.label)}</h2><div class="skill-description-text">${await foundry.applications.ux.TextEditor.enrichHTML(description.html,{secrets:description.secrets===true})}</div>${description.source?`<p class="skill-description-source">${escapeText(description.source)}</p>`:''}`;
-  return openNeighbour(builder,`Informations — ${skill.label}`,html);
+  return openNeighbour(builder,`Informations - ${skill.label}`,html);
 }
 
 function skillTableIds(builder,skill){
@@ -52,13 +53,13 @@ export function hasSkillReferenceTables(builder){
 export async function openSkillReferences(builder){
   const skill=skillDescriptor(builder);if(!skill)return;
   const requirement=skillCompendiumRequirement();
-  if(requirement)return openNeighbour(builder,`Tables de références — ${skill.label}`,`<h2>${escapeText(skill.label)}</h2><h3>Compendium requis</h3><p role="status">${escapeText(requirement)}</p>`);
+  if(requirement)return openNeighbour(builder,`Tables de références - ${skill.label}`,`<h2>${escapeText(skill.label)}</h2><h3>Compendium requis</h3><p role="status">${escapeText(requirement)}</p>`);
   const ids=skillTableIds(builder,skill),pages=await referencePages(skill,ids);
   const order=[...ids];pages.sort((a,b)=>order.indexOf(a.name.split(' · ')[0])-order.indexOf(b.name.split(' · ')[0]));
   let html=`<h2>${escapeText(skill.label)}</h2>`;
   if(!pages.length)html+='<p>Aucun tableau de référence accessible pour cette compétence.</p>';
   for(const page of pages)html+=`<section data-reference-id="${escapeText(page.name.split(' · ')[0])}"><h4>${escapeText(page.name)}</h4>${await foundry.applications.ux.TextEditor.enrichHTML(page.text.content,{secrets:page.isOwner})}</section>`;
-  return openNeighbour(builder,`Tables de références — ${skill.label}`,html);
+  return openNeighbour(builder,`Tables de références - ${skill.label}`,html);
 }
 
 export function renderSkillInformation(builder, html) {
@@ -97,7 +98,7 @@ async function referencePages(skill,ids){
     }
   };
   for(const journal of game.journal)addJournal(journal);
-  for(const collection of ['swffg-compendium-bilingual.en-references-steelers','swffg-reference-tables-fr.references']){
+  for(const collection of ['swffg-compendium-bilingual-steelers-core_rule.en-references-steelers','swffg-compendium-bilingual.en-references-steelers','swffg-reference-tables-fr.references']){
   const pack=game.packs.get(collection);
   if(pack?.visible&&[...ids].some(id=>!seen.has(id))){
     const index=await pack.getIndex();

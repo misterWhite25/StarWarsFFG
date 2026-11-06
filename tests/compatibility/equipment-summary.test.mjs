@@ -19,6 +19,9 @@ test('summary hides imported bibliography and retains the real description',()=>
  assert.equal(equipmentDescription(text),'<p>Armure légère.</p>');
  assert.equal(equipmentDescription('<p><em>Source : Livre, p. 42.</em></p><p>Protection.</p>'),'<p>Protection.</p>');
  assert.equal(equipmentDescription('<p>Une source de lumière portable.</p>'),'<p>Une source de lumière portable.</p>');
+ assert.equal(equipmentDescription("<p>Encaissement 2 ; défense 1.</p><p>Références de l’import : Livre</p><p>Profil normalisé depuis le compendium. Les effets conditionnels sont à gérer en jeu.</p>"),'<p>Encaissement 2 ; défense 1.</p>');
+ assert.equal(equipmentDescription("<p>Portée courte.</p><p>Références bibliographiques de l'import : Livre</p><p><em>Profil repris du compendium et normalisé.</em></p>"),'<p>Portée courte.</p>');
+ assert.equal(equipmentDescription('<p>Profil bas : ajoutez [SE] aux tests adverses.</p>'),'<p>Profil bas : ajoutez [SE] aux tests adverses.</p>');
  assert.equal(equipmentDescription('<p><h3>Sources:</h3>Livre<br></p>'),'');
 });
 
@@ -33,9 +36,15 @@ test('summary reads quality names, ranks and descriptions from the current item 
  await module.namespace.showEquipmentSummary(sheet);
  const descendants=element=>[element,...element.children.flatMap(descendants)];
  assert.equal(reads,1);let nodes=descendants(sheet._equipmentSummary.options.content);
- assert(nodes.some(node=>node.textContent==='Précision — 2'));assert(nodes.some(node=>node.innerHTML==='<p>Bonus de Précision.</p>'));
+ assert(nodes.some(node=>node.textContent==='Précision - 2'));assert(nodes.some(node=>node.innerHTML==='<p>Bonus de Précision.</p>'));
+ const quality=nodes.find(node=>node.tag==='details');
+ assert(quality);assert(!quality.open);
+ assert.equal(quality.children[0].tag,'summary');
+ assert.equal(quality.children[0].children[0].textContent,'Précision - 2');
+ assert.equal(quality.children[1].innerHTML,'<p>Bonus de Précision.</p>');
+ assert.equal(quality.children[1].className,'ffg-equipment-description');
  weapon.sheet.getData=async()=>{reads++;return {data:{doNotSubmit:{qualities:[{name:'Précision',totalRanks:3,description:'<p>Bonus changé.</p>'}]}}};};
  await module.namespace.showEquipmentSummary(sheet,true);nodes=descendants(sheet._equipmentSummary.options.content);
- assert.equal(reads,2);assert(nodes.some(node=>node.textContent==='Précision — 3'));assert(nodes.some(node=>node.innerHTML==='<p>Bonus changé.</p>'));
+ assert.equal(reads,2);assert(nodes.some(node=>node.textContent==='Précision - 3'));assert(nodes.some(node=>node.innerHTML==='<p>Bonus changé.</p>'));
  assert.equal(weapon.system.doNotSubmit,undefined);
 });

@@ -1,3 +1,12 @@
+import { registerVehicleDirectory } from "./helpers/vehicle-directory.js";
+Hooks.once("init", registerVehicleDirectory);
+import { annotateNpcDirectory } from "./helpers/npc-directory-labels.js";
+import {registerSystemGuide,showSystemGuideAfterUpdate} from './helpers/system-guide.js';
+Hooks.once('init',registerSystemGuide);
+Hooks.once('ready',showSystemGuideAfterUpdate);
+import { talentActivationKey } from './helpers/talent-activation.js';
+import { renderCompendiumImagePreviews } from "./helpers/sheet-portrait.js";
+Hooks.on("renderCompendium", renderCompendiumImagePreviews);
 import { weaponQualityName } from "./helpers/weapon-selection.js";
 import { registerGMDifficulty, renderGMDifficultyButton } from "./helpers/gm-difficulty.js";
 Hooks.once("init", registerGMDifficulty);
@@ -901,6 +910,7 @@ Hooks.once("init", async function () {
 
   // Register Handlebars utilities
   Handlebars.registerHelper("json", JSON.stringify);
+  Handlebars.registerHelper("ffgTalentActivation", (value,label) => game.i18n.localize(talentActivationKey(value,label)));
   Handlebars.registerHelper("ffgQualityName", name => weaponQualityName(name,game.i18n.lang));
   Handlebars.registerHelper("ffgWeaponSuccessDamage", successes => weaponSuccessDamage(successes,tonioRulesEnabled()));
 
@@ -1068,6 +1078,7 @@ Hooks.on("renderChatInput", (app, _html, _data) => {
 });
 
 Hooks.on("renderActorDirectory", (app, html) => {
+  annotateNpcDirectory(app, html);
   if (app.id === "actors") {
     const wizardId = "ffgCharacterWizard";
     if (!document.querySelector(`#${wizardId}`)) {
@@ -1140,7 +1151,7 @@ Hooks.on("renderChatMessageHTML", async (message, element) => {
 
     const dicePool = new DicePoolFFG(poolData.dicePool);
 
-    DiceHelpers.displayRollDialog(poolData.roll.data, dicePool, poolData.description, poolData.roll.skillName, poolData.roll.item, poolData.roll.flavor, poolData.roll.sound, null, {autoFire:poolData.roll.autoFire,combatMode:poolData.roll.combatMode});
+    DiceHelpers.displayRollDialog(poolData.roll.data, dicePool, poolData.description, poolData.roll.skillName, poolData.roll.item, poolData.roll.flavor, poolData.roll.sound, null, {crew:poolData.roll.crew,autoFire:poolData.roll.autoFire,combatMode:poolData.roll.combatMode,shotMode:poolData.roll.shotMode,shotRange:poolData.roll.shotRange});
   });
 
   // collapse / expand item details
@@ -2002,3 +2013,5 @@ async function registerCrewRoles() {
 Hooks.on("renderChatMessageHTML", renderCombatActions);
 
 
+
+Hooks.once('ready',async()=>{const {installReviewedTalentHooks}=await import('./helpers/reviewed-talent-ui.js');installReviewedTalentHooks();});

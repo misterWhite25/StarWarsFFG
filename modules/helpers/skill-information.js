@@ -64,11 +64,11 @@ export async function skillDescription(skill){
   };
   for(const journal of game.journal){const result=fromJournal(journal);if(result)return result;}
   for(const pack of game.packs){
-    if(pack.documentName!=='JournalEntry'||!pack.visible||!(/skill|comp[eé]tence/i.test(pack.collection+' '+pack.metadata.label)||pack.collection==='swffg-compendium-bilingual.en-references-steelers'))continue;
+    if(pack.documentName!=='JournalEntry'||!pack.visible||!(/skill|comp[eé]tence/i.test(pack.collection+' '+pack.metadata.label)||['swffg-compendium-bilingual.en-references-steelers','swffg-compendium-bilingual-steelers-core_rule.en-references-steelers'].includes(pack.collection)))continue;
     const index=await pack.getIndex();const entry=index.find(entry=>matches(entry.name))??index.find(entry=>/^(Skills|Compétences)$/i.test(entry.name));
     if(entry){const result=fromJournal(await pack.getDocument(entry._id));if(result)return result;}
   }
   const summary=summaries[skill.key];
-  if(summary)return {html:`<p>${summary[1]}</p>`,source:summary[0]?`Résumé — Age of Rebellion, livre de base fourni, p. ${summary[0]}.`:'Descriptif abrégé du projet.'};
+  if(summary)return {html:`<p>${summary[1]}</p>`,source:summary[0]?`Résumé - Age of Rebellion, livre de base fourni, p. ${summary[0]}.`:'Descriptif abrégé du projet.'};
   return {html:'<p>La description de cette compétence n’a pas encore été renseignée.</p>',source:null};
 }

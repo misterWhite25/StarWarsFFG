@@ -50,3 +50,8 @@ test('ranged aliases do not expose private pages or confuse light and heavy weap
  const j={...journal('<p>Autre</p>'),name:'Compétences',pages:[{...page('<p>Texte privé</p>',false),name:'Distance (armes légères)'},{...page('<p>Armes lourdes seulement</p>'),name:'Distance (armes lourdes)'}]};
  const api=await load([j]);const result=await api.skillDescription({key:'Ranged: Light',label:'Armes légères',data:{}});assert(!result.html.includes('privé'));assert(!result.html.includes('lourdes seulement'));
 });
+
+test('reference text is found in the split core_rule pack without a Skills label',async()=>{
+ const pack={documentName:'JournalEntry',visible:true,collection:'swffg-compendium-bilingual-steelers-core_rule.en-references-steelers',metadata:{label:'Documents de référence'},getIndex:async()=>[{_id:'skills',name:'Skills'}],getDocument:async()=>journal('<p>Texte core_rule</p>')};
+ const api=await load([],[pack]);assert.equal((await api.skillDescription({key:'Medicine',label:'Médecine',data:{}})).html,'<p>Texte core_rule</p>');
+});
