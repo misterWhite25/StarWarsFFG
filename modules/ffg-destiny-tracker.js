@@ -1,0 +1,355 @@
+import { FormApplicationV2 } from "./applications/form-application-v2.js";
+import { DicePoolFFG } from "./dice/pool.js";
+
+/**
+ * A specialized form used to pop out the editor.
+ * @extends {FormApplication}
+ *
+ * OPTIONS:
+ *
+ *
+ */
+export default class DestinyTracker extends FormApplicationV2 {
+  constructor(object={}, options={}) {
+    super(object, options);
+
+    this.destinyQueue = [];
+    this.isRunningQueue = false;
+    if (options?.menu) {
+      this.menu = options.menu;
+    }
+  }
+
+  /** @override */
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      id: "destiny-tracker",
+      classes: ["starwarsffg"],
+      title: game.i18n.localize("SWFFG.UI.Root.DestinyTracker"),
+      // This HUD is anchored by CSS, independently of ApplicationV2 window positioning.
+      window: { frame: false, positioned: false },
+      template: "systems/starwarsffg/templates/ffg-destiny-tracker.html",
+    });
+  }
+
+  /** @override */
+  getData() {
+    // Get current value
+    let destinyPool = { light: game.settings.get("starwarsffg", "dPoolLight"), dark: game.settings.get("starwarsffg", "dPoolDark") };
+    let destinyPoolLabel = { light: game.settings.get("starwarsffg", "destiny-pool-light"), dark: game.settings.get("starwarsffg", "destiny-pool-dark") };
+
+    // filter menu based on role.
+
+    const menu = this.menu.filter((m) => game.user.hasRole(m.minimumRole) || !m.minimumRole);
+
+    // Return data
+    return {
+      destinyPool,
+      destinyPoolLabel,
+      isGM: game.user.isGM,
+      menu,
+      theme: game.settings.get("starwarsffg", "dicetheme"),
+    };
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  _updateObject(_event, _formData) {};
+
+  /** @override */
+  async close(_options = {}) {};
+
+  /** @override */
+  activateListeners(html) {
+    this._activatePositionHandle();
+
+    // future functionality to allow multiple menu items to be passed in
+
+    $.expr.filters.offscreen = function (el) {
+      var rect = el.getBoundingClientRect();
+      return rect.x + rect.width < 0 || rect.y + rect.height < 0 || rect.y + rect.height > window.innerHeight || rect.x + rect.width > window.innerWidth || rect.x > window.innerWidth || rect.y > window.innerHeight;
+    };
+
+    html.find(".dropbtn").click((event) => {
+      const id = `#${$(event.currentTarget).attr("id")}Content`;
+      $(html.find(id)).toggleClass("show");
+
+      if ($(".dropdown-content").is(":offscreen")) {
+        $(html.find(id)).addClass("vertical");
+      } else {
+        $(html.find(id)).removeClass("vertical");
+      }
+    });
+
+    html.find(".dropdown-content a").click((event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const index = event.currentTarget.dataset.value;
+      this.menu[index].callback();
+    });
+
+    html.find(".destiny-points").click(async (event) => {
+      const pointType = event.currentTarget.dataset.group;
+      var typeName = null;
+      const add = event.shiftKey;
+      const remove = event.ctrlKey || event.metaKey;
+      var flipType = null;
+      if (pointType == "dPoolLight") {
+        flipType = "dPoolDark";
+        typeName = game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-light"));
+      } else {
+        flipType = "dPoolLight";
+        typeName = game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-dark"));
+      }
+      var messageText;
+
+      if (!add && !remove) {
+        if (game.settings.get("starwarsffg", pointType) == 0) {
+          ui.notifications.warn(game.i18n.format("SWFFG.UI.Root.DestinyEmpty", {type: typeName}));
+          return;
+        } else {
+          let pool = { light: 0, dark: 0 };
+          if (flipType == "dPoolLight") {
+            pool.light = game.settings.get("starwarsffg", flipType) + 1;
+            pool.dark = game.settings.get("starwarsffg", pointType) - 1;
+          } else if (flipType == "dPoolDark") {
+            pool.dark = game.settings.get("starwarsffg", flipType) + 1;
+            pool.light = game.settings.get("starwarsffg", pointType) - 1;
+          }
+
+          if (game.user.isGM) {
+            game.settings.set("starwarsffg", "dPoolLight", pool.light);
+            game.settings.set("starwarsffg", "dPoolDark", pool.dark);
+          } else {
+            await game.socket.emit("system.starwarsffg", { pool });
+          }
+
+          messageText = `<div class="destiny-flip ${flipType}">
+          <div class="destiny-title">${game.i18n.localize("SWFFG.DestinyFlipMessage")}: <span class="${typeName}">${typeName}</span></div>
+          <div class="destiny-left ${flipType !== "dPoolDark"} dark">${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-dark"))} ${game.i18n.localize("SWFFG.DestinyFlipRemaining")}: ${pool.dark}</div>
+          <div class="destiny-left ${flipType !== "dPoolLight"} light">${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-light"))} ${game.i18n.localize("SWFFG.DestinyFlipRemaining")}: ${pool.light}</div>
+          </div>`;
+        }
+      } else if (add) {
+        if (!game.user.isGM) {
+          ui.notifications.warn(game.i18n.localize("SWFFG.UI.Root.DestinyGMOnly"));
+          return;
+        }
+        game.settings.set("starwarsffg", pointType, game.settings.get("starwarsffg", pointType) + 1);
+        messageText = game.i18n.format("SWFFG.UI.Root.DestinyAdded", {type: typeName});
+      } else if (remove) {
+        if (!game.user.isGM) {
+          ui.notifications.warn(game.i18n.localize("SWFFG.UI.Root.DestinyGMOnly"));
+          return;
+        }
+        game.settings.set("starwarsffg", pointType, game.settings.get("starwarsffg", pointType) - 1);
+        messageText = game.i18n.format("SWFFG.UI.Root.DestinyRemoved", {type: typeName});
+      }
+
+      ChatMessage.create({
+        author: game.user.id,
+        content: messageText,
+      });
+    });
+
+    // handle previously created roll destiny chat messages
+    $(".ffg-destiny-roll").on("click", this.OnClickRollDestiny.bind(this));
+
+    // setup chat hook for destiny roll
+    Hooks.on("renderChatMessageHTML", (message, html) => {
+      $(html).on("click", ".ffg-destiny-roll", this.OnClickRollDestiny.bind(this));
+    });
+
+    // setup socket handler for checking destiny roll
+    game.socket.on("system.starwarsffg", async (...args) => {
+      if (args[0]?.canIRollDestinyResponse === game.user.id && !game.user.isGM) {
+        if (!args[0]?.rolled) {
+          const roll = await this._rollDestiny();
+          await game.socket.emit("system.starwarsffg", { destiny: game.user.id, light: roll.ffg.light, dark: roll.ffg.dark });
+        } else {
+          ui.notifications.error(`${game.i18n.localize("SWFFG.DestinyAlreadyRolled")}`);
+        }
+      }
+    });
+
+    if (game.user.isGM) {
+      // socket handler for GM
+      game.socket.on("system.starwarsffg", async (...args) => {
+        // check if this is the GM intended to answer the question or not
+        if (game.user.id !== game.users.activeGM?.id) {
+          // limit rolling to a single GM
+          return;
+        }
+        // Can user roll destiny? Or have they already rolled
+        if (args[0]?.canIRollDestiny) {
+          let rolled = false;
+
+          try {
+            rolled = await game.settings.get("starwarsffg", `destinyrollers${args[0]?.canIRollDestiny}`);
+          } catch {
+            game.settings.register("starwarsffg", `destinyrollers${args[0].canIRollDestiny}`, {
+              name: "DestinyRoll",
+              scope: "client",
+              default: false,
+              config: false,
+              type: Boolean,
+            });
+          }
+
+          await game.socket.emit("system.starwarsffg", { canIRollDestinyResponse: args[0]?.canIRollDestiny, rolled });
+        }
+
+        // Handle user initiated destiny pool flips
+        if (args[0]?.pool) {
+          const light = await game.settings.get("starwarsffg", "dPoolLight");
+          const dark = await game.settings.get("starwarsffg", "dPoolDark");
+
+          const request = {
+            id: "player",
+            type: "destiny-flip",
+            light: +light - +args[0].pool.light,
+            dark: +dark - +args[0].pool.dark,
+          };
+
+          // only allow one player flip at a time.
+          if (!this.destinyQueue.find((q) => q.id === args[0].destiny)) {
+            this.destinyQueue.push(request);
+          }
+        }
+
+        // Handle user report for initial Destiny roll
+        if (args[0]?.destiny) {
+          const request = {
+            id: args[0].destiny,
+            type: "destiny-roll",
+            light: args[0].light,
+            dark: args[0].dark,
+          };
+
+          // make sure only one player destiny roll is queued.
+          if (!this.destinyQueue.find((q) => q.id === args[0].destiny) && CONFIG.FFG.DestinyGM === game.user.id) {
+            this.destinyQueue.push(request);
+          }
+        }
+
+        if (!this.isRunningQueue) {
+          this._processDestinyRequests();
+        }
+      });
+    }
+  }
+
+  /** Keep this HUD movable without using the standard window frame. */
+  _activatePositionHandle() {
+    this._positionEvents?.abort();
+    this._positionEvents = new AbortController();
+    const { signal } = this._positionEvents;
+    const element = this.element;
+    const handle = element.querySelector(".destiny-drag-handle");
+    const key = `starwarsffg.destiny-position.${game.world.id}.${game.user.id}`;
+    const place = ({ left, top }) => {
+      const bounds = element.getBoundingClientRect();
+      left = Math.max(0, Math.min(left, window.innerWidth - bounds.width));
+      top = Math.max(0, Math.min(top, window.innerHeight - bounds.height));
+      Object.assign(element.style, { left: `${left}px`, top: `${top}px`, bottom: "auto", right: "auto" });
+      return { left, top };
+    };
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(key));
+      if (Number.isFinite(saved?.left) && Number.isFinite(saved?.top)) place(saved);
+    } catch { /* Storage can be unavailable in private browser sessions. */ }
+    let drag;
+    handle.addEventListener("pointerdown", event => {
+      if (event.button !== 0 || drag) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const bounds = element.getBoundingClientRect();
+      drag = { id: event.pointerId, x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+      handle.setPointerCapture(event.pointerId);
+    }, { signal });
+    handle.addEventListener("pointermove", event => {
+      if (drag?.id !== event.pointerId) return;
+      place({ left: event.clientX - drag.x, top: event.clientY - drag.y });
+    }, { signal });
+    const finish = event => {
+      if (drag?.id !== event.pointerId) return;
+      drag = null;
+      if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+      const bounds = element.getBoundingClientRect();
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ left: bounds.left, top: bounds.top }));
+      } catch { /* Moving the HUD still works without persistent storage. */ }
+    };
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+      handle.addEventListener(type, finish, { signal });
+    }
+    window.addEventListener("resize", () => {
+      const bounds = element.getBoundingClientRect();
+      place({ left: bounds.left, top: bounds.top });
+    }, { signal });
+  }
+
+  // Click event for Roll Destiny Chat Message
+  async OnClickRollDestiny(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!game.user.isGM) {
+      await game.socket.emit("system.starwarsffg", { canIRollDestiny: game.user.id });
+    }
+
+    if (game.user.isGM) {
+      const roll = await this._rollDestiny();
+
+      const light = await game.settings.get("starwarsffg", "dPoolLight");
+      const dark = await game.settings.get("starwarsffg", "dPoolDark");
+
+      await game.settings.set("starwarsffg", "dPoolLight", light + roll.ffg.light);
+      await game.settings.set("starwarsffg", "dPoolDark", dark + roll.ffg.dark);
+    }
+  }
+
+  async _processDestinyRequests() {
+    
+
+    while (this.destinyQueue.length > 0) {
+      const request = this.destinyQueue.shift();
+      
+
+      const light = await game.settings.get("starwarsffg", "dPoolLight");
+      const dark = await game.settings.get("starwarsffg", "dPoolDark");
+
+      switch (request.type) {
+        case "destiny-roll": {
+          game.settings.set("starwarsffg", `destinyrollers${request.id}`, true);
+          await game.settings.set("starwarsffg", "dPoolLight", light + request.light);
+          await game.settings.set("starwarsffg", "dPoolDark", dark + request.dark);
+          break;
+        }
+        case "destiny-flip": {
+          await game.settings.set("starwarsffg", "dPoolLight", light - request.light);
+          game.settings.set("starwarsffg", "dPoolDark", dark - request.dark);
+          break;
+        }
+      }
+    }
+
+    
+    this.isRunningQueue = false;
+  }
+
+  async _rollDestiny() {
+    const pool = new DicePoolFFG({
+      force: 1,
+    });
+
+    const roll = new game.ffg.RollFFG(pool.renderDiceExpression());
+    await roll.toMessage({
+      author: game.user.id,
+      flavor: `${game.i18n.localize("SWFFG.Rolling")} ${game.i18n.localize("SWFFG.DestinyPool")}...`,
+    });
+
+    return roll;
+  }
+}

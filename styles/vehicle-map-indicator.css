@@ -1,0 +1,13 @@
+.directory .entry-name .ffg-vehicle-map-indicator {
+  display: inline-block;
+  flex: 0 0 auto;
+  margin-inline-start: 6px;
+  color: #39756e;
+  font-size: 12px;
+  line-height: 1;
+  vertical-align: baseline;
+}
+:is(body.theme-dark, .application.theme-dark) .directory .entry-name .ffg-vehicle-map-indicator,
+.directory.theme-dark .entry-name .ffg-vehicle-map-indicator {
+  color: #82dacb;
+}

@@ -1,0 +1,94 @@
+[data-vehicle-deck-sheet]{margin-block:12px;padding:12px;border:1px solid var(--color-border-light-primary,#7776);border-radius:5px}
+[data-vehicle-deck-sheet]:empty{display:none}
+[data-vehicle-deck-sheet] h3,.ffg-deck-sidebar h3{font-size:15px;line-height:1.3;font-weight:600;margin:10px 0 6px}
+.ffg-deck-settings,.ffg-deck-drop,.ffg-deck-mode,.ffg-deck-passengers li{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ffg-deck-settings input{flex:1;min-width:140px}
+.ffg-deck-settings button,.ffg-deck-drop button,.ffg-deck-passengers button,[data-vehicle-deck-sheet]>button{width:auto}
+.ffg-deck-mode{margin:8px 0;font-size:13px}
+.ffg-deck-drop{padding:8px;border:1px dashed var(--color-border-light-primary,#888);border-radius:4px;font-size:12px}
+.ffg-deck-passengers{padding:0;list-style:none}.ffg-deck-passengers li{justify-content:space-between;padding:3px}
+.ffg-deck-window .window-content{padding:0;overflow:hidden}
+.ffg-deck-window{max-width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
+.ffg-deck-workspace{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:100%;min-height:0}
+.ffg-deck-chart{container-type:size;display:grid;place-items:center;background:#172128;min-height:0;min-width:0;overflow:auto;padding:8px}
+.ffg-deck-surface{position:relative;width:min(100cqw,calc(100cqh * var(--deck-ratio,1)));aspect-ratio:var(--deck-ratio,1);line-height:0}
+.ffg-deck-image{display:block;width:100%;height:100%;border:0}
+.ffg-deck-empty{color:#f2f1ec;padding:20px;text-align:justify;line-height:1.4}
+.ffg-deck-sidebar{padding:12px;overflow:auto;border-left:1px solid #7c847c66;min-width:0}
+.ffg-deck-sidebar h2{font-size:19px;margin:0 0 9px}
+.ffg-deck-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 0 9px}
+.ffg-deck-stats div{padding:5px;border:1px solid #80858050;border-radius:3px}
+.ffg-deck-stats dt{font-size:12px}.ffg-deck-stats dd{margin:0;text-align:center;font-weight:600}
+.ffg-deck-person{width:100%;display:flex;align-items:center;justify-content:flex-start;gap:6px;height:auto;min-height:30px;padding:3px}
+.ffg-deck-person img{width:24px;height:24px;object-fit:cover;border-radius:50%}
+.ffg-deck-role{margin-inline-start:auto;color:var(--color-text-secondary);font-size:11px}
+.ffg-deck-person[aria-pressed=true]{outline:2px solid currentColor;outline-offset:-2px}
+.ffg-deck-sidebar button{max-width:100%;height:auto;white-space:normal}
+.ffg-deck-sidebar .ffg-deck-drop{margin:6px 0}
+.ffg-deck-surface .ffg-deck-pin{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;padding:0;border-radius:50%;border:2px solid #e9e3ce;background:#233037;overflow:hidden;cursor:grab;touch-action:none}
+.ffg-deck-pin img{width:100%;height:100%;object-fit:cover;border:0}
+.ffg-deck-pin:disabled,.ffg-deck-person:disabled{opacity:1;cursor:default}
+.ffg-deck-pin[aria-pressed=true]{outline:2px solid #e7b15f}
+.ffg-deck-help{font-size:12px;text-align:justify}
+@media(max-width:650px){.ffg-deck-workspace{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}}
+
+/* Keep plan controls compact and separate from the map surface. */
+.ffg-deck-workspace:has(> .ffg-deck-settings-bar) { grid-template-rows:auto minmax(0,1fr); }
+.ffg-deck-settings-bar {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  padding:7px 10px;
+  border-bottom:1px solid var(--color-border-light-primary,#64747760);
+  background:color-mix(in srgb,var(--color-text-primary) 5%,transparent);
+  font-family:var(--font-body);
+  font-size:12px;
+}
+.ffg-deck-settings-bar > label:first-child { display:flex;align-items:center;gap:8px;flex:1 1 260px;min-width:0; }
+.ffg-deck-settings-bar input[type=text] { flex:1;min-width:100px;width:auto;height:28px;font-size:12px; }
+.ffg-deck-settings-bar .ffg-deck-browse { flex:none;width:30px;height:28px;padding:0;margin:0; }
+.ffg-deck-settings-bar .ffg-deck-map-toggle { display:flex;align-items:center;gap:6px;flex:none;margin:0;white-space:nowrap; }
+.ffg-deck-settings-bar input[type=checkbox] { margin:0; }
+
+.ffg-deck-window.ffg-deck-layout-pending{visibility:hidden}
+
+[data-vehicle-passengers-sheet]{margin:12px 0}
+.ffg-deck-passengers-table{width:100%;margin:0 0 6px;table-layout:fixed}
+.ffg-deck-passengers-table .ffg-basic-table-controls{width:36px;text-align:center}
+.ffg-deck-passenger-name{display:flex;align-items:center;gap:8px;overflow-wrap:anywhere}
+.ffg-deck-passenger-name img{flex:none;width:30px;height:30px;object-fit:cover;border:0;border-radius:3px}
+.ffg-deck-passengers-table button.ffg-deck-remove-passenger{width:26px;height:26px;padding:0;margin:0;background:transparent;border:0;box-shadow:none;color:inherit}
+.ffg-deck-passengers-empty{padding:12px;font-size:12px;font-style:italic;text-align:center}
+
+/* Passenger checks use the same compact dice previews as the crew stations. */
+[data-vehicle-passengers-sheet]{container:vehicle-passengers / inline-size}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table :is(th,td){vertical-align:middle;padding:5px 7px;overflow-wrap:anywhere}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table .ffg-passenger-skill-column{width:18%;text-align:center}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table .ffg-basic-table-controls{width:36px;text-align:center;padding-inline:3px}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table .ffg-passenger-skill{display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-width:0;min-height:26px;height:auto;margin:0;padding:2px;border:1px solid transparent;background:transparent;color:inherit;line-height:1;box-shadow:none}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table .ffg-passenger-skill:not(:disabled):hover{border-color:var(--color-border-highlight,#7795a4);background:color-mix(in srgb,currentColor 8%,transparent)}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table .ffg-passenger-skill:disabled{opacity:.5}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table .ffg-passenger-skill .dice-pool{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1px;min-width:0;max-width:100%;margin:0}
+.application.starwarsffg.sheet.actor.v2 .ffg-deck-passengers-table .ffg-passenger-skill img{--passenger-die-size:clamp(10px,2.7cqw,16px);flex:0 0 var(--passenger-die-size);width:var(--passenger-die-size);height:var(--passenger-die-size);max-width:var(--passenger-die-size);max-height:var(--passenger-die-size);margin:0;border:0}
+@container vehicle-passengers (max-width:420px){
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table :is(th,td){padding:4px;font-size:11px}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table .ffg-passenger-skill-column{width:23%}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table th.ffg-passenger-skill-column{font-size:10px;line-height:1.25;letter-spacing:0;word-break:normal;overflow-wrap:normal}
+ .ffg-deck-passenger-name{gap:4px}
+ .ffg-deck-passenger-name img{width:22px;height:22px}
+}
+
+@container vehicle-passengers (max-width:480px){
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table{display:block}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table thead{display:block}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table thead tr{display:block}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table thead th:not(:first-child){display:none}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table tbody{display:block}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 30px;align-items:center}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table tbody tr>td:first-child{grid-column:1/4;grid-row:1}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table .ffg-basic-table-controls{grid-column:4;grid-row:1;width:auto}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table .ffg-passenger-skill-column{grid-row:2;width:auto;padding:3px 1px}
+ .application.starwarsffg.sheet.actor.v2 table.ffg-deck-passengers-table .ffg-passenger-skill-column::before{content:attr(data-skill-label);display:block;font-size:9px;line-height:1.3;text-align:center}
+}

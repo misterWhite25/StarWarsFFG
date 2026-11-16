@@ -1,0 +1,110 @@
+.pilotage-mj-dialog .pilotage-assets-actions {display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;}
+.pilotage-mj-dialog .pilotage-assets-actions button {display:flex;align-items:center;justify-content:center;gap:7px;width:auto;flex:0 1 auto;padding:6px 12px;font-size:13px;}
+.pilotage-assets-window {max-width:calc(100vw - 20px);max-height:calc(100dvh - 20px);}
+.pilotage-assets-window .window-content {min-height:0;overflow:hidden;padding:14px;}
+.pilotage-assets-content {display:flex;flex-direction:column;gap:10px;height:100%;min-height:0;}
+.pilotage-assets-toolbar {display:flex;align-items:flex-end;gap:12px;flex-shrink:0;}
+.pilotage-assets-search {display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;font-size:12px;}
+.pilotage-assets-search input {width:100%;min-width:0;}
+.pilotage-assets-count {font-size:12px;color:var(--color-text-secondary);padding-bottom:8px;white-space:nowrap;}
+.pilotage-assets-window .pilotage-assets-note {font-size:12px;font-style:italic;line-height:1.45;text-align:justify;margin:0;color:var(--color-text-secondary);}
+.pilotage-assets-scroll {min-height:0;min-width:0;overflow-x:auto;overflow-y:hidden;flex:1;}
+.pilotage-assets-columns {display:grid;grid-auto-flow:column;grid-auto-columns:300px;gap:12px;width:max-content;min-width:100%;height:100%;min-height:0;padding-bottom:2px;box-sizing:border-box;}
+.pilotage-assets-column {display:flex;flex-direction:column;min-height:0;height:100%;border:1px solid #64747760;border-radius:5px;overflow:hidden;box-sizing:border-box;}
+.pilotage-assets-column-header {padding:10px;background:#52686b18;min-height:70px;box-sizing:border-box;flex:none;border-bottom:1px solid #64747740;}
+.pilotage-assets-column-header small {display:block;font-size:11px;margin:4px 0 0;color:var(--color-text-secondary);}
+.pilotage-assets-column-body {overflow:auto;min-height:0;flex:1;scrollbar-gutter:stable;}
+.pilotage-assets-window table {width:100%;margin:0;border-collapse:collapse;table-layout:fixed;font-size:13px;background:transparent;border:0;}
+.pilotage-assets-window th {padding:7px 8px;font-size:12px;font-weight:600;text-align:center;}
+.pilotage-assets-window td {padding:8px;border-bottom:1px solid #64747735;overflow-wrap:anywhere;}
+.pilotage-assets-window th:first-child {text-align:left;width:auto;}
+.pilotage-assets-window th:last-child {width:44px;}
+.pilotage-assets-items thead {position:sticky;top:0;z-index:1;background:#743d42;color:#fff;}
+.pilotage-assets-window .pilotage-assets-number {text-align:center;font-size:14px;font-variant-numeric:tabular-nums;}
+.pilotage-assets-window button.pilotage-assets-actor,.pilotage-assets-window button.pilotage-assets-item {width:100%;height:auto;min-height:0;padding:0;border:0;box-shadow:none;background:transparent;text-align:left;justify-content:flex-start;white-space:normal;font:inherit;color:inherit;}
+.pilotage-assets-window button.pilotage-assets-actor {display:flex;align-items:center;gap:8px;font-weight:600;}
+.pilotage-assets-window button.pilotage-assets-item {display:block;}
+.pilotage-assets-window button.pilotage-assets-actor:hover,.pilotage-assets-window button.pilotage-assets-item:hover {text-decoration:underline;}
+.pilotage-assets-actor img {object-fit:cover;border:0;border-radius:4px;flex:0 0 28px;}
+.pilotage-assets-window .pilotage-assets-empty {font-size:12px;font-style:italic;padding:10px;margin:0;text-align:justify;}
+.pilotage-assets-balances {margin:0;padding:8px 10px;}
+.pilotage-assets-balances>div {display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,1fr);align-items:center;gap:8px;padding:12px 0;}
+.pilotage-assets-balances dt {font-size:12px;}
+.pilotage-assets-balances dd {margin:0;color:inherit;}
+.pilotage-assets-balances .pilotage-assets-balance-total {border-top:1px solid #64747760;font-weight:600;}
+.ffg-pilotage-assets-field {padding:10px;margin:0 0 10px;border:1px solid #64747750;border-radius:5px;}
+.ffg-pilotage-assets-field label {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.ffg-pilotage-assets-field input[type=checkbox] {width:16px;height:16px;flex:0 0 16px;margin:0;}
+.ffg-pilotage-assets-field p {margin:6px 0 0;font-size:12px;font-style:italic;text-align:justify;line-height:1.4;color:var(--color-text-secondary);}
+@media(max-width:520px){.pilotage-assets-window .window-content{padding:10px}.pilotage-assets-count{font-size:11px}.pilotage-assets-columns{grid-auto-columns:270px;gap:10px}.pilotage-assets-window th,.pilotage-assets-window td{padding:6px}.pilotage-assets-window .pilotage-assets-number{font-size:13px}}
+
+.pilotage-assets-window .pilotage-assets-items + .pilotage-assets-items {margin-top:12px;}
+
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-content {font-family:Arial,"Helvetica Neue",sans-serif;font-size:13px;line-height:1.4;text-shadow:none;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-scroll {overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-columns {grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:auto;grid-auto-rows:auto;width:100%;min-width:0;height:auto;align-items:stretch;gap:12px;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-column {height:auto;min-width:0;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-column-header {min-height:52px;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-column-body {overflow:visible;flex:none;scrollbar-gutter:auto;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balances {padding:4px 10px;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balances>div {grid-template-columns:minmax(0,1fr) minmax(80px,1fr);padding:8px 0;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balances dt,:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balances dd {font-family:Arial,"Helvetica Neue",sans-serif;text-shadow:none;-webkit-text-stroke:0;letter-spacing:normal;line-height:1.4;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balances dt {font-size:13px;font-weight:400;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balances dd {font-size:14px;font-weight:400;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balance-total dt,:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-balance-total dd {font-weight:600;}
+
+/* Vue compacte de l'équipement transporté. */
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) .pilotage-assets-content {gap:8px;font-size:12px;line-height:1.3;}
+.pilotage-assets-window .pilotage-assets-note .pilotage-assets-count {font-size:inherit;font-style:inherit;padding:0;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) .pilotage-assets-columns {grid-auto-columns:280px;gap:10px;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) .pilotage-assets-column-header {padding:8px;min-height:60px;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) table {font-size:12px;line-height:1.3;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) th {padding:5px 6px;font-size:11px;line-height:1.3;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) td {padding:4px 6px;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) .pilotage-assets-number {font-size:12px;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) button.pilotage-assets-item {font:inherit;line-height:1.3;min-height:0;height:auto;padding:0;border:0;background:transparent;box-shadow:none;}
+:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) .pilotage-assets-items + .pilotage-assets-items {margin-top:8px;}
+@media(max-width:520px){:is(#ffg-pilotage-possessions,#ffg-pilotage-shared-possessions) .pilotage-assets-columns{grid-auto-columns:260px;}}
+
+
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-group-payment {display:flex;align-items:center;justify-content:center;gap:6px;flex:none;width:auto;height:32px;padding:5px 10px;font:12px Arial,"Helvetica Neue",sans-serif;white-space:nowrap;}
+:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-pay {display:block;width:auto;height:auto;min-height:28px;padding:4px 10px;margin:2px 10px 10px auto;font:12px Arial,"Helvetica Neue",sans-serif;background:#743d42;color:#fff;border:1px solid #743d42;box-shadow:none;}
+.application.pilotage-credit-payment {max-width:calc(100vw - 20px);max-height:calc(100dvh - 24px);min-width:320px;}
+.application.pilotage-credit-payment .window-title {font:600 14px Arial,"Helvetica Neue",sans-serif;}
+.application.pilotage-credit-payment .window-content {padding:14px;overflow:hidden;min-height:0;font:13px/1.4 Arial,"Helvetica Neue",sans-serif;}
+.pilotage-credit-payment-content {display:flex;flex-direction:column;gap:10px;height:100%;min-height:0;}
+.pilotage-credit-payment-fields {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;flex:none;}
+.pilotage-credit-payment-fields label {display:flex;flex-direction:column;gap:5px;min-width:0;font:12px/1.4 Arial,"Helvetica Neue",sans-serif;}
+.pilotage-credit-payment-fields input {width:100%;height:32px;min-width:0;font:14px Arial,"Helvetica Neue",sans-serif;}
+.pilotage-credit-payment-fields input[type=number] {text-align:center;font-variant-numeric:tabular-nums;}
+.pilotage-credit-payment .pilotage-credit-payment-note {margin:0;font-size:11px;font-style:italic;text-align:justify;line-height:1.45;color:var(--color-text-secondary);flex:none;}
+.pilotage-credit-payment-tools {display:flex;gap:6px;flex:none;}
+.pilotage-credit-payment-tools button {width:auto;height:auto;min-height:26px;padding:3px 8px;font:11px Arial,"Helvetica Neue",sans-serif;}
+.pilotage-credit-payment-row {display:grid;grid-template-columns:minmax(0,1fr) 88px 88px;gap:8px;align-items:center;padding:8px 4px;border-bottom:1px solid #64747735;}
+.pilotage-credit-payment-head {font-size:11px;font-weight:600;background:#adbec8;color:#182d39;border-radius:4px;padding:5px 4px;border:0;flex:none;}
+.pilotage-credit-payment-head span:not(:first-child) {text-align:center;}
+.pilotage-credit-payment-list {flex:1;min-height:60px;overflow:auto;scrollbar-gutter:stable;}
+.pilotage-credit-payment-row label {display:flex;align-items:center;gap:7px;min-width:0;cursor:pointer;font:12px/1.4 Arial,"Helvetica Neue",sans-serif;}
+.pilotage-credit-payment-row label span {overflow-wrap:anywhere;}
+.pilotage-credit-payment-row input[type=checkbox] {width:16px;height:16px;flex:0 0 16px;margin:0;}
+.pilotage-credit-payment-row img {width:24px;height:24px;object-fit:cover;border:0;border-radius:3px;flex:none;}
+.pilotage-credit-payment-number {text-align:center;font:13px/1.4 Arial,"Helvetica Neue",sans-serif;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+.pilotage-credit-payment-row.is-blocked .pilotage-credit-payment-number {color:light-dark(#aa2839,#f499a5);}
+.pilotage-credit-payment .pilotage-credit-payment-summary {margin:0;padding:8px;border:1px solid #64747750;border-radius:4px;background:#52686b12;text-align:justify;font-size:12px;flex:none;}
+.pilotage-credit-payment .pilotage-credit-payment-error {margin:0;color:light-dark(#aa2839,#f499a5);font-size:12px;text-align:justify;flex:none;}
+.pilotage-credit-payment-footer {display:flex;justify-content:flex-end;gap:8px;flex:none;}
+.pilotage-credit-payment-footer button {width:auto;height:auto;min-height:32px;padding:6px 12px;font:12px Arial,"Helvetica Neue",sans-serif;}
+.pilotage-credit-payment-footer .pilotage-credit-payment-confirm {background:#743d42;border:1px solid #743d42;color:#fff;font-weight:600;}
+.pilotage-credit-payment-confirm:disabled {opacity:.5;}
+.pilotage-credit-payment button:focus-visible,.pilotage-credit-payment input:focus-visible {outline:2px solid #709c9b;outline-offset:2px;}
+@media(max-width:520px){:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-toolbar{flex-wrap:wrap}:is(#ffg-pilotage-credits,#ffg-pilotage-shared-credits) .pilotage-assets-search{flex-basis:100%}.pilotage-credit-payment-fields{grid-template-columns:1fr}.pilotage-credit-payment-row{grid-template-columns:minmax(0,1fr) 74px 74px;gap:5px}.pilotage-credit-payment-row img{display:none}}
+@media(max-height:520px){.application.pilotage-credit-payment .window-content{overflow:auto}.pilotage-credit-payment-content{height:auto}.pilotage-credit-payment-list{flex:none;max-height:200px}}
+
+.pilotage-assets-window .pilotage-assets-sharing {display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:none;}
+.pilotage-assets-window .pilotage-assets-sharing button {width:auto;height:32px;min-height:32px;padding:4px 9px;font:12px Arial,"Helvetica Neue",sans-serif;white-space:nowrap;}
+.pilotage-assets-window .pilotage-assets-sharing [hidden] {display:none;}
+.pilotage-assets-window .pilotage-assets-toolbar {flex-wrap:wrap;}
+.pilotage-assets-window .pilotage-assets-search {min-width:min(100%,160px);}
+.pilotage-assets-window .pilotage-assets-readonly-actor {display:flex;align-items:center;gap:8px;font-weight:600;overflow-wrap:anywhere;}
+.pilotage-assets-readonly-actor img {object-fit:cover;border:0;border-radius:4px;flex:0 0 28px;}
+.pilotage-assets-shared .pilotage-assets-item {display:block;font:inherit;line-height:1.3;}

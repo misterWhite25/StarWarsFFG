@@ -1,0 +1,25 @@
+.ffg-auto-crew-toolbar{display:flex;justify-content:flex-end;margin:8px 0 5px}
+.application.starwarsffg .ffg-auto-crew-toolbar button{display:inline-flex;align-items:center;gap:6px;width:auto;min-height:28px;padding:4px 9px;font:600 12px/1.3 Arial,sans-serif}
+.ffg-auto-crew-dialog .ffg-auto-crew-dialog-content{display:flex;flex-direction:column;gap:10px;font:12px/1.45 Arial,sans-serif;min-width:0}
+.ffg-auto-crew-help{margin:0;text-align:justify;color:var(--color-text-secondary)}
+.ffg-auto-crew-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ffg-auto-crew-fields label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ffg-auto-crew-fields select{width:100%;min-width:0;font:12px Arial,sans-serif}
+.ffg-auto-crew-stations{display:flex;flex-direction:column;gap:5px;max-height:35vh;overflow-y:auto;padding:8px;border:1px solid color-mix(in srgb,var(--color-text-primary) 20%,transparent);border-radius:5px}
+.ffg-auto-crew-stations label{display:flex;align-items:center;gap:7px;min-height:24px}
+.ffg-auto-crew-stations input[type=checkbox]{flex:none;width:16px;height:16px;margin:0}
+.ffg-auto-crew-stations p{margin:0;text-align:justify}
+@media(max-width:540px){.ffg-auto-crew-fields{grid-template-columns:1fr}}
+
+.ffg-auto-crew-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ffg-integrated-crew-count{align-self:center;margin-right:auto;font-size:11px}
+.ffg-integrated-crew-badge{display:inline-block;margin-left:4px;padding:1px 4px;border:1px solid #7696a4;border-radius:3px;font:10px Arial,sans-serif;color:inherit}
+.vehicle-crew-table .item-controls button{width:23px;min-height:23px;height:23px;padding:2px;margin:0;border:0;background:transparent;color:inherit}
+.vehicle-crew-table [data-integrated-crew-skill]{width:auto;min-height:24px;padding:1px 4px;border:0;background:transparent}
+.ffg-vehicle-minion-config{margin:8px 0;padding:8px 10px;border:1px solid #7793a34a;border-radius:5px;font:12px/1.4 Arial,sans-serif}
+.ffg-vehicle-minion-toggle{display:flex;align-items:center;gap:7px;font-weight:600}
+.ffg-vehicle-minion-fields{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
+.ffg-vehicle-minion-fields label{display:flex;align-items:center;gap:7px}
+.ffg-vehicle-minion-fields input{width:60px!important;text-align:center}
+.ffg-vehicle-minion-fields strong{font-variant-numeric:tabular-nums}
+.ffg-vehicle-minion-config p{margin:6px 0 0;text-align:justify}

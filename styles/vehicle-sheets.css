@@ -1,0 +1,170 @@
+/* Vehicle presentation uses the same palette and table headings as PJ/PNJ sheets. */
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet>.window-content {
+  width:100%;min-width:0;max-width:100%;box-sizing:border-box;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .header-fields {min-width:0;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .sheet-body {
+  border-color:var(--ffg-sheet-rule);
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet :is(.popout-editor,.vehicle-malfunction-description) {text-align:justify;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .header-fields .charname {
+  height:auto;margin:8px 0;padding:0;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .header-fields .charname input {
+  height:42px;margin:0;padding:0 0 6px;border:0;border-bottom:1px solid var(--ffg-sheet-rule);
+  background:transparent;color:var(--ffg-ink);font-family:var(--font-body,Arial,sans-serif);font-size:32px;font-weight:700;
+  text-align:left;line-height:36px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .header-fields :is(.vehicle-img,.defense-group) {
+  border:1px solid var(--ffg-stat-border);border-radius:8px;clip-path:none;
+  background:var(--ffg-stat-surface);
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .vehicle-img .profile-img[src*="/defaults/actors/"] {filter:brightness(.45);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .vehicle-img .profile-block {
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;gap:4px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .vehicle-img .profile-img {
+  flex:1;min-height:0;height:auto;max-height:158px;object-fit:contain;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .vehicle-img .ffg-adversary-image-preview {flex:none;margin:0;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-group .defense-decoration {
+  border:1px solid var(--ffg-stat-border);
+  background:conic-gradient(#7096a030 0% 25%,#72968b44 25% 50%,#7096a030 50% 75%,#72968b44 75% 100%);
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-block .defense-block-title {
+  background:transparent;color:var(--ffg-stat-teal);clip-path:none;
+  font:600 10px/18px Roboto,sans-serif;letter-spacing:.6px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-block .defense-value {
+  border:1px solid var(--ffg-stat-border);border-radius:5px;background:var(--ffg-stat-input);
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-block .defense-value input {
+  background:transparent;color:var(--ffg-stat-ink);font-size:20px;font-weight:600;
+  text-align:center;border:0;box-shadow:none;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-block .defense-value-label {
+  background:var(--ffg-char-label-surface);color:var(--ffg-char-label);clip-path:none;border-radius:3px;
+  font-size:9px;line-height:14px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-block .defense-img {
+  max-width:75px;max-height:90px;object-fit:contain;opacity:.75;
+}
+
+/* Technical cards follow the centered, quiet statistics of character sheets. */
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat {
+  --ffg-vehicle-accent:var(--ffg-stat-blue);
+  display:flex;flex-direction:column;min-width:0;min-height:88px;padding:0;
+  border:1px solid var(--ffg-stat-border);border-top:2px solid var(--ffg-vehicle-accent);
+  border-radius:6px;clip-path:none;background:var(--ffg-stat-surface);color:var(--ffg-stat-ink);
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:has(input[name*=".hullTrauma."]) {--ffg-vehicle-accent:var(--ffg-stat-burgundy);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat h3 {
+  flex:none;display:block;min-height:0;width:100%;margin:0;padding:7px 5px 2px;
+  border:0;border-radius:0;clip-path:none;background:transparent;color:var(--ffg-vehicle-accent);
+  font:600 10px/14px Roboto,sans-serif;letter-spacing:.5px;text-align:center;
+  white-space:normal;overflow-wrap:normal;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat input:not([type=checkbox]):not([type=hidden]),
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat select {
+  min-width:0;max-width:100%;height:30px;margin:0;padding:0 3px;
+  border:1px solid var(--ffg-stat-border);border-radius:4px;
+  background:var(--ffg-stat-input);color:var(--ffg-stat-ink);
+  font:600 20px/28px Roboto,sans-serif;font-variant-numeric:tabular-nums;text-align:center;box-shadow:none;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat select {font-size:13px;font-weight:500;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat input:not([type=checkbox]):not([type=hidden]):disabled {
+  background:transparent;color:var(--ffg-stat-muted);border-color:transparent;opacity:1;-webkit-text-fill-color:currentColor;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat input:focus-visible,
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-value input:focus-visible {
+  outline:2px solid #7194a866;outline-offset:1px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat-values {
+  flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:0;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat-values>label {
+  display:flex;flex-direction:column-reverse;justify-content:space-between;min-width:0;margin:0;padding:0;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat .ffg-vehicle-stat-values>label>input:not([type=hidden]) {
+  width:calc(100% - 16px);margin:4px 8px 6px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat-values>label>span {
+  margin:0;padding:3px 4px;border-top:1px solid var(--ffg-stat-border);
+  background:var(--ffg-stat-footer);color:var(--ffg-stat-muted);font:400 10px/14px Roboto,sans-serif;text-align:center;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat-values>label+label>span {border-left:1px solid var(--ffg-stat-border);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet :is(.paired,.fuel-card) .ffg-vehicle-stat-values>label:first-child>span {background:#6a3438;color:#fff;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet :is(.paired,.fuel-card) .ffg-vehicle-stat-values>label+label>span {background:#587787;color:#fff;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat>.toggle-value {flex:1;min-height:0;padding:8px;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat>.toggle-value input {accent-color:var(--ffg-stat-teal);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .sensor-card>label {padding:4px 8px 8px;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .consumables .ffg-consumables-columns {flex:1;padding:4px 8px 8px;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .consumables .ffg-consumables-columns>div+div {border-color:var(--ffg-stat-border);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .consumables :is(label>span,small,.ffg-consumables-unit) {color:var(--ffg-stat-muted);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat.consumables :is(input[type=number],select) {font-size:13px;height:28px;line-height:26px;}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .consumables .ffg-consumables-warning {color:var(--ffg-stat-burgundy);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .dashboard-row-3 .ffg-vehicle-stat {min-height:104px;}
+
+/* Armor, silhouette, handling and capacities retain circular scores. */
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value) {
+  flex-direction:column-reverse;align-items:center;justify-content:space-between;gap:0;
+  padding:10px 0 0;border:1px solid var(--ffg-char-line);border-radius:8px;
+  background:var(--ffg-char-surface);clip-path:none;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value)>label {
+  display:grid;place-items:center;flex:none;width:60px;height:60px;margin:0 auto 8px;padding:0;
+  border:2px solid var(--ffg-char-ring);border-top-color:var(--ffg-char-ring-accent);border-radius:50%;
+  background:var(--ffg-char-circle);box-shadow:inset 0 0 0 3px var(--ffg-stat-surface);
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value)>label>input[type=text] {
+  width:50px;height:50px;margin:0;padding:0;border:0;border-radius:50%;
+  background:transparent;color:var(--ffg-char-ink);font-size:26px;font-weight:600;line-height:50px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value)>label>input[type=text]:disabled {color:var(--ffg-char-ink);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value)>h3 {
+  margin:0;padding:5px 2px;border-top:1px solid var(--ffg-char-line);border-radius:0;
+  background:var(--ffg-char-label-surface);color:var(--ffg-char-label);font-size:10px;line-height:14px;letter-spacing:.4px;
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-maintenance,
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet [data-vehicle-deck-sheet] {
+  border:1px solid var(--ffg-stat-border);border-radius:6px;background:var(--ffg-stat-surface);
+}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .items .item {border-bottom:1px solid var(--ffg-sheet-rule);}
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-maintenance>label,
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-maintenance-amount {color:var(--ffg-stat-ink);}
+
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet:not(.theme-light),.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet.theme-dark) {
+  --ffg-window-background:#222a31;--ffg-panel:#2b353e;--ffg-muted-panel:#34414b;--ffg-input:#26323b;
+  --ffg-ink:#dde3e6;--ffg-muted-ink:#b9c6cd;--ffg-link:#aac4d2;--ffg-line:#526570;
+}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet:not(.theme-light),.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet.theme-dark) .sheet-body {background:#252f37;}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet:not(.theme-light),.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet.theme-dark) .vehicle-img .profile-img[src*="/defaults/actors/"] {filter:brightness(.9);}
+
+@container vehicle-sheet (max-width:640px) {
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .header-fields .charname input {font-size:26px;height:34px;line-height:28px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .vehicle-img .profile-img {height:80px;max-height:80px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value) {padding-top:7px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value)>label {width:42px;height:42px;margin-bottom:6px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value)>label>input[type=text] {width:34px;height:34px;font-size:20px;line-height:34px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat:is(.simple,.single-value)>h3 {font-size:9px;letter-spacing:0;padding:4px 2px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat input:not([type=checkbox]):not([type=hidden]) {font-size:18px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .ffg-vehicle-stat.consumables :is(input[type=number],select) {font-size:12px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .dashboard-row-3 .ffg-vehicle-stat {min-height:88px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .dashboard-row-3 .consumables {min-height:104px;}
+  .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-block .defense-value input {font-size:18px;}
+}
+
+/* NPC vehicle groups share the quantity and elimination cards of terrestrial minions. */
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(100%,430px);min-width:0;margin:0 0 10px}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards h3{text-transform:uppercase}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards .ffg-vehicle-minion-card{min-height:88px}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards .ffg-vehicle-stat-values>label{align-items:stretch}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards input{text-align:center}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards .ffg-vehicle-minion-eliminate{display:flex;flex:1;align-items:center;justify-content:center;gap:4px;box-sizing:border-box;width:100%;min-width:0;min-height:36px;height:auto;margin:0;padding:4px;border:0;background:transparent;color:var(--ffg-stat-blue);box-shadow:none;font-size:17px}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards .ffg-vehicle-minion-eliminate i{margin:0}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards .ffg-vehicle-minion-eliminate:not(:disabled):hover{background:color-mix(in srgb,var(--ffg-stat-blue) 12%,transparent)}
+.application.starwarsffg.sheet.actor.v2 .ffg-vehicle-minion-cards .ffg-vehicle-minion-eliminate:disabled{opacity:.4}
+
+/* Built-in white silhouettes remain legible on both defense dial themes. */
+.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet .defense-img[data-ffg-defense-icon]{filter:brightness(.28);opacity:.9}
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet:not(.theme-light),.application.starwarsffg.sheet.actor.v2.ffg-vehicle-sheet.theme-dark) .defense-img[data-ffg-defense-icon]{filter:none}

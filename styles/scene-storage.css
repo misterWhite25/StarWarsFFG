@@ -1,0 +1,29 @@
+/* Reuse the directory palette in both themes and in the detached sidebar. */
+.ffg-scene-storage-enabled > .directory-list { display:flex; flex-direction:column; }
+.ffg-scene-storage-enabled .directory-list > li { flex:none; }
+.ffg-scene-priority {
+  padding:7px 10px; color:var(--npc-muted); border-bottom:1px solid var(--npc-line);
+  font-size:11px; font-weight:600; letter-spacing:.03em; list-style:none;
+}
+.ffg-scene-storage {
+  margin-top:auto; padding-top:20px; list-style:none;
+  color:var(--npc-ink); --folder-depth:0;
+}
+.ffg-scene-storage > button {
+  display:flex; align-items:center; gap:8px; width:100%; min-height:38px;
+  padding:8px 10px; margin:0; text-align:left; font-family:inherit; font-size:13px;
+  color:var(--npc-ink); background:var(--npc-open); border:0;
+  border-block:1px solid var(--npc-line); border-radius:0; box-shadow:none;
+}
+.ffg-scene-storage > button:hover,
+.ffg-scene-storage > button:focus-visible { color:var(--npc-ink); background:color-mix(in srgb,var(--npc-open) 75%,var(--npc-line)); }
+.ffg-scene-storage-count { margin-left:auto; color:var(--npc-muted); font-size:11px; text-align:center; }
+.ffg-scene-storage-list { padding:0; margin:0; }
+.ffg-scene-storage-body[hidden] { display:none!important; }
+.ffg-scene-storage-help { margin:0; padding:9px 10px; font-size:11px; line-height:1.45; font-style:italic; color:var(--npc-muted); text-align:justify; }
+.ffg-scene-storage-enabled .ffg-scene-folder-path {
+  display:block; flex:0 0 100%; padding:3px 8px; color:var(--npc-muted);
+  font-size:10px; font-style:italic; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  background:var(--npc-paper); text-shadow:none;
+}
+.ffg-scene-storage-enabled li.folder > .ffg-scene-folder-path { border-bottom:1px solid var(--npc-line); }

@@ -1,0 +1,32 @@
+<div class="attribute" style="padding-left: 2px;">
+  <div class="block-background">
+    <div class="block-title attribute">
+      {{#if (ne title undefined)}}
+        {{title}}
+      {{else}}
+        {{localize "SWFFG.DefaultMedicalItemName"}}
+      {{/if}}
+    </div>
+    <div class="flex block-attribute">
+      <div class="flex">
+        <div>
+          <i class="fas fa-minus-circle medical" role="button" tabindex="0" title="{{localize 'SWFFG.UI.Actor.MedicalAdjust'}}" aria-label="{{localize 'SWFFG.UI.Actor.MedicalAdjust'}}"></i>
+            {{#if (ne value undefined)}}
+                {{value}}/5
+            {{else}}
+                0/5
+            {{/if}}
+
+          <i class="fas fa-plus-circle medical" role="button" tabindex="0" title="{{localize 'SWFFG.UI.Actor.MedicalUse'}}" aria-label="{{localize 'SWFFG.UI.Actor.MedicalUse'}}"></i>
+        </div>
+      </div>
+      <div>
+        <button
+          type="button"
+          value="resetUses"
+          class="resetMedical" title="{{localize 'SWFFG.UI.Actor.MedicalReset'}}" aria-label="{{localize 'SWFFG.UI.Actor.MedicalReset'}}"
+        ><i class="fas fa-recycle"></i></button>
+      </div>
+    </div>
+  </div>
+</div>

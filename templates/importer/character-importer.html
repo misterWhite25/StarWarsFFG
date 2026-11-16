@@ -1,0 +1,18 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <p class="notes"><b>{{localize 'SWFFG.UI.Import.DeprecatedCharacterFlow'}}</b></p>
+  <div class="form-group">
+    <label for="data">{{localize 'SWFFG.UI.Import.SourceData'}}</label>
+    <input type="file" name="data" />
+  </div>
+  <div>
+    <div class="import-progress current import-hidden">
+      <div class="import-progress-bar" style="width: 0%;"></div>
+    </div>
+  </div>
+  <div>
+    <button class="dialog-button" data-button="import">
+      <i class="fas fa-file-import"></i>
+      {{localize "SWFFG.ImportFile"}}
+    </button>
+  </div>
+</form>

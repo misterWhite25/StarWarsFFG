@@ -1,0 +1,23 @@
+<p>
+  {{localize "SWFFG.Crew.Role.UpdateFor" name=actor.name}}<br>
+  <multi-select name="select-many-things">
+    <optgroup label="{{localize 'SWFFG.Crew.Role.BuiltIn'}}">
+      <option value="Pilot" {{#iff rolesInUse 'contains' 'Pilot' }} selected{{/iff}}>{{localize "SWFFG.Crew.Roles.Pilot"}}</option>
+      <option value="Co-Pilot" {{#iff rolesInUse 'contains' 'Co-Pilot' }} selected{{/iff}}>{{localize "SWFFG.WeaponCrew.copilot"}}</option>
+    </optgroup>
+    {{#if weapons}}
+    <optgroup label="{{localize 'SWFFG.Crew.WeaponAssignment.Weapons'}}">
+      {{#each weapons as |weapon|}}
+      <option value="{{weapon.value}}" {{#if weapon.selected}}selected{{/if}}>{{weapon.label}}</option>
+      {{/each}}
+    </optgroup>
+    {{/if}}
+    {{#if roles}}
+    <optgroup label="{{localize 'SWFFG.Crew.Role.Existing'}}">
+      {{# each roles as |role| }}
+        <option value="{{ role.role_name }}"{{#iff ../rolesInUse 'contains' role.role_name }} selected{{/iff}}>{{ role.role_name }}</option>
+      {{/each }}
+    </optgroup>
+    {{/if}}
+  </multi-select>
+</p>

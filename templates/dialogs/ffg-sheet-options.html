@@ -1,0 +1,23 @@
+<div class="sheet-options-dialog flexcol">
+  {{#each options as |option id|}}
+  <div class="form-group">
+    <label>{{option.name}}</label>
+    <div class="form-fields">
+      {{#if (eq option.type "Boolean")}}
+      <input type="checkbox" name="config.{{id}}" id="{{id}}" data-dtype="Boolean" {{checked option.value}} />
+      {{/if}}
+      {{#if (eq option.type "String")}}
+      <input type="text" name="config.{{id}}" id="{{id}}" data-dtype="String" value="{{localize option.value}}" />
+      {{/if}}
+      {{#if (eq option.type "Array")}}
+      <select name="config.{{id}}" id="{{id}}">
+        {{#selectFfg option.value}}{{#each option.options as |optionvalue id|}}
+        <option value="{{id}}">{{optionvalue}}</option>
+        {{/each}}{{/selectFfg}}
+      </select>
+      {{/if}}
+    </div>
+    <p class="notes">{{option.hint}}</p>
+  </div>
+  {{/each}}
+</div>

@@ -1,0 +1,18 @@
+.application.ffg-medical-dialog>.window-content {padding:14px;overflow-y:auto;max-height:calc(100vh - 100px);}
+.ffg-medical-content {display:flex;flex-direction:column;gap:12px;font:400 13px/1.45 Arial,sans-serif;min-height:0;}
+.ffg-medical-content>label {display:flex;flex-direction:column;gap:4px;font-weight:600;}
+.ffg-medical-content select {width:100%;font:400 13px/1.4 Arial,sans-serif;}
+.ffg-medical-summary {padding:10px 12px;border:1px solid #83969d77;border-radius:6px;background:#718c9b12;}
+.ffg-medical-stats {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;}
+.ffg-medical-stats>div {display:flex;flex-direction:column;gap:2px;text-align:center;}
+.ffg-medical-stats span {font-size:11px;opacity:.85;}
+.ffg-medical-stats strong {font-size:16px;font-variant-numeric:tabular-nums;}
+.ffg-medical-note {margin:0;font-size:12px;font-style:italic;text-align:justify;}
+.ffg-medical-summary .ffg-medical-note {margin-top:8px;}
+.ffg-medical-error {margin:0;color:var(--color-level-error,#a33239);text-align:justify;}
+.ffg-medical-content>footer {display:flex;justify-content:flex-end;gap:6px;margin-top:auto;padding-top:3px;}
+.ffg-medical-content>footer button {width:auto;min-width:90px;padding:4px 12px;font:500 13px/1.4 Arial,sans-serif;}
+.ffg-medical-content>footer button:not(.ffg-medical-confirm) {background:transparent;color:inherit;border:1px solid #83969d;}
+.ffg-medical-content>footer .ffg-medical-confirm {background:#6a3438;border-color:#6a3438;color:#fff;}
+.ffg-medical-reset-dialog .dialog-buttons {justify-content:flex-end;}
+.ffg-medical-reset-dialog .dialog-buttons button {flex:none;width:auto;}

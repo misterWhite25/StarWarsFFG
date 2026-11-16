@@ -1,0 +1,365 @@
+import {
+  rulesetSettings,
+  combatSettings,
+  actorSettings,
+  xpSpendingSettings,
+  localizationSettings,
+  groupManagerSettings,
+} from "./ui-settings.js";
+
+export default class SettingsHelpers {
+  // Initialize System Settings after the Init Hook
+  static initLevelSettings() {
+    game.settings.register("starwarsffg", "activeEffectMigrationVersion", {
+      name: "Active Effect Migration Version", scope: "world", config: false, type: Number, default: 0,
+    });
+
+    // System Migration Version
+    game.settings.register("starwarsffg", "systemMigrationVersion", {
+      name: "Current Version",
+      scope: "world",
+      default: null,
+      config: false,
+      type: String,
+    });
+
+    game.settings.register("starwarsffg", "enableTonioCustomRules", {
+      name: "SWFFG.Settings.TonioRules.Name",
+      hint: "SWFFG.Settings.TonioRules.Hint",
+      scope: "world",
+      config: false,
+      default: false,
+      type: Boolean,
+    });
+
+    const sessionDirectoryTabs = ["scenes", "actors", "npcs", "vehicles", "items", "journal", "tables", "macros", "compendium"];
+    const refreshDirectories = (tabs = sessionDirectoryTabs) => {
+      for (const tab of tabs) {
+        const directory = ui[tab];
+        // The docked directory also refreshes its open pop-out in AbstractSidebarTab.render.
+        if (directory?.rendered || directory?.popout?.rendered) directory.render();
+      }
+    };
+
+    // Keep the original NPC preference so existing pins remain available.
+    game.settings.register("starwarsffg", "npcSessionFavorites", {
+      scope: "user",
+      config: false,
+      type: Array,
+      default: [],
+      onChange: () => refreshDirectories(["npcs"]),
+    });
+    game.settings.register("starwarsffg", "npcFolderIcons", {
+      scope: "user",
+      config: false,
+      type: Object,
+      default: {},
+      onChange: () => refreshDirectories(),
+    });
+    game.settings.register("starwarsffg", "directorySessionFavorites", {
+      scope: "user",
+      config: false,
+      type: Object,
+      default: {},
+      onChange: () => refreshDirectories(),
+    });
+
+    game.settings.registerMenu("starwarsffg", "rulesetSettings", {
+      name: game.i18n.localize("SWFFG.Settings.ruleset.Name"),
+      hint: game.i18n.localize("SWFFG.Settings.ruleset.Hint"),
+      label: game.i18n.localize("SWFFG.Settings.ruleset.Label"),
+      icon: "fa-solid fa-scroll",
+      type: rulesetSettings,
+      restricted: true,
+    });
+
+    game.settings.registerMenu("starwarsffg", "combatSettings", {
+      name: game.i18n.localize("SWFFG.Settings.combat.Name"),
+      hint: game.i18n.localize("SWFFG.Settings.combat.Hint"),
+      label: game.i18n.localize("SWFFG.Settings.combat.Label"),
+      icon: "fa-solid fa-swords",
+      type: combatSettings,
+      restricted: true,
+    });
+
+    game.settings.registerMenu("starwarsffg", "actorSettings", {
+      name: game.i18n.localize("SWFFG.Settings.actor.Name"),
+      hint: game.i18n.localize("SWFFG.Settings.actor.Hint"),
+      label: game.i18n.localize("SWFFG.Settings.actor.Label"),
+      icon: "fas fa-user-alt",
+      type: actorSettings,
+      restricted: true,
+    });
+
+    game.settings.registerMenu("starwarsffg", "xpSpendingSettings", {
+      name: game.i18n.localize("SWFFG.Settings.xpSpending.Name"),
+      hint: game.i18n.localize("SWFFG.Settings.xpSpending.Hint"),
+      label: game.i18n.localize("SWFFG.Settings.xpSpending.Label"),
+      icon: "fa-solid fa-treasure-chest",
+      type: xpSpendingSettings,
+      restricted: true,
+    });
+
+    game.settings.registerMenu("starwarsffg", "localizationSettings", {
+      name: game.i18n.localize("SWFFG.Settings.localization.Name"),
+      hint: game.i18n.localize("SWFFG.Settings.localization.Hint"),
+      label: game.i18n.localize("SWFFG.Settings.localization.Label"),
+      icon: "fa-solid fa-font",
+      type: localizationSettings,
+      restricted: true,
+    });
+
+    game.settings.registerMenu("starwarsffg", "groupManagerSettings", {
+      name: game.i18n.localize("SWFFG.Settings.groupManager.Name"),
+      hint: game.i18n.localize("SWFFG.Settings.groupManager.Hint"),
+      label: game.i18n.localize("SWFFG.Settings.groupManager.Label"),
+      icon: "fa-solid fa-user-group",
+      type: groupManagerSettings,
+      restricted: true,
+    });
+
+    // Register dice theme setting
+    game.settings.register("starwarsffg", "dicetheme", {
+      name: game.i18n.localize("SWFFG.SettingsDiceTheme"),
+      hint: game.i18n.localize("SWFFG.SettingsDiceThemeHint"),
+      scope: "world",
+      config: false,
+      default: "starwars",
+      type: String,
+      onChange: (rule) => {
+        if (rule === "starwars") {
+          game.settings.set("starwarsffg", "enableForceDie", true);
+        }
+        return this.debouncedReload();
+      },
+      choices: {
+        starwars: "starwars",
+        genesys: "genesys",
+      },
+    });
+
+    // Register vehicle range bands
+    game.settings.register("starwarsffg", "vehicleRangeBand", {
+      name: game.i18n.localize("SWFFG.SettingsVehicleRange"),
+      hint: game.i18n.localize("SWFFG.SettingsVehicleRangeHint"),
+      scope: "world",
+      config: false,
+      default: "starwars",
+      type: String,
+      onChange: () => {
+        return this.debouncedReload();
+      },
+      choices: {
+        starwars: "starwars",
+        genesys: "genesys",
+      },
+    });
+
+    // Enable auto Soak calculation
+    game.settings.register("starwarsffg", "enableSoakCalc", {
+      name: game.i18n.localize("SWFFG.EnableSoakCalc"),
+      hint: game.i18n.localize("SWFFG.EnableSoakCalcHint"),
+      scope: "world",
+      config: false,
+      default: true,
+      type: Boolean,
+      onChange: this.debouncedReload,
+    });
+
+    // Enable auto Soak calculation
+    game.settings.register("starwarsffg", "privateTriggers", {
+      name: game.i18n.localize("SWFFG.EnablePrivateTriggers"),
+      hint: game.i18n.localize("SWFFG.EnablePrivateTriggersHint"),
+      scope: "world",
+      config: false,
+      default: true,
+      type: Boolean,
+      onChange: this.debouncedReload,
+    });
+
+    // Register grouping talents so people can let them be ordered by purchase history
+    game.settings.register("starwarsffg", "talentSorting", {
+      name: game.i18n.localize("SWFFG.EnableSortTalentsByActivationGlobal"),
+      hint: game.i18n.localize("SWFFG.EnableSortTalentsByActivationHint"),
+      scope: "world",
+      config: false,
+      default: false,
+      type: Boolean,
+      onChange: this.debouncedReload,
+    });
+
+    // Register skill sorting by localised value setting
+    game.settings.register("starwarsffg", "skillSorting", {
+      name: game.i18n.localize("SWFFG.SettingsSkillSorting"),
+      hint: game.i18n.localize("SWFFG.SettingsSkillSortingHint"),
+      scope: "world",
+      config: false,
+      default: false,
+      type: Boolean,
+      onChange: this.debouncedReload,
+    });
+
+    // Register setting for group manager Player Character List display mode
+    game.settings.register("starwarsffg", "pcListMode", {
+      name: game.i18n.localize("SWFFG.SettingsPCListMode"),
+      hint: game.i18n.localize("SWFFG.SettingsPCListModeHint"),
+      scope: "world",
+      config: false,
+      default: "active",
+      type: String,
+      choices: {
+        active: game.i18n.localize("SWFFG.SettingsPCListModeActive"),
+        owned: game.i18n.localize("SWFFG.SettingsPCListModeOwned"),
+      },
+      onChange: (_rule) => {
+        const groupmanager = canvas?.groupmanager?.window;
+        if (groupmanager) {
+          groupmanager.render();
+        }
+      },
+    });
+
+    // Register placeholder settings to store Destiny Pool values for the group manager.
+    game.settings.register("starwarsffg", "dPoolLight", {
+      name: "Destiny Pool Light",
+      scope: "world",
+      default: 0,
+      config: false,
+      type: Number,
+      onChange: (_rule) => {
+        const groupmanager = canvas?.groupmanager?.window;
+        if (groupmanager) {
+          groupmanager.render();
+        }
+        let destinyLight = game.settings.get("starwarsffg", "dPoolLight");
+        const display = document.getElementById("destinyLight");
+        if (display) {
+          display.setAttribute("data-value", destinyLight);
+          display.innerHTML = destinyLight + `<span>${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-light"))}</span>`;
+        }
+      },
+    });
+    game.settings.register("starwarsffg", "dPoolDark", {
+      name: "Destiny Pool Dark",
+      scope: "world",
+      default: 0,
+      config: false,
+      type: Number,
+      onChange: (_rule) => {
+        const groupmanager = canvas?.groupmanager?.window;
+        if (groupmanager) {
+          groupmanager.render();
+        }
+        let destinyDark = game.settings.get("starwarsffg", "dPoolDark");
+        const display = document.getElementById("destinyDark");
+        if (display) {
+          display.setAttribute("data-value", destinyDark);
+          display.innerHTML = destinyDark + `<span>${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-dark"))}</span>`;
+        }
+      },
+    });
+
+    // Register settings for UI Themes
+    game.settings.register("starwarsffg", "ui-uitheme", {
+      module: "starwarsffg",
+      name: game.i18n.localize("SWFFG.SettingsUITheme"),
+      hint: game.i18n.localize("SWFFG.SettingsUIThemeHint"),
+      scope: "world",
+      config: false,
+      default: "mandar",
+      type: String,
+      onChange: this.debouncedReload,
+      choices: {
+        default: game.i18n.localize("SWFFG.UI.Settings.RetiredTheme"),
+        mandar: "Mandar",
+      },
+    });
+
+    game.settings.register("starwarsffg", "destiny-pool-light", {
+      name: game.i18n.localize("SWFFG.SettingsDestinyLight"),
+      hint: game.i18n.localize("SWFFG.SettingsDestinyLightHint"),
+      scope: "world",
+      config: false,
+      default: "SWFFG.Lightside",
+      type: String,
+      onChange: (rule) => {
+        if (rule === "") {
+          game.settings.set("starwarsffg", "destiny-pool-light", "SWFFG.Lightside");
+        }
+        return this.debouncedReload();
+      },
+    });
+
+    game.settings.register("starwarsffg", "destiny-pool-dark", {
+      name: game.i18n.localize("SWFFG.SettingsDestinyDark"),
+      hint: game.i18n.localize("SWFFG.SettingsDestinyDarkHint"),
+      scope: "world",
+      config: false,
+      default: "SWFFG.Darkside",
+      type: String,
+      onChange: (rule) => {
+        if (rule === "") {
+          game.settings.set("starwarsffg", "destiny-pool-dark", "SWFFG.Darkside");
+        }
+        return this.debouncedReload();
+      },
+    });
+
+    game.settings.register("starwarsffg", "enableForceDie", {
+      name: game.i18n.localize("SWFFG.SettingsEnableForceDie"),
+      hint: game.i18n.localize("SWFFG.SettingsEnableForceDieHint"),
+      scope: "world",
+      config: false,
+      default: true,
+      type: Boolean,
+      onChange: (rule) => {
+        if (game.settings.get("starwarsffg", "dicetheme") === "starwars") {
+          if (!rule) {
+            game.settings.set("starwarsffg", "enableForceDie", true);
+          }
+        }
+        return this.debouncedReload();
+      },
+    });
+
+    // Increase compatibility with old versions (likely to make new games kinda weird as it updates items from chat data)
+    game.settings.register("starwarsffg", "oldWorldCompatability", {
+      name: game.i18n.localize("SWFFG.OldWorld.CompatLabel"),
+      hint: game.i18n.localize("SWFFG.OldWorld.CompatHint"),
+      scope: "world",
+      config: false,
+      default: false,
+      type: Boolean,
+      onChange: this.debouncedReload,
+    });
+
+    // Allow GM characters in Group manager
+    game.settings.register("starwarsffg", "GMCharactersInGroupManager", {
+      name: game.i18n.localize("SWFFG.Settings.groupManager.GMCharactersInGroupManager.Name"),
+      hint: game.i18n.localize("SWFFG.Settings.groupManager.GMCharactersInGroupManager.Hint"),
+      scope: "world",
+      config: false,
+      default: false,
+      type: Boolean,
+    });
+
+  }
+
+  // Initialize System Settings after the Ready Hook
+  static readyLevelSetting() {
+    // Name default healing item
+    game.settings.register("starwarsffg", "medItemName", {
+      name: game.i18n.localize("SWFFG.MedicalItemName"),
+      hint: game.i18n.localize("SWFFG.MedicalItemNameHint"),
+      scope: "world",
+      config: false,
+      default: game.i18n.localize("SWFFG.DefaultMedicalItemName"),
+      type: String,
+      onChange: this.debouncedReload,
+    });
+
+
+  }
+
+  static debouncedReload = foundry.utils.debounce(() => window.location.reload(), 100);
+}

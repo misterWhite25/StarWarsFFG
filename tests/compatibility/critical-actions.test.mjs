@@ -1,0 +1,95 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import test from 'node:test';
+import vm from 'node:vm';
+async function load() {
+ const actors=new Map(),messages=[];
+ const context=vm.createContext({game:{user:{id:'gm',isGM:true},i18n:frI18n,actors:{get:id=>actors.get(id)},tables:{contents:[]},packs:[]},
+ foundry:{utils:{deepClone:structuredClone}},fromUuid:async id=>id.startsWith('Actor.')?[...actors.values()].find(a=>a.uuid===id):(actors.has(id)?{uuid:id,actorLink:true,actor:actors.get(id)}:undefined),
+ CONST:{CHAT_MESSAGE_STYLES:{ROLL:5}},ChatMessage:{create:async data=>messages.push(data)},Roll:{fromJSON:json=>JSON.parse(json)},ui:{notifications:{warn(){}}}});
+ const talent=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/roll-talents.js',import.meta.url),'utf8'),{context});await talent.link(()=>{});await talent.evaluate();
+ const targetHelper=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-target.js',import.meta.url),'utf8'),{context});await targetHelper.link(()=>{});await targetHelper.evaluate();
+ const picker=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/token-target-picker.js',import.meta.url),'utf8'),{context});await picker.link(()=>{});await picker.evaluate();
+ const groups=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context});await groups.link(()=>{});await groups.evaluate();
+ const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-actions.js',import.meta.url),'utf8'),{context});await module.link(specifier=>specifier.includes('vehicle-minion-group')?groups:specifier.includes('token-target-picker')?picker:specifier.includes('critical-target')?targetHelper:talent);await module.evaluate();
+ return {api:module.namespace,actors,messages,game:context.game};
+}
+function message() {
+ return {id:'m',uuid:'ChatMessage.m',author:{id:'gm'},whisper:['gm'],blind:true,flags:{entries:[{id:'a',batch:'b',effect:'critical',quantity:1},{id:'t',batch:'b',effect:'critical',quantity:1}]},
+ getFlag(){return this.flags;},async setFlag(_s,_k,value){this.flags=value;}};
+}
+test('critical modifier includes existing injuries, Vicious, talent ranks and extra activations without vehicle injury talents',async()=>{
+ const {api}=await load();
+ const target={type:'character',items:{contents:[{type:'criticalinjury'},{type:'criticalinjury'},{type:'weapon'}]},talentList:[{name:'Durable',isRanked:true,rank:2}]};
+ const attacker={talentList:[{name:'Lethal Blows',isRanked:true,rank:2}]};
+ const item={system:{itemmodifier:[{name:'Vicious Quality',system:{rank_current:2}}]}};
+ const mods=api.criticalModifiers(target,attacker,item,3,-5);
+ assert.equal(mods.total,55);assert.equal(mods.durable,-20);assert.equal(mods.additional,20);
+ target.type='vehicle';target.items.contents=[{type:'criticaldamage'}];assert.equal(api.criticalModifiers(target,attacker,item,1).total,30);
+});
+test('table result preserves name, description, range and severity and rejects incomplete custom data',async()=>{
+ const {api}=await load();
+ const data=api.criticalItemData({name:'Injury',description:'<p>Rule</p>',range:[151,999999],flags:{starwarsffg:{severity:4}}},170,{message:'ChatMessage.m',group:'a:t',kind:'character'});
+ assert.equal(data.type,'criticalinjury');assert.equal(data.system.severity,4);assert.equal(data.system.max,999999);assert.equal(data.flags.starwarsffg.criticalOrigin.total,170);
+ assert.throws(()=>api.criticalItemData({name:'Bad',range:[1,5]},1,{kind:'character'}));
+});
+test('a saved critical creates one injury, supports safe undo and keeps original roll privacy',async()=>{
+ const {api,actors,messages}=await load(),msg=message();let creates=0;
+ const items=[];
+ const target={uuid:'Actor.target',type:'character',isOwner:true,items:{contents:items,get:id=>items.find(item=>item.id===id)},
+ async createEmbeddedDocuments(_type,data){creates++;const item={...structuredClone(data[0]),id:'injury',getFlag(_s,k){return this.flags.starwarsffg[k];},toObject(){return {name:this.name,system:this.system};}};items.push(item);return [item];},
+ async deleteEmbeddedDocuments(_type,ids){for(const id of ids){items.splice(items.findIndex(item=>item.id===id),1);}}};actors.set('Token.target',target);
+ const data=api.criticalItemData({name:'Injury',description:'Rule',range:[1,5],flags:{starwarsffg:{severity:1}}},3,{message:msg.uuid,group:'a:t',kind:'character'});
+ const saved={status:'rolled',target:'Token.target',targetIdentity:{tokenUuid:'Token.target',actorUuid:target.uuid,linked:true},data,roll:'{"total":3}',summary:'Injury (3)'};
+ const applied=await api.applyRolledCritical(msg,['a','t'],saved);assert.equal(creates,1);assert.equal(items.length,1);
+ assert.deepEqual(messages[0].whisper,['gm']);assert.equal(messages[0].blind,true);
+ // Simulate retry after Actor creation succeeded but the ChatMessage save failed.
+ await api.applyRolledCritical(msg,['a','t'],saved);assert.equal(creates,1);assert.equal(items.length,1);
+ items[0].system.description='edited';await assert.rejects(()=>api.undoCritical(msg,msg.flags.entries[0]));assert.equal(items.length,1);
+ items[0].system.description='Rule';await api.undoCritical(msg,msg.flags.entries[0]);assert.equal(items.length,0);assert.equal(msg.flags.entries.every(entry=>entry.undone),true);
+});
+test('non-owners cannot apply and minion undo preserves later damage',async()=>{
+ const {api,actors}=await load(),msg=message();
+ const target={uuid:'Actor.target',isOwner:false,system:{stats:{wounds:{value:0}}},async update(data){this.system.stats.wounds.value=data['system.stats.wounds.value'];}};actors.set('Token.target',target);
+ const saved={status:'rolled',target:'Token.target',minion:true,change:{actor:target.uuid,path:'system.stats.wounds.value',before:0,after:6}};
+ await assert.rejects(()=>api.applyRolledCritical(msg,['a','t'],saved));assert.equal(target.system.stats.wounds.value,0);
+ target.isOwner=true;await api.applyRolledCritical(msg,['a','t'],saved);assert.equal(target.system.stats.wounds.value,6);
+ target.system.stats.wounds.value=7;await assert.rejects(()=>api.undoCritical(msg,msg.flags.entries[0]));assert.equal(target.system.stats.wounds.value,7);
+ target.system.stats.wounds.value=6;await api.undoCritical(msg,msg.flags.entries[0]);assert.equal(target.system.stats.wounds.value,0);
+});
+
+test('French compendium Coup mortel and Dur au Mal contribute their acquired ranks to critical modifiers',async()=>{
+ const {api}=await load();
+ const target={type:'character',items:{contents:[]},talentList:[{name:'Dur au Mal',isRanked:true,rank:2}]};
+ const attacker={talentList:[{name:'Coup mortel',isRanked:true,rank:1}]};
+ const modifiers=api.criticalModifiers(target,attacker,{},1);
+ assert.equal(modifiers.lethal,10);assert.equal(modifiers.durable,-20);assert.equal(modifiers.total,-10);
+});
+
+test('Lethal Blows can be declined without removing other critical modifiers',async()=>{const {api}=await load();const target={type:'character',items:{contents:[]}},attacker={talentList:[{name:'Coup mortel',isRanked:true,rank:2}]};assert.equal(api.criticalModifiers(target,attacker,{},2,5,false).total,15);assert.equal(api.criticalModifiers(target,attacker,{},2,5,true).total,35);});
+
+test('a minion critical cannot be applied or undone on a replacement token actor', async () => {
+  const {api,actors} = await load(), msg = message();
+  const replacement = {uuid:'Actor.new',isOwner:true,system:{stats:{wounds:{value:6}}},update:assert.fail};
+  actors.set('Token.target', replacement);
+  const old = {status:'rolled',target:'Token.target',minion:true,change:{actor:'Actor.old',path:'system.stats.wounds.value',before:0,after:6}};
+  for (const saved of [old, {...old,targetIdentity:{tokenUuid:'Token.target',actorUuid:'Actor.old',linked:true}}]) {
+    await assert.rejects(() => api.applyRolledCritical(msg,['a','t'],saved), /changé/);
+    const applied = {...saved,status:'applied'};
+    for (const e of msg.flags.entries) e.criticalResolution = applied;
+    await assert.rejects(() => api.undoCritical(msg,msg.flags.entries[0]), /changé/);
+    assert.equal(replacement.system.stats.wounds.value,6);
+  }
+});
+
+test('a grouped vehicle critical defeats exactly one craft and safe undo restores it',async()=>{
+  const {api,actors}=await load(),msg=message();
+  const target={uuid:'Actor.ship',type:'vehicle',isOwner:true,flags:{starwarsffg:{vehicleMinionGroup:{enabled:true,count:3}}},system:{stats:{hullTrauma:{max:6,value:0}}},async update(data){this.system.stats.hullTrauma.value=data['system.stats.hullTrauma.value'];}};
+  actors.set('Token.ship',target);
+  const saved={status:'rolled',target:'Token.ship',targetIdentity:{tokenUuid:'Token.ship',actorUuid:target.uuid,linked:true},minion:true,vehicleGroup:{count:3,hullPerVehicle:6},change:{actor:target.uuid,path:'system.stats.hullTrauma.value',before:0,after:7}};
+  await api.applyRolledCritical(msg,['a','t'],saved);assert.equal(target.system.stats.hullTrauma.value,7);
+  target.flags.starwarsffg.vehicleMinionGroup.count=4;await assert.rejects(api.undoCritical(msg,msg.flags.entries[0]));
+  target.flags.starwarsffg.vehicleMinionGroup.count=3;await api.undoCritical(msg,msg.flags.entries[0]);assert.equal(target.system.stats.hullTrauma.value,0);
+});

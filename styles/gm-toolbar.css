@@ -1,0 +1,7 @@
+/* The slots, controls, images and responsive rows use Foundry's Hotbar styles. */
+#hotbar #hotbar-page-controls.ffg-gm-pages {min-width:32px;--page-control-color:var(--color-light-2);}
+#hotbar #hotbar-page-controls .ffg-gm-page-selector {
+  width:32px;height:22px;margin:-11px 0 0 -16px;padding:0;border:0;border-radius:0;
+  appearance:none;background:transparent;color:var(--color-light-2);font:inherit;font-size:var(--font-size-12);line-height:22px;text-align:center;cursor:pointer;pointer-events:all;
+}
+#hotbar .ffg-gm-page-selector option {background:var(--color-cool-5);color:var(--color-light-2);}

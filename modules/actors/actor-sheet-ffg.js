@@ -1,0 +1,2883 @@
+import {resolveCrewActor} from '../helpers/integrated-crew.mjs';
+import {isHomesteadType,actorSheetType} from '../helpers/actor-types.mjs';
+import {crewRoleDefinitions,crewRoleDefinition,crewRolesForSkill} from "../helpers/crew-role-definitions.mjs";
+import {openEquipmentPicker} from "../helpers/equipment-picker.mjs";
+import {showMedicalUse,showMedicalReset,correctMedicalUses} from "../helpers/medical-controls.mjs";
+import {vehicleCrew} from '../helpers/crew-gunners.mjs';
+import {malfunctionNavigation} from '../helpers/vehicle-malfunction-engine.js';
+import CharacteristicIncrease from "../helpers/characteristic-increase.js";
+import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
+import { deleteDataField } from "../compatibility/data-operators.js";
+/**
+ * Extend the basic ActorSheet with some very simple modifications
+ * @extends {ActorSheet}
+ */
+import PopoutEditor from "../popout-editor.js";
+import DiceHelpers, {get_dice_pool} from "../helpers/dice-helpers.js";
+import ActorOptions from "./actor-ffg-options.js";
+import ImportHelpers from "../importer/import-helpers.js";
+import ModifierHelpers from "../helpers/modifiers.js";
+import ActorHelpers, {xpLogEarn, xpLogSpend} from "../helpers/actor-helpers.js";
+import EmbeddedItemHelpers from "../helpers/embeddeditem-helpers.js";
+import EffectHelpers from "../helpers/effects.js";
+import {
+  deregister_crew,
+  hasWeaponCrewAccess,
+  weaponCrewCandidates,
+  crewStationWeapons,
+  build_crew_roll,
+  selectRoles,
+  handlePilotCheck,
+  buildPilotRoll
+} from "../helpers/crew.js";
+import {DicePoolFFG} from "../dice/pool.js";
+import { itemPillHover } from "../helpers/item-pill-hover.js";
+
+export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
+
+  constructor(...args) {
+    super(...args);
+    /**
+     * Track the set of filters which are applied
+     * @type {Set}
+     */
+    this._filters = {
+      skills: new Set(),
+    };
+    this._manualEditMode = false;
+  }
+
+  pools = new Map();
+
+  /** @override */
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["starwarsffg", "sheet", "actor"],
+      template: "systems/starwarsffg/templates/actors/ffg-character-sheet.html",
+      width: 710,
+      height: 650,
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "characteristics" }],
+      scrollY: [".tableWithHeader", ".tab", ".skillsGrid", ".skillsTablesGrid"],
+    });
+  }
+
+  /** @override */
+  get template() {
+    const path = "systems/starwarsffg/templates/actors";
+    return `${path}/ffg-${actorSheetType(this.actor.type)}-sheet.html`;
+  }
+
+  /** @override */
+  async _onDropItem(event, data) {
+    if(!this.actor.verifyEditModeIsNotEnabled()) return false;
+
+    if (data?.type === "Item") {
+      // this is the stock implementation, except that we do not pass "true" to item.toObject
+      if ( !this.actor.isOwner ) return false;
+      const item = await Item.implementation.fromDropData(data);
+      // do not Draw values from the underlying data source rather than transformed values - we want to use adjusted values
+      let itemData = item.toObject(false);
+      // Keep adjusted item values, but serialize effects from their source data:
+      // v14 prepares a permanent duration as Infinity, which cannot be persisted.
+      itemData.effects = item.effects.map(effect => effect.toObject());
+
+      // Handle item sorting within the same Actor
+      if ( this.actor.uuid === item.parent?.uuid ) return this._onSortItem(event, itemData);
+
+      if (this.actor.type === "character" && CharacteristicIncrease.matches(itemData)) {
+        itemData = await CharacteristicIncrease.choose(itemData, this.actor);
+        if (!itemData) return false;
+      }
+
+      if(itemData.type==='talent'){const {configureTalentDrop}=await import('../helpers/reviewed-talent-ui.js');itemData=await configureTalentDrop(this.actor,itemData);if(!itemData)return false;}
+
+      if (["character", "minion", "rival"].includes(this.actor.type) && ["itemmodifier", "itemattachment"].includes(itemData.type)) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.NoDirectMods"));
+        return false;
+      }
+
+      if (this.actor.type === "character" && itemData.type === "species") {
+        // add starting XP from species
+        const curAvailable = parseInt(this.actor.system?.experience?.available);
+        const curTotal = parseInt(this.actor.system?.experience?.total);
+        const startingXP = parseInt(itemData.system?.startingXP);
+        await this.actor.update(
+          {
+            system: {
+              experience: {
+                available: curAvailable + startingXP,
+                total: curTotal + startingXP,
+              }
+            }
+          }
+        );
+        await xpLogEarn(this.actor, startingXP, curAvailable + startingXP, curTotal + startingXP, game.i18n.format("SWFFG.GrantXPSpecies", {species: itemData.name}) );
+      }
+
+      if (this.actor.type === "character" && ["talent", "specialization", "signatureability", "forcepower"].includes(itemData.type)) {
+        const cost = await this.calcPurchasePrice(itemData);
+        const availableXP = this.actor.system.experience.available;
+        const payable=Number.isFinite(cost)&&cost>=0;
+        const {acquisitionNotice}=await import('../helpers/creation-guide.js');
+          new LegacyDialogV2(
+            {
+              title: payable?game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}):game.i18n.localize("SWFFG.UI.Actor.GrantOnlyTitle"),
+              content: acquisitionNotice(this.actor,itemData,cost),
+              buttons: {
+                purchase: {
+                  icon: '<i class="fas fa-hourglass"></i>',
+                  label: (payable && cost <= availableXP) ? game.i18n.localize("SWFFG.DragDrop.PurchaseItem") : game.i18n.localize("SWFFG.DragDrop.UnableToPurchase"),
+                  disabled: !payable || cost > availableXP,
+                  callback: async (_that) => {
+                    if (!this.actor.verifyEditModeIsNotEnabled()) return false;
+                    if (cost >= 0 && cost <= Number(this.actor.system.experience.available)) {
+                      if (cost >= 0) {
+                        const AEState = await ActorHelpers.beginEditMode(this.actor, true);
+                        const updatedAvailableXP = this.actor.system.experience.available;
+                        await this.object.update({
+                          system: {
+                            experience: {
+                              available: updatedAvailableXP - cost,
+                            }
+                          }
+                        });
+                        await xpLogSpend(
+                          this.actor, `${game.i18n.localize("SWFFG.DragDrop.XPLog")} ${itemData.type} ${itemData.name}`,
+                          cost,
+                          this.actor.system.experience.available,
+                          this.actor.system.experience.total
+                        );
+                        await ActorHelpers.endEditMode(this.actor, AEState, true);
+                        return this._onDropItemCreate(itemData);
+                      }
+                    } else {
+                      ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
+                      return false;
+                    }
+                  },
+                },
+                grant: {
+                  icon: '<i class="fas fa-recycle"></i>',
+                  label: game.i18n.localize("SWFFG.DragDrop.GrantItem"),
+                  callback: async (_that) => {
+                    const messageData = {
+                      speaker: `${this.actor.name}`,
+                      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+                      content: `${this.actor.name} granted ${itemData.type} ${itemData.name} for free`,
+                      whisper: ChatMessage.getWhisperRecipients("GM"),
+                    }
+
+                    ChatMessage.create(messageData);
+                    return this._onDropItemCreate(itemData);
+                  }
+                },
+              },
+            },
+          {
+            classes: ["dialog", "starwarsffg"],
+          }
+        ).render(true);
+        return false;
+      }
+
+      if (Object.keys(itemData).includes("effects") && ["armour", "weapon"].includes(itemData.type)) {
+        // make sure all non-inherent AEs are disabled on the item before the drag-and-drop
+        for (const effect of itemData.effects) {
+          if (effect.name !== "(inherent)") {
+            effect.disabled = true;
+          }
+        }
+      }
+
+      // Create the owned item
+      return this._onDropItemCreate(itemData);
+    } else {
+      return super._onDropItem(event, data);
+    }
+  }
+
+  async calcPurchasePrice(itemData) {
+    let cost = 0;
+    if (itemData.type === "specialization") {
+      // check if the specialization is in career
+      const career = this.actor.items.find(i => i.type === "career");
+      if (career) {
+        const inCareerSpecializations = Object.values(career?.system?.specializations) || [];
+        let inCareer = false;
+        for (const careerSpecialization of inCareerSpecializations) {
+          if (careerSpecialization.name === itemData.name) {
+            inCareer = true;
+            break;
+          }
+        }
+        const specializationCount = (this.actor.items.filter(i => i.type === "specialization") || []).length;
+        cost = (specializationCount + 1) * 10;
+        if (!inCareer && !itemData.system.universal) {
+          cost += 10;
+        }
+        return cost;
+      } else {
+        return -1;
+      }
+    } else if (itemData.type === "talent" && game.settings.get("starwarsffg", "dicetheme") === "genesys") {
+      const talents = this.actor.talentList.filter(i => i.name === itemData.name);
+        if (talents.length > 0) {
+          cost = Math.min((talents[0].tier + 1), 5) * 5;
+        } else cost = itemData.system.tier * 5;
+      return cost;
+    } else if (itemData.type === "signatureability") {
+      return itemData.system.base_cost;
+    } else if (itemData.type === "forcepower") {
+      return itemData.system.base_cost;
+    }
+    return -1;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async getData(options) {
+    const data = await super.getData();
+    data.classType = this.constructor.name;
+
+    // Compatibility for Foundry 0.8.x with backwards compatibility (hopefully) for 0.7.x
+    const actorData = this.actor.toObject(false);
+    // Edit only a display copy of the base data. Never suspend effects on a client.
+    if (this._manualEditMode) {
+      for (const key of ["characteristics", "skills", "stats"]) {
+        if (this.actor._source.system[key]) actorData.system[key] = foundry.utils.deepClone(this.actor._source.system[key]);
+      }
+      if (this.actor.flags?.starwarsffg?.automaticStats?.enabled) actorData.system.stats = foundry.utils.deepClone(this.actor.system.stats);
+    }
+    for(const path of this.actor._reviewedTalentPaths??[]){
+      if(path.endsWith('.careerskill'))foundry.utils.setProperty(actorData,path,true);
+    }
+    data.actor = actorData;
+    data.data = actorData.system;
+    data.talentList = this.actor.talentList;
+    data.rollData = this.actor.getRollData.bind(this.actor);
+
+    data.token = this.token;
+    data.items = this.actor.items;
+    await Promise.all(data.items.map(async item => {
+      item.system.renderedDesc = await PopoutEditor.renderDiceImages(item.system.description, this.actor);
+    }));
+
+    if (options?.action === "update" && this.object.compendium) {
+      data.item = foundry.utils.mergeObject(data.actor, options.data);
+    }
+
+    data.dtypes = ["String", "Number", "Boolean"];
+    for (let attr of Object.values(data.data.attributes)) {
+      attr.isCheckbox = attr.dtype === "Boolean";
+    }
+    data.FFG = CONFIG.FFG;
+
+    let autoSoakCalculation = true;
+
+    if (typeof this.actor.flags?.starwarsffg?.config?.enableAutoSoakCalculation === "undefined") {
+      autoSoakCalculation = game.settings.get("starwarsffg", "enableSoakCalc");
+    } else {
+      autoSoakCalculation = this.actor.flags?.starwarsffg?.config?.enableAutoSoakCalculation;
+    }
+
+    data.settings = {
+      enableSoakCalculation: autoSoakCalculation,
+      enableCriticalInjuries: this.actor.flags?.starwarsffg?.config?.enableCriticalInjuries,
+    };
+
+    // Establish sheet width and height using either saved persistent values or default values defined in swffg-config.js
+    this.position.width = this.sheetWidth || CONFIG.FFG.sheets.defaultWidth[this.actor.type];
+    this.position.height = this.sheetHeight || CONFIG.FFG.sheets.defaultHeight[this.actor.type];
+
+    switch (this.actor.type) {
+      case "character":
+      case "nemesis":
+      case "rival":
+        if (data.limited) {
+          this.position.height = 165;
+        }
+        // we need to update all specialization talents with the latest talent information
+        if (!this.actor.flags.starwarsffg?.loaded && this.actor.type !== "rival") {
+          // TODO: is this actually needed?
+          await this._updateSpecialization(data);
+          await this.object._prepareCharacterData(data);
+        }
+
+        if (data.data.stats.credits?.value > 999) {
+          data.data.stats.credits.value = data.data.stats.credits.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        data.data.enrichedBio = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.biography, {secrets: !data.limited});
+        data.data.general.enrichedNotes = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.general?.notes) || "";
+        data.data.general.enrichedFeatures = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.general?.features) || "";
+        data.maxAttribute = game.settings.get("starwarsffg", "maxAttribute");
+        data.obligationItems = {
+          obligations: data.items.filter(i => i.system?.type === "obligation"),
+          duties: data.items.filter(i => i.system?.type === "duty"),
+          moralities: data.items.filter(i => i.system?.type === "morality"),
+        };
+        break;
+      case "vehicle": {
+        data.data.enrichedBio = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.biography);
+        // add the crew to the items of the vehicle
+        data.crew = [];
+        // look up the flag data
+        const crew = vehicleCrew(this.actor);
+        if (crew.length) {
+          const registeredRoles = crewRoleDefinitions(this.actor);
+          const navigation = malfunctionNavigation(this.actor);
+          for (let i = 0; i < crew.length; i++) {
+            try {
+              // iterate over the crew members in the flag data
+              const actor = resolveCrewActor(crew[i],this.actor);
+              // pull the image from the actor to display it
+              const img = actor?.img || 'icons/svg/mystery-man.svg';
+
+              // add them to the items, so we can render them on the sheet
+              let roll;
+              if (actor) {
+                if (!['pilot','copilot'].includes(crewRoleDefinition(this.actor,crew[i].role)?.kind)) {
+                  roll = build_crew_roll(this.actor.id, crew[i].actor_id, crew[i].role);
+                } else {
+                  roll = (await buildPilotRoll(this.actor.id, crew[i].actor_id, 0)).renderPreview().innerHTML;
+                }
+              } else {
+                deregister_crew(this.actor, crew[i].actor_id, crew[i].role);
+              }
+              if(actor?._npcStation&&['pilot','copilot'].includes(crewRoleDefinition(this.actor,crew[i].role)?.kind))roll=get_dice_pool(actor,this.actor.system.spaceShip?'Piloting: Space':'Piloting: Planetary',new DicePoolFFG({difficulty:0})).renderPreview().innerHTML;
+              if (!roll) {
+                roll = 'N/A';
+              }
+              const pilotStation = ['pilot','copilot'].includes(crewRoleDefinition(this.actor,crew[i].role)?.kind);
+              const stationWeapons = crewStationWeapons(this.actor, crew[i], registeredRoles, navigation);
+              const gunneryRoll = actor && stationWeapons.length
+                ? get_dice_pool(actor, "Gunnery", new DicePoolFFG({difficulty: 0})).renderPreview().innerHTML
+                : null;
+              data.crew.push({
+                'type': 'shipcrew',
+                'integrated': Boolean(crew[i].integrated),
+                'npcStation': Boolean(actor?._npcStation),
+                'profileKind': actor?._integratedCrew?.kind,
+                'supportSkill': ({engineer:'Mechanics',operator:'Computers',astromech:'Mechanics'})[actor?._integratedCrew?.kind]??null,
+                'supportRoll': actor?._integratedCrew&&['engineer','operator','astromech'].includes(actor._integratedCrew.kind)?get_dice_pool(actor,actor._integratedCrew.kind==='operator'?'Computers':'Mechanics',new DicePoolFFG({difficulty:0})).renderPreview().innerHTML:null,
+                'id': crew[i].actor_id,
+                'name': crew[i].actor_name,
+                'role': crew[i].role,
+                'roleLabel': crewRoleDefinition(this.actor,crew[i].role)?.label ?? crew[i].role,
+                'img': img,
+                'roll': roll,
+                'pilotRoll': pilotStation ? roll : null,
+                'gunneryRoll': gunneryRoll,
+                'assignedWeaponName': crew[i].weapon_id ? this.actor.items.get(crew[i].weapon_id)?.name : null,
+                'link': crew[i]?.link,
+              });
+            } catch {
+              data.crew.push({
+                'type': 'shipcrew',
+                'id': crew[i].actor_id,
+                'name': crew[i].actor_name,
+                'role': crew[i].role,
+                'roleLabel': crewRoleDefinition(this.actor,crew[i].role)?.label ?? crew[i].role,
+                'img': '',
+                'roll': game.i18n.localize('SWFFG.UI.Actor.InvalidCrewRole'),
+                'link': '',
+              });
+            }
+          }
+        }
+        break;
+      }
+      default:
+    }
+
+    if (this.actor.type !== "vehicle" && !isHomesteadType(this.actor.type)) {
+      // Filter out skills that are not custom (manually added) or part of the current system skill list
+      Object.keys(data.data.skills)
+      .filter(s => !data.data.skills[s].custom && !CONFIG.FFG.skills[s])
+      .forEach(s => delete data.data.skills[s]);
+
+      data.data.skilllist = this._createSkillColumns(data);
+    }
+
+    if (this.actor.flags?.starwarsffg?.xpLog) {
+      data.xpLog = this.object.getFlag("starwarsffg", "xpLog") || [];
+    }
+
+    data.actor.items = ActorSheetFFG.sortForActorSheet(data.actor.items);
+    data.disabled = !this._manualEditMode;
+
+    data.modTypeSelected = "all"; // TODO: should this be something else?
+    data.modifierTypes = CONFIG.FFG.allowableModifierTypes;
+    data.modifierChoices = CONFIG.FFG.allowableModifierChoices;
+
+    // Include active effects
+    data.effects = actorData.system.effects.map(EffectHelpers.transformEffects);
+
+    return data;
+  }
+
+  /**
+   * Sorts actor items by name so that they are presented in a constant order
+   * @param items
+   * @returns {*}
+   */
+  static sortForActorSheet(items) {
+    return items.sort(function(a, b) {
+       return a.name.localeCompare(b.name);
+    });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  activateListeners(html) {
+    super.activateListeners(html);
+    return this._activateFFGListeners(html);
+  }
+
+  /**
+   * Bind Star Wars FFG-specific listeners independently from the legacy
+   * ApplicationV1 lifecycle so they can also be used by ActorSheetFFGV2.
+   * @param {jQuery} html
+   * @param {object} [context] Prepared data for this render.
+   * @returns {void}
+   */
+  _activateFFGListeners(html, context) {
+    // convert jquery element to HTMLElement for usage with Foundry calls
+    const htmlElement = html.get(0);
+
+    // Activate tabs
+    const sheetTabs = new foundry.applications.ux.Tabs({
+      navSelector: ".sheet-tabs",
+      contentSelector: ".sheet-body",
+      initial: this._sheetTab ?? htmlElement.querySelector(".sheet-tabs [data-tab]")?.dataset.tab,
+      callback: (_event, _tabs, tabName) => {
+        this._sheetTab = tabName;
+      },
+    });
+    sheetTabs.bind(htmlElement);
+    this._tabs = [sheetTabs];
+
+    html.find(".alt-tab").click((ev) => {
+      const item = $(ev.currentTarget);
+      this._tabs[0].activate(item.data("tab"));
+    });
+
+    html.find(".popout-editor").on("mouseover", (event) => {
+      $(event.currentTarget).find(".popout-editor-button").show();
+    });
+    html.find(".popout-editor").on("mouseout", (event) => {
+      $(event.currentTarget).find(".popout-editor-button").hide();
+    });
+    html.find(".popout-editor .popout-editor-button").on("click", this._onPopoutEditor.bind(this));
+
+    // V2 supplies the context it just rendered. V1 listeners prepare it once for all rows.
+    const skills = html.find(".skill").filter((_,row)=>row.dataset.ffgSkillPreview!=="ready");
+    if (skills.length) {
+      const renderPools = data => Promise.all(Array.from(skills, row => DiceHelpers.addSkillDicePool(data, row)));
+      const previews = context ? renderPools(context) : this.getData({}).then(renderPools);
+      previews.catch(error => CONFIG.logger.error(error));
+    }
+
+    // Everything below here is only needed if the sheet is editable
+    if (!this.isEditable) return;
+
+    if (!ActorSheetFFG.itemCreationGuardRegistered) {
+      ActorSheetFFG.itemCreationGuardRegistered = true;
+      Hooks.on("preCreateItem", (item, _createData, _options, _userId) => {
+        // Save persistent sheet height and width for future use.
+        this.sheetWidth = this.position.width;
+        this.sheetHeight = this.position.height;
+
+        // Check that we are dealing with an Embedded Document
+        if (item.isEmbedded && item.parent.documentName === "Actor") {
+          const actor = item.actor
+          // we only allow one species and one career, find any other species and remove them.
+          if (item.type === "species" || item.type === "career") {
+            if (["character", "nemesis", "rival"].includes(actor.type) || (actor.type === "minion" && item.type === "species")) {
+              const itemToDelete = actor.items.filter((i) => (i.type === item.type) && (i.id !== item.id));
+              itemToDelete.forEach((i) => {
+                actor.items.get(i.id).delete();
+              });
+            } else if (actor.type === "minion") {
+              ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.ItemTypeDenied", {itemType: game.i18n.localize(`TYPES.Item.${item.type}`), actorType: game.i18n.localize(`TYPES.Actor.${actor.type}`)}));
+              return false;
+            }
+          }
+
+          // Critical Damage can only be added to "vehicle" actors and Critical Injury can only be added to "character" actors.
+          if (item.type === "criticaldamage" && actor.type !== "vehicle") {
+            ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.VehicleCriticalsOnly"));
+            return false;
+          }
+          if (item.type === "criticalinjury" && !["character", "nemesis", "rival"].includes(actor.type)) {
+            ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.CharacterCriticalsOnly"));
+            return false;
+          }
+
+          // Prevent adding of character data type items to vehicles
+          if (["career", "forcepower", "talent", "signatureability", "specialization", "species", "ability"].includes(item.type.toString()) && actor.type === "vehicle") {
+            ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.ItemTypeDenied", {itemType: game.i18n.localize(`TYPES.Item.${item.type}`), actorType: game.i18n.localize(`TYPES.Actor.${actor.type}`)}));
+            return false;
+          }
+        }
+      });
+    }
+
+    if (Hooks.events.preDeleteItem === undefined) {
+      Hooks.on("preDeleteItem", (_item, _createData, _options, _userId) => {
+        // Save persistent sheet height and width for future use.
+        this.sheetWidth = this.position.width;
+        this.sheetHeight = this.position.height;
+      });
+    }
+
+    if (Hooks.events.preUpdateItem === undefined) {
+      Hooks.on("preUpdateItem", (_item, _createData, _options, _userId) => {
+        // Save persistent sheet height and width for future use.
+        this.sheetWidth = this.position.width;
+        this.sheetHeight = this.position.height;
+      });
+    }
+
+    let contextMenuOptions = [
+      {
+        name: game.i18n.localize("SWFFG.SkillChangeCharacteristicContextItem"),
+        icon: '<i class="fas fa-wrench"></i>',
+        callback: (li) => {
+          this._onChangeSkillCharacteristic(li);
+        },
+      },
+      {
+        name: game.i18n.localize("SWFFG.SkillAddAsInitiative"),
+        icon: '<i class="fas fa-cog"></i>',
+        callback: (li) => {
+          this._onInitiativeSkill(li);
+        },
+      },
+      {
+        name: game.i18n.localize("SWFFG.SkillRemoveContextItem"),
+        icon: '<i class="fas fa-times"></i>',
+        callback: async (li) => {
+          await this._onRemoveSkill(li);
+        },
+      },
+    ];
+
+    if (this.actor.type === "character") {
+      contextMenuOptions.push(
+        {
+          name: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SkillRank.ContextMenuText"),
+          icon: '<i class="fa-regular fa-circle-up"></i>',
+          callback: (li) => {
+            if(!this.actor.verifyEditModeIsNotEnabled()) return false;
+            this._buySkillRank(li);
+          },
+        },
+      );
+    }
+
+    new foundry.applications.ux.ContextMenu(
+        htmlElement,
+        ".skillsGrid .skill",
+        contextMenuOptions,
+      {jQuery: false},
+    );
+
+    html.find(".skill-purchase").click(async (ev) => {
+      const target = $(ev.currentTarget).parents().filter("[data-ability]");
+      await this._buySkillRank(target);
+    });
+
+    html.find(".xp-adjustment").click(async (ev) => {
+      await this._xpAdjustment(ev);
+    });
+
+    html.find(".xp-export").click(async (ev) => {
+      await this._xpExport(ev);
+    });
+
+    html.find(".xp-import").click(async (ev) => {
+      await this._xpImport(ev);
+    });
+
+    html.find(".minion-control").click(async (ev) => {
+      await this._handleKillMinion(ev);
+    });
+
+    new foundry.applications.ux.ContextMenu(htmlElement, "div.skillsHeader", [
+      {
+        name: game.i18n.localize("SWFFG.SkillAddContextItem"),
+        icon: '<i class="fas fa-plus-circle"></i>',
+        callback: (li) => {
+          this._onCreateSkill(li);
+        },
+      },
+    ], {jQuery: false});
+
+    html.find(".ffg-purchase").click(async (ev) => {
+      await this._buyCore(ev)
+    });
+
+    html.find(".xp.purchase").click(async (ev) => {
+      const purchaseId = $(ev.currentTarget).children("a").data("id");
+      await this._refundPurchase(purchaseId, "purchase")
+    });
+    html.find(".xp.adjusted").click(async (ev) => {
+      const purchaseId = $(ev.currentTarget).children("a").data("id");
+      await this._refundPurchase(purchaseId, "adjustment")
+    });
+
+    // Send Item Details to chat.
+
+    const sendToChatContextItem = {
+      name: game.i18n.localize("SWFFG.SendToChat"),
+      icon: '<i class="far fa-comment"></i>',
+      callback: (el) => {
+        let itemId = el.getAttribute("data-item-id");
+        this._itemDetailsToChat(itemId);
+      },
+    };
+
+    const rollForceToChatContextItem = {
+      name: game.i18n.localize("SWFFG.SendForceRollToChat"),
+      icon: '<i class="fas fa-dice-d20"></i>',
+      callback: async (el) => {
+        let itemId = el.getAttribute("data-item-id");
+        let item = this.actor.items.get(itemId);
+        if (!item) {
+          item = game.items.get(itemId);
+        }
+        if (!item) {
+          item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+        }
+        const forcedice = this.actor.system.stats.forcePool.max - this.actor.system.stats.forcePool.value;
+        if (forcedice > 0) {
+          let sheet = await this.getData();
+          const dicePool = new DicePoolFFG({
+            force: forcedice,
+          });
+          DiceHelpers.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${item.name}`, item.name, item);
+        } else {
+          ui.notifications.info(game.i18n.localize("SWFFG.Roll.ForcePowers.NoDice"));
+        }
+      },
+    };
+
+    new foundry.applications.ux.ContextMenu(htmlElement, "li.item:not(.forcepower)", [sendToChatContextItem], {jQuery: false});
+    new foundry.applications.ux.ContextMenu(htmlElement, "li.item.forcepower", [sendToChatContextItem, rollForceToChatContextItem], {jQuery: false});
+    new foundry.applications.ux.ContextMenu(htmlElement, "div.item", [sendToChatContextItem], {jQuery: false});
+
+    if (["nemesis", "rival"].includes(this.actor.type)) {
+      this.sheetoptions = new ActorOptions(this, html);
+      this.sheetoptions.register("enableAutoSoakCalculation", {
+        name: game.i18n.localize("SWFFG.EnableSoakCalc"),
+        hint: game.i18n.localize("SWFFG.EnableSoakCalcHint"),
+        type: "Boolean",
+        default: true,
+      });
+      this.sheetoptions.register("enableForcePool", {
+        name: game.i18n.localize("SWFFG.EnableForcePool"),
+        hint: game.i18n.localize("SWFFG.EnableForcePoolHint"),
+        type: "Boolean",
+        default: true,
+      });
+    }
+    if (this.actor.type === "character") {
+      this.sheetoptions = new ActorOptions(this, html);
+      this.sheetoptions.register("enableAutoSoakCalculation", {
+        name: game.i18n.localize("SWFFG.EnableSoakCalc"),
+        hint: game.i18n.localize("SWFFG.EnableSoakCalcHint"),
+        type: "Boolean",
+        default: true,
+      });
+      this.sheetoptions.register("medicalItemName", {
+        name: game.i18n.localize("SWFFG.MedicalItemName"),
+        hint: game.i18n.localize("SWFFG.MedicalItemNameHint"),
+        type: "String",
+        default: game.settings.get("starwarsffg", "medItemName"),
+      });
+      this.sheetoptions.register("enableForcePool", {
+        name: game.i18n.localize("SWFFG.EnableForcePool"),
+        hint: game.i18n.localize("SWFFG.EnableForcePoolHint"),
+        type: "Boolean",
+        default: true,
+      });
+      this.sheetoptions.register("enableStrainThreshold", {
+        name: game.i18n.localize("SWFFG.EnableStrainThreshold"),
+        hint: game.i18n.localize("SWFFG.EnableStrainThresholdHint"),
+        type: "Boolean",
+        default: true,
+      });
+      this.sheetoptions.register("talentSorting", {
+        name: game.i18n.localize("SWFFG.EnableSortTalentsByActivation"),
+        type: "Array",
+        default: 0,
+        options: [game.i18n.localize("SWFFG.UseGlobalSetting"), game.i18n.localize("SWFFG.OptionValueYes"), game.i18n.localize("SWFFG.OptionValueNo")],
+      });
+    }
+
+    if (this.actor.type === "minion") {
+      this.sheetoptions = new ActorOptions(this, html);
+      this.sheetoptions.register("enableAutoSoakCalculation", {
+        name: game.i18n.localize("SWFFG.EnableSoakCalc"),
+        hint: game.i18n.localize("SWFFG.EnableSoakCalcHint"),
+        type: "Boolean",
+        default: true,
+      });
+      this.sheetoptions.register("enableCriticalInjuries", {
+        name: game.i18n.localize("SWFFG.EnableCriticalInjuries"),
+        hint: game.i18n.localize("SWFFG.EnableCriticalInjuriesHint"),
+        type: "Boolean",
+        default: false,
+      });
+      this.sheetoptions.register("talentSorting", {
+        name: game.i18n.localize("SWFFG.EnableSortTalentsByActivation"),
+        type: "Array",
+        default: 0,
+        options: [game.i18n.localize("SWFFG.UseGlobalSetting"), game.i18n.localize("SWFFG.OptionValueYes"), game.i18n.localize("SWFFG.OptionValueNo")],
+      });
+    }
+
+    if (this.actor.type === "vehicle") {
+      this.sheetoptions = new ActorOptions(this, html);
+      this.sheetoptions.register("enableHyperdrive", {
+        name: game.i18n.localize("SWFFG.EnableHyperdrive"),
+        hint: game.i18n.localize("SWFFG.EnableHyperdriveHint"),
+        type: "Boolean",
+        default: true,
+      });
+      this.sheetoptions.register("enableSensors", {
+        name: game.i18n.localize("SWFFG.EnableSensors"),
+        hint: game.i18n.localize("SWFFG.EnableSensorsHint"),
+        type: "Boolean",
+        default: true,
+      });
+    }
+
+    if (!isHomesteadType(this.actor.type)) {
+      this.sheetoptions.register("enableEditMode", {
+        name: game.i18n.localize("SWFFG.EnableEditMode"),
+        hint: game.i18n.localize("SWFFG.EnableEditModeHint"),
+        type: "Boolean",
+        default: false,
+      });
+    }
+
+    // activate source and tag controls for actors
+    html.find(".source-control").click(async (ev) => {
+      await this._handleSourceControl(ev);
+    });
+    html.find(".tag-control").click(async (ev) => {
+      await this._handleTagControl(ev);
+    });
+
+    html.find(".medical").click(async event=>{
+      event.preventDefault();event.stopPropagation();
+      try{
+        if(event.currentTarget.classList.contains('fa-plus-circle'))await showMedicalUse(this.actor);
+        else await correctMedicalUses(this.actor);
+      }catch(error){ui.notifications.warn(error.message);}
+    });
+    html.find(".resetMedical").click(async event=>{
+      event.preventDefault();event.stopPropagation();
+      try{await showMedicalReset(this.actor);}catch(error){ui.notifications.warn(error.message);}
+    });
+    html.find('.medical[role=button]').on('keydown',event=>{
+      if(['Enter',' '].includes(event.key)&&!event.currentTarget.closest('.ffg-combat-medical')){event.preventDefault();event.currentTarget.click();}
+    });
+
+    // Toggle item equipped
+    html.find(".items .item a.toggle-equipped").click((ev) => {
+      if(!this.actor.verifyEditModeIsNotEnabled()) {
+        return;
+      }
+
+      const li = $(ev.currentTarget);
+      const item = this.actor.items.get(li.data("itemId"));
+      if (item) {
+        item.update({ ["system.equippable.equipped"]: !item.system.equippable.equipped });
+      }
+    });
+
+    // Toggle item details
+    html.find(".items .item, .header-description-block .item, .injuries .item").click(async (ev) => {
+      if (!$(ev.target).hasClass("fa-trash") && !$(ev.target).hasClass("fas") && !$(ev.target).hasClass("rollable")) {
+        const li = $(ev.currentTarget);
+        if (ev?.originalEvent?.target && !$(ev?.originalEvent?.target).hasClass("item-pill")) {
+          let itemId = li.data("itemId");
+          let item = this.actor.items.get(itemId);
+
+          if (!item) {
+            item = game.items.get(itemId);
+          }
+          if (!item) {
+            item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+            if (!item) {
+              const talentItemData = this.actor?.talentList?.find(talent => talent.itemId === itemId);
+              if (talentItemData) {
+                item = await ImportHelpers.findCompendiumEntityByName("Item", talentItemData.name);
+              }
+            }
+          }
+          if (item?.sheet) {
+            if (item?.type == "species" || item?.type == "career" || item?.type == "specialization" || item?.type == "forcepower" || item?.type == "signatureability") item.sheet.render(true);
+            else this._itemDisplayDetails(item, ev);
+          }
+        }
+        if (ev?.originalEvent?.target && $(ev?.originalEvent?.target).hasClass("item-pill")) {
+          event.preventDefault();
+          event.stopPropagation();
+          const li = $(ev.originalEvent.target);
+          const itemType = li.attr("data-item-embed-type");
+          let itemData = {};
+          const newEmbed = li.attr("data-item-embed");
+
+          if (newEmbed === "true" && itemType === "itemmodifier") {
+            itemData = {
+              img: li.attr('data-item-embed-img'),
+              name: li.attr('data-item-embed-name'),
+              type: li.attr('data-item-embed-type'),
+              system: {
+                description: unescape(li.attr('data-item-embed-description')),
+                attributes: JSON.parse(li.attr('data-item-embed-modifiers')),
+                rank: li.attr('data-item-embed-rank'),
+                rank_current: li.attr('data-item-embed-rank'),
+              },
+              ownership: {
+                default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER,
+              }
+            };
+            const tempItem = await new Item(itemData, { temporary: true });
+            tempItem.sheet.render(true);
+          } else {
+            
+            let itemId = li.dataset.itemId;
+            let modifierType = li.dataset.modifierType;
+            let modifierId = li.dataset.modifierId;
+
+            await EmbeddedItemHelpers.displayOwnedItemItemModifiersAsJournal(itemId, modifierType, modifierId, this.actor.id, this.actor.compendium);
+          }
+        };
+      }
+    });
+
+    // Toggle Force Power details
+    html.find(".force-power").click(async (ev) => {
+      ev.stopPropagation();
+      if (!$(ev.target).hasClass("fa-trash") && !$(ev.target).hasClass("fas") && !$(ev.target).hasClass("rollable")) {
+        const li = $(ev.currentTarget);
+        const itemId = li.data("itemId");
+        const item = this.actor.items.get(itemId);
+        const desc = li.data("desc");
+
+        if (item?.sheet) {
+          if (item?.type === "forcepower") {
+            await this._forcePowerDisplayDetails(desc, ev);
+          }
+        }
+      }
+    });
+
+    // Toggle Signature Ability details
+    html.find(".signature-ability").click(async (ev) => {
+      ev.stopPropagation();
+      if (!$(ev.target).hasClass("fa-trash") && !$(ev.target).hasClass("fas") && !$(ev.target).hasClass("rollable")) {
+        const li = $(ev.currentTarget);
+        const itemId = li.data("itemId");
+        const item = this.actor.items.get(itemId);
+        const desc = li.data("desc");
+
+        if (item?.sheet) {
+          if (item?.type === "signatureability") {
+            await this._forcePowerDisplayDetails(desc, ev);
+          }
+        }
+      }
+    });
+
+    // Add Inventory Item
+    html.find(".item-add").click(async (ev) => {
+      ev.preventDefault();
+      if (!this.isEditable || !this.actor.isOwner) return;
+      if(!this.actor.verifyEditModeIsNotEnabled()) {
+        return;
+      }
+
+      const type=ev.currentTarget.classList[1],openSheet=ev.currentTarget.dataset.openSheet==='true';
+      const createBlank=async(forceOpen=false)=>{
+        if(!this.isEditable||!this.actor.isOwner||!this.actor.verifyEditModeIsNotEnabled())return;
+      let itemType = "";
+      switch (type) {
+        case "armour":
+          itemType = game.i18n.localize("TYPES.Item.armour");
+          break;
+        case "weapon":
+          itemType = game.i18n.localize("TYPES.Item.weapon");
+          break;
+        case "shipattachment":
+          itemType = game.i18n.localize("TYPES.Item.shipattachment");
+          break;
+        case "shipweapon":
+          itemType = game.i18n.localize("TYPES.Item.shipweapon");
+          break;
+
+        default:
+          itemType = game.i18n.localize("TYPES.Item.gear");
+          break;
+      }
+
+      let itemdata = {
+        name: itemType,
+        type: type
+      };
+
+
+      if ((openSheet || forceOpen) && itemdata.type === "gear") itemdata.system = {quantity: {value: 1}};
+      const created = await this.actor.createEmbeddedDocuments("Item", [itemdata]);
+      if (openSheet || forceOpen) created[0]?.sheet?.render(true);
+      };
+      if(await openEquipmentPicker(this,{type,createBlank:()=>createBlank(true)}))return;
+      await createBlank();
+    });
+
+    html.find(".talent-delete").click(async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!this.actor.isOwner || !this.actor.verifyEditModeIsNotEnabled()) return;
+      const row = ev.currentTarget.closest(".item");
+      const item = this.actor.items.get(row?.dataset.itemId);
+      if (!item || item.type !== "talent") return;
+      const content = document.createElement("div");
+      const message = document.createElement("p");
+      message.textContent = game.i18n.format("SWFFG.UI.Actor.DeleteTalentPrompt", {name: item.name});
+      content.append(message);
+      const confirmed = await foundry.applications.api.DialogV2.confirm({
+        window: {title: game.i18n.localize("SWFFG.UI.Actor.DeleteTalent")}, content,
+        classes: ["starwarsffg", "themed"]
+      });
+      if (confirmed && this.actor.items.has(item.id)) await item.delete();
+    });
+    // Item deletion already triggers the native actor sheet refresh.
+    html.find('.item-delete').click(async event=>{
+      event.preventDefault();event.stopPropagation();
+      if(!this.isEditable||!this.actor.isOwner||!this.actor.verifyEditModeIsNotEnabled())return;
+      const control=event.currentTarget;if(control.dataset.deleting)return;
+      const item=this.actor.items.get(control.closest('.item')?.dataset.itemId);if(!item)return;
+      control.dataset.deleting='true';control.setAttribute('aria-disabled','true');
+      try{await item.delete();}catch(error){ui.notifications.error(error.message);}
+      finally{if(control.isConnected){delete control.dataset.deleting;control.removeAttribute('aria-disabled');}}
+    });
+
+    // Edit Inventory Item
+    html.find(".item-edit").click(async (ev) => {
+      if(!this.actor.verifyEditModeIsNotEnabled()) {
+        return;
+      }
+
+      const li = $(ev.currentTarget).parents(".item");
+      let itemId = li.data("itemId");
+      let item = this.actor.items.get(itemId);
+      if (!item) {
+        item = game.items.get(itemId);
+
+        if (!item) {
+          item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+        }
+      }
+      if (item?.sheet) {
+        item.sheet.render(true);
+      }
+    });
+
+    // Roll Force Power
+    html.find(".item-fp").click(async (ev) => {
+      const li = $(ev.currentTarget).parents(".item");
+      let itemId = li.data("itemId");
+      let item = this.actor.items.get(itemId);
+      if (!item) {
+        item = game.items.get(itemId);
+      }
+      if (!item) {
+        item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+      }
+      const forcedice = this.actor.system.stats.forcePool.max - this.actor.system.stats.forcePool.value;
+      if (forcedice > 0) {
+        let sheet = await this.getData();
+        const dicePool = new DicePoolFFG({
+          force: forcedice,
+        });
+        DiceHelpers.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${item.name}`, item.name, item);
+      } else {
+        ui.notifications.info(game.i18n.localize("SWFFG.Roll.ForcePowers.NoDice"));
+      }
+    });
+
+    // Delete Crew
+    html.find(".crew-delete").click(async (ev) => {
+      const crew_member_id = $(ev.currentTarget).parents(".item").data("actor-id");
+      const crew_role = $(ev.currentTarget).parents(".item").data("role-name");
+      const actor = this.actor;
+
+      await deregister_crew(actor, crew_member_id, crew_role);
+    });
+
+    // Edit Crew
+    html.find(".crew-edit").click(async (ev) => {
+      if(!this.actor.verifyEditModeIsNotEnabled()) {
+        return;
+      }
+      const crew_member_id = $(ev.currentTarget).parents(".item").data("actor-id");
+      await selectRoles(this.actor, crew_member_id);
+    });
+
+    html.find(".item-info").click((ev) => {
+      if(!this.actor.verifyEditModeIsNotEnabled()) {
+        return;
+      }
+      ev.stopPropagation();
+      const li = $(ev.currentTarget).parents(".item");
+      const itemId = li.data("itemId");
+      const itemName = li.data("itemName");
+
+      const item = this.actor.talentList.find((talent) => {
+        if (itemId) return talent.itemId === itemId;
+        return talent.name === itemName;
+      });
+
+      const title = `${game.i18n.localize("SWFFG.TalentSource")} ${item.name}`;
+
+      new LegacyDialogV2(
+        {
+          title: title,
+          content: {
+            source: item.source,
+          },
+          buttons: {
+            done: {
+              icon: '<i class="fas fa-check"></i>',
+              label: game.i18n.localize("SWFFG.ButtonAccept"),
+              callback: (html) => {
+                if(!this.actor.verifyEditModeIsNotEnabled()) {
+                  return;
+                }
+                const talentsToRemove = $(html).find("input[type='checkbox']:checked");
+                
+
+                for (let i = 0; i < talentsToRemove.length; i += 1) {
+                  const id = $(talentsToRemove[i]).val();
+                  this.actor.items.get(id)?.delete();
+                }
+              },
+            },
+            cancel: {
+              icon: '<i class="fas fa-times"></i>',
+              label: game.i18n.localize("SWFFG.Cancel"),
+            },
+          },
+        },
+        {
+          classes: ["dialog", "starwarsffg"],
+          template: "systems/starwarsffg/templates/actors/dialogs/ffg-talent-selector.html",
+        }
+      ).render(true);
+    });
+
+    // Edit Gear Quantities
+
+    html.find(".item-quantity .quantity.increase").click(async (ev) => {
+      ev.stopPropagation();
+      const li = $(ev.currentTarget).parents(".item");
+      let itemId = li.data("itemId");
+      let item = this.actor.items.get(itemId);
+      if (!item) {
+        item = game.items.get(itemId);
+
+        if (!item) {
+          item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+        }
+      }
+      item.update({ ["system.quantity.value"]: item.system.quantity.value + 1 });
+    });
+
+    html.find(".item-quantity .quantity.decrease").click(async (ev) => {
+      ev.stopPropagation();
+      const li = $(ev.currentTarget).parents(".item");
+      let itemId = li.data("itemId");
+      let item = this.actor.items.get(itemId);
+      if (!item) {
+        item = game.items.get(itemId);
+
+        if (!item) {
+          item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+        }
+      }
+      let count = item.system.quantity.value - 1 > 0 ? item.system.quantity.value - 1 : 0;
+      item.update({ ["system.quantity.value"]: count });
+    });
+
+    // Roll Skill
+    html
+      .find(".roll-button")
+      .on("click", async (event) => {
+        event.stopPropagation();
+        let upgradeType = null;
+        if (event.ctrlKey && !event.shiftKey) {
+          upgradeType = "ability";
+        } else if (!event.ctrlKey && event.shiftKey) {
+          upgradeType = "difficulty";
+        }
+        await DiceHelpers.rollSkill(this, event, upgradeType);
+      });
+
+    // All healing items use the same confirmation, stock and recipient rules.
+    html.find('.item-medical').on('click',async event=>{
+      event.preventDefault();event.stopPropagation();
+      const itemId=event.currentTarget.closest('.item')?.dataset.itemId;
+      try{await showMedicalUse(this.actor,{itemId});}catch(error){ui.notifications.warn(error.message);}
+    });
+
+    // Artillery is independent of the station's piloting or other skill roll.
+    html.find(".crew-gunnery-roll").on("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const row = event.currentTarget.closest(".item");
+      const member = vehicleCrew(this.actor).find(entry =>
+        entry.actor_id === row.dataset.actorId && entry.role === row.dataset.roleName);
+      if (!member) return;
+      const weapons = crewStationWeapons(this.actor, member, crewRoleDefinitions(this.actor));
+      if (!weapons.length) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoWeapons"));
+        return;
+      }
+      const fire = weapon => this.vehicleCrewGunneryRoll(weapon, weapon.system.skill.value, member);
+      if (weapons.length === 1) return await fire(weapons[0]);
+      const buttons = Object.fromEntries(weapons.map((weapon, index) => ["weapon" + index, {
+        label: weapon.name,
+        callback: () => fire(weapon),
+      }]));
+      await new LegacyDialogV2({
+        title: game.i18n.localize("SWFFG.Crew.Roles.Gunner.Title"),
+        content: `<p>${game.i18n.localize("SWFFG.Crew.Roles.Gunner.Description")}</p>`,
+        buttons,
+      }).render(true);
+    });
+
+    // Roll crew
+    html.find(".crew-roll").on("click", async (event) => {
+      event.preventDefault();
+      const row = event.currentTarget.closest(".item");
+      const crew_id = row.dataset.actorId;
+      const crew_role = row.dataset.roleName;
+      const ship = this.actor;
+
+      if (['pilot','copilot'].includes(crewRoleDefinition(ship,crew_role)?.kind)) {
+        await handlePilotCheck(ship, crew_id, crew_role);
+        return;
+      }
+
+      // look up the sheet for passing to the roller
+      const crew_member = game.actors.get(crew_id);
+      if (crew_member === undefined) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
+        deregister_crew(ship, crew_id, crew_role);
+        return;
+      }
+      const crewSheet = game.actors.get(crew_id)?.sheet;
+      const starting_pool = {'difficulty': 2};
+
+      const registeredRoles = crewRoleDefinitions(ship);
+      // look up the defined metadata for the assigned role
+      const role_info = [crewRoleDefinition(ship,crew_role)].filter(Boolean);
+      // validate the role still exists in our settings
+      if (role_info.length === 0) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Role.Removed"));
+        return;
+      }
+      // validate that it's a valid role
+      if (role_info[0].role_skill === undefined) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Role.Invalid"));
+        return;
+      }
+      // check if the pool uses handling
+      if (role_info[0].use_handling) {
+        const handling = ship?.system?.stats?.handling?.value;
+        // add modifiers from the vehicle handling
+        if (handling > 0) {
+          starting_pool['boost'] = handling;
+        } else if (handling < 0) {
+          starting_pool['setback'] = handling * -1;
+        }
+      }
+      // create chat card data
+      const card_data = {
+        "crew": {
+          "name": ship.name,
+          "img": ship.img,
+          "crew_card": true,
+          "role": role_info[0].role_name,
+        }
+      };
+      // create the starting pool
+      let pool = new DicePoolFFG(starting_pool);
+      if (role_info[0].use_weapons) {
+        // build the dialog to select which weapon to use
+        const weapons = {};
+        const station = vehicleCrew(this.actor).find(e => e.actor_id === crew_id && e.role === crew_role);
+        const raw_weapons = station ? crewStationWeapons(this.actor, station, registeredRoles) : [];
+        if (!raw_weapons.length) {
+          ui.notifications.warn(game.i18n.localize('SWFFG.WeaponCrew.NoWeapons'));
+          return;
+        }
+
+        for (let i = 0; i < raw_weapons.length; i++) {
+          weapons['weapon ' + i] = {
+            icon: `<img src="${raw_weapons[i].img}" style="max-width: 24px; max-height: 24px">`,
+            label: raw_weapons[i].name,
+            callback: () => this.vehicleCrewGunneryRoll(raw_weapons[i], raw_weapons[i].system.skill.value, station)
+          }
+        }
+
+        // actually show the dialog
+        await new LegacyDialogV2(
+          {
+            title: game.i18n.localize("SWFFG.Crew.Roles.Gunner.Title"),
+            content: `<p>${game.i18n.localize("SWFFG.Crew.Roles.Gunner.Description")}</p>`,
+            buttons: weapons,
+          },
+        ).render(true);
+      } else {
+        // update the pool with actor information
+        pool = get_dice_pool(crew_id, role_info[0].role_skill, pool);
+        // open the roll dialog (skill name is already localized)
+        await DiceHelpers.displayRollDialog(
+          crewSheet,
+          pool,
+          `${game.i18n.localize("SWFFG.Rolling")} ${role_info[0].role_skill}`,
+          `${role_info[0].role_skill}`,
+          card_data
+        );
+      }
+    });
+
+    // roll vehicle weapon by crew member
+    html.find(".roll-button-weapon").on("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const ship = this.actor;
+      const weaponId = $(event.currentTarget).data("item-id");
+      const weapon = ship.items.get(weaponId);
+      // validate the weapon still exists
+      if (!weapon) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Weapon.Removed"));
+        return;
+      }
+      const navigation = malfunctionNavigation(ship);
+      if(navigation.disabledWeapons.includes(weapon.id)){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WeaponDisabled"));return;}
+      const weaponSkill = weapon.system.skill.value;
+      const crew = vehicleCrew(ship);
+      const skillRoles = crewRolesForSkill(this.actor,weaponSkill);
+      const crewGunners = weaponCrewCandidates(weapon, crew, skillRoles, navigation);
+      if (hasWeaponCrewAccess(weapon) && !crewGunners.length) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoCrew"));
+        return;
+      }
+      if (crewGunners.length === 0) {
+        CONFIG.logger.warn("Could not find crew for this skill type; presenting default roller");
+        return await DiceHelpers.rollSkill(this, event, null);
+      } else if (crewGunners.length > 1) {
+        // create a dialog to ask the user which crew member should use the weapon
+        // build the dialog to select which gunner to use
+        const crewMembers = {};
+        for (let i = 0; i < crewGunners.length; i++) {
+          const actor = resolveCrewActor(crewGunners[i], ship);
+          const img = actor?.img ? actor.img : "icons/svg/mystery-man.svg";
+          crewMembers['crew ' + i] = {
+            icon: `<img src="${img}" style="max-width: 24px; max-height: 24px">`,
+            label: crewGunners[i].actor_name,
+            callback: async (_html) => {
+              await this.vehicleCrewGunneryRoll(weapon, weaponSkill, crewGunners[i]);
+            }
+          }
+        }
+        // actually show the dialog
+        await new LegacyDialogV2(
+          {
+            title: game.i18n.localize("SWFFG.Crew.Roles.Weapon.Title"),
+            content: `<p>${game.i18n.localize("SWFFG.Crew.Roles.Weapon.Description")}</p>`,
+            buttons: crewMembers,
+          },
+        ).render(true);
+      } else {
+        await this.vehicleCrewGunneryRoll(weapon, weaponSkill, crewGunners[0]);
+      }
+    });
+
+    // Roll from [ROLL][/ROLL] tag.
+    html.find(".rollSkillDirect").on("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      let data = event.currentTarget.dataset;
+      if (data) {
+        let sheet = await this.getData();
+        let skill = sheet.data.skills[data["skill"]];
+        let characteristic = sheet.data.characteristics[skill.characteristic];
+        let difficulty = data["difficulty"];
+        await DiceHelpers.rollSkillDirect(skill, characteristic, difficulty, sheet);
+      }
+    });
+
+    // Add or Remove Attribute
+    html.find(".attributes").on("click", ".attribute-control", ModifierHelpers.onClickAttributeControl.bind(this));
+
+    // transfer items between owned actor objects
+    const dragDrop = new foundry.applications.ux.DragDrop({
+      dragSelector: ".items-list .item",
+      dropSelector: ".sheet-body",
+      permissions: { dragstart: this._canDragStart.bind(this), drop: this._canDragDrop.bind(this) },
+      callbacks: { dragstart: this._onTransferItemDragStart.bind(this), drop: this._onTransferItemDrop.bind(this) },
+    });
+
+    dragDrop.bind(html[0]);
+
+    const dragDrop1 = new foundry.applications.ux.DragDrop({
+      dragSelector: ".skill",
+      dropSelector: ".macro",
+      permissions: { dragstart: this._canDragStart.bind(this), drop: this._canDragDrop.bind(this) },
+      callbacks: { dragstart: this._onSkillDragStart.bind(this) },
+    });
+
+    dragDrop1.bind(html[0]);
+
+    html.find("input[type='text'][data-dtype='Number'][min][max]").on("change", (event) => {
+      const a = event.currentTarget;
+      const min = parseInt($(a).attr("min"), 10);
+      const max = parseInt($(a).attr("max"), 10);
+      const value = parseInt($(a).val(), 10) || min;
+
+      if (value > max) {
+        $(a).val(max);
+      }
+    });
+
+    html.find("input[type='text'][data-dtype='Number'][pattern]").on("change", (event) => {
+      const a = event.currentTarget;
+      const value = $(a).val() || "2";
+      const pattern = new RegExp($(a).attr("pattern"));
+
+      if (!value.match(pattern)) {
+        $(a).val("2");
+      }
+    });
+
+    html.find(".edit-item").on("click", async (event) => {
+      event.preventDefault();
+      const a = event.currentTarget;
+      const itemId = a.dataset["id"];
+      let item = this.actor.items.get(itemId);
+      if (!item) {
+        return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.ItemNotFound"));
+      }
+      if (item?.sheet) {
+        item.sheet.render(true);
+      }
+    });
+
+    html.find(".add-obligation").on("click", async (event) => {
+      event.preventDefault();
+      const itemData = {
+        name: "new Obligation",
+        type: "obligation",
+        system: {
+          type: "obligation",
+          description: "Newly-created obligation",
+          magnitude: 0,
+        },
+      };
+      await this.actor.createEmbeddedDocuments("Item", [itemData]);
+    });
+
+    html.find(".add-motivation").on("click", async (event) => {
+      event.preventDefault();
+      const itemData = {
+        name: "new Motivation",
+        type: "motivation",
+        system: {
+          type: "Ambition",
+          description: "Newly-created motivation",
+        },
+      };
+      await this.actor.createEmbeddedDocuments("Item", [itemData]);
+    });
+
+    html.find(".add-background").on("click", async (event) => {
+      event.preventDefault();
+      const itemData = {
+        name: "new Background",
+        type: "background",
+        system: {
+          type: "hook",
+          description: "Newly-created background",
+        },
+      };
+      await this.actor.createEmbeddedDocuments("Item", [itemData]);
+    });
+
+    html.find(".remove-item").on("click", async (event) => {
+      event.preventDefault();
+      const a = event.currentTarget;
+      const id = a.dataset["id"];
+      const item = this.object.items.find(i => i.id === id);
+      if (!item) {
+        return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.DeleteItemNotFound"));
+      }
+      await this.object.deleteEmbeddedDocuments("Item", [id]);
+    });
+
+    html.find(".add-duty").on("click", async (event) => {
+      event.preventDefault();
+      const form = this.form;
+
+      const nk = randomID();
+      let newKey = document.createElement("div");
+      newKey.innerHTML = `<input type="text" name="data.dutylist.${nk}.type" value="" style="display:none;"/><input class="attribute-value" type="text" name="data.dutylist.${nk}.magnitude" value="0" data-dtype="Number" placeholder="0"/>`;
+      form.appendChild(newKey);
+      await this._onSubmit(event);
+    });
+
+    html.find(".remove-duty").on("click", async (event) => {
+      event.preventDefault();
+      const a = event.currentTarget;
+      const id = a.dataset["id"];
+      this.object.update({ "system.dutylist": { [id]: deleteDataField() } });
+    });
+
+    html.find(".force-conflict .enable-dice-pool").on("click", async (event) => {
+      event.preventDefault();
+      await this.actor.setFlag('starwarsffg', 'config', {enableForcePool: true});
+    });
+
+    html.find(".force-conflict .remove-force-powers").on("click", async (event) => {
+      event.preventDefault();
+      const itemsToDelete = this.actor.items.filter((i) => (i.type === "forcepower"));
+      itemsToDelete.forEach((i) => {
+          this.actor.items.get(i.id).delete();
+      });
+    });
+
+    html.find(".effect-row").on("click", async (event) => {
+      event.preventDefault();
+      let effectRow = html.find(`#${event.currentTarget.id}`);
+      effectRow.toggleClass("expanded");
+      if (effectRow.hasClass("expanded")) {
+        html.find(`#${event.currentTarget.id} .expand-icon`).text("-");
+      } else {
+        html.find(`#${event.currentTarget.id} .expand-icon`).text("+");
+      }
+      html.find(`.change-row.${event.currentTarget.id}`).toggleClass("hidden");
+    });
+  }
+
+  /**
+   * Display the roll dialog for a crew member rolling a ship weapon
+   * @param weapon - weapon item
+   * @param weaponSkill - skill used by the weapon
+   * @param selectedGunner - the crew member rolling the weapon (from the crew, not the actual actor)
+   * @returns {Promise<void>}
+   */
+  async vehicleCrewGunneryRoll(weapon, weaponSkill, selectedGunner) {
+    const malfunctions=malfunctionNavigation(this.actor);
+    if(malfunctions.disabledWeapons.includes(weapon.id)){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WeaponDisabled"));return;}
+    const current = vehicleCrew(this.actor).find(e => e.actor_id === selectedGunner.actor_id && e.role === selectedGunner.role);
+    const roles = crewRolesForSkill(this.actor,weaponSkill);
+    if (!current || !weaponCrewCandidates(weapon, [current], roles, malfunctions).length) {
+      ui.notifications.warn(game.i18n.localize('SWFFG.WeaponCrew.NoWeapons'));
+      return;
+    }
+
+    const starting_pool = {'difficulty': 2, 'setback': malfunctions.weaponSetbacks[weapon.id]??0};
+    const crewActor = resolveCrewActor(current, this.actor);
+    const crewSheet = crewActor?.sheet;
+    if (!crewSheet) return ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
+    if (crewActor._integratedCrew && !game.user.isGM) return ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoCrew"));
+    const crewData = await crewSheet.getData();
+    crewData.document = crewActor;
+    crewData.documentUuid = crewActor.uuid;
+    const crew = {name: this.actor.name, img: this.actor.img, crew_card: true, role: current.role};
+    // create the starting pool
+    let pool = new DicePoolFFG(starting_pool);
+    // update the pool with actor data
+    pool = get_dice_pool(crewActor, weaponSkill, pool);
+    pool = await DiceHelpers.getModifiers(pool, weapon);
+    // display the roll dialog
+    return await DiceHelpers.displayRollDialog(
+      crewData,
+      pool,
+      `${game.i18n.localize("SWFFG.Rolling")} ${weaponSkill}`,
+      weaponSkill,
+      weapon, undefined, undefined, null, {crew}
+    );
+  }
+
+  /**
+   * Display details of an item.
+   * @private
+   */
+  async _itemDisplayDetails(item, event) {
+    event.preventDefault();
+    let li = $(event.currentTarget);
+    const itemDetails = await item.getItemDetails();
+
+    // Toggle summary
+    if (li.hasClass("expanded")) {
+      let details = li.children(".item-details");
+      details.slideUp(200, () => details.remove());
+    } else {
+      const description = await PopoutEditor.renderDiceImages(itemDetails.description, this.actor);
+      const equipment = ['weapon', 'armour', 'armor', 'gear', 'shipweapon'].includes(item.type);
+      let div = $('<div class="item-details"></div>');
+      let props = $('<div class="item-properties"></div>');
+      if (equipment) {
+        div.addClass('ffg-equipment-details');
+        div.append($('<div class="ffg-equipment-details-description"></div>').html(description.replace(/\u2014/g, '-')));
+        const qualities = property => property.includes('<ul>');
+        const properties = [...itemDetails.properties.filter(p => !qualities(p)),
+          ...itemDetails.properties.filter(qualities)];
+        const encumbrance = properties.find(p => p.startsWith(`${game.i18n.localize('SWFFG.Encumbrance')}:`));
+        const rarity = properties.find(p => p.startsWith(`${game.i18n.localize('SWFFG.ItemsRarity')}:`));
+        let combined = false;
+        for (const property of properties) {
+          if (encumbrance && rarity && (property === encumbrance || property === rarity)) {
+            if (!combined) {
+              const row = $('<div class="tag ffg-equipment-compact-stats"></div>');
+              row.append($('<span></span>').html(encumbrance), $('<span></span>').html(rarity));
+              props.append(row);
+              combined = true;
+            }
+            continue;
+          }
+          const text = property.replace(/^Skill:\s*/, game.i18n.localize("SWFFG.UI.Item.SkillPrefix"))
+            .replace(/<ul>([\s\S]*)<ul>/, '<ul>$1</ul>');
+          const tag = $('<div class="tag"></div>').html(text);
+          tag.find('ul > .item-pill-hover').each((_index, quality) => $(quality).wrap('<li></li>'));
+          props.append(tag);
+        }
+      } else {
+        div.html(description);
+        itemDetails.properties.forEach(p => props.append(`<span class="tag">${p}</span>`));
+      }
+      div.append(props);
+      li.append(div.hide());
+      div.slideDown(200);
+      // item card tooltips
+      li.find(".hover-tooltip").on("mouseover", (event) => {
+        itemPillHover(event);
+      });
+    }
+    li.toggleClass("expanded");
+  }
+
+  /**
+   * Display details of a Force Power.
+   * @private
+   */
+  async _forcePowerDisplayDetails(desc, event) {
+    event.preventDefault();
+    let li = $(event.currentTarget);
+
+    // Toggle summary
+    if (li.hasClass("expanded")) {
+      let details = li.children(".item-details");
+      details.slideUp(200, () => details.remove());
+    } else {
+      let div = $(`<div class="item-details">${await foundry.applications.ux.TextEditor.enrichHTML(desc)}</div>`);
+      li.append(div.hide());
+      div.slideDown(200);
+    }
+    li.toggleClass("expanded");
+  }
+
+  /**
+   * Send details of an item to chat.
+   * @private
+   */
+  async _itemDetailsToChat(itemId) {
+    let item = this.actor.items.get(itemId);
+    if (!item) {
+      item = game.items.get(itemId);
+    }
+    if (!item) {
+      item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+      if (!item) {
+        const talentItemData = this.actor?.talentList.find(talent => talent.itemId === itemId);
+        if (talentItemData) {
+          item = await ImportHelpers.findCompendiumEntityByName("Item", talentItemData.name);
+        }
+      }
+    }
+
+    let itemDetails = await item?.getItemDetails();
+
+    if (!itemDetails) {
+      // this is likely a talent from a specialization, which otherwise returns null
+      const talentData = this.actor.talentList.find(i => i.itemId === itemId);
+      itemDetails = {
+        prettyDesc: talentData?.enrichedDescription,
+      };
+      item = {
+        name: talentData.name,
+        img: "icons/svg/mystery-man.svg",
+        type: "talent",
+        system: {
+          activation: {
+            value: talentData.activation,
+          },
+          ranks: {
+            ranked: talentData.isRanked,
+            current: talentData.rank,
+          },
+          isForceTalent: talentData.isForceTalent,
+          isConflictTalent: talentData.isConflictTalent,
+        }
+      };
+    }
+
+    if (item.type === "talent") {
+      itemDetails.prettyDesc = item.system.longDesc;
+    }
+
+    const template = "systems/starwarsffg/templates/chat/item-card.html";
+    const html = await foundry.applications.handlebars.renderTemplate(template, { itemDetails, item });
+
+    const messageData = {
+      author: game.user.id,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+      content: html,
+      speaker: {
+        actor: this.actor.id,
+        token: this.actor.token,
+        alias: this.actor.name,
+      },
+    };
+    ChatMessage.create(messageData);
+  }
+
+  /**
+   * Send details of a force power to chat.
+   * @private
+   */
+  async _forcePowerDetailsToChat(itemId, desc, name) {
+    let item = this.actor.items.get(itemId);
+    if (!item) {
+      item = game.items.get(itemId);
+    }
+    if (!item) {
+      item = await ImportHelpers.findCompendiumEntityById("Item", itemId);
+    }
+
+    const itemDetails = { "desc": desc, "name": name };
+    const template = "systems/starwarsffg/templates/chat/force-power-card.html";
+    const html = await foundry.applications.handlebars.renderTemplate(template, { itemDetails, item });
+
+    const messageData = {
+      author: game.user.id,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+      content: html,
+      speaker: {
+        actor: this.actor.id,
+        token: this.actor.token,
+        alias: this.actor.name,
+      },
+    };
+    ChatMessage.create(messageData);
+  }
+
+  /**
+   * Change skill characteristic
+   * @param  {object} a - Event object
+   */
+  _onChangeSkillCharacteristic(a) {
+    //const a = event.currentTarget;
+    const characteristic = $(a).data("characteristic");
+    const ability = $(a).data("ability");
+    let label = ability;
+    if (CONFIG.FFG.skills[ability]?.label) {
+      label = CONFIG.FFG.skills[ability].label;
+    }
+
+    new LegacyDialogV2(
+      {
+        title: `${game.i18n.localize("SWFFG.SkillCharacteristicDialogTitle")} ${game.i18n.localize(label)}`,
+        content: {
+          options: CONFIG.FFG.characteristics,
+          char: characteristic,
+        },
+        buttons: {
+          one: {
+            icon: '<i class="fas fa-check"></i>',
+            label: game.i18n.localize("SWFFG.ButtonAccept"),
+            callback: (html) => {
+              let newCharacteristic = $(html).find("input[type='radio']:checked").val();
+
+              
+
+              let updateData = {};
+              setProperty(updateData, `system.skills.${ability}.characteristic`, newCharacteristic);
+
+              this.object.update(updateData);
+            },
+          },
+          two: {
+            icon: '<i class="fas fa-times"></i>',
+            label: game.i18n.localize("SWFFG.Cancel"),
+          },
+        },
+      },
+      {
+        classes: ["dialog", "starwarsffg"],
+        template: "systems/starwarsffg/templates/actors/dialogs/ffg-skill-characteristic-selector.html",
+      }
+    ).render(true);
+  }
+
+  /**
+   * Create new one-off skill for this actor
+   * @param  {object} a - Event object
+   */
+  _onCreateSkill(a) {
+    const group = $(a).parent().data("type");
+
+    new LegacyDialogV2(
+      {
+        title: `${game.i18n.localize("SWFFG.SkillAddDialogTitle")}`,
+        content: {
+          options: CONFIG.FFG.characteristics,
+        },
+        buttons: {
+          one: {
+            icon: '<i class="fas fa-check"></i>',
+            label: game.i18n.localize("SWFFG.ButtonAccept"),
+            callback: (html) => {
+              const name = $(html).find("input[name='name']").val();
+              const characteristic = $(html).find("select[name='characteristic']").val();
+
+              let newSkill = {
+                value: name,
+                careerskill: false,
+                characteristic,
+                groupskill: false,
+                label: name,
+                max: game.settings.get("starwarsffg", "maxSkill"),
+                rank: 0,
+                type: group,
+                custom: true,
+                nontheme: true,
+              };
+
+              if (name.trim().length > 0) {
+                
+                let updateData = {};
+                foundry.utils.setProperty(updateData, `system.skills.${name}`, newSkill);
+
+                this.object.update(updateData);
+              }
+            },
+          },
+          two: {
+            icon: '<i class="fas fa-times"></i>',
+            label: game.i18n.localize("SWFFG.Cancel"),
+          },
+        },
+      },
+      {
+        classes: ["dialog", "starwarsffg"],
+        template: "systems/starwarsffg/templates/actors/dialogs/ffg-skill-new.html",
+      }
+    ).render(true);
+  }
+
+  /**
+   * Handle the right click -> buy skill rank event
+   * @param a - Event object
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _buySkillRank(a) {
+    const skill = $(a).data("ability");
+    const curRank = this.object.system.skills[skill].rank;
+    const availableXP = this.object.system.experience.available;
+    const totalXP = this.object.system.experience.total;
+    const careerSkill = this.object.system.skills[skill].careerskill;
+    const cost = careerSkill ? (curRank + 1) * 5 : (curRank + 1) * 5 + 5;
+
+    if (cost > availableXP) {
+      ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
+      return;
+    }
+    new LegacyDialogV2(
+      {
+        title: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SkillRank.ConfirmTitle"),
+        content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.SkillRank.Text", {cost: cost, skill: skill, old: curRank, new: curRank + 1}),
+        buttons: {
+          done: {
+            icon: '<i class="fa-regular fa-circle-up"></i>',
+            label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
+            callback: async (_that) => {
+              if(!this.actor.verifyEditModeIsNotEnabled()) return;
+
+              const id = await this._spendXp(`system.skills.${skill}.rank`, 1, cost);
+              await xpLogSpend(game.actors.get(this.object.id), `skill rank ${skill} ${curRank} --> ${curRank + 1}`, cost, availableXP - cost, totalXP, id);
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-cancel"></i>',
+            label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.CancelPurchase"),
+          },
+        },
+      },
+      {
+        classes: ["dialog", "starwarsffg"],
+      }
+    ).render(true);
+  }
+
+  /**
+   * Creates an Active Effect for a purchased upgrade (e.g., a skill rank)
+   * Using this function allows the XP log to undo purchased upgrades
+   * @param boughtPath - the path to the attribute being modified by the purchase
+   * @param boughtValue - the amount to change the attribute by
+   * @param spentXP - the amount of XP this purchase costs
+   * @returns {Promise<string>} - the ID of the Active Effect created for this purchase
+   */
+  async _spendXp(boughtPath, boughtValue, spentXP) {
+    const spentId = foundry.utils.randomID();
+    const effects = {
+      name: `purchased-${spentId}`,
+      changes: [
+        {
+          key: boughtPath,
+          ...EffectHelpers.changeType(),
+          value: boughtValue,
+        },
+        {
+          key: "system.experience.available",
+          ...EffectHelpers.changeType(),
+          value: spentXP * -1,
+        }
+      ],
+    };
+
+    // Brawn increases Soak
+    if (boughtPath === "system.characteristics.Brawn.value") {
+      effects.changes.push({
+        key: "system.stats.soak.value",
+        ...EffectHelpers.changeType(),
+        value: 1,
+      });
+    }
+    await this.object.createEmbeddedDocuments("ActiveEffect", [effects]);
+    return spentId;
+  }
+
+  /**
+   * Locates and deletes the Active Effect for a purchased upgrade (e.g., a skill rank)
+   * Using this function deletes the AE and generates a lot event for the refund. It does not notify the GM
+   * @param purchaseId - ID of the Active Effect created for the purchase. Tracked in the log, if you need to find it
+   * @param mode - the mode of operation: a purchase or an adjustment
+   * @returns {Promise<void>}
+   */
+  async _refundPurchase(purchaseId, mode) {
+    
+    const purchasedEffect = this.object.getEmbeddedCollection("ActiveEffect").find(ae => ae.name.includes(purchaseId));
+    if (purchasedEffect) {
+      new LegacyDialogV2(
+        {
+          title: game.i18n.localize("SWFFG.Actors.Sheets.Refund.DialogTitle"),
+          content: game.i18n.localize("SWFFG.Actors.Sheets.Refund.Text"),
+          buttons: {
+            done: {
+              icon: '<i class="fa-solid fa-check"></i>',
+              label: game.i18n.localize("SWFFG.Actors.Sheets.Refund.Confirm"),
+              callback: async (_that) => {
+                if(!this.actor.verifyEditModeIsNotEnabled()) return;
+
+                await this.object.deleteEmbeddedDocuments("ActiveEffect", [purchasedEffect.id]);
+                
+                let logEntries = this.object.getFlag("starwarsffg", "xpLog") || [];
+                let cost = 0;
+                let description = 'unknown';
+                for (const entry of logEntries) {
+                  if (entry.id === purchaseId) {
+                    cost = entry.xp.cost;
+                    description = entry.description;
+                    entry.id = undefined;  // denotes that there is no an AE for the purchase
+                  }
+                }
+                const date = new Date().toISOString().slice(0, 10);
+                logEntries.unshift({
+                  action: 'refunded',
+                  id: undefined,
+                  xp: {
+                    cost: cost,
+                    available: this.object.system.experience.available,
+                    total: this.object.system.experience.total,
+                  },
+                  date: date,
+                  description: description,
+                });
+                await this.object.setFlag("starwarsffg", "xpLog", logEntries);
+                
+              },
+            },
+            cancel: {
+              icon: '<i class="fas fa-cancel"></i>',
+              label: game.i18n.localize("SWFFG.Actors.Sheets.Refund.Cancel"),
+            },
+          },
+        },
+        {
+          classes: ["dialog", "starwarsffg"],
+        }
+      ).render(true);
+    } else {
+      CONFIG.logger.warn(`Could not locate purchase with ID ${purchaseId}`);
+    }
+  }
+
+  /**
+   * Remove skill from skill list
+   * @param  {object} a - Event object
+   */
+  async _onRemoveSkill(a) {
+    const ability = $(a).data("ability");
+    const isCustom = $(a).data("custom");
+    if (!isCustom) {
+      ui.notifications.info(game.i18n.localize("SWFFG.UI.Actor.CustomSkillsOnly"));
+      return;
+    }
+    await this.object.update({ [`system.skills.${ability}`]: deleteDataField() });
+  }
+
+  /**
+   * Set skill as a skill available in the initiative dialog
+   * @param  {object} a - Event object
+   */
+  _onInitiativeSkill(a) {
+    const skill = $(a).data("ability");
+    let updateData = {};
+
+    let useSkillForInitiative = false;
+    if (!this.object.system.skills[skill]?.useForInitiative) {
+      useSkillForInitiative = true;
+    }
+
+    foundry.utils.setProperty(updateData, `system.skills.${skill}.useForInitiative`, useSkillForInitiative);
+    this.object.update(updateData);
+  }
+
+  /**
+   * Listen for click events on a filter control to modify the selected filter option.
+   * @param {MouseEvent} event    The originating left click event
+   * @private
+   */
+  async _onClickFilterControl(event) {
+    event.preventDefault();
+    const a = event.currentTarget;
+    const filters = this._filters.skills;
+    var filter = a.id;
+    $(a).prop("checked", true);
+    filters.filter = filter;
+    await this._onSubmit(event);
+  }
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _updateObject(event, formData) {
+    const actorUpdate = ActorHelpers.updateActor.bind(this);
+    // Save persistent sheet height and width for future use.
+    this.sheetWidth = this.position.width;
+    this.sheetHeight = this.position.height;
+
+    await actorUpdate(event, formData);
+  }
+
+  /**
+   * Drag Event function for creating Hotbar macros for skill rolls
+   * @param  {} event
+   */
+  _onSkillDragStart(event) {
+    const li = event.currentTarget;
+
+    $(event.currentTarget).attr("data-item-actorid", this.actor.id);
+    const skill = li.dataset.ability;
+    const characteristic = li.dataset.characteristic;
+
+    if (skill && characteristic) {
+      const dragData = {
+        type: "CreateMacro",
+        actorId: this.actor.id,
+        data: {
+          skill,
+          characteristic,
+          type: "skill",
+        },
+      };
+      event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Drag Event function for transferring items between owned actors
+   * @param  {Object} event
+   */
+  _onTransferItemDragStart(event) {
+    const li = event.currentTarget;
+
+    $(event.currentTarget).attr("data-item-actorid", this.actor.id);
+
+    const item = this.actor.items.get(li.dataset.itemId);
+
+    // limit transfer on personal weapons/armour/gear
+    if (["weapon", "armour", "gear"].includes(item.type)) {
+      const dragData = {
+        type: "Transfer",
+        actorId: this.actor.id,
+        data: item,
+        // useful for other modules, e.g., item piles
+        nativeData: item.toDragData(),
+      };
+      if (this.actor.isToken) dragData.tokenId = this.actor.token.id;
+      event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+    } else {
+      return false;
+    }
+  }
+
+  _canDragStart(_selector) {
+    return this.options.editable && this.actor.isOwner;
+  }
+
+  _canDragDrop(_selector) {
+    return true;
+  }
+
+  /**
+   * Drop Event function for transferring items between actors
+   *
+   * @param  {Object} event
+   */
+  async _onTransferItemDrop(event) {
+    // Try to extract the data
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+      if (data.type !== "Transfer") return;
+    } catch {
+      return false;
+    }
+
+    if (data.data) {
+      let sameActor = data.actorId === this.actor.id;
+      if (!sameActor) {
+        try {
+          this.actor.createEmbeddedDocuments("Item", [foundry.utils.duplicate(data.data)]); // Create a new Item
+          let token;
+          if (game.scenes.current) {
+            token = game.scenes.current.tokens.get(data?.tokenId);
+            if (token) {
+              // Delete originating item from other _token_
+              token.actor.items.get(data.data._id)?.delete();
+              return;
+            }
+          }
+          const actor = game.actors.get(data.actorId);
+          await actor.items.get(data.data._id)?.delete(); // Delete originating item from other actor
+        } catch (err) {
+          CONFIG.logger.error(`Error transferring item between actors.`, err);
+        }
+      }
+    }
+
+    await this._suspendActiveEffects(await fromUuid(data.uuid));
+  }
+
+  /**
+   * ActiveEffects are transferred to actors by default. In some cases, we don't want them transferred.
+   * Suspend anything we don't want (for example, item attachment AEs shouldn't be transferred to an actor because they're holding it)
+   * @param droppedItem - the fromUuid item dropped onto this object
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _suspendActiveEffects(_droppedItem) {
+    // Placeholder: item attachment effects remain on the item in V14.
+  }
+
+  /**
+   * Update specialization talents
+   * @param  {Object} data
+   */
+  async _updateSpecialization(data) {
+    
+    if (this.actor.flags.starwarsffg === undefined) {
+        this.actor.flags.starwarsffg = {};
+    }
+    this.actor.flags.starwarsffg.loaded = true;
+
+    const specializations = this.actor.items.filter((item) => {
+      return item.type === "specialization";
+    });
+
+    
+    
+
+    // start the talent list only with talents that did not come from a specialization
+    const globalTalentList = data.talentList.filter(i => i.source.filter(s => s.type === "talent").length > 0)
+
+    for await (const spec of specializations) {
+      
+
+      if (spec?.talentList && spec.talentList.length > 0) {
+        spec.talentList.forEach((talent) => {
+          const item = talent;
+          item.firstSpecialization = spec.id;
+
+          if (item.isRanked) {
+            item.rank = typeof talent.rank === "number" ? talent.rank : 1;
+          } else {
+            item.rank = "N/A";
+          }
+
+          let index = globalTalentList.findIndex((obj) => {
+            return obj.name === item.name;
+          });
+
+          if (index < 0 || !item.isRanked) {
+            globalTalentList.push(item);
+          } else {
+            globalTalentList[index].rank += talent.rank;
+          }
+        });
+      }
+      
+      
+    }
+
+    data.talentList = globalTalentList;
+
+    
+    
+  }
+
+  /**
+   * Open dialog for popout editor
+   * @param  {Object} event
+   */
+  _onPopoutEditor(event) {
+    event.preventDefault();
+    const a = event.currentTarget.parentElement;
+    const label = a.dataset.label;
+    const key = a.dataset.target;
+
+    const parent = $(a.parentElement);
+    const parentPosition = $(parent).offset();
+
+    const windowHeight = parseInt($(parent).height(), 10) + 100 < 200 ? 200 : parseInt($(parent).height(), 10) + 100;
+    const windowWidth = parseInt($(parent).width(), 10) < 320 ? 320 : parseInt($(parent).width(), 10);
+    const windowLeft = parseInt(parentPosition.left, 10);
+    const windowTop = parseInt(parentPosition.top, 10);
+
+    const title = a.dataset.label ? `Editor for ${this.object.name}: ${label}` : `Editor for ${this.object.name}`;
+
+    new PopoutEditor(this.object, {
+      name: key,
+      title: title,
+      height: windowHeight,
+      width: windowWidth,
+      left: windowLeft,
+      top: windowTop,
+    }).render(true);
+  }
+
+  /**
+   * Creates two even columns of skills for display while also sorting them.
+   * @param  {Object} data
+   */
+  _createSkillColumns(data) {
+    const numberSkills = Object.values(data.data.skills).length;
+    const totalRows = numberSkills + Object.values(data.data.skilltypes).length;
+
+    let colRowCount = Math.ceil(totalRows / 2.0);
+
+    const cols = [[], []];
+
+    let currentColumn = 0;
+    let rowsLeft = colRowCount;
+
+    data.data.skilltypes.forEach((type) => {
+      // filter and sort skills for current skill category
+      let sortFunction = (a, b) => {
+        if (a.toLowerCase() > b.toLowerCase()) return 1;
+        if (a.toLowerCase() < b.toLowerCase()) return -1;
+        return 0;
+      };
+      if (game.settings.get("starwarsffg", "skillSorting")) {
+        sortFunction = (a, b) => {
+          return data.data.skills[a].label.localeCompare(data.data.skills[b].label, game.i18n.lang);
+        };
+      }
+
+      const skills = Object.keys(data.data.skills)
+        .filter((s) => data.data.skills[s].type === type.type)
+        .sort(sortFunction);
+
+      // if the skill list is larger that the column row count then take into account the added header row.
+      if (skills.length >= colRowCount) {
+        if (skills.length - colRowCount > 2) {
+          colRowCount = Math.ceil((totalRows + 1) / 2.0);
+          rowsLeft = colRowCount;
+        } else {
+          colRowCount = skills.length + 1;
+          rowsLeft = colRowCount;
+        }
+      }
+
+      cols[currentColumn].push({ id: "header", ...type });
+      rowsLeft -= 1;
+      skills.forEach((s, index) => {
+        cols[currentColumn].push({ name: s, ...data.data.skills[s] });
+        rowsLeft -= 1;
+        if (rowsLeft <= 0 && currentColumn === 0) {
+          currentColumn += 1;
+          rowsLeft = colRowCount;
+
+          if (index + 1 < skills.length) {
+            cols[currentColumn].push({ id: "header", ...type });
+            rowsLeft -= 1;
+          }
+        }
+      });
+    });
+
+    return cols;
+  }
+
+  async _buyCore(event) {
+    if(!this.actor.verifyEditModeIsNotEnabled()) return;
+
+    const action = $(event.target).data("buy-action");
+    const template = "systems/starwarsffg/templates/dialogs/ffg-confirm-purchase.html";
+    let content;
+    const availableXP = this.object.system.experience.available;
+    const totalXP = this.object.system.experience.total;
+    let itemType;
+    const groups = [];
+    if (action === "specialization") {
+      const inCareer = this.object.items.find(i => i.type === "career")?.system?.specializations;
+      if (!inCareer) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.SpecializationCareerRequired"));
+        return;
+      }
+      const inCareerNames = Object.values(inCareer).map(i => i.name);
+      const sources = game.settings.get("starwarsffg", "specializationCompendiums").split(",");
+      let outCareer = [];
+      let universal = [];
+      for (const source of sources) {
+        const pack = game.packs.get(source);
+        if (!pack) {
+          continue;
+        }
+        const items = await pack.getDocuments();
+        for (const item of items) {
+          if (!inCareerNames.includes(item.name) && item.system.universal) {
+            universal.push({
+              name: item.name,
+              id: item.id,
+              source: item.uuid,
+            });
+          } else if (!inCareerNames.includes(item.name)) {
+            outCareer.push({
+              name: item.name,
+              id: item.id,
+              source: item.uuid,
+            });
+          }
+        }
+      }
+      outCareer = sortDataBy(outCareer, "name");
+      universal = sortDataBy(universal, "name");
+      const baseCost = (this.object.items.filter(i => i.type === "specialization").length + 1) * 10;
+      const increasedCost = baseCost + 10;
+      if (baseCost > availableXP) {
+        ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.SpecializationXPRequired", {cost: baseCost, available: availableXP}));
+        return;
+      } else if (increasedCost > availableXP) {
+        outCareer = [];
+      }
+      itemType =  game.i18n.localize("TYPES.Item.specialization");
+      groups.push("Universal");
+      groups.push("In Career");
+      groups.push("Out of Career");
+      content = await foundry.applications.handlebars.renderTemplate(template, { inCareer, outCareer, universal, baseCost, increasedCost, itemType: itemType, itemCategory: "specialization", groups: groups });
+    } else if (action === "signatureability") {
+      const sources = game.settings.get("starwarsffg", "signatureAbilityCompendiums").split(",");
+      const rawSelectableItems =  this.object.items.find(i => i.type === "career").system.signatureabilities;
+      const sigAbilityNames = Object.values(rawSelectableItems).map(i => i.name);
+      let selectableItems = [];
+      // pull items out of the world
+      for (const itemId of Object.keys(rawSelectableItems)) {
+        const item = rawSelectableItems[itemId];
+        let retrievedItem = game.items.get(item.id);
+        if (retrievedItem) {
+          selectableItems.push({
+            name: retrievedItem.name,
+            id: retrievedItem.id,
+            source: retrievedItem.uuid,
+            cost: parseInt(retrievedItem.system.base_cost),
+          });
+        }
+      }
+      // pull items out of compendiums
+      for (const source of sources) {
+        const pack = game.packs.get(source);
+        if (!pack) {
+          continue;
+        }
+        const items = await pack.getDocuments();
+        for (const item of items) {
+          if (sigAbilityNames.includes(item.name)) {
+            selectableItems.push({
+              name: item.name,
+              id: item.id,
+              source: item.uuid,
+              cost: parseInt(item.system.base_cost),
+            });
+          }
+        }
+      }
+      if (selectableItems.length === 0) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SA.NotSet"));
+        return;
+      }
+      // filter purchasable signature abilities to those where the required specialization upgrades have been purchased
+      // filter specializations to those within the career
+      const career = this.object.items.find(i => i.type === "career");
+      if (!career) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.CareerNotSet"));
+        return;
+      }
+      const permittedSpecializations = Object.values(career.system.specializations).map(i => i.name);
+      const matchingSpecializations = this.object.items.filter(i => i.type === "specialization" && permittedSpecializations.includes(i.name));
+      if (!matchingSpecializations) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Career.Specializations.NotSet"));
+        return;
+      }
+      // loop through signature abilities and build a map of required upgrades
+      let newSelectableItems = [];
+      for (const selectableItem of selectableItems) {
+        const fullItem = fromUuidSync(selectableItem.source);
+        // check if any specializations match the required upgrades, discarding them if they do not
+        let match;
+        for (const specialization of matchingSpecializations) {
+          match = true;
+          for (let i = 0; i < 4; i++) {
+            // if the upgrade is required, and we don't have it learned, this is not a match
+            if (fullItem.system.uplink_nodes[`uplink${i}`] && !specialization.system.talents[`talent${i + 16}`].islearned) {
+              match = false;
+              break;
+            }
+          }
+          if (match) {
+            // if any specialization matches the required upgrades, do not check further specializations
+            newSelectableItems.push(selectableItem);
+            break;
+          }
+        }
+      }
+      if (newSelectableItems.length === 0) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.SA.NoMatch"));
+        return;
+      }
+
+      // update the list with the filtered list
+      selectableItems = newSelectableItems;
+
+      selectableItems = sortDataBy(selectableItems, "name");
+      itemType = game.i18n.localize("TYPES.Item.signatureability");
+      content = await foundry.applications.handlebars.renderTemplate(template, { selectableItems, itemType: itemType, itemCategory: "signatureability" });
+    } else if (action === "forcepower") {
+      const sources = game.settings.get("starwarsffg", "forcePowerCompendiums").split(",");
+      let selectableItems = [];
+      const worldItems = game.items.filter(i => i.type === "forcepower");
+      for (const worldItem of worldItems) {
+        selectableItems.push({
+          name: worldItem.name,
+          id: worldItem.id,
+          source: worldItem.uuid,
+          cost: worldItem.system.base_cost,
+          requiredForceRating: parseInt(worldItem.system.required_force_rating),
+        });
+        addIfNotExist(groups, parseInt(worldItem.system.required_force_rating));
+      }
+      for (const source of sources) {
+        const pack = game.packs.get(source);
+        if (!pack) {
+          continue;
+        }
+        const items = await pack.getDocuments();
+        for (const item of items) {
+          selectableItems.push({
+            name: item.name,
+            id: item.id,
+            source: item.uuid,
+            cost: item.system.base_cost,
+            requiredForceRating: parseInt(item.system.required_force_rating),
+          });
+          addIfNotExist(groups, parseInt(item.system.required_force_rating));
+        }
+      }
+      selectableItems = sortDataBy(selectableItems, "name");
+      itemType = game.i18n.localize("TYPES.Item.forcepower");
+      groups.sort();
+      content = await foundry.applications.handlebars.renderTemplate(template, { selectableItems, itemType: itemType, itemCategory: "forcepower", groups: groups });
+    } else if (action === "talent") {
+      const purchasedItems = this.object.talentList;
+      const sources = game.settings.get("starwarsffg", "talentCompendiums").split(",");
+      let selectableItems = [];
+      const worldItems = game.items.filter(i => i.type === "talent");
+      let worldItemsPack = [];
+      for (const worldItem of worldItems) {
+        const purchasedItem = purchasedItems.find((pItem) => pItem.name === worldItem.name)
+        if(!purchasedItem || purchasedItem.isRanked) {
+          worldItemsPack.push({
+            name: worldItem.name,
+            id: worldItem.id,
+            source: worldItem.uuid,
+            cost: purchasedItem?.isRanked ? worldItem.system.tier * 5 + 5 * purchasedItem.rank: worldItem.system.tier * 5,
+          });
+        }
+      }
+      worldItemsPack = sortDataBy(worldItemsPack, "name");
+      selectableItems.push({pack: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Talent.WorldItemsGroup"), items: worldItemsPack});
+
+      for (const source of sources) {
+        const pack = game.packs.get(source);
+        if (!pack) {
+          continue;
+        }
+        let packItems = [];
+        const items = await pack.getDocuments();
+        for (const item of items) {
+          const purchasedItem = purchasedItems.find((pItem) => pItem.name === item.name)
+          if(!purchasedItem || purchasedItem.isRanked) {
+            packItems.push({
+              name: item.name,
+              id: item.id,
+              source: item.uuid,
+              cost: purchasedItem?.isRanked ? item.system.tier * 5 + 5 * purchasedItem.rank: item.system.tier * 5,
+            });
+          }
+        }
+        packItems = sortDataBy(packItems, "name");
+        selectableItems.push({pack: pack.metadata.label, items: packItems});
+      }
+      itemType = game.i18n.localize("TYPES.Item.talent");
+      content = await foundry.applications.handlebars.renderTemplate(template, { selectableItems, itemType: itemType, itemCategory: "talent" });
+    } else if (action === "characteristic") {
+      const characteristic = $(event.target).data("buy-characteristic");
+      await this._buyCharacteristicRank(characteristic);
+      return;
+    } else if (action === "skill") {
+      await this._buySkillRank(event.target.parentElement.parentElement.parentElement);
+      return;
+    } else {
+      
+      return;
+    }
+
+    new LegacyDialogV2(
+    {
+        title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.DialogTitle", {itemType: itemType}),
+        content: content,
+        buttons: {
+          done: {
+            icon: '<i class="fa-regular fa-circle-up"></i>',
+            label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
+            callback: async (that) => {
+              if(!this.actor.verifyEditModeIsNotEnabled()) return;
+
+              const cost = $("#ffgPurchase option:selected", that).data("cost");
+              const selected_id = $("#ffgPurchase option:selected", that).data("id");
+              const selected_source = $("#ffgPurchase option:selected", that).data("source");
+              if (cost > availableXP) {
+                ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
+                return;
+              }
+              let purchasedItem = game.items.get(selected_id);
+              if (!purchasedItem) {
+                purchasedItem = await fromUuid(selected_source);
+              }
+              if (purchasedItem.type === "forcepower") {
+                const currentForceRating = parseInt(this.actor.system.stats.forcePool.max);
+                const requiredForceRating = parseInt(purchasedItem.system.required_force_rating);
+                if (currentForceRating < requiredForceRating) {
+                  ui.notifications.warn(game.i18n.format("SWFFG.Actors.Sheets.Purchase.FP.FRTooLow", {forceRating: currentForceRating, requiredForceRating: requiredForceRating}));
+                  return;
+                }
+              }
+              await this.object.createEmbeddedDocuments("Item", [purchasedItem]);
+              const AEState = await ActorHelpers.beginEditMode(this.actor, true);
+              const updatedAvailableXP = this.actor.system.experience.available;
+              // this does not use _spendXp as it's granting items, which AEs cannot reasonably do
+              await this.object.update({
+                system: {
+                  experience: {
+                    available: updatedAvailableXP - cost,
+                  },
+                },
+              });
+              await xpLogSpend(game.actors.get(this.object.id), `new ${action} ${purchasedItem.name}`, cost, availableXP - cost, totalXP, undefined);
+              await ActorHelpers.endEditMode(this.actor, AEState, true);
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-cancel"></i>',
+            label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.CancelPurchase"),
+          },
+        },
+      },
+      {
+        classes: ["dialog", "starwarsffg"],
+      }
+    ).render(true);
+  }
+
+  async _buyCharacteristicRank(characteristic) {
+    // this is the current value of the characteristic (including Active Effects)
+    const characteristicValue = this.actor.system.characteristics[characteristic].value;
+    // this is the value without items that modify it
+
+    if (characteristicValue >= game.settings.get("starwarsffg", "maxAttribute")) {
+      ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Characteristic.Max"));
+      return;
+    }
+    const availableXP = this.actor.system.experience.available;
+    const totalXP = this.actor.system.experience.total;
+    const cost = (characteristicValue + 1) * 10;
+    if (cost > availableXP) {
+      ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
+      return;
+    }
+    new LegacyDialogV2(
+      {
+        title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmTitle", {characteristic: game.i18n.localize(`SWFFG.Characteristic${characteristic}`)}),
+        content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmText", {cost: cost, level: characteristicValue + 1, characteristic: game.i18n.localize(`SWFFG.Characteristic${characteristic}`)}),
+        buttons: {
+          done: {
+            icon: '<i class="fa-regular fa-circle-up"></i>',
+            label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
+            callback: async (_that) => {
+              if(!this.actor.verifyEditModeIsNotEnabled()) return;
+
+              const statusId = await this._spendXp(`system.characteristics.${characteristic}.value`, 1, cost);
+              await xpLogSpend(game.actors.get(this.object.id), `characteristic ${characteristic} level ${characteristicValue} --> ${characteristicValue + 1}`, cost, availableXP - cost, totalXP, statusId);
+              await this.render(true);
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-cancel"></i>',
+            label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.CancelPurchase"),
+          },
+        },
+      },
+      {
+        classes: ["dialog", "starwarsffg"],
+      }
+    ).render(true);
+  }
+
+  /**
+   * Handle clicking the kill minion button
+   * @param event
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _handleKillMinion(event) {
+    event.stopPropagation();
+    const target = $(event.currentTarget);
+    const minionHealth = this.actor.system.unit_wounds.value;
+    const currentHealth = this.actor.system.stats.wounds.value;
+    if (target.hasClass("kill-minion")) {
+      let damageAmount = minionHealth - (currentHealth % minionHealth) + 1;
+      await this.actor.update({'system.stats.wounds.value': currentHealth + damageAmount});
+    } else if (target.hasClass("kill-group")) {
+      await this.actor.update({'system.stats.wounds.value': this.actor.system.stats.wounds.max + 1});
+    }
+  }
+
+  async _xpAdjustment(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const content = `
+    <label for="adjustAmount">${game.i18n.localize("SWFFG.XP.Adjust.Window.Amount")}</label>
+    <input type="number" id="adjustAmount" name="adjustAmount" value="0" />
+    <label for="adjustReason">${game.i18n.localize("SWFFG.XP.Adjust.Window.Reason")}</label>
+    <input type="text" id="adjustReason" name="adjustReason" value="${game.i18n.localize("SWFFG.XP.Adjust.Window.Default")}" />
+    `;
+
+    let d = new LegacyDialogV2({
+      title: game.i18n.localize("SWFFG.XP.Adjust.Window.Title"),
+      content: content,
+      buttons: {
+        one: {
+          icon: '<i class="fas fa-check"></i>',
+          label: game.i18n.localize("SWFFG.XP.Adjust.Confirm"),
+          callback: async () => {
+            const availableXPToLog = foundry.utils.deepClone(parseInt(this.actor.system.experience.available));
+            const adjustAmount = parseInt($("#adjustAmount").val());
+            const adjustReason = foundry.utils.deepClone($("#adjustReason").val());
+            const AEState = await ActorHelpers.beginEditMode(this.actor, true);
+            const startingAvailableXP =  foundry.utils.deepClone(parseInt(this.actor.system.experience.available));
+            const totalXP =  foundry.utils.deepClone(parseInt(this.actor.system.experience.total));
+            const updatedAvailableXP = startingAvailableXP + adjustAmount;
+            const updatedTotalXP = totalXP + adjustAmount;
+            await this.actor.update({ 'system.experience.available': updatedAvailableXP, 'system.experience.total': updatedTotalXP });
+            await xpLogEarn(
+              this.object,
+              adjustAmount,
+              availableXPToLog + adjustAmount,
+              updatedTotalXP,
+              adjustReason,
+              "Self"
+            );
+            await ActorHelpers.endEditMode(this.actor, AEState, true);
+          },
+        },
+        two: {
+          icon: '<i class="fas fa-times"></i>',
+          label: game.i18n.localize("SWFFG.Cancel"),
+        },
+      },
+      default: "one",
+    });
+    d.render(true);
+  }
+
+  async _xpExport(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const existingLog = this.actor.getFlag("starwarsffg", "xpLog");
+    const downloadLog = [];
+    for (const entry of existingLog) {
+      if (Object.keys(entry).includes("id")) {
+        delete entry.id;
+      }
+      downloadLog.push(entry);
+    }
+    const blob = new Blob([JSON.stringify(downloadLog)], {type: "text/plain"});
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `${this.actor.name}-xpLog.txt`;
+    link.click();
+    URL.revokeObjectURL(blobUrl);
+  }
+
+  async _xpImport(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const content = `
+    <label for="adjustAmount">${game.i18n.localize("SWFFG.XP.Import.Title")}</label>
+    <div>
+      <input type="file" name="xpLogFile" id="xpLogFile" accept=".txt" />
+    </div>
+    `;
+
+    let d = new LegacyDialogV2({
+      title: game.i18n.localize("SWFFG.XP.Import.Title"),
+      content: content,
+      buttons: {
+        one: {
+          icon: '<i class="fas fa-check"></i>',
+          label: game.i18n.localize("SWFFG.XP.Import.Title"),
+          callback: async () => {
+            const fileElement = $("#xpLogFile");
+            const file = fileElement[0].files?.[0];
+            const reader = new FileReader();
+            reader.readAsText(file, 'UTF-8');
+            reader.onload = async ({ target }) => {
+              const parsedLog = JSON.parse(target.result);
+              
+              await this.actor.setFlag("starwarsffg", "xpLog", parsedLog);
+            }
+            reader.onerror = function() {
+              ui.notifications.error(game.i18n.localize("SWFFG.UI.Import.FileReadFailed"));
+            }
+          },
+        },
+        two: {
+          icon: '<i class="fas fa-times"></i>',
+          label: game.i18n.localize("SWFFG.Cancel"),
+        },
+      },
+      default: "one",
+    });
+    d.render(true);
+  }
+
+  debounceRender = foundry.utils.debounce(
+    (force, options) => {
+      super.render(force, options);
+    },
+    100,
+    {
+      leading: true,
+      maxWait: 100,
+    },
+  );
+
+  /** @override **/
+  render(force, options) {
+    this.debounceRender(force, options);
+  }
+
+  /** @override **/
+  async _onSubmit(event) {
+    const formValid = event?.target?.form?.reportValidity();
+    if (formValid === false) {
+      return;
+    }
+    return await super._onSubmit(event);
+  }
+
+  /**
+   * Handle adding a source to vehicles
+   * @param event
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _handleSourceControl(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const action = $(event.currentTarget).data("action");
+    const sourceIndex = $(event.currentTarget).data("index");
+    if (action === "add") {
+      const addSource = new LegacyDialogV2({
+        title: game.i18n.localize("SWFFG.Meta.Sources.AddSource.Title"),
+        content: `
+          <p>${game.i18n.localize("SWFFG.Meta.Sources.AddSource.Book")} :</p>
+          <input type="text" id="book" name="book" value="Force and Destiny Core Rulebook" autofocus>
+          <p>${game.i18n.localize("SWFFG.Meta.Sources.AddSource.Page")}:</p>
+          <input type="number" id="page" name="page" value="0">
+        `,
+        buttons: {
+          submit: {
+            icon: '<i class="fas fa-check"></i>',
+            label: game.i18n.localize("SWFFG.Meta.Sources.AddSource.Submit"),
+            callback: async (obj, _event) => {
+              const jObj = $(obj);
+              const bookName = jObj.find("#book").val();
+              const pageNum = jObj.find("#page").val();
+              await this.object.update({"system.metadata.sources": [...this.object.system.metadata.sources, `${bookName} pg. ${pageNum}`]});
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-x"></i>',
+            label: game.i18n.localize("SWFFG.Meta.Sources.AddSource.Cancel"),
+          },
+        },
+        default: "submit",
+      });
+      addSource.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "starwarsffg-dialog"]});
+    } else if (action === "remove") {
+      const sources = foundry.utils.deepClone(this.object.system.metadata.sources);
+      sources.splice(sourceIndex, 1);
+      await this.object.update({"system.metadata.sources": sources});
+    }
+    this.render(true);
+  }
+
+  /**
+   * Handle adding a tag to actors
+   * @param event
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _handleTagControl(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const action = $(event.currentTarget).data("action");
+    const tagIndex = $(event.currentTarget).data("index");
+    if (action === "add") {
+      const addTag = new LegacyDialogV2({
+        title: game.i18n.localize("SWFFG.Meta.Tags.AddTag.Title"),
+        content: `
+          <p>${game.i18n.localize("SWFFG.Meta.Tags.AddTag.Tag")} :</p>
+          <input type="text" id="tag" name="tag" value="" autofocus>
+        `,
+        buttons: {
+          submit: {
+            icon: '<i class="fas fa-check"></i>',
+            label: game.i18n.localize("SWFFG.Meta.Tags.AddTag.Submit"),
+            callback: async (obj, _event) => {
+              const jObj = $(obj);
+              const tag = jObj.find("#tag").val();
+              const updatedTags = this.object.system.metadata.tags || [];
+              updatedTags.push(tag);
+              await this.object.update({"system.metadata.tags": updatedTags});
+            }
+          },
+          cancel: {
+            icon: '<i class="fas fa-x"></i>',
+            label: game.i18n.localize("SWFFG.Meta.Tags.AddTag.Cancel"),
+          },
+        },
+        default: "submit",
+      });
+      addTag.render(true, {focus: true, classes: ["app", "window-app", "dialog", "themed", "starwarsffg-dialog"]});
+    } else if (action === "remove") {
+      const tags = foundry.utils.deepClone(this.object.system.metadata.tags);
+      tags.splice(tagIndex, 1);
+      await this.object.update({"system.metadata.tags": tags});
+    }
+    this.render(true);
+  }
+}
+
+/**
+ * Sort an array of dicts by a key. Totally not AI generated. But it works :)
+ * @param data
+ * @param byKey
+ * @returns {*}
+ */
+export function sortDataBy(data, byKey) {
+ return data.sort((a, b) => {
+    if (a[byKey] < b[byKey]) {
+      return -1;
+    }
+    if (a[byKey] > b[byKey]) {
+      return 1;
+    }
+    return 0;
+ });
+}
+
+/**
+ * Add an element to an array only if it isn't already present in that array
+ * @param array
+ * @param element
+ * @returns {*}
+ */
+export function addIfNotExist(array, element) {
+  let index = array.indexOf(element);
+  // Check if the object with the specified property value exists in the array
+  if (index === -1) {
+    // If not found, push a new object with the desired properties
+    array.push(element);
+  }
+  return array;
+}

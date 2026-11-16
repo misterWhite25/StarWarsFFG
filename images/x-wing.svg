@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <title>Aile-X vu de dessus</title>
+  <g transform="translate(40 40) rotate(45)" fill="black" stroke="black" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-27-22V2m0 16v4M-12-22V2m0 16v4M12-22V2m0 16v4M27-22V2m0 16v4"/>
+    <path d="M-28-17h2m13 0h2m22 0h2m13 0h2" stroke-width="4"/>
+    <path d="M-27 5-5 0v20l-22-6ZM27 5 5 0v20l22-6Z"/>
+    <path d="M-24 18-7 25H7l17-7M-7 20v5m14-5v5"/>
+    <path d="M-2-32h4L5-5v18l-5 6-5-6V-5ZM-5-5H5"/>
+    <path d="M-30 3h6v14h-6ZM-15 3h6v14h-6ZM9 3h6v14H9ZM24 3h6v14h-6Z"/>
+  </g>
+</svg>

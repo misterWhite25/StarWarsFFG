@@ -1,0 +1,266 @@
+import {isHomesteadType} from './actor-types.mjs';
+import { deleteDataField } from "../compatibility/data-operators.js";
+import {migrateDataToSystem} from "./migration.js";
+
+export default class ActorHelpers {
+  static async updateActor(event, initialFormData) {
+    let formData = initialFormData;
+    formData = foundry.utils.expandObject(formData);
+
+    // as of Foundry v10, saving an editor only submits the single entry for that editor
+    if (Object.keys(formData).length > 1) {
+      if (this.object.type === "minion") {
+        Object.keys(formData?.data?.skills).forEach((skill) => {
+          if (!formData.data.skills[skill].groupskill && this.object.system.skills[skill].groupskill) {
+            // this is a minion group with a group skill being removed - reduce the rank by one (since we added 1 when it was checked)
+            formData.data.skills[skill].rank -= this.object.system.quantity.value;
+          }
+        });
+      }
+      if (!isHomesteadType(this.object.type)) {
+        if (this.object.type !== "vehicle") {
+          // Handle credits
+          if (formData.data.stats?.credits?.value) {
+            const rawCredits = formData.data.stats?.credits.value
+              ?.toString()
+              .match(/^(?!.*\.).*|.*\./)[0]
+              .replace(/[^0-9]+/g, "");
+            formData.data.stats.credits.value = parseInt(rawCredits, 10);
+          }
+        }
+      }
+      if (this.object.type === "minion") {
+        // include the updated quantity of minions in the group in the update object so automation can access it
+        formData.data.quantity.value = Math.min(formData.data.quantity.max, formData.data.quantity.max - Math.floor(formData.data.stats.wounds.value - 1) / formData.data.unit_wounds.value);
+      }
+    }
+    // Handle the free-form attributes list
+    const formAttrs = foundry.utils.expandObject(formData)?.data?.attributes || {};
+    const attributes = Object.values(formAttrs).reduce((obj, v) => {
+      let k = v["key"].trim();
+      delete v["key"];
+      obj[k] = v;
+      return obj;
+    }, {});
+
+    // Remove attributes which are no longer used
+    if (this.object.system?.attributes) {
+      for (let k of Object.keys(this.object.system.attributes)) {
+        if (!Object.hasOwn(attributes, k)) attributes[k] = deleteDataField();
+      }
+    }
+
+    // recombine attributes to formData
+    formData.data.attributes = attributes;
+
+    // Update the Actor
+    foundry.utils.setProperty(formData, `flags.starwarsffg.loaded`, false);
+
+    // as of v12, "data" is no longer shimmed into "system" for you, so we must do it ourselves
+    formData = migrateDataToSystem(formData);
+
+    const curXP = this.object?.system?.experience?.available ? this.object.system.experience.available : 0;
+    const newXP = formData?.system?.experience?.available ? formData.system.experience.available : 0;
+    if (curXP !== newXP && curXP !== 0 && newXP !== 0) {
+      await xpLogEarn(this.object, newXP - curXP, newXP, this.object?.system?.experience.total, game.i18n.localize("SWFFG.UI.Interface.ManualXPAdjustment"), "Self");
+    }
+
+    return await this.object.update(formData);
+  }
+
+  /**
+   * Records the state of all active effects on the actor and then suspends them.
+   * This is used to enable manual editing without an infinite loop from the two being combined
+   * Note that this returns a state, which is REQUIRED to restore the original AE state
+   * @param actor
+   * @param persistChanges - defaults to False, and generally should be. For GM XP granting, this should be True
+   * @returns {Promise<{directEffects: *[], itemEffects: {}}>}
+   */
+  static async beginEditMode(actor, persistChanges=false) {
+    // Store initial state
+    
+    // Track both direct and item-based effects
+    const initialState = {
+      directEffects: [],
+      itemEffects: {},
+    };
+
+    // Record direct effects
+    for (const effect of actor.effects) {
+      initialState.directEffects.push({
+        id: effect.id,
+        disabled: effect.disabled,
+      });
+      // update source so we don't persist disabling effects
+      if (!persistChanges) {
+        await effect.updateSource({disabled: true});
+      } else {
+        await effect.update({disabled: true});
+      }
+    }
+
+    // Record item-based effects
+    for (const item of actor.items) {
+      
+      initialState.itemEffects[item.id] = [];
+      for (const effect of item.effects) {
+        
+        initialState.itemEffects[item.id].push({
+          id: effect.id,
+          disabled: effect.disabled,
+        });
+        
+        if (!persistChanges) {
+          await effect.updateSource({disabled: true});
+        } else {
+          await effect.update({disabled: true});
+        }
+      }
+    }
+
+    
+    return initialState;
+  }
+
+  static async endEditMode(actor, originalState, persistChanges=false) {
+    
+    // revert the state for direct effects
+    for (const effect of actor.effects) {
+      const locatedEffect = originalState.directEffects.find((s) => s.id === effect.id);
+      if (locatedEffect && effect.disabled !== locatedEffect.disabled) {
+        // update source so we don't persist disabling effects
+        if (!persistChanges) {
+          await effect.updateSource({disabled: locatedEffect.disabled});
+        } else {
+          await effect.update({disabled: locatedEffect.disabled});
+        }
+      }
+    }
+
+    // revert the state for item-based effects
+    for (const item of actor.items) {
+      
+      if (item.id in originalState.itemEffects) {
+        const storedItemState = originalState.itemEffects[item.id];
+        
+        for (const effect of item.effects) {
+          
+          const storedEffectState = storedItemState.find((s) => s.id === effect.id);
+          if (storedEffectState && effect.disabled !== storedEffectState.disabled) {
+            
+            if (!persistChanges) {
+              await effect.updateSource({disabled: storedEffectState.disabled});
+            } else {
+              await effect.update({disabled: storedEffectState.disabled});
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Adds a SPEND log entry to the actor's XP log (accessed via the notebook under specializations)
+ * @param actor - ffgActor object
+ * @param action - action taken (e.g. "skill rank Astrogation 1 --> 2")
+ * @param cost - XP spent
+ * @param available - XP available
+ * @param total - XP total
+ * @param statusId - ID of the associated active effect (if in use)
+ * @returns {Promise<void>}
+ */
+export async function xpLogSpend(actor, action, cost, available, total, statusId=undefined) {
+  const xpLog = actor.getFlag("starwarsffg", "xpLog") || [];
+  const date = new Date().toISOString().slice(0, 10);
+  const newEntry = {
+    action: 'purchased',
+    id: statusId,
+    xp: {
+      cost: cost,
+      available: available,
+      total: total,
+    },
+    date: date,
+    description: action,
+  };
+  await actor.setFlag("starwarsffg", "xpLog", [newEntry, ...xpLog]);
+  await notifyXpSpend(actor, action);
+}
+
+/**
+ * Whisper the GM notifying them of spending XP
+ * @param actor
+ * @param action
+ * @returns {Promise<void>}
+ */
+async function notifyXpSpend(actor, action) {
+  if (game.settings.get("starwarsffg", "notifyOnXpSpend")) {
+    const chatData = {
+      speaker: {
+        actor: actor,
+      },
+      content: game.i18n.format("SWFFG.UI.Interface.BoughtAction",{action}),
+      whisper: ChatMessage.getWhisperRecipients("GM"),
+    };
+    await ChatMessage.create(chatData);
+  }
+}
+
+/**
+ * Adds a GRANT log entry to the actor's XP log (accessed via the notebook under specializations)
+ * @param actor - ffgActor object
+ * @param grant - XP granted
+ * @param available - XP available
+ * @param total - XP total
+ * @param note - note about the grant
+ * @param granter - string for who did the granting
+ * @returns {Promise<void>}
+ */
+export async function xpLogEarn(actor, grant, available, total, note, granter="GM", statusId=undefined) {
+  const xpLog = actor.getFlag("starwarsffg", "xpLog") || [];
+  const date = new Date().toISOString().slice(0, 10);
+  let action;
+  if (granter === "GM") {
+    action = "granted";
+  } else {
+    action = "adjusted";
+  }
+  const newEntry = {
+    action: action,
+    id: statusId, // XP grants are not done by Active Effects
+    xp: {
+      cost: grant,
+      available: available,
+      total: total,
+    },
+    date: date,
+    description: note,
+  };
+  await actor.setFlag("starwarsffg", "xpLog", [newEntry, ...xpLog]);
+}
+
+/**
+ * Undoes an XP grant, e.g., from removing a species
+ * @param actor - ffgActor object
+ * @param undone - XP undone
+ * @param available - (new) XP available
+ * @param total - (new) XP total
+ * @returns {Promise<void>}
+ */
+export async function xpLogUndo(actor, undone, available, total) {
+  const xpLog = actor.getFlag("starwarsffg", "xpLog") || [];
+  const date = new Date().toISOString().slice(0, 10);
+  const newEntry = {
+    action: "undid",
+    id: undefined,
+    xp: {
+      cost: undone,
+      available: available,
+      total: total,
+    },
+    date: date,
+    description: game.i18n.localize("SWFFG.UI.Interface.SpeciesXP"),
+  };
+  await actor.setFlag("starwarsffg", "xpLog", [newEntry, ...xpLog]);
+}
