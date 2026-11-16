@@ -1,3 +1,8 @@
+import {systemI18n} from '../system-i18n.mjs';
+globalThis.game={i18n:await systemI18n('fr')};
+import {setbackAfterRemovals} from '../../modules/helpers/setback-removal.mjs';
+import {applyTargetAdversary} from '../../modules/helpers/target-adversary.mjs';
+import {requireLivingVehicleGroup} from '../../modules/helpers/vehicle-minion-group.mjs';
 import {brawlAttackProfile,isBrawlSkill,weaponStunProfile,resolveShot} from '../../modules/helpers/weapon-selection.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,13 +13,18 @@ async function fixture({failure='posting',rollbackFailure=false,forward=false,ex
  let forwarded,postedData,postedItem;
  const notices=[],calls=[],effects=new Map(),once={_id:'once',system:{duration:'once'},toObject(){return {_id:this._id,system:structuredClone(this.system)};}};
  effects.set('once',once);
- const actor={uuid:'Actor.a',getEmbeddedCollection(){return {contents:[...effects.values()],get:id=>effects.get(id)};},
+ const actor={id:'a',uuid:'Actor.a',getEmbeddedCollection(){return {contents:[...effects.values()],get:id=>effects.get(id)};},
  async deleteEmbeddedDocuments(_type,ids){calls.push('effects-spent');for(const id of ids)effects.delete(id);},
  async createEmbeddedDocuments(_type,documents){calls.push('effects-restored');for(const data of documents)effects.set(data._id,{...data,toObject(){return structuredClone(data);}});}};
  const item={uuid:'Actor.a.Item.w',id:'w',type:'weapon',flags:{starwarsffg:{uuid:'Actor.a.Item.w'}},system:{ammo:{value:3},itemmodifier:qualities},
  getFlag(_scope,key){return key==='config.enableAmmo';},async update(data){this.system.ammo.value=data['system.ammo.value'];calls.push(`ammo-${this.system.ammo.value}`);}};
  const noop=()=>{};
  const exports={
+ 'integrated-crew':{resolveCrewActor:value=>(typeof value==='string'?value:value?.actor_id??value?.actorId)==='a'?actor:null,resolveCrewDocument:()=>null,integratedCrewVehicle:()=>null,integratedCrewGroupSignature:()=>null},
+ 'vehicle-minion-group':{requireLivingVehicleGroup},
+ 'target-adversary':{applyTargetAdversary},
+ 'roll-target-selection':{activateRollTargets:noop,closeRollTargets:noop},
+ 'setback-removal':{setbackAfterRemovals},
  'dodge-reaction':{registerIncomingRoll:noop,unregisterIncomingRoll:noop,dodgePool:(_b,p)=>p,commitDodge:async()=>({}),rollbackDodge:async()=>calls.push('dodge-restored')},
  'pilotage-mj':{preparePilotage:noop,renderPilotageNotice:noop,pilotageTotals:()=>({boost:0,setback:0}),poolModifiers:()=>[],reservePilotage:async()=>{if(failure==='reserve')throw Error('reserve failed');return {entries:[]};},restorePilotage:async()=>{calls.push('pilotage-restored');if(rollbackFailure)throw Error('pilotage refund failed');}},
  'gm-difficulty':{effectivePool:p=>p,gmDifficulty:()=>({enabled:false}),NEGATIVE_DICE:[]},
@@ -28,11 +38,11 @@ async function fixture({failure='posting',rollbackFailure=false,forward=false,ex
  const context=vm.createContext({Hooks:{on:()=>1,off:noop},document:{createElement:()=>({})},CONFIG:{logger:{debug:noop,warn:noop}},
  foundry:{utils:{deepClone:structuredClone,fromUuid:async()=>item},applications:{ux:{TextEditor:{enrichHTML:async x=>x}}}},fromUuid:async uuid=>uuid===item.uuid?item:actor,
  ChatMessage:{getSpeaker:()=>({actor:'a'}),create:async data=>{forwarded=JSON.parse(JSON.stringify(data));calls.push('forwarded');}},ui:{notifications:{error:error=>notices.push(error)}},
- game:{user:{id:'gm',isGM:true},playlists:{contents:[]},users:{contents:[]},actors:{get:()=>actor},settings:{get:()=>false},i18n:{lang:'fr',localize:x=>x},ffg:{RollFFG:class {constructor(_expression,item){postedItem=item;}async toMessage(data){postedData=data;calls.push('post');if(failure==='posting'){if(externalAmmoChange)item.system.ammo.value=1;throw Error('posting failed');}}}}}});
+ game:{user:{id:'gm',isGM:true},playlists:{contents:[]},users:{contents:[]},actors:{get:()=>actor},settings:{get:()=>false},i18n:await systemI18n('fr'),ffg:{RollFFG:class {constructor(_expression,item){postedItem=item;}async toMessage(data){postedData=data;calls.push('post');if(failure==='posting'){if(externalAmmoChange)item.system.ammo.value=1;throw Error('posting failed');}}}}}});
  const module=new vm.SourceTextModule(await readFile(new URL('../../modules/dice/roll-builder.js',import.meta.url),'utf8'),{context});
  await module.link(spec=>{const names=Object.keys(exports).find(key=>spec.includes(key)),values=exports[names];assert.ok(values,spec);return new vm.SyntheticModule(Object.keys(values),function(){for(const [key,value]of Object.entries(values))this.setExport(key,value);},{context});});await module.evaluate();
  context.$=value=>typeof value==='string'?[{}]:{html:()=>''};
- const app=new module.namespace.default({document:actor},{boost:0,renderDiceExpression:()=> '1dp',renderAdvancedPreview:noop},'Test','RangedLight',item);
+ const app=new module.namespace.default({document:actor},{boost:0,renderDiceExpression:()=> '1dp',renderAdvancedPreview:noop},'Test','SWFFG.SkillsNameRangedLight',item);
  app.roll.shotMode=mode;app.roll.shotRange=range;app._activateShotMode=noop;
  app._initializeInputs=noop;app._activateInputs=noop;app._activateFixedWeapon=noop;app._activateAutoFire=noop;app._activateCombatContext=noop;
  let click;
@@ -119,11 +129,11 @@ test('forwarded firing choices survive serialization without spending ammunition
 });
 
 test('normal Brawl publication sends unarmed damage to the chat without consuming any weapon ammunition',async()=>{
- const f=await fixture({failure:null});f.app.roll.skillName='Brawl';f.app.roll.item={};f.app.roll.data.document.system={characteristics:{Brawn:{value:3}}};
- await f.click();assert.deepEqual(f.notices,[]);assert.equal(f.postedItem().system.damage.adjusted,3);assert.equal(f.postedItem().system.crit.adjusted,5);assert.equal(f.postedItem().flags.starwarsffg.brawlAttack.unarmed,true);assert.equal(f.item.system.ammo.value,3);assert.equal(f.posted().flags.starwarsffg.combatSkill,'Brawl');
+ const f=await fixture({failure:null});f.app.roll.skillName='SWFFG.SkillsNameBrawl';f.app.roll.item={};f.app.roll.data.document.system={characteristics:{Brawn:{value:3}}};
+ await f.click();assert.deepEqual(f.notices,[]);assert.equal(f.postedItem().system.damage.adjusted,3);assert.equal(f.postedItem().system.crit.adjusted,5);assert.equal(f.postedItem().flags.starwarsffg.brawlAttack.unarmed,true);assert.equal(f.item.system.ammo.value,3);assert.equal(f.posted().flags.starwarsffg.combatSkill,'SWFFG.SkillsNameBrawl');
 });
 test('forwarded unarmed Brawl retains its actor and computes Brawn only when the recipient rolls',async()=>{
- const f=await fixture({failure:null,forward:true});f.app.roll.skillName='Brawl';f.app.roll.item={};f.app.roll.data.document.system={characteristics:{Brawn:{value:4}}};
+ const f=await fixture({failure:null,forward:true});f.app.roll.skillName='SWFFG.SkillsNameBrawl';f.app.roll.item={};f.app.roll.data.document.system={characteristics:{Brawn:{value:4}}};
  await f.click();assert.equal(f.item.system.ammo.value,3);assert.equal(f.effects.has('once'),true);assert.equal(f.calls.includes('post'),false);
  const recipient=await fixture({failure:null});recipient.app.roll=f.forwarded().flags.starwarsffg.roll;recipient.app.roll.data.document=recipient.app.roll.data.document;
  // The recipient restores the exact Actor document, whose current Brawn is used.

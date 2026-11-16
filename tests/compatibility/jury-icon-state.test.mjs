@@ -1,7 +1,9 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {renderReviewedTalentControls} from '../../modules/helpers/reviewed-talent-ui.js';
-test('jury rigging adds one state icon per equipment row, never to nested item-id controls, and reflects rank loss',()=>{
+test('jury rigging adds one state icon per equipment row, never to nested item-id controls, and reflects rank loss',async()=>{
+ const previousGame=globalThis.game;globalThis.game={i18n:await systemI18n('fr')};
  class Node{
   constructor(classes=''){this.className=classes;this.children=[];this.dataset={};this.attrs={};this.events={};this.style={};}
   append(...nodes){for(const n of nodes){n.parentElement=this;this.children.push(n);}}prepend(n){n.parentElement=this;this.children.unshift(n);}
@@ -27,5 +29,5 @@ test('jury rigging adds one state icon per equipment row, never to nested item-i
   for(const row of root.rows){assert.equal(row.querySelectorAll('.ffg-jury-control').length,1);assert.equal(row.querySelector('.item-controls').children.length,0);assert.equal(row.querySelector('.toggle-equipped').children.length,0);}
   renderReviewedTalentControls({element:root,actor});assert.equal(root.querySelectorAll('.ffg-jury-control').length,2);
   talent.system.ranks.current=0;renderReviewedTalentControls({element:root,actor});icons=root.querySelectorAll('.ffg-jury-control');assert.equal(icons.length,1);assert.equal(icons[0].dataset.juryState,'inactive');assert.equal(icons[0].attrs['aria-pressed'],'false');
- }finally{if(old===undefined)delete globalThis.document;else globalThis.document=old;}
+ }finally{if(previousGame===undefined)delete globalThis.game;else globalThis.game=previousGame;if(old===undefined)delete globalThis.document;else globalThis.document=old;}
 });

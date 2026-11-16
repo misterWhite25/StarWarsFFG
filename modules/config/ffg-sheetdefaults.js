@@ -3,6 +3,7 @@ export const default_width = {
   minion: 595,
   vehicle: 595,
   homestead: 595,
+  groupinventory: 595,
   nemesis: 630,
   rival: 630,
 };
@@ -12,6 +13,7 @@ export const default_height = {
   minion: 644,
   vehicle: 824,
   homestead: 783,
+  groupinventory: 783,
   nemesis: 783,
   rival: 783,
 };

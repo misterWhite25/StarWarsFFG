@@ -4,6 +4,26 @@ import {xpLogEarn, xpLogSpend} from "./actor-helpers.js";
 import DiceHelpers from "./dice-helpers.js";
 import {sortDataBy, addIfNotExist} from "../actors/actor-sheet-ffg.js";
 
+const wizardTableLanguage = () => ({
+  emptyTable: game.i18n.localize("SWFFG.UI.Actor.WizardTable.emptyTable"),
+  info: game.i18n.localize("SWFFG.UI.Actor.WizardTable.info"),
+  infoEmpty: game.i18n.localize("SWFFG.UI.Actor.WizardTable.infoEmpty"),
+  infoFiltered: game.i18n.localize("SWFFG.UI.Actor.WizardTable.infoFiltered"),
+  lengthMenu: game.i18n.localize("SWFFG.UI.Actor.WizardTable.lengthMenu"),
+  loadingRecords: game.i18n.localize("SWFFG.UI.Actor.WizardTable.loadingRecords"),
+  processing: game.i18n.localize("SWFFG.UI.Actor.WizardTable.processing"),
+  search: game.i18n.localize("SWFFG.UI.Actor.WizardTable.search"),
+  zeroRecords: game.i18n.localize("SWFFG.UI.Actor.WizardTable.zeroRecords"),
+  paginate: {first: game.i18n.localize("SWFFG.UI.Actor.WizardTable.Page.first"), last: game.i18n.localize("SWFFG.UI.Actor.WizardTable.Page.last"), next: game.i18n.localize("SWFFG.UI.Actor.WizardTable.Page.next"), previous: game.i18n.localize("SWFFG.UI.Actor.WizardTable.Page.previous")},
+  aria: {orderable: game.i18n.localize("SWFFG.UI.Actor.WizardTable.Sort.orderable"), orderableReverse: game.i18n.localize("SWFFG.UI.Actor.WizardTable.Sort.orderableReverse"), orderableRemove: game.i18n.localize("SWFFG.UI.Actor.WizardTable.Sort.orderableRemove")}
+});
+const wizardSelectSettings = () => ({
+  placeholderText: game.i18n.localize("SWFFG.UI.Actor.WizardSelect.placeholderText"),
+  searchPlaceholder: game.i18n.localize("SWFFG.UI.Actor.WizardSelect.searchPlaceholder"),
+  searchText: game.i18n.localize("SWFFG.UI.Actor.WizardSelect.searchText"),
+  searchingText: game.i18n.localize("SWFFG.UI.Actor.WizardSelect.searchingText")
+});
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
 
 export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -53,43 +73,43 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         // https://foundryvtt.wiki/en/development/guides/Tabs-and-Templates/Tabs-in-AppV2
         {
           id: "rules",
-          label: "rules"
+          label: "SWFFG.UI.Actor.WizardTab.rules"
         },
         {
           id: "background",
-          label: "background"
+          label: "SWFFG.UI.Actor.WizardTab.background"
         },
         {
           id: "startingBonus",
-          label: "startingBonus"
+          label: "SWFFG.UI.Actor.WizardTab.startingBonus"
         },
         {
           id: "obligation",
-          label: "obligation"
+          label: "SWFFG.UI.Actor.WizardTab.obligation"
         },
         {
           id: "species",
-          label: "species"
+          label: "SWFFG.UI.Actor.WizardTab.species"
         },
         {
           id: "career",
-          label: "career"
+          label: "SWFFG.UI.Actor.WizardTab.career"
         },
         {
           id: "xp_spend",
-          label: "xp_spend"
+          label: "SWFFG.UI.Actor.WizardTab.xp_spend"
         },
         {
           id: "gear",
-          label: "gear"
+          label: "SWFFG.UI.Actor.WizardTab.gear"
         },
         {
           id: "motivation",
-          label: "motivation"
+          label: "SWFFG.UI.Actor.WizardTab.motivation"
         },
         {
           id: "review",
-          label: "review"
+          label: "SWFFG.UI.Actor.WizardTab.review"
         },
       ],
       //labelPrefix: "MYSYS.tab", // Optional. Prepended to the id to generate a localization key
@@ -143,6 +163,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         startingBonus: null,
         obligations: [],
         species: null,
+        speciesStartingChoices: {},
         career: null,
         careerCareerSkillRanks: [],
         specialization: null,
@@ -174,9 +195,9 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     };
     this.builtin = {
       rules: {
-        fad: "Force and Destiny",
-        aor: "Age of Rebellion",
-        eote: "Edge of the Empire",
+        fad: "SWFFG.CharacterCreator.Rules.fad",
+        aor: "SWFFG.CharacterCreator.Rules.aor",
+        eote: "SWFFG.CharacterCreator.Rules.eote",
       },
     };
 
@@ -196,17 +217,38 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     });
   }
 
+  _speciesWizardAPI() {
+    return game.modules.get("swffg-compendium-bilingual-steelers-core_rule")?.api?.species;
+  }
+
+  async _syncWizardSpecies(actor) {
+    const api = this._speciesWizardAPI();
+    if (typeof api?.syncWizardSpecies !== "function") return null;
+    try {
+      const result = await api.syncWizardSpecies(this, actor);
+      this._steelersSpeciesStatus = result;
+      return result;
+    } catch (error) {
+      // Keep a blocked preview editable; the final preflight refuses completion.
+      const result = {status: "blocked", error};
+      this._steelersSpeciesStatus = result;
+      CONFIG.logger.error("Species wizard synchronization", error);
+      return result;
+    }
+  }
+
   /** @override */
   async _onRender(context, options) {
     /**
      * Used to activateListeners on ApplicationV2
      */
     await super._onRender(context, options);
-    CONFIG.logger.debug("Rendering Character Creator");
+    
 
     // backgrounds
     const cultureSelector = new globalThis.SlimSelect({
       select: '#culture',
+      settings: wizardSelectSettings(),
       events: {
         afterChange: async (newVal) => {
           // could be >1 but we only allow one here
@@ -217,6 +259,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     cultureSelector.setSelected(this.data.selected.background.culture?.uuid, false);
     const hookSelector = new globalThis.SlimSelect({
       select: '#hook',
+      settings: wizardSelectSettings(),
       events: {
         afterChange: async (newVal) => {
           // could be >1 but we only allow one here
@@ -228,6 +271,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     if (this.data.selected.rules === "fad") {
       const forceAttitudeSelector = new globalThis.SlimSelect({
         select: '#force_attitude',
+      settings: wizardSelectSettings(),
         events: {
           afterChange: async (newVal) => {
             // could be >1 but we only allow one here
@@ -241,6 +285,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     // starting bonuses
     const startingBonusSelector = new globalThis.SlimSelect({
         select: '#startingBonus',
+      settings: wizardSelectSettings(),
         events: {
           afterChange: async (newVal) => {
             // could be >1 but we only allow one here
@@ -253,6 +298,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     // obligations
     const obligationsTable = new globalThis.DataTable(
       "#obligations",
+      {language: wizardTableLanguage()},
     );
     obligationsTable.on("draw", () => {
       $(".obligation-spend").off("click").on("click", async (event) => {
@@ -269,6 +315,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     // species
     const speciesTable = new globalThis.DataTable(
       "#species",
+      {language: wizardTableLanguage()},
     );
     speciesTable.on("draw", () => {
       $(".species-spend").off("click").on("click", async (event) => {
@@ -282,6 +329,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     // careers
     const careersTable = new globalThis.DataTable(
       "#careers",
+      {language: wizardTableLanguage()},
     );
     careersTable.on("draw", () => {
       $(".career-spend").off("click").on("click", async (event) => {
@@ -305,6 +353,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     // specializations
     new globalThis.DataTable(
       "#specializations",
+      {language: wizardTableLanguage()},
     );
     $(".specialization-spend").on("click", async (event) => {
       await this.handleSpecializationSelect(event);
@@ -358,6 +407,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const gearTable = new globalThis.DataTable(
       "#buy_gear",
       {
+        language: wizardTableLanguage(),
         columnDefs: [{
           visible: false,
           targets: 0,
@@ -366,7 +416,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
           topStart: {
             buttons: [
               {
-                text: 'Weapons',
+                text: game.i18n.localize('SWFFG.ItemsWeapons'),
                 action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(true);
@@ -386,7 +436,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
                 className: 'weapon',
               },
               {
-                text: 'Armor',
+                text: game.i18n.localize('SWFFG.ItemsArmor'),
                 action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(false);
@@ -406,7 +456,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
                 className: 'armor',
               },
               {
-                text: 'Gear',
+                text: game.i18n.localize('SWFFG.ItemsGear'),
                 action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(false);
@@ -426,7 +476,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
                 className: 'gear',
               },
               {
-                text: 'Attachment',
+                text: game.i18n.localize('TYPES.Item.itemattachment'),
                 action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(true);
                   dt.column(4).visible(false);
@@ -446,7 +496,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
                 className: 'attachment',
               },
               {
-                text: 'Mod',
+                text: game.i18n.localize('TYPES.Item.itemmodifier'),
                 action: async (e, dt, _node, _config) => {
                   dt.column(3).visible(false);
                   dt.column(4).visible(false);
@@ -478,9 +528,11 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     // motivations
     new globalThis.DataTable(
       "#selected_motivations",
+      {language: wizardTableLanguage()},
     );
     const availableMotivationTable = new globalThis.DataTable(
       "#motivations",
+      {language: wizardTableLanguage()},
     );
     availableMotivationTable.on("draw", async () => {
       $(".motivation-spend").off("click").on("click", async (event) => {
@@ -499,7 +551,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       await this.createActorShim(event);
     });
 
-    CONFIG.logger.debug(`Current state: ${JSON.stringify(this.data)}`);
+    
   }
 
   /**
@@ -569,6 +621,8 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     context.startingObligation = obligation.starting;
     context.availableObligation = obligation.available;
     context.obligationKey = obligation.key;
+    const obligationLabels = {morality:"SWFFG.DescriptionMorality",duty:"SWFFG.DescriptionDuty",obligation:"SWFFG.DescriptionObligation"};
+    context.obligationLabel = obligationLabels[obligation.key] ? game.i18n.localize(obligationLabels[obligation.key]) : obligation.key;
 
     // include career / specialization career ranks
     let combinedPurchases = {};
@@ -756,26 +810,26 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
    * @returns {Promise<*[]>}
    */
   async getAvailableSpecies() {
-    const sources = this.getSources("species");
+    const coreSpecies = "swffg-compendium-bilingual-steelers-core_rule.en-species";
+    const sources = [...new Set([
+      ...this.getSources("species").map(source => source.trim()).filter(Boolean),
+      ...(game.packs.get(coreSpecies) ? [coreSpecies] : []),
+    ])];
     const species = [];
+    const seen = new Set();
+    const addSpecies = async item => {
+      if (item.type !== "species" || (item.uuid && seen.has(item.uuid))) return;
+      if (item.uuid) seen.add(item.uuid);
+      item.pill = await foundry.applications.ux.TextEditor.enrichHTML(item?.link);
+      species.push(item);
+    };
 
     for (const source of sources) {
       const pack = game.packs.get(source);
-      if (!pack) {
-        continue;
-      }
-      const items = await pack.getDocuments();
-      for (const item of items) {
-        item.pill = await foundry.applications.ux.TextEditor.enrichHTML(item?.link);
-        species.push(item);
-      }
+      if (!pack) continue;
+      for (const item of await pack.getDocuments()) await addSpecies(item);
     }
-
-    for (const item of game.items.filter(i => i.type === "species")) {
-      item.pill = await foundry.applications.ux.TextEditor.enrichHTML(item?.link);
-      species.push(item);
-    }
-
+    for (const item of game.items.filter(i => i.type === "species")) await addSpecies(item);
     return species;
   }
 
@@ -858,7 +912,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   * Handler for the user selecting their starting bonus
   */
   selectStartingBonus(choice) {
-    CONFIG.logger.debug(`selected starting bonus ${choice}`);
+    
     const ruleToBonusMap = {
       fad: 'conflict',
       aor: 'duty',
@@ -911,7 +965,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   async selectCulture(itemUuid, itemNametarget) {
     const selectedItem = await fromUuid(itemUuid);
     if (!selectedItem) {
-      ui.notifications.warn(`Unable to find culture ${itemNametarget}!`);
+      ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.WizardCultureNotFound", {name: itemNametarget}));
       return;
     }
     $("#cultured_esc").text(selectedItem.system.description);
@@ -927,7 +981,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   async selectHook(itemUuid, itemNametarget) {
     const selectedItem = await fromUuid(itemUuid);
     if (!selectedItem) {
-      ui.notifications.warn(`Unable to find hook ${itemNametarget}!`);
+      ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.WizardHookNotFound", {name: itemNametarget}));
       return;
     }
     $("#hook_desc").text(selectedItem.system.description);
@@ -943,7 +997,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   async selectForceAttitude(itemUuid, itemNametarget) {
     const selectedItem = await fromUuid(itemUuid);
     if (!selectedItem) {
-      ui.notifications.warn(`Unable to find force attitude ${itemNametarget}!`);
+      ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.WizardForceAttitudeNotFound", {name: itemNametarget}));
       return;
     }
     $("#force_attitude_desc").text(selectedItem.system.description);
@@ -963,7 +1017,11 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const target = $(event.currentTarget);
     const selectedSpecies = await fromUuid(target.data("source"));
     if (!selectedSpecies) {
-      return ui.notifications.warn(`Unable to find species!`);
+      return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardSpeciesNotFound"));
+    }
+    if (this.data.selected.species?.uuid !== selectedSpecies.uuid) {
+      this.data.selected.speciesStartingChoices = {};
+      delete this._steelersSpeciesStatus;
     }
     this.data.selected.species = selectedSpecies;
     await this.showCharacterStatusShim();
@@ -973,7 +1031,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const target = $(event.currentTarget);
     const selectedCareer = await fromUuid(target.data("source"));
     if (!selectedCareer) {
-      return ui.notifications.warn(`Unable to find career!`);
+      return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardCareerNotFound"));
     }
     this.data.selected.career = selectedCareer;
     this.data.selected.careerCareerSkillRanks = [];
@@ -986,8 +1044,6 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       if (specItem) {
         specItem.pill = await foundry.applications.ux.TextEditor.enrichHTML(specItem?.link);
         this.data.available.specializations.push(specItem);
-      } else {
-        CONFIG.logger.debug(`Unable to find specialization with UUID ${specData.source}`);
       }
     }
 
@@ -1030,7 +1086,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const target = $(event.currentTarget);
     const selectedObligation = await fromUuid(target.data("source"));
     if (!selectedObligation) {
-      return ui.notifications.warn(`Unable to find obligation!`);
+      return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardObligationNotFound"));
     }
     this.data.selected.obligations.push(selectedObligation);
     await this.showCharacterStatusShim();
@@ -1040,7 +1096,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const target = $(event.currentTarget);
     const selectedSpecialization = await fromUuid(target.data("source"));
     if (!selectedSpecialization) {
-      return ui.notifications.warn(`Unable to find specialization!`);
+      return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardSpecializationNotFound"));
     }
     this.data.selected.specialization = selectedSpecialization;
     this.data.selected.specializationCareerSkillRanks = [];
@@ -1052,6 +1108,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
    * @returns {Promise<void>}
    */
   async showCharacterStatusShim() {
+    this._steelersSpeciesPreviewPending = true;
     if (game.user.isGM) {
       // temporary: delete previous copies of the actor
       const existingActor = game.actors.getName(`temp actor - ${game.user.name}`);
@@ -1078,11 +1135,13 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   async showCharacterStatus(actorId) {
     const tempActor = game.actors.get(actorId);
     if (!tempActor) {
-      ui.notifications.error(`Unable to find temp actor!`);
+      ui.notifications.error(game.i18n.localize("SWFFG.UI.Actor.WizardPreviewNotFound"));
       return;
     }
 
-    CONFIG.logger.debug("updating XP for temp actor");
+    await tempActor.setFlag("starwarsffg", "speciesWizardManaged", true);
+
+    
     const { total: totalXp, available: availableXp } = this.calcXp();
     if (this.data.selected.species?.uuid) {
       await tempActor.update({
@@ -1093,7 +1152,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       });
     }
 
-    CONFIG.logger.debug("applying XP purchases");
+    
     // apply purchases
     for (const characteristicPurchase of this.data.purchases.xp.characteristics) {
       const updateKey = `system.characteristics.${characteristicPurchase.key}.value`;
@@ -1139,8 +1198,8 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         items.push(item);
       }
     }
-    CONFIG.logger.debug("adding the following items to the temp actor");
-    CONFIG.logger.debug(items);
+    
+    
     await tempActor.createEmbeddedDocuments("Item", items);
 
     // apply career skill ranks from career and specialization
@@ -1193,9 +1252,11 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         await specializationItem.createEmbeddedDocuments("ActiveEffect", [AE]);
       }
     }
-    CONFIG.logger.debug("assigning to local actor record");
+    await this._syncWizardSpecies(tempActor);
+
+    
     this.tempActor = tempActor;
-    CONFIG.logger.debug("re-rendering");
+    
     this.render();
   }
 
@@ -1279,7 +1340,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     // prepare the items list
     const inCareer = this.data.selected.career?.system?.specializations;
       if (!inCareer) {
-        ui.notifications.warn("Could not locate any specializations in your career! Please define them first");
+        ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardCareerSpecializationsMissing"));
         return;
       }
       const inCareerNames = Object.values(inCareer).map(i => i.name);
@@ -1421,7 +1482,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const forcePowerName = target.data("forcepower");
     const parentForcePower = this.data.purchases.xp.forcePowers.find(s => s.item.name === forcePowerName)?.item;
     if (!parentForcePower) {
-      return ui.notifications.warn(`Unable to find force power ${forcePowerName} with upgrade ${upgrade}! bailing`);
+      return ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.WizardPowerUpgradeNotFound", {power: forcePowerName, upgrade}));
     }
     const wasLearned = parentForcePower.system.upgrades[upgrade]?.islearned || false
     const cost = target.data("cost");
@@ -1457,7 +1518,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     } else {
       const parentSpec = this.data.purchases.xp.specializations.find(s => s.item.name === specializationName)?.item;
       if (!parentSpec) {
-        return ui.notifications.warn(`Unable to find specialization ${specializationName} talent ${talent} is within! bailing`);
+        return ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.WizardTalentSpecializationNotFound", {specialization: specializationName, talent}));
       }
       wasLearned = parentSpec.system.talents[talent]?.islearned || false;
       parentSpec.system.talents[talent].islearned = !wasLearned;
@@ -1490,15 +1551,15 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
             icon: '<i class="fa-regular fa-circle-up"></i>',
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
             callback: async (purchaseWindow) => {
-              CONFIG.logger.debug(purchaseWindow);
+              
               const cost = $("#ffgPurchase option:selected", purchaseWindow).data("cost");
               const selectedUuid = $("#ffgPurchase option:selected", purchaseWindow).data("source");
 
-              CONFIG.logger.debug(cost, selectedUuid);
+              
 
               const selectedItem = await fromUuid(selectedUuid);
               if (!selectedItem) {
-                ui.notifications.warn("Unable to locate purchased specialization, sorry!");
+                ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardPurchasedSpecializationNotFound"));
                 return;
               }
               this.data.purchases.xp[itemType].push({
@@ -1522,7 +1583,9 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   calcXp() {
-    let total = (this.data.selected.species?.system?.startingXP || 0) + this.data.grants.bonus.xp;
+    const speciesXPBonus = this._speciesWizardAPI()?.wizardXPBonus?.(this) ?? 0;
+    if (!Number.isSafeInteger(speciesXPBonus)) throw new Error("Invalid species wizard XP bonus");
+    let total = (this.data.selected.species?.system?.startingXP || 0) + this.data.grants.bonus.xp + speciesXPBonus;
     let available = total;
     for (const purchase of this.data.purchases.xp.characteristics) {
       available-= purchase.cost;
@@ -1599,7 +1662,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const itemUuid = target.data("source");
     const purchasedItem = await fromUuid(itemUuid);
     if (!purchasedItem) {
-      return ui.notifications.warn("Unable to locate purchased item, sorry!");
+      return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardPurchasedItemNotFound"));
     }
     this.data.purchases.credits.push({
       item: purchasedItem,
@@ -1644,7 +1707,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const itemUuid = target.data("source");
     const purchasedItem = await fromUuid(itemUuid);
     if (!purchasedItem) {
-      return ui.notifications.warn("Unable to locate motivation item, sorry!");
+      return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardMotivationNotFound"));
     }
     this.data.selected.motivations.push({
       item: purchasedItem,
@@ -1670,12 +1733,14 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async createActorShim() {
+    const api = this._speciesWizardAPI();
+    if (typeof api?.validateWizard === "function" && await api.validateWizard(this) === false) return false;
     if (game.user.isGM) {
       // temporary: create a new actor to add stuff to
-      CONFIG.logger.debug("creating final actor...");
+      
       const finalActor = await Actor.create(
         {
-          name: `${game.user.name}'s new PC!`,
+          name: game.i18n.format("SWFFG.UI.Actor.WizardNewCharacter", {name: game.user.name}),
           type: "character",
           displaySheet: false,
         },
@@ -1690,12 +1755,14 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async createActor(actorId) {
-    CONFIG.logger.debug("Creating new actor...");
+    
     const newActor = game.actors.get(actorId);
     if (!newActor) {
-      ui.notifications.error("Actor not found.");
+      ui.notifications.error(game.i18n.localize("SWFFG.UI.Actor.WizardActorNotFound"));
       return;
     }
+
+    await newActor.setFlag("starwarsffg", "speciesWizardManaged", true);
 
     const xp = await this.calcXp();
     const totalXp = xp.total;
@@ -1755,7 +1822,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       }
     }
 
-    CONFIG.logger.debug(`Granting the following items: ${JSON.stringify(items)}`);
+    
     await newActor.createEmbeddedDocuments("Item", items);
 
     // apply credit purchases
@@ -1764,7 +1831,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     for (const creditItem of this.data.purchases.credits) {
       creditItems.push(creditItem.item);
     }
-    CONFIG.logger.debug(`Processed the following credit purchases: ${JSON.stringify(creditItems)}`);
+    
 
     await newActor.createEmbeddedDocuments("Item", creditItems);
     await newActor.update({
@@ -1833,9 +1900,17 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       }
     }
 
+    const speciesResult = await this._syncWizardSpecies(newActor);
+    if (["blocked", "choices-required"].includes(speciesResult?.status)) {
+      // Leave the wizard open; never present this partially built actor as complete.
+      this.render();
+      return false;
+    }
+
     await xpLogEarn(newActor, totalXp, totalXp, totalXp, "Initial State");
     await xpLogSpend(newActor, "Character Creation Changes", totalXp - availableXp, availableXp, totalXp);
 
+    await newActor.unsetFlag("starwarsffg", "speciesWizardManaged");
     newActor.sheet.render(true);
   }
 }

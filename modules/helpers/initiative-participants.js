@@ -3,7 +3,7 @@ export function initiativeIdentity(c) {
 }
 export function prepareInitiativeParticipants(combat,initialIds) {
   const ids=typeof initialIds==='string'?[initialIds]:initialIds;
-  if(!Array.isArray(ids))throw Error('Invalid initiative participant list');
+  if(!Array.isArray(ids))throw Error(game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeListInvalid"));
   const selected=[],skipped=[],seen=new Set();
   for(const id of ids) {
     if(seen.has(id)){skipped.push({id,reason:'duplicate'});continue;}seen.add(id);
@@ -19,8 +19,8 @@ export function revalidateInitiativeParticipant(combat,id,identity) {
   if(c.actor.uuid!==identity.actor||c.token.uuid!==identity.token)return {reason:'changed'};
   return {combatant:c};
 }
-export function initiativeSkipSummary(skipped,fr=false) {
-  const labels=fr?{'removed':'retiré du combat','not-owner':'droits insuffisants','missing-actor':'fiche introuvable','tokenless':'sans pion pris en charge','duplicate':'doublon','changed':'pion ou fiche remplacé','failed':'jet impossible'}:{'removed':'removed from combat','not-owner':'not owned','missing-actor':'missing actor','tokenless':'unsupported tokenless entry','duplicate':'duplicate','changed':'token or actor replaced','failed':'roll failed'};
+export function initiativeSkipSummary(skipped,_fr=false) {
+  const labels={"removed":game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeRemoved"),"not-owner":game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeNotOwned"),"missing-actor":game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeMissingActor"),"tokenless":game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeTokenless"),"duplicate":game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeDuplicate"),"changed":game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeChanged"),"failed":game.i18n.localize("SWFFG.UI.CombatSheet.InitiativeFailed")};
   const counts=new Map();for(const entry of skipped)counts.set(entry.reason,(counts.get(entry.reason)??0)+1);
-  return (fr?'Initiative - entrées ignorées : ':'Initiative - skipped entries: ')+[...counts].map(([reason,n])=>`${n} ${labels[reason]??reason}`).join(' ; ');
+  return (game.i18n.localize("SWFFG.UI.Combat.InitiativeParticipants.InitiativeSkippedEntries"))+[...counts].map(([reason,n])=>`${n} ${labels[reason]??reason}`).join(' ; ');
 }

@@ -22,7 +22,7 @@ export default class Vehicles {
       let currentCount = 0;
 
       if (files.length) {
-        CONFIG.logger.debug(`Starting Oggdude Vehicles Import`);
+        
         $(".import-progress.vehicle").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(files, async (file) => {
@@ -154,7 +154,7 @@ export default class Vehicles {
                 data.system.metadata.tags.push(item.Categories.Category.toLowerCase());
               }
             } catch {
-              CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+              
             }
             if (item?.Type) {
               // the "type" can be useful as a tag as well

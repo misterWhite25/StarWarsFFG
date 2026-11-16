@@ -1,3 +1,4 @@
+import './character-vehicles.mjs';
 const pending = new Map();
 const characterTypes = new Set(['character','minion','rival','nemesis']);
 export const isVehicleOwnerActor = actor => actor?.documentName === 'Actor' && characterTypes.has(actor.type);

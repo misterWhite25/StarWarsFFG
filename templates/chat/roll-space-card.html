@@ -1,0 +1,62 @@
+<section class="ffg-space-card">
+  {{#if spaceCard.title}}
+  <header class="ffg-space-heading">
+    {{#if spaceCard.portrait}}
+    <img class="ffg-space-portrait" src="{{spaceCard.portrait}}" alt="" loading="lazy" />
+    {{else}}
+    <span class="ffg-space-portrait ffg-space-placeholder" aria-hidden="true"><i class="fa-solid {{spaceCard.icon}}"></i></span>
+    {{/if}}
+    <div class="ffg-space-identity">
+      <strong class="ffg-space-name">{{spaceCard.title}}</strong>
+      {{#if spaceCard.role}}<span class="ffg-space-role" title="{{localize 'SWFFG.Crew.Card.Role'}}">{{spaceCard.role}}</span>{{/if}}
+    </div>
+  </header>
+  {{/if}}
+  {{#if spaceCard.weaponLine}}
+  <div class="ffg-space-weapon" data-item-id="{{system._id}}">
+    <i class="fa-solid fa-crosshairs" aria-hidden="true"></i>
+    <strong>{{system.name}}</strong>
+  </div>
+  {{/if}}
+  {{#if hasSuccess}}
+  <div class="ffg-space-outcome {{#if ffg.success}}is-success{{else}}is-failure{{/if}}">
+    <i class="fa-solid {{#if ffg.success}}fa-check{{else}}fa-xmark{{/if}}" aria-hidden="true"></i>
+    <strong>{{#if ffg.success}}{{localize "SWFFG.RollSucceeded"}}{{else}}{{localize "SWFFG.RollFailure"}}{{/if}}</strong>
+  </div>
+  {{/if}}
+  {{#if spaceCard.weapon}}
+    {{#if ffg.success}}
+    <dl class="ffg-space-hit-stats">
+      <div><dt>{{localize "SWFFG.ItemsDamage"}}</dt><dd>{{#if (ne spaceCard.damage null)}}{{math spaceCard.damage '+' (ffgWeaponSuccessDamage ffg.success)}}<small>{{spaceCard.damage}} + {{ffgWeaponSuccessDamage ffg.success}}</small>{{else}}?{{/if}}</dd></div>
+      <div><dt>{{localize "SWFFG.WeaponCardCritical"}}</dt><dd>{{#if (ne spaceCard.critical null)}}{{spaceCard.critical}}{{else}}?{{/if}}</dd></div>
+    </dl>
+    {{/if}}
+    {{#if system.system.doNotSubmit.qualities}}
+    <div class="ffg-space-qualities specials">
+      {{#each system.system.doNotSubmit.qualities as |item|}}
+      <span class="ffg-space-quality item-pill-hover hover-tooltip" data-item-type="itemmodifier" data-item-embed-name="{{item.name}}" data-item-embed-img="{{item.img}}" data-desc="{{item.description}}" data-item-ranks="{{item.totalRanks}}" data-tooltip="{{localize 'SWFFG.UI.Item.Loading'}}">{{ffgQualityName item.name}}{{#if item.totalRanks}}<b>{{item.totalRanks}}</b>{{/if}}</span>
+      {{/each}}
+    </div>
+    {{/if}}
+    {{#if system.system.special.value}}<p class="ffg-space-special">{{{ffgDiceSymbols system.system.special.value}}}</p>{{/if}}
+  {{/if}}
+  {{#if spaceCard.force}}
+  <div class="ffg-force-content" data-item-id="{{system._id}}">
+    {{#if spaceCard.description}}<div class="ffg-force-description">{{{ffgDiceSymbols spaceCard.description}}}</div>{{/if}}
+    {{#if spaceCard.powerUpgrades}}
+    <div class="ffg-space-qualities">
+      {{#each spaceCard.powerUpgrades}}
+      <span class="ffg-space-quality ffg-sendtochat hover-tooltip" data-tooltip="<section class=&quot;chat-msg-tooltip content&quot;><section class=&quot;description&quot;>{{{ffgDiceSymbols this.description}}}</section></section>">{{this.name}}{{#if this.rank}}<b>{{this.rank}}</b>{{/if}}</span>
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>
+  {{/if}}
+  {{#if spaceCard.results}}
+  <dl class="ffg-space-results">
+    {{#each spaceCard.results}}
+    <div data-result="{{key}}"><dd>{{count}}</dd><dt>{{localize label}}</dt></div>
+    {{/each}}
+  </dl>
+  {{/if}}
+</section>

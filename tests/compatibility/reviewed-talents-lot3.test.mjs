@@ -1,9 +1,10 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs/promises';
 async function load(){
- const context=vm.createContext({structuredClone,game:{i18n:{lang:'fr',localize:k=>k},combat:null,user:{isGM:true},settings:{get:()=>true}},foundry:{utils:{getProperty:(o,p)=>p.split('.').reduce((v,k)=>v?.[k],o),deepClone:structuredClone}}});
+ const context=vm.createContext({structuredClone,game:{i18n:await systemI18n('fr'),combat:null,user:{isGM:true},settings:{get:()=>true}},foundry:{utils:{getProperty:(o,p)=>p.split('.').reduce((v,k)=>v?.[k],o),deepClone:structuredClone}}});
  const cache=new Map();
  async function module(name){if(cache.has(name))return cache.get(name);const m=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/'+name,import.meta.url),'utf8'),{context});cache.set(name,m);await m.link(s=>module(s.split('/').at(-1)));await m.evaluate();return m;}
  return {state:(await module('reviewed-talent-state.js')).namespace,roll:(await module('roll-talents.js')).namespace,combat:(await module('combat-actions.js')).namespace,ui:(await module('reviewed-talent-ui.js')).namespace,context};
@@ -83,7 +84,7 @@ test('Dedication derives one point per chosen rank, max six and no original sour
 test('post-roll talent choices recognize skill keys, translation keys and French labels from normal rolls',async()=>{
  const {combat:c,context}=await load();
  const translations={'SWFFG.SkillsNameKnowledgeOuterRim':'Bordure Extérieure','SWFFG.SkillsNameCharm':'Charme'};
- context.game.i18n.localize=k=>translations[k]??k;
+ const nativeLocalize=context.game.i18n.localize;context.game.i18n.localize=k=>translations[k]??nativeLocalize(k);
  for(const [kind,name,key,label] of [
   ['knowledgeSpecialization','Connaissances Spécialisées','OuterRim','SWFFG.SkillsNameKnowledgeOuterRim'],
   ['smoothTalker','Beau Parleur','Charm','SWFFG.SkillsNameCharm']

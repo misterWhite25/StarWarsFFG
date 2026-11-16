@@ -1,9 +1,9 @@
 <form>
   <div>
-    PASSES {{pass.length}}
+    {{localize 'SWFFG.UI.Actor.TestPasses'}} {{pass.length}}
   </div>
   <div>
-    FAILURES {{fail.length}}
+    {{localize 'SWFFG.UI.Actor.TestFailures'}} {{fail.length}}
   </div>
   {{#if (gt fail.length 0)}}
   <div>

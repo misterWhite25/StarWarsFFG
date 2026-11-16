@@ -53,7 +53,7 @@ export class GroupManager extends FormApplicationV2 {
       height: 900,
       template: "systems/starwarsffg/templates/group-manager.html",
       id: "group-manager",
-      title: "Group Manager",
+      title: game.i18n.localize("SWFFG.UI.Root.GroupManager"),
     });
   }
 
@@ -175,7 +175,7 @@ export class GroupManager extends FormApplicationV2 {
     html.find(".initiative-mode").change((ev) => {
       const init_value = ev.target.value.charAt(0).toLowerCase();
       game.settings.set("starwarsffg", "initiativeRule", init_value);
-      ui.notifications.info(`Initiative mode changed to: ${ev.target.value}`);
+      ui.notifications.info(game.i18n.format("SWFFG.UI.Root.InitiativeModeChanged", {mode: ev.target.selectedOptions?.[0]?.textContent ?? ev.target.value}));
     });
 
     // Add individual character to combat tracker.
@@ -308,7 +308,7 @@ export class GroupManager extends FormApplicationV2 {
             tokens.push(token);
           }
         } else {
-          ui.notifications.warn(`${c.name} has no active Token in the current scene.`);
+          ui.notifications.warn(game.i18n.format("SWFFG.UI.Root.CharacterTokenMissing", {name: game.actors.get(c)?.name ?? c.name ?? c}));
         }
       })
     );
@@ -325,7 +325,7 @@ export class GroupManager extends FormApplicationV2 {
         await game.combat.createEmbeddedDocuments('Combatant', [{ tokenId: token.id }]);
       //await game.combat.createCombatant({ tokenId: token.id });
     } else {
-      ui.notifications.warn(`User has no active Token in the current scene.`);
+      ui.notifications.warn(game.i18n.localize("SWFFG.UI.Root.TokenMissing"));
     }
   }
 
@@ -370,7 +370,7 @@ export class GroupManager extends FormApplicationV2 {
             character.update({ ["system.experience.available"]: +character.system.experience.available + +amount.value });
             await xpLogEarn(character, amount.value, available, total, note);
             await ActorHelpers.endEditMode(character, state, true);
-            ui.notifications.info(`Granted ${amount.value} XP to ${character.name}.`);
+            ui.notifications.info(game.i18n.format("SWFFG.UI.Root.GrantedXP", {amount: amount.value, name: character.name}));
           },
         },
         two: {
@@ -411,7 +411,7 @@ export class GroupManager extends FormApplicationV2 {
               character.update({ ["system.experience.available"]: +character.system.experience.available + +amount.value });
               await xpLogEarn(character, amount.value, available, total, note);
               await ActorHelpers.endEditMode(character, state, true);
-              ui.notifications.info(`Granted ${amount.value} XP to ${character.name}.`);
+              ui.notifications.info(game.i18n.format("SWFFG.UI.Root.GrantedXP", {amount: amount.value, name: character.name}));
             }
           },
         },

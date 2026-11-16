@@ -21,7 +21,7 @@ export default class Armor {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Armor`);
-        CONFIG.logger.debug(`Starting Oggdude Armor Import`);
+        
         $(".import-progress.armor").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(items, async (item) => {
@@ -84,7 +84,7 @@ export default class Armor {
                 data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
               }
             } catch {
-              CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+              
             }
             if (item?.Type) {
               // the "type" can be useful as a tag as well
@@ -114,6 +114,6 @@ export default class Armor {
     } catch (err) {
       CONFIG.logger.error(`Error importing record : `, err);
     }
-    CONFIG.logger.debug(`Completed Oggdude Armor Import`);
+    
   }
 }

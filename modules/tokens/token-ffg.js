@@ -1,7 +1,7 @@
 export class TokenFFG extends foundry.canvas.placeables.Token {
   /** @override */
   _refreshTurnMarker(wantMarkerActive=false) {
-    CONFIG.logger.debug(`Refreshing ${this.name}...`);
+    
     // Should a Turn Marker be active?
     const {turnMarker} = this.document;
     const markersEnabled = CONFIG.Combat.settings.turnMarker.enabled
@@ -11,7 +11,7 @@ export class TokenFFG extends foundry.canvas.placeables.Token {
     const claimant = game.combat?.combatants.find(i => i.id === isClaimed);
     // end custom logic
 
-    CONFIG.logger.debug(`Slot claimed: ${isClaimed}`);
+    
     // Activate a Turn Marker
     if (markersEnabled && wantMarkerActive || (markersEnabled && isClaimed && claimant && claimant.actorId === this.actor.id)) {
       if (!this.turnMarker) this.turnMarker = this.addChildAt(new foundry.canvas.placeables.tokens.TokenTurnMarker(this), 0);

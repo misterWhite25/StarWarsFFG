@@ -13,7 +13,7 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
       closeOnSubmit: false
     },
     window: {
-      title: "Data Importer",
+      title: "SWFFG.UI.Import.DataTitle",
       contentClasses: ["standard-form"]
     },
     actions: {
@@ -76,7 +76,7 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
     // Add debug log option to window header
     const debugSpan = document.createElement("span");
     debugSpan.className = "debug";
-    debugSpan.innerHTML = `<label><input type="checkbox" /> Generate Log</label>`;
+    debugSpan.innerHTML = `<label><input type="checkbox" /> ${game.i18n.localize("SWFFG.UI.Import.GenerateLog")}</label>`;
     const headerCloseButton = this.element?.querySelector("#data-importer header button[data-action=close]");
     if (headerCloseButton && headerCloseButton.parentNode) {
       headerCloseButton.parentNode.insertBefore(debugSpan, headerCloseButton);
@@ -93,7 +93,7 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
     if (checked) {
       this._importLog.push(`[${new Date().getTime()}] ${message}`);
     }
-    CONFIG.logger.debug(message)
+    
   }
 
   /**
@@ -164,7 +164,7 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
   }
 
   static async _startImport(_event, _form, _formData) {
-    CONFIG.logger.debug("Importing Data Files");
+    
     this._importLogger(`Starting import`);
 
     let zip = await DataImporter._readFile();

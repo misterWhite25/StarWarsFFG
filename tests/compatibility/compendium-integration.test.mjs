@@ -1,3 +1,5 @@
+import {systemI18n} from '../system-i18n.mjs';
+import {sheetUiBoundaries} from '../sheet-ui-boundaries.mjs';
 import {loadActorModule, loadSystemModule} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -8,6 +10,7 @@ test('V2 accepts Item documents and legacy drag data, and protects locked sheets
   class Legacy { _onDropItem(event,data) {calls.push(data);return this._onDropItemCreate({name:data.uuid});} }
   const context=vm.createContext({foundry:{applications:{sheets:{ActorSheetV2:class {}},api:{HandlebarsApplicationMixin:C=>C}}}});
   const mod = await loadSystemModule('actors/actor-sheet-ffg-v2.js', context, {
+   ...sheetUiBoundaries,
     'actors/actor-sheet-ffg.js': {ActorSheetFFG: Legacy}
   });
   const sheet=Object.create(mod.namespace.ActorSheetFFGV2.prototype);
@@ -39,6 +42,7 @@ test('actor effects feed weapon damage on every preparation without accumulating
 test('actor form preserves derived overrides, invalid numbers and valid zeroes', async () => {
   const context=vm.createContext({foundry:{utils:{flattenObject:x=>x},applications:{sheets:{ActorSheetV2:class {}},api:{HandlebarsApplicationMixin:C=>C}}}});
   const mod = await loadSystemModule('actors/actor-sheet-ffg-v2.js', context, {
+   ...sheetUiBoundaries,
     'actors/actor-sheet-ffg.js': {ActorSheetFFG: class {}}
   });
   let saved;
@@ -57,11 +61,12 @@ test('the vehicle sheet reads past voyages when the travel package is disabled',
       assert.equal(key, 'starwarsffg');
       return this.flags[key]?.[flag];
     }};
-  const context = vm.createContext({structuredClone, game:{user:{isGM:true}, i18n:{localize:k=>k,lang:'fr'},
+  const context = vm.createContext({structuredClone, game:{i18n:await systemI18n('fr'),user:{isGM:true}, 
     settings:{settings:new Map(), get(){throw Error('Unregistered setting');}}},
     foundry:{utils:{deepClone:structuredClone},applications:{sheets:{ActorSheetV2:class{}},
       api:{HandlebarsApplicationMixin:C=>C},ux:{TextEditor:{implementation:{enrichHTML:async value=>value}}}}}});
   const mod = await loadSystemModule('actors/actor-sheet-ffg-v2.js', context, {
+   ...sheetUiBoundaries,
     'actors/actor-sheet-ffg.js': {ActorSheetFFG:class {async getData(){return {};}}}
   });
   const sheet = Object.create(mod.namespace.ActorSheetFFGV2.prototype);
@@ -76,9 +81,10 @@ test('the vehicle sheet reads past voyages when the travel package is disabled',
 test('vehicle stock edits write only their ledger, and a stale revision cannot overwrite it', async () => {
   const scope = 'swffg-compendium-bilingual-steelers-core_rule';
   const saved = [], warnings = [];
-  const context = vm.createContext({structuredClone, game:{user:{isGM:true}},
+  const context = vm.createContext({structuredClone, game:{i18n:await systemI18n('fr'),user:{isGM:true}},
     ui:{notifications:{warn:m=>warnings.push(m)}}, foundry:{utils:{flattenObject:x=>x},applications:{sheets:{ActorSheetV2:class{}},api:{HandlebarsApplicationMixin:C=>C}}}});
   const mod = await loadSystemModule('actors/actor-sheet-ffg-v2.js', context, {
+   ...sheetUiBoundaries,
     'actors/actor-sheet-ffg.js': {ActorSheetFFG:class {}}
   });
   const actor = {type:'vehicle', overrides:{}, system:{stats:{consumables:{value:4,duration:'days'}}},

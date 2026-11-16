@@ -1,8 +1,10 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFile} from 'node:fs/promises';
 class Element{constructor(tag){this.tag=tag;this.children=[];this.style={};this.attributes={};this.classes=[];this.classList={add:c=>this.classes.push(c)};}appendChild(el){this.children.push(el);}setAttribute(key,value){this.attributes[key]=value;}}
 async function load(){
- const context=vm.createContext({document:{createElement:tag=>new Element(tag)},CONFIG:{FFG:{SETBACK_ICON:'black',REMOVESETBACK_ICON:'minus',ABILITY_ICON:'green'}},game:{i18n:{lang:'fr'},settings:{get:()=>true}}});
- const source=await readFile(new URL('../../modules/dice/pool.js',import.meta.url),'utf8');const m=new vm.SourceTextModule(source,{context});await m.link(()=>new vm.SyntheticModule(['effectivePool','gmDifficulty'],function(){this.setExport('effectivePool',p=>p);this.setExport('gmDifficulty',()=>({enabled:false}));},{context}));await m.evaluate();return m.namespace.DicePoolFFG;
+ const context=vm.createContext({document:{createElement:tag=>new Element(tag)},CONFIG:{FFG:{SETBACK_ICON:'black',REMOVESETBACK_ICON:'minus',ABILITY_ICON:'green'}},game:{i18n:await systemI18n('fr'),settings:{get:()=>false}}});
+ const removal=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/setback-removal.mjs',import.meta.url),'utf8'),{context});await removal.link(()=>{});await removal.evaluate();
+ const source=await readFile(new URL('../../modules/dice/pool.js',import.meta.url),'utf8');const m=new vm.SourceTextModule(source,{context});await m.link(spec=>spec.includes('setback-removal')?removal:new vm.SyntheticModule(['effectivePool','gmDifficulty'],function(){this.setExport('effectivePool',p=>p);this.setExport('gmDifficulty',()=>({enabled:false}));},{context}));await m.evaluate();return m.namespace.DicePoolFFG;
 }
 test('4 original Setback show 2 active and 2 crossed out, while only 2 are rolled',async()=>{
  const Pool=await load(),pool=new Pool({setback:2,ability:1}),root=new Element('div'),before=pool.renderDiceExpression();pool.renderPreview(root,{total:4,cancelled:2});

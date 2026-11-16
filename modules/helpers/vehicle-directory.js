@@ -1,9 +1,9 @@
-/** Separate views of the same Actor documents; no folders or actors are moved. */
-export function isNpcActor(actor) {
-  if(actor.type==='vehicle')return false;
-  return actor.flags?.starwarsffg?.npcDirectory ?? ['minion','rival','nemesis'].includes(actor.type);
-}
-export function actorDirectoryGroup(actor) {return actor.type==='vehicle'?'vehicles':isNpcActor(actor)?'npcs':'actors';}
+import {registerSessionDirectories, registerSessionFolderSheet} from "./npc-session-directory.js";
+import {registerSceneLinkCleanup} from "./scene-link-cleanup.js";
+
+import {isNpcActor,actorDirectoryGroup} from './actor-directory-group.mjs';
+export {isNpcActor,actorDirectoryGroup};
+
 export function filterActorTree(tree, vehicles) {
   const entries = tree.entries.filter(actor => actorDirectoryGroup(actor) === (vehicles===true?'vehicles':vehicles===false?'actors':vehicles));
   const children = tree.children.map(child => filterActorTree(child, vehicles))
@@ -17,9 +17,6 @@ export function createDirectoryClasses(Base) {
     async _getDroppedEntryFromData(data){
       const entry=await super._getDroppedEntryFromData(data);
       if(!entry)return entry;
-      if(entry.type==='vehicle'){
-        ui.notifications.warn(game.i18n.localize('SWFFG.NpcDirectory.DropCharacterOnly'));return null;
-      }
       if(!game.user.isGM&&actorDirectoryGroup(entry)!==this.constructor.tabName)return null;
       return entry;
     }
@@ -33,18 +30,21 @@ export function createDirectoryClasses(Base) {
     }
     _createDroppedEntry(entry,updates={}){
       const npc=this.constructor.tabName==='npcs';
-      return super._createDroppedEntry(entry,{...updates,flags:{...entry.flags,...updates.flags,starwarsffg:{...entry.flags?.starwarsffg,...updates.flags?.starwarsffg,npcDirectory:npc}}});
+      return super._createDroppedEntry(entry,{...updates,flags:{...entry.flags,...updates.flags,starwarsffg:{...entry.flags?.starwarsffg,...updates.flags?.starwarsffg,npcDirectory:npc,...(entry.type==='vehicle'?{vehicleInActors:!npc,vehicleDirectory:npc?'npcs':'actors'}:{})}}});
     }
 
     _getEntryContextOptions(){
       const options=super._getEntryContextOptions();
       const npc=this.constructor.tabName==='npcs';
-      options.push({label:npc?'SWFFG.NpcDirectory.MoveToPlayers':'SWFFG.NpcDirectory.MoveToNpcs',icon:'fa-solid fa-user',
-        visible:li=>game.user.isGM&&this.collection.get(li.dataset.entryId)?.type!=='vehicle',
+      options.push({group:'starwarsffg',label:game.i18n.localize("SWFFG.UI.Vehicle.MoveToVehicles"),icon:'fa-solid fa-shuttle-space',
+        visible:li=>game.user.isGM&&this.collection.get(li.dataset.entryId)?.type==='vehicle',
+        onClick:(_event,li)=>moveActorDirectory(this.collection.get(li.dataset.entryId),'vehicles')});
+      options.push({group:'starwarsffg',label:npc?'SWFFG.NpcDirectory.MoveToPlayers':'SWFFG.NpcDirectory.MoveToNpcs',icon:'fa-solid fa-user',
+        visible:li=>game.user.isGM&&Boolean(this.collection.get(li.dataset.entryId)),
         onClick:async(event,li)=>{
           if(!game.user.isGM)return;
           const actor=this.collection.get(li.dataset.entryId);
-          if(!actor||actor.type==='vehicle')return;
+          if(!actor)return;
           await moveActorDirectory(actor, npc ? 'actors' : 'npcs');
         }});
       return options;
@@ -54,7 +54,7 @@ export function createDirectoryClasses(Base) {
     _onCreateEntry(event,target){
       event.stopPropagation();
       const folder=target.closest('.directory-item')?.dataset.folderId??null;
-      return this.documentClass.createDialog({type:'character',folder},{},{classes:['ffg-actor-create-dialog']});
+      return this.documentClass.createDialog({type:'character',folder,flags:{starwarsffg:{vehicleInActors:true,vehicleDirectory:'actors'}}},{},{classes:['ffg-actor-create-dialog']});
     }
     async _prepareDirectoryContext(context, options) {
       await super._prepareDirectoryContext(context, options);
@@ -87,7 +87,7 @@ export function createDirectoryClasses(Base) {
     _onCreateEntry(event,target){
       event.stopPropagation();if(!game.user.isGM)return;
       const folder=target.closest('.directory-item')?.dataset.folderId??null;
-      return this.documentClass.createDialog({type:'rival',folder,flags:{starwarsffg:{npcDirectory:true}}},{},{classes:['ffg-actor-create-dialog']});
+      return this.documentClass.createDialog({type:'rival',folder,flags:{starwarsffg:{npcDirectory:true,vehicleDirectory:'npcs'}}},{},{classes:['ffg-actor-create-dialog']});
     }
     async _getDroppedEntryFromData(data){
       if(!game.user.isGM)return null;
@@ -95,6 +95,25 @@ export function createDirectoryClasses(Base) {
     }
   }
   class VehicleDirectory extends Base {
+    _canRender(options){if(!game.user.isGM)return false;return super._canRender(options);}
+    _getEntryContextOptions(){
+      return [...super._getEntryContextOptions(),{group:'starwarsffg',label:'SWFFG.NpcDirectory.MoveToPlayers',icon:'fa-solid fa-user',
+        visible:li=>game.user.isGM&&this.collection.get(li.dataset.entryId)?.type==='vehicle',
+        onClick:(_event,li)=>moveActorDirectory(this.collection.get(li.dataset.entryId),'actors')},{group:'starwarsffg',label:'SWFFG.NpcDirectory.MoveToNpcs',icon:'fa-solid fa-user',visible:li=>game.user.isGM&&this.collection.get(li.dataset.entryId)?.type==='vehicle',onClick:(_event,li)=>moveActorDirectory(this.collection.get(li.dataset.entryId),'npcs')}];
+    }
+    async _handleDroppedEntry(target,data){
+      const entry=await this._getDroppedEntryFromData(data);
+      if(!entry)return;
+      if(!entry.pack&&game.actors.get(entry.id)===entry&&actorDirectoryGroup(entry)!=='vehicles'){
+        if(!game.user.isGM)return;
+        await moveActorDirectory(entry,'vehicles');
+      }
+      return super._handleDroppedEntry(target,data);
+    }
+    _createDroppedEntry(entry,updates={}){
+      return super._createDroppedEntry(entry,{...updates,flags:{...entry.flags,...updates.flags,starwarsffg:{...entry.flags?.starwarsffg,...updates.flags?.starwarsffg,vehicleInActors:false,vehicleDirectory:'vehicles'}}});
+    }
+
     static tabName = 'vehicles';
     static DEFAULT_OPTIONS = {id: 'vehicles'};
     get title() { return game.i18n.localize('SWFFG.VehicleDirectory.Title'); }
@@ -134,7 +153,9 @@ export function createDirectoryClasses(Base) {
   return {CharacterDirectory, NpcDirectory, VehicleDirectory};
 }
 
+const configuredInterfaces = new WeakSet();
 export function registerVehicleDirectory() {
+  if(configuredInterfaces.has(CONFIG.ui))return;
   const Base = CONFIG.ui.actors;
   const {CharacterDirectory, NpcDirectory, VehicleDirectory} = createDirectoryClasses(Base);
   CONFIG.ui.actors = CharacterDirectory;
@@ -144,17 +165,21 @@ export function registerVehicleDirectory() {
   const tabs = {};
   for (const [key, value] of Object.entries(Sidebar.TABS)) {
     if(key==='npcs'||key==='vehicles')continue;
-    tabs[key] = value;
+    tabs[key] = key==='actors'?{...value,icon:'ffg-mandalorian-icon',tooltip:game.i18n.localize("SWFFG.UI.Vehicle.ActorsAndVehicles")}:value;
     if (key === 'actors') {
-      tabs.npcs={tooltip:'SWFFG.NpcDirectory.Title',gmOnly:true,icon:(value.icon??CONFIG.Actor.sidebarIcon)+' ffg-npc-actor-icon'};
-      tabs.vehicles={tooltip:'SWFFG.VehicleDirectory.Title',icon:'ffg-xwing-icon'};
+      tabs.npcs={tooltip:'SWFFG.NpcDirectory.Title',gmOnly:true,icon:'ffg-stormtrooper-icon ffg-npc-actor-icon'};
+      tabs.vehicles={tooltip:'SWFFG.VehicleDirectory.Title',gmOnly:true,icon:'ffg-xwing-icon'};
     }
   }
   Sidebar.TABS = tabs;
+  registerSessionDirectories(CONFIG.ui);
+  registerSessionFolderSheet();
+  registerSceneLinkCleanup();
+  configuredInterfaces.add(CONFIG.ui);
 }
 
 /** Reorder existing options only: keep native values, selection and change listeners. */
-export const ACTOR_TYPE_ORDER=['character','nemesis','rival','minion','vehicle','homestead'];
+export const ACTOR_TYPE_ORDER=['character','nemesis','rival','minion','vehicle','homestead','groupinventory'];
 export function orderActorCreationTypes(root){
   const select=root?.querySelector('select[name="type"]');
   if(!select)return;
@@ -163,7 +188,7 @@ export function orderActorCreationTypes(root){
   const rank=value=>{const index=ACTOR_TYPE_ORDER.indexOf(value);return index<0?ACTOR_TYPE_ORDER.length:index;};
   options.sort((a,b)=>rank(a.value)-rank(b.value));
   const rows=[];
-  const split=options.findIndex(option=>['vehicle','homestead'].includes(option.value));
+  const split=options.findIndex(option=>['vehicle','homestead','groupinventory'].includes(option.value));
   for(let index=0;index<options.length;index++){
     if(index===split&&split>0)rows.push(document.createElement('hr'));
     rows.push(options[index]);
@@ -178,11 +203,14 @@ if(globalThis.Hooks)Hooks.on('renderDialogV2',app=>{
 /** Classify a world Actor without changing its type, folder, ownership or identity. */
 export async function moveActorDirectory(actor,target){
   if(!game.user.isGM)throw Error(game.i18n.localize('SWFFG.NpcDirectory.DropGmOnly'));
-  if(!['actors','npcs'].includes(target)||!actor||actor.type==='vehicle'||actor.pack||game.actors.get(actor.id)!==actor){
+  if(!['actors','npcs','vehicles'].includes(target)||!actor||actor.pack||game.actors.get(actor.id)!==actor||(actor.type!=='vehicle'&&target==='vehicles')){
     throw Error(game.i18n.localize('SWFFG.NpcDirectory.DropCharacterOnly'));
   }
-  if(actorDirectoryGroup(actor)!==target)await actor.setFlag('starwarsffg','npcDirectory',target==='npcs');
-  for(const directory of [ui.actors,ui.npcs])directory?.render({force:true});
+  if(actorDirectoryGroup(actor)!==target){
+    if(actor.type==='vehicle')await actor.update({'flags.starwarsffg.vehicleDirectory':target,'flags.starwarsffg.vehicleInActors':target==='actors'});
+    else await actor.setFlag('starwarsffg','npcDirectory',target==='npcs');
+  }
+  for(const directory of [ui.actors,ui.npcs,ui.vehicles])directory?.render({force:true});
   return actor;
 }
 
@@ -201,7 +229,7 @@ export async function dropActorOnDirectoryTab(event,target){
 
 export function activateActorDirectoryTabDrops(sidebar){
   if(!game.user.isGM)return;
-  for(const tab of sidebar.element.querySelectorAll('#sidebar-tabs [data-tab="actors"], #sidebar-tabs [data-tab="npcs"]')){
+  for(const tab of sidebar.element.querySelectorAll('#sidebar-tabs [data-tab="actors"], #sidebar-tabs [data-tab="npcs"], #sidebar-tabs [data-tab="vehicles"]')){
     if(tab.dataset.ffgActorDropBound)continue;
     tab.dataset.ffgActorDropBound='true';
     let timer;

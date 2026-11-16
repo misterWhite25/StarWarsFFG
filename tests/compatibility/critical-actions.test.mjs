@@ -1,16 +1,19 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 async function load() {
  const actors=new Map(),messages=[];
- const context=vm.createContext({game:{user:{id:'gm',isGM:true},i18n:{lang:'fr'},actors:{get:id=>actors.get(id)},tables:{contents:[]},packs:[]},
+ const context=vm.createContext({game:{user:{id:'gm',isGM:true},i18n:frI18n,actors:{get:id=>actors.get(id)},tables:{contents:[]},packs:[]},
  foundry:{utils:{deepClone:structuredClone}},fromUuid:async id=>id.startsWith('Actor.')?[...actors.values()].find(a=>a.uuid===id):(actors.has(id)?{uuid:id,actorLink:true,actor:actors.get(id)}:undefined),
  CONST:{CHAT_MESSAGE_STYLES:{ROLL:5}},ChatMessage:{create:async data=>messages.push(data)},Roll:{fromJSON:json=>JSON.parse(json)},ui:{notifications:{warn(){}}}});
  const talent=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/roll-talents.js',import.meta.url),'utf8'),{context});await talent.link(()=>{});await talent.evaluate();
  const targetHelper=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-target.js',import.meta.url),'utf8'),{context});await targetHelper.link(()=>{});await targetHelper.evaluate();
  const picker=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/token-target-picker.js',import.meta.url),'utf8'),{context});await picker.link(()=>{});await picker.evaluate();
- const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-actions.js',import.meta.url),'utf8'),{context});await module.link(specifier=>specifier.includes('token-target-picker')?picker:specifier.includes('critical-target')?targetHelper:talent);await module.evaluate();
+ const groups=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context});await groups.link(()=>{});await groups.evaluate();
+ const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/critical-actions.js',import.meta.url),'utf8'),{context});await module.link(specifier=>specifier.includes('vehicle-minion-group')?groups:specifier.includes('token-target-picker')?picker:specifier.includes('critical-target')?targetHelper:talent);await module.evaluate();
  return {api:module.namespace,actors,messages,game:context.game};
 }
 function message() {
@@ -79,4 +82,14 @@ test('a minion critical cannot be applied or undone on a replacement token actor
     await assert.rejects(() => api.undoCritical(msg,msg.flags.entries[0]), /changé/);
     assert.equal(replacement.system.stats.wounds.value,6);
   }
+});
+
+test('a grouped vehicle critical defeats exactly one craft and safe undo restores it',async()=>{
+  const {api,actors}=await load(),msg=message();
+  const target={uuid:'Actor.ship',type:'vehicle',isOwner:true,flags:{starwarsffg:{vehicleMinionGroup:{enabled:true,count:3}}},system:{stats:{hullTrauma:{max:6,value:0}}},async update(data){this.system.stats.hullTrauma.value=data['system.stats.hullTrauma.value'];}};
+  actors.set('Token.ship',target);
+  const saved={status:'rolled',target:'Token.ship',targetIdentity:{tokenUuid:'Token.ship',actorUuid:target.uuid,linked:true},minion:true,vehicleGroup:{count:3,hullPerVehicle:6},change:{actor:target.uuid,path:'system.stats.hullTrauma.value',before:0,after:7}};
+  await api.applyRolledCritical(msg,['a','t'],saved);assert.equal(target.system.stats.hullTrauma.value,7);
+  target.flags.starwarsffg.vehicleMinionGroup.count=4;await assert.rejects(api.undoCritical(msg,msg.flags.entries[0]));
+  target.flags.starwarsffg.vehicleMinionGroup.count=3;await api.undoCritical(msg,msg.flags.entries[0]);assert.equal(target.system.stats.hullTrauma.value,0);
 });

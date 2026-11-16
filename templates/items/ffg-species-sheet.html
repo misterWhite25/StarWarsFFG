@@ -6,7 +6,7 @@
       </div>
       <div class="container flex-group-center">
         <div class="container flex-group-center item-name">
-          <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name" /></h1>
+          <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'SWFFG.Name'}}" /></h1>
         </div>
         <div class="container flex-group-center">
           <div class="grid grid-6col characteristics">
@@ -79,7 +79,7 @@
                 {{talent.name}}
               </div>
               <div class="item-controls">
-                <a class="item-control item-delete" data-item-type="talent" data-item-id="{{ id }}" title="Delete Item"><i class="fas fa-trash"></i></a>
+                <a class="item-control item-delete" data-item-type="talent" data-item-id="{{ id }}" title="{{localize 'SWFFG.UI.Item.Delete'}}"><i class="fas fa-trash"></i></a>
               </div>
             </li>
           {{/each}}
@@ -94,7 +94,7 @@
                 {{ability.name}}
               </div>
               <div class="item-controls">
-                <a class="item-control item-delete" data-item-type="ability" data-item-id="{{ id }}" title="Delete Item"><i class="fas fa-trash"></i></a>
+                <a class="item-control item-delete" data-item-type="ability" data-item-id="{{ id }}" title="{{localize 'SWFFG.UI.Item.Delete'}}"><i class="fas fa-trash"></i></a>
               </div>
             </li>
           {{/each}}

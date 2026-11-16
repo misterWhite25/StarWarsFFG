@@ -1,4 +1,4 @@
-import {MALFUNCTION_RULES} from './vehicle-malfunction-rules.js';
+import {MALFUNCTION_RULES,malfunctionRepairText} from './vehicle-malfunction-rules.js';
 
 export const MALFUNCTION_SCOPE = 'starwarsffg';
 const voyageScope = 'swffg-compendium-bilingual-steelers-core_rule';
@@ -52,18 +52,18 @@ export function repairQuote(actor, rule, target = null) {
   }
   return {
     silhouette, parts: base, total: base === null ? null : round(base * (spec.kind === 'percent' && spec.base === 'ship' ? 1 : silhouette)),
-    time: rule.repairTime ?? '', test: rule.repairTest ?? '', specification: spec
+    time: malfunctionRepairText(rule.repairTime), test: malfunctionRepairText(rule.repairTest), specification: spec
   };
 }
 
 export function buildMalfunction(actor, result, {total = null, target = null, arc = null} = {}) {
   const rule = structuredClone(MALFUNCTION_RULES[result.id ?? result._id] ?? {});
-  if (!rule.resultId) throw Error('Résultat absent de la table Avaries.');
+  if (!rule.resultId) throw Error(game.i18n.localize("SWFFG.UI.Vehicle.MissingMalfunctionResult"));
   if (rule.target === 'shield' && !['fore', 'aft', 'port', 'starboard'].includes(arc)) {
-    throw Error('Choisis un arc de bouclier.');
+    throw Error(game.i18n.localize("SWFFG.UI.Vehicle.ChooseShieldArc"));
   }
   if (['weapon', 'equipment'].includes(rule.target) && !target) {
-    throw Error('Choisis le système ou l’arme concerné.');
+    throw Error(game.i18n.localize("SWFFG.UI.Vehicle.ChooseAffectedSystem"));
   }
   rule.targetId = target?.id ?? null;
   rule.arc = arc;

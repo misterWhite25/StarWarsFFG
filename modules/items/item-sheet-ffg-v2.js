@@ -50,6 +50,21 @@ export class ItemSheetFFGV2 extends HandlebarsApplicationMixin(ItemSheetV2) {
     return super.isEditable && !this.item.flags.readonly && this.options.editable !== false;
   }
 
+  *_headerControlButtons() {
+    // Run all native/module hooks before placing system controls last.
+    const controls = Array.from(super._headerControlButtons());
+    this._ffgSystemHeaderLabels = new Set(controls
+      .filter(control => control.action?.startsWith("ffg")).map(control => control.label));
+    yield* controls.filter(control => !control.action?.startsWith('ffg'));
+    yield* controls.filter(control => control.action?.startsWith('ffg'));
+  }
+
+  *_headerControlContextEntries() {
+    for (const entry of super._headerControlContextEntries()) {
+      yield {...entry, group: this._ffgSystemHeaderLabels.has(entry.label) ? 'starwarsffg-header' : (entry.group ?? 'standard-header')};
+    }
+  }
+
   _getHeaderControls() {
     const controls = super._getHeaderControls();
     controls.unshift({

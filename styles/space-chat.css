@@ -1,0 +1,61 @@
+/* Shared result-card layout for skills, combat, Force and numeric dice rolls. */
+:is(.starwarsffg.dice-roll.ffg-space-roll,.chat-message .dice-roll) {
+  --space-chat-bg:#d8cbc0;--space-chat-panel:#ece6df;--space-chat-line:#9f9275;
+  --space-chat-ink:#25221f;--space-chat-muted:#595248;--space-chat-accent:#782e22;
+  --space-chat-success:#006400;--space-chat-success-bg:#e1e8d9;--space-chat-failure:#8b0000;--space-chat-failure-bg:#eddad4;
+  margin:4px 0;padding:11px;border:1px solid var(--space-chat-line);border-top:3px solid var(--space-chat-accent);border-radius:9px;
+  background:var(--space-chat-bg);color:var(--space-chat-ink);font:12px/1.45 "Barlow","Segoe UI",sans-serif;box-shadow:0 2px 6px #0000000a;min-width:0;
+}
+:is(body.theme-dark .chat-message:not(.theme-light),.chat-message.theme-dark) :is(.starwarsffg.dice-roll.ffg-space-roll,.chat-message .dice-roll) {
+  --space-chat-bg:#1b2028;--space-chat-panel:#29323c;--space-chat-line:#526570;
+  --space-chat-ink:#e3e9ed;--space-chat-muted:#b9c4cf;--space-chat-accent:#d0a1a1;
+  --space-chat-success:#b8d8b1;--space-chat-success-bg:#2b3930;--space-chat-failure:#edb3b3;--space-chat-failure-bg:#423038;
+}
+.starwarsffg.dice-roll.ffg-space-roll :is(strong,span,p,dt,dd) {font-family:inherit;letter-spacing:normal;}
+.starwarsffg.dice-roll.ffg-space-roll,.starwarsffg.dice-roll.ffg-space-roll * {text-shadow:none;}
+.starwarsffg.dice-roll.ffg-space-roll .dice-result {margin:0;padding:0;border:0;background:transparent;box-shadow:none;color:inherit;}
+.starwarsffg.dice-roll.ffg-space-roll .dice-additional-flavor {margin:0 0 9px;padding-bottom:8px;border-bottom:1px solid var(--space-chat-line);color:var(--space-chat-muted);font:italic 11px/1.4 "Barlow","Segoe UI",sans-serif;text-align:justify;overflow-wrap:anywhere;}
+.ffg-space-roll .ffg-space-heading {display:flex;align-items:center;gap:10px;margin:0 0 11px;min-width:0;}
+.ffg-space-roll .ffg-space-portrait {flex:0 0 48px;display:block;width:48px;height:48px;object-fit:cover;border:1px solid var(--space-chat-line);border-radius:7px;margin:0;background:var(--space-chat-panel);}
+.ffg-space-roll img.ffg-space-portrait[src$=".svg"] {background:#ece6df;}
+.ffg-space-roll .ffg-space-placeholder {display:grid;place-items:center;color:var(--space-chat-accent);font-size:22px;}
+.ffg-space-roll .ffg-space-identity {display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;}
+.ffg-space-roll .ffg-space-name {font-size:14px;font-weight:700;line-height:1.25;color:var(--space-chat-ink);overflow-wrap:anywhere;}
+.ffg-space-roll .ffg-space-role {padding:2px 7px;border-radius:4px;background:var(--space-chat-panel);color:var(--space-chat-accent);font-size:10px;font-weight:600;line-height:1.4;}
+.ffg-space-roll .ffg-space-weapon {display:flex;gap:7px;align-items:baseline;border-top:1px solid var(--space-chat-line);padding-top:9px;margin-bottom:9px;font-size:12px;line-height:1.4;overflow-wrap:anywhere;}
+.ffg-space-roll .ffg-space-weapon i {flex:0 0 auto;color:var(--space-chat-muted);font-size:11px;}
+.ffg-space-roll .ffg-space-outcome {display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:5px;margin:0 0 9px;font-size:12px;}
+.ffg-space-roll .ffg-space-outcome.is-success {background:var(--space-chat-success-bg);color:var(--space-chat-success);}
+.ffg-space-roll .ffg-space-outcome.is-failure {background:var(--space-chat-failure-bg);color:var(--space-chat-failure);}
+.ffg-space-roll :is(.ffg-space-hit-stats,.ffg-space-results) {display:grid;gap:5px;margin:9px 0;padding:0;}
+.ffg-space-roll .ffg-space-hit-stats {grid-template-columns:repeat(2,minmax(0,1fr));}
+.ffg-space-roll .ffg-space-hit-stats>div,.ffg-space-roll .ffg-space-results>div {padding:6px 4px;background:var(--space-chat-panel);border-radius:5px;text-align:center;min-width:0;}
+.ffg-space-roll :is(.ffg-space-hit-stats,.ffg-space-results) dt {margin:0;padding:0;color:var(--space-chat-muted);font-size:10px;font-weight:400;line-height:1.3;overflow-wrap:anywhere;}
+.ffg-space-roll :is(.ffg-space-hit-stats,.ffg-space-results) dd {margin:0;padding:0;font-size:17px;font-weight:700;line-height:1.35;font-variant-numeric:tabular-nums;text-align:center;color:var(--space-chat-ink);}
+.ffg-space-roll .ffg-space-hit-stats small {display:block;font-size:10px;font-weight:400;color:var(--space-chat-muted);}
+.ffg-space-roll .ffg-space-results {grid-template-columns:repeat(auto-fit,minmax(62px,1fr));}
+.ffg-space-roll .ffg-space-qualities {display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px;margin:8px 0;}
+.ffg-space-roll .ffg-space-quality {display:inline-flex;align-items:baseline;gap:5px;padding:2px 6px;max-width:100%;border:1px solid var(--space-chat-line);border-radius:4px;color:var(--space-chat-muted);background:transparent;font-size:10px;line-height:1.4;text-decoration:none;overflow-wrap:anywhere;}
+.ffg-space-roll .ffg-space-quality b {color:var(--space-chat-ink);font-size:10px;font-variant-numeric:tabular-nums;}
+.ffg-space-roll .ffg-space-quality:hover {background:var(--space-chat-panel);color:var(--space-chat-ink);}
+.ffg-space-roll .ffg-space-special {font-size:11px;margin:7px 0;color:var(--space-chat-muted);text-align:justify;overflow-wrap:anywhere;}
+.starwarsffg.dice-roll.ffg-space-roll .ffgDiceArray {margin-top:9px;padding-top:8px;border-top:1px solid var(--space-chat-line);}
+.starwarsffg.dice-roll.ffg-space-roll .ffgDiceArray .dice-rolls {display:flex;flex-wrap:wrap;gap:2px;overflow:visible;}
+.starwarsffg.dice-roll.ffg-space-roll .ffgDiceArray .dice-rolls .roll {float:none;display:flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;min-width:0;height:31px;margin:0;padding:0;background:none;border:0;box-shadow:none;}
+.starwarsffg.dice-roll.ffg-space-roll .ffgDiceArray .dice-rolls img {display:block;width:28px;height:28px;max-width:100%;margin:0;border:0;object-fit:contain;}
+.starwarsffg.dice-roll.ffg-space-roll .ffg-added-results {flex-wrap:wrap;white-space:normal!important;gap:5px!important;font-size:11px;color:var(--space-chat-muted);}
+.chat-message:has(.dice-roll) {--space-action-bg:#cfccc4;--space-action-ink:#25221f;--space-action-line:#918d82;border-radius:9px;}
+.chat-message:has(.dice-roll) .message-header {color:inherit;font-family:"Barlow","Segoe UI",sans-serif;}
+.chat-message:has(.dice-roll) .message-header :is(.message-sender,.message-metadata,time,a,button,i) {color:inherit;text-shadow:none;}
+.chat-message:has(.dice-roll) .message-sender {font-family:inherit;font-size:12px;line-height:1.35;}
+:is(body.theme-dark .chat-message:not(.theme-light),.chat-message.theme-dark):has(.dice-roll) {--space-action-bg:#333e49;--space-action-ink:#e3e9ed;--space-action-line:#526570;background:#1b2028;color:#e3e9ed;border-color:#526570;}
+.chat-message:has(.dice-roll) .ffg-combat-actions {font:11px/1.45 "Barlow","Segoe UI",sans-serif;border-top-color:#9f927566!important;}
+.chat-message:has(.dice-roll) .ffg-combat-actions p {font-family:inherit;font-size:11px;line-height:1.45;margin:4px 0;text-align:justify;}
+.chat-message:has(.dice-roll) .ffg-combat-actions button {font-family:inherit;font-size:11px;line-height:1.4;min-height:28px;border:1px solid var(--space-action-line);border-radius:5px;padding:4px 8px;background:var(--space-action-bg);color:var(--space-action-ink);box-shadow:none;}
+.chat-message:has(.dice-roll) .ffg-combat-actions button:hover {filter:brightness(1.08);border-color:var(--space-action-ink);}
+
+.ffg-space-roll .ffg-force-content {margin:9px 0;}
+.ffg-space-roll .ffg-force-description,.ffg-space-roll .ffg-force-description p {font:inherit;line-height:1.5;text-align:justify;overflow-wrap:anywhere;}
+.ffg-space-roll .ffg-force-description p {margin:6px 0;}
+.chat-message .dice-roll .dice-formula {padding:6px 8px;margin:0 0 7px;border:0;border-radius:5px;background:var(--space-chat-panel);color:var(--space-chat-muted);font:12px/1.4 "Barlow","Segoe UI",sans-serif;overflow-wrap:anywhere;box-shadow:none;}
+.chat-message .dice-roll .dice-total {padding:8px;margin:8px 0 0;border:0;border-radius:5px;background:var(--space-chat-panel);color:var(--space-chat-ink);font:700 20px/1.35 "Barlow","Segoe UI",sans-serif;text-align:center;font-variant-numeric:tabular-nums;text-shadow:none;box-shadow:none;}

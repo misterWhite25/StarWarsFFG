@@ -5,7 +5,7 @@ import {join} from "node:path";
 function javascriptFiles(directory) {
   return readdirSync(directory).flatMap(entry => {
     const path = join(directory, entry);
-    return statSync(path).isDirectory() ? javascriptFiles(path) : (path.endsWith(".js") ? [path] : []);
+    return statSync(path).isDirectory() ? javascriptFiles(path) : (/\.(?:js|mjs)$/.test(path) ? [path] : []);
   });
 }
 

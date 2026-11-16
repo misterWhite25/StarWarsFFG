@@ -25,7 +25,7 @@ export default class EmbeddedItemHelpers {
     while (flags.ffgParent) {
       if (Object.values(flags.ffgParent).length === 0) {
         // TODO: We think this code path is dead, but being paranoid for now. Should clean-up later.
-        ui.notifications.warn("We think this code path is dead, let us know that it's not! (parent is empty)");
+        ui.notifications.warn(game.i18n.localize("SWFFG.UI.Equipment.MissingParent"));
         CONFIG.logger.error("FFG parent is empty");
       }
       flags = flags.ffgParent.starwarsffg;
@@ -34,11 +34,11 @@ export default class EmbeddedItemHelpers {
       }
       flagHierarchy.unshift(flags);
     }
-    CONFIG.logger.debug("After flagHierarchy population", flagHierarchy);
+    
 
     if (!flags.ffgTempId && !flags.ffgUuid) {
-      ui.notifications.error("Unable to find parent ffgTempId or ffgUuid, aborting action");
-      throw new Error("Unable to find parent ffgTempId or ffgUuid");
+      ui.notifications.error(game.i18n.localize("SWFFG.UI.Equipment.MissingParentIdentity"));
+      throw new Error(game.i18n.localize("SWFFG.UI.Equipment.MissingParentIdentity"));
     }
 
     // TODO: we do not currently resolve items within compendiums
@@ -48,7 +48,7 @@ export default class EmbeddedItemHelpers {
     } else {
       realItem = await game.items.get(flags.ffgTempId);
     }
-    CONFIG.logger.debug("Real item", realItem);
+    
 
     return {
       realItem,
@@ -83,7 +83,7 @@ export default class EmbeddedItemHelpers {
     // End legacy data cleanup.
 
     if (!realItem) {
-      ui.notifications.error("Could not locate the real item, aborting action");
+      ui.notifications.error(game.i18n.localize("SWFFG.UI.Equipment.OriginalItemMissing"));
       CONFIG.logger.error("Could not locate the real item, aborting action");
       return;
     }
@@ -96,16 +96,16 @@ export default class EmbeddedItemHelpers {
     }
     // TODO: we don't check for compendiums here, either (and we may need to)
     let dataPointer = realItem;
-    CONFIG.logger.debug("Starting dataPointer", dataPointer);
+    
     let reconstruct = [];
     parents.forEach((flags) => {
       if (flags.ffgTempItemType && flags.ffgTempItemIndex !== undefined && flags.ffgTempItemIndex !== null) {
-        CONFIG.logger.debug(`Traversing into ${flags.ffgTempItemType} #${flags.ffgTempItemIndex}`);
+        
         dataPointer = dataPointer.system[flags.ffgTempItemType][flags.ffgTempItemIndex];
         reconstruct.push({type: flags.ffgTempItemType, index: flags.ffgTempItemIndex});
       }
     });
-    CONFIG.logger.debug("Final dataPointer", dataPointer);
+    
     await foundry.utils.mergeObject(
         temporaryItem,
         ItemHelpers.normalizeDataStructure(data),
@@ -137,11 +137,11 @@ export default class EmbeddedItemHelpers {
         }
       };
     } else {
-      ui.notifictions.warn(`You shouldn't see this. Please notify the devs if you do - reconstruct length was ${reconstruct.length}`);
+      ui.notifications.warn(game.i18n.format("SWFFG.UI.Equipment.NestedItemUpdateUnsupported",{depth:reconstruct.length}));
       CONFIG.logger.warn(`You shouldn't see this. Please notify the devs if you do - reconstruct length was ${reconstruct.length}`);
     }
 
-    CONFIG.logger.debug("Final formData", formData);
+    
     await realItem.update(formData);
   }
 
@@ -164,7 +164,7 @@ export default class EmbeddedItemHelpers {
       }
       const ownedItem = await actor.items.get(itemId);
 
-      if (!ownedItem) ui.notifications.warn(`The item had been removed or can not be found!`);
+      if (!ownedItem) ui.notifications.warn(game.i18n.localize("SWFFG.UI.Equipment.RemovedItem"));
 
       let modifierIndex;
       let item;
@@ -203,7 +203,7 @@ export default class EmbeddedItemHelpers {
       });
       readonlyItemJournalEntry.sheet.render(true)
     } catch (err) {
-      ui.notifications.warn(`The item or quality has been removed or can not be found!`);
+      ui.notifications.warn(game.i18n.localize("SWFFG.UI.Equipment.RemovedItemQuality"));
       CONFIG.logger.warn(`Error loading Read-Only Journal Item`, err);
     }
   }

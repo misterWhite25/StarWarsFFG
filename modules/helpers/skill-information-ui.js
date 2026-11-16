@@ -10,7 +10,7 @@ async function openNeighbour(builder,title,html){
   if(placement.jetLeft!==undefined)builder.setPosition({left:placement.jetLeft});
   const content=document.createElement('div');
   content.innerHTML='<div class="ffg-skill-information-content"><style>.ffg-skill-information-window{max-height:calc(100dvh - 24px)}.ffg-skill-information-window .window-content{overflow:hidden;min-height:0;padding-top:8px}.ffg-skill-information-window .dialog-form{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}.ffg-skill-information-window .dialog-content{padding-top:0;flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable}.ffg-skill-information-window .form-footer{flex-shrink:0}.ffg-skill-information-content>h2:first-of-type{margin-top:0;margin-bottom:12px}.ffg-skill-information-content table{width:100%;table-layout:auto;margin:6px 0 12px}.ffg-skill-information-content section[data-reference-id]{margin-top:12px;display:block}.ffg-skill-information-content section[data-reference-id] h4{margin:0 0 6px}.ffg-skill-information-content section[data-reference-id] p{margin:0 0 6px}.ffg-skill-information-content section[data-reference-id]>p:empty{display:none}.ffg-skill-information-content td,.ffg-skill-information-content th{white-space:normal;overflow-wrap:anywhere}.ffg-skill-information-content img{max-width:100%}.ffg-skill-information-content{font-family:inherit;color:inherit}.ffg-skill-information-content .skill-description-text p,.ffg-skill-information-content .skill-description-text li{text-align:justify}.ffg-skill-information-content h1,.ffg-skill-information-content h2,.ffg-skill-information-content h3,.ffg-skill-information-content h4{font-family:inherit;color:inherit;line-height:1.3}.ffg-skill-information-content h1{font-size:20px}.ffg-skill-information-content h2{font-size:18px}.ffg-skill-information-content h3{font-size:16px}.ffg-skill-information-content h4{font-size:14px}.ffg-skill-information-content section{margin-top:18px}.ffg-skill-information-content .skill-description-source{font-size:12px;opacity:.85}</style>'+html+'</div>';
-  const app=new foundry.applications.api.DialogV2({classes:['starwarsffg','themed','ffg-skill-information-window'],window:{title,resizable:true},position:{left:placement.left,top:placement.top,width:placement.width},content,buttons:[{action:'close',label:'Fermer les informations'}]});
+  const app=new foundry.applications.api.DialogV2({classes:['starwarsffg','themed','ffg-skill-information-window'],window:{title,resizable:true},position:{left:placement.left,top:placement.top,width:placement.width},content,buttons:[{action:'close',label:game.i18n.localize("SWFFG.UI.SkillInfo.CloseInformation")}]});
   builder._skillInformationWindow=app;
   await app.render({force:true});
   const bounds=app.element.getBoundingClientRect();
@@ -22,18 +22,18 @@ async function openNeighbour(builder,title,html){
 export function skillCompendiumRequirement(modules=game.modules){
   const candidates=[modules?.get('swffg-compendium-bilingual-steelers-core_rule'),modules?.get('swffg-compendium-bilingual')];
   const module=candidates.find(m=>m?.active===true)??candidates.find(Boolean);
-  if(!module)return 'Pour afficher les informations de la compétence, il faut installer le compendium « Star Wars FFG - Compendium FR / EN », puis l’activer dans ce monde. Demandez au MJ de l’installer.';
-  if(module.active!==true)return 'Le compendium « Star Wars FFG - Compendium FR / EN » est installé mais désactivé. Le MJ doit l’activer dans la gestion des modules de ce monde pour afficher les informations de la compétence.';
+  if(!module)return game.i18n.localize("SWFFG.UI.SkillInfo.InstallSkillCompendium");
+  if(module.active!==true)return game.i18n.localize("SWFFG.UI.SkillInfo.EnableSkillCompendium");
   return null;
 }
 
 export async function openSkillInformation(builder){
   const skill=skillDescriptor(builder);if(!skill)return;
   const requirement=skillCompendiumRequirement();
-  if(requirement)return openNeighbour(builder,`Informations - ${skill.label}`,`<h2>${escapeText(skill.label)}</h2><h3>Compendium requis</h3><p role="status">${escapeText(requirement)}</p>`);
+  if(requirement)return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillInformationTitle",{name:skill.label}),`<h2>${escapeText(skill.label)}</h2><h3>${game.i18n.localize("SWFFG.UI.SkillInfo.CompendiumRequired")}</h3><p role="status">${escapeText(requirement)}</p>`);
   const description=await skillDescription(skill);
   let html=`<h2>${escapeText(skill.label)}</h2><div class="skill-description-text">${await foundry.applications.ux.TextEditor.enrichHTML(description.html,{secrets:description.secrets===true})}</div>${description.source?`<p class="skill-description-source">${escapeText(description.source)}</p>`:''}`;
-  return openNeighbour(builder,`Informations - ${skill.label}`,html);
+  return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillInformationTitle",{name:skill.label}),html);
 }
 
 function skillTableIds(builder,skill){
@@ -53,13 +53,13 @@ export function hasSkillReferenceTables(builder){
 export async function openSkillReferences(builder){
   const skill=skillDescriptor(builder);if(!skill)return;
   const requirement=skillCompendiumRequirement();
-  if(requirement)return openNeighbour(builder,`Tables de références - ${skill.label}`,`<h2>${escapeText(skill.label)}</h2><h3>Compendium requis</h3><p role="status">${escapeText(requirement)}</p>`);
+  if(requirement)return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillReferenceTitle",{name:skill.label}),`<h2>${escapeText(skill.label)}</h2><h3>${game.i18n.localize("SWFFG.UI.SkillInfo.CompendiumRequired")}</h3><p role="status">${escapeText(requirement)}</p>`);
   const ids=skillTableIds(builder,skill),pages=await referencePages(skill,ids);
   const order=[...ids];pages.sort((a,b)=>order.indexOf(a.name.split(' · ')[0])-order.indexOf(b.name.split(' · ')[0]));
   let html=`<h2>${escapeText(skill.label)}</h2>`;
-  if(!pages.length)html+='<p>Aucun tableau de référence accessible pour cette compétence.</p>';
+  if(!pages.length)html+=`<p>${game.i18n.localize("SWFFG.UI.SkillInfo.NoSkillReference")}</p>`;
   for(const page of pages)html+=`<section data-reference-id="${escapeText(page.name.split(' · ')[0])}"><h4>${escapeText(page.name)}</h4>${await foundry.applications.ux.TextEditor.enrichHTML(page.text.content,{secrets:page.isOwner})}</section>`;
-  return openNeighbour(builder,`Tables de références - ${skill.label}`,html);
+  return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillReferenceTitle",{name:skill.label}),html);
 }
 
 export function renderSkillInformation(builder, html) {
@@ -74,13 +74,13 @@ export function renderSkillInformation(builder, html) {
     button.addEventListener('click',async event=>{event.preventDefault();event.stopPropagation();button.disabled=true;try{await open(builder);}catch(error){ui.notifications.error(error.message);}finally{button.disabled=false;}});
     section.append(button);
   };
-  addButton('Informations de la compétence','ffg-skill-information-button','fa-circle-info',openSkillInformation);
-  if(hasTables)addButton('Tables de références','ffg-skill-references-button','fa-table',openSkillReferences);
+  addButton(game.i18n.localize("SWFFG.UI.SkillInfo.SkillInformation"),'ffg-skill-information-button','fa-circle-info',openSkillInformation);
+  if(hasTables)addButton(game.i18n.localize("SWFFG.UI.SkillInfo.ReferenceTables"),'ffg-skill-references-button','fa-table',openSkillReferences);
   root.querySelector('.window-title')?.after(section);
 }
 
 
-let bundledReferences;
+const bundledReferences=new Map();
 async function referencePages(skill,ids){
   const pages=[],seen=new Set();
   const addJournal=journal=>{
@@ -107,8 +107,15 @@ async function referencePages(skill,ids){
   }
   }
   if([...ids].some(id=>!seen.has(id))){
-    bundledReferences??=fetch('/systems/starwarsffg/data/skill-references-fr.json').then(response=>{if(!response.ok)throw Error('Références de compétence indisponibles.');return response.json()}).catch(error=>{bundledReferences=null;throw error;});
-    const journal=await bundledReferences;
+    const language=game.i18n.lang==='fr'?'fr':'en';
+    if(!bundledReferences.has(language)){
+      const request=fetch(`/systems/starwarsffg/data/skill-references-${language}.json`).then(response=>{
+        if(!response.ok)throw Error(game.i18n.localize("SWFFG.UI.SkillInfo.SkillReferencesUnavailable"));
+        return response.json();
+      }).catch(error=>{bundledReferences.delete(language);throw error;});
+      bundledReferences.set(language,request);
+    }
+    const journal=await bundledReferences.get(language);
     for(const page of journal.pages){const number=page.name.split(' · ')[0];if(ids.has(number)&&!seen.has(number)){pages.push({...page,isOwner:false});seen.add(number);}}
   }
   return pages;

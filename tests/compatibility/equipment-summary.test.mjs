@@ -1,3 +1,6 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
+globalThis.game={i18n:frI18n};
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {equippedItems,equipmentStats,equipmentDescription} from '../../modules/helpers/equipment-summary.js';
@@ -30,7 +33,7 @@ test('summary reads quality names, ranks and descriptions from the current item 
  class Element {constructor(tag){this.tag=tag;this.children=[];this.style={};}append(child){this.children.push(child);}}
  let reads=0;
  const weapon={name:'Blaster',type:'weapon',system:{equippable:{equipped:true}},sheet:{getData:async()=>{reads++;return {data:{doNotSubmit:{qualities:[{name:'Précision',totalRanks:2,description:'<p>Bonus de Précision.</p>'}]}}};}}};
- const context=vm.createContext({document:{createElement:tag=>new Element(tag)},window:{innerWidth:1280,innerHeight:900},game:{i18n:{localize:value=>value}},foundry:{applications:{ux:{TextEditor:{enrichHTML:async html=>html}},api:{DialogV2:class{constructor(options){this.options=options;}async render(){this.rendered=true;}}}}}});
+ const context=vm.createContext({document:{createElement:tag=>new Element(tag)},window:{innerWidth:1280,innerHeight:900},game:{i18n:frI18n},foundry:{applications:{ux:{TextEditor:{enrichHTML:async html=>html}},api:{DialogV2:class{constructor(options){this.options=options;}async render(){this.rendered=true;}}}}}});
  const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/equipment-summary.js',import.meta.url),'utf8'),{context});await module.link(()=>{});await module.evaluate();
  const sheet={actor:{name:'Pilote',isOwner:true,items:[weapon],system:{}},element:{getBoundingClientRect:()=>({right:600,left:100,top:20})}};
  await module.namespace.showEquipmentSummary(sheet);

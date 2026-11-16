@@ -30,7 +30,7 @@ export async function createFFGMacro(bar, data, slot) {
   } else if (data.type === "Transfer" && data.data?.type === "weapon") {
     const item = data.data;
     const command = `await game.ffg.DiceHelpers.rollItem(${JSON.stringify(item._id)}, ${JSON.stringify(data.actorId)});`;
-    macro = await createMacroItem({name: `Attack with ${item.name}`, type: "script", img: item.img, command});
+    macro = await createMacroItem({name: game.i18n.format("SWFFG.UI.Interface.AttackWith",{name:item.name}), type: "script", img: item.img, command});
   }
   if (macro) await game.user.assignHotbarMacro(macro, slot);
   return false;

@@ -55,12 +55,12 @@ export function activateEquipmentImagePreview(sheet) {
 }
 
 /** Open equipment art directly from an actor's inventory, including read-only sheets. */
-export function activateInventoryImagePreview(sheet) {
-  for (const row of sheet.element.querySelectorAll('.items-list > .item[data-item-id]')) {
+export function activateInventoryImagePreview(sheet,root=sheet.element) {
+  for (const row of root.querySelectorAll('.items-list > .item[data-item-id]')) {
     const item = sheet.actor.items.get(row.dataset.itemId);
     if (!item || !['weapon', 'armour', 'gear'].includes(item.type) || !item.img) continue;
     const name = row.querySelector('.item-name > .hover');
-    if (!name || name.querySelector('.ffg-inventory-image-preview')) continue;
+    if (!name || row.querySelector('.ffg-inventory-image-preview')) continue;
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'ffg-inventory-image-preview';
@@ -81,7 +81,13 @@ export function activateInventoryImagePreview(sheet) {
     });
     // A double click on the loupe must not open the item editor.
     button.addEventListener('dblclick', event => event.stopPropagation());
-    name.append(button);
+    let controls = row.querySelector(':scope > .item-controls');
+    if (!controls) {
+      controls = row.ownerDocument.createElement('div');
+      controls.className = 'item-controls';
+      row.append(controls);
+    }
+    controls.prepend(button);
   }
 }
 

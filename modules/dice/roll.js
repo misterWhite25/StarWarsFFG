@@ -1,3 +1,4 @@
+import {spaceRollPresentation} from "../helpers/space-roll-presentation.mjs";
 import { ForceDie } from "./dietype/ForceDie.js";
 import {migrateDataToSystem} from "../helpers/migration.js";
 import { applyMessageMode, getMessageMode } from "../helpers/chat.js";
@@ -12,6 +13,7 @@ export class RollFFG extends Roll {
     this.hasFFG = false;
     this.hasStandard = false;
     this.addedResults = [];
+    this.forceTalentMode=args[2]?._forceTalent??null;
 
     this.terms = this.parseShortHand(this.terms);
 
@@ -110,7 +112,7 @@ export class RollFFG extends Roll {
   /* -------------------------------------------- */
   /** @override */
   async evaluate({ minimize = false, maximize = false } = {}) {
-    if (this._evaluated) throw new Error("This Roll object has already been rolled.");
+    if (this._evaluated) throw new Error(game.i18n.localize("SWFFG.UI.Dice.AlreadyRolled"));
 
     // Step 0 - is this rolling nothing?
     if(this.terms.length == 0) {
@@ -183,6 +185,10 @@ export class RollFFG extends Roll {
         }
       });
 
+      if(this.forceTalentMode?.id==='overwhelm-emotions'){
+        const gains=emotionForceConversion(this.ffg,this.forceTalentMode.skill);
+        for(const [field,symbol]of [['success','[SU]'],['failure','[FA]']])if(gains[field]){this.ffg[field]+=gains[field];this.addedResults.push({type:field==='success'?'Success':'Failure',symbol,value:gains[field],negative:false,talentGenerated:true});}
+      }
       // Step 6 - Calculate actual results by cancelling out success with failure, advantage with threat etc.
       if (this.ffg.success < this.ffg.failure) {
         this.ffg.failure -= parseInt(this.ffg.success);
@@ -335,6 +341,7 @@ export class RollFFG extends Roll {
     }
 
     const v12ChatData = migrateDataToSystem(chatData);
+    v12ChatData.spaceCard=spaceRollPresentation(v12ChatData,key=>game.i18n.localize(key));
 
     // Render the roll display template
     return foundry.applications.handlebars.renderTemplate(chatOptions.template, v12ChatData);
@@ -383,6 +390,7 @@ export class RollFFG extends Roll {
   toJSON() {
     const json = super.toJSON();
     json.ffg = this.ffg;
+    json.forceTalentMode=this.forceTalentMode;
     json.hasFFG = this.hasFFG;
     json.hasStandard = this.hasStandard;
     json.data = this.data;
@@ -395,6 +403,7 @@ export class RollFFG extends Roll {
   static fromData(data) {
     const roll = super.fromData(data);
     roll.ffg = data.ffg;
+    roll.forceTalentMode=data.forceTalentMode??null;
     roll.hasFFG = data.hasFFG;
     roll.hasStandard = data.hasStandard;
     roll.data = data.data;
@@ -416,7 +425,7 @@ export class RollFFG extends Roll {
             let cls = CONFIG.Dice.terms[next];
             acc.push(new cls(1));
           }
-          else throw new Error(`Unknown die type '${next}'`)
+          else throw new Error(game.i18n.format('SWFFG.UI.Dice.UnknownDieType',{type:next}))
 
           return acc;
         }, [])
@@ -429,4 +438,11 @@ export class RollFFG extends Roll {
         }
       })
   }
+}
+
+export function emotionForceConversion(results,skill){
+ const light=Math.max(0,Math.floor(Number(results.light)||0)),dark=Math.max(0,Math.floor(Number(results.dark)||0));
+ if(skill==='charm')return {success:light,failure:dark};
+ if(['coercion','deception'].includes(skill))return {success:dark,failure:Math.floor(light/2)};
+ throw Error(game.i18n.localize("SWFFG.UI.Dice.EmotionSkillInvalid"));
 }

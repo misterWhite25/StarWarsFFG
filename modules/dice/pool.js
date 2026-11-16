@@ -1,6 +1,7 @@
 /**
  * Dice pool utility specializing in the FFG special dice
  */
+import {setbackAfterRemovals} from "../helpers/setback-removal.mjs";
 import { effectivePool, gmDifficulty } from "../helpers/gm-difficulty.js";
 
 export class DicePoolFFG {
@@ -12,6 +13,7 @@ export class DicePoolFFG {
     if (typeof obj === "string") {
       obj = JSON.parse(obj);
     }
+    this._ignoreGMDifficulty = obj._ignoreGMDifficulty === true;
     this.proficiency = obj.proficiency || 0;
     this.ability = obj.ability || 0;
     this.challenge = obj.challenge || 0;
@@ -39,12 +41,12 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.name === "purchased") {
-            return `Purchased: ${rank.value} rank(s)`;
+            return game.i18n.format("SWFFG.UI.Dice.SourcePurchased",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
           if (rank.modtype === "Skill Rank") {
-            return `${rank.name} (${rank.type}): ${rank.value} rank(s)`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceSkillRank",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.boost?.length) {
@@ -52,9 +54,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Boost") {
-            return `${rank.name} (${rank.type}): +${rank.value} boost dice`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceBoost",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): +${rank.value} boost dice`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceBoostGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.remsetback?.length) {
@@ -62,9 +64,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Remove Setback") {
-            return `${rank.name} (${rank.type}): -${rank.value} setback dice`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceRemoveSetback",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): -${rank.value} setback dice`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceRemoveSetbackGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.setback?.length) {
@@ -72,9 +74,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Setback") {
-            return `${rank.name} (${rank.type}): +${rank.value} setback dice`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceSetback",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): +${rank.value} setback dice`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceSetbackGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.upgrades?.length) {
@@ -82,9 +84,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Upgrade") {
-            return `${rank.name} (${rank.type}): ${rank.value} upgrade(s)`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceUpgrade",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.success?.length) {
@@ -92,9 +94,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Success") {
-            return `${rank.name} (${rank.type}): ${rank.value} Success`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceSuccess",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.advantage?.length) {
@@ -102,9 +104,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Advantage") {
-            return `${rank.name} (${rank.type}): ${rank.value} Advantage`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceAdvantage",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.light?.length) {
@@ -112,9 +114,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Light") {
-            return `${rank.name} (${rank.type}): ${rank.value} Light`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceLight",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.failure?.length) {
@@ -122,9 +124,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Failure") {
-            return `${rank.name} (${rank.type}): ${rank.value} Failure`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceFailure",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.threat?.length) {
@@ -132,9 +134,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Threat") {
-            return `${rank.name} (${rank.type}): ${rank.value} Threat`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceThreat",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
     if (obj?.source?.dark?.length) {
@@ -142,9 +144,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Dark") {
-            return `${rank.name} (${rank.type}): ${rank.value} Dark`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceDark",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
 
@@ -153,9 +155,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Despair") {
-            return `${rank.name} (${rank.type}): ${rank.value} Despair`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceDespair",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
 
@@ -164,9 +166,9 @@ export class DicePoolFFG {
         .filter((item) => parseInt(item.value, 10) > 0)
         .map((rank) => {
           if (rank.modtype === "Skill Add Triumph") {
-            return `${rank.name} (${rank.type}): ${rank.value} Triumph`;
+            return game.i18n.format("SWFFG.UI.Dice.SourceTriumph",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
           }
-          return `${rank.modtype} from ${rank.name} (${rank.type}): ${rank.value}`;
+          return game.i18n.format("SWFFG.UI.Dice.SourceGeneric",{name:rank.name,type:rank.type,value:rank.value,modifier:rank.modtype});
         });
     }
   }
@@ -242,14 +244,12 @@ export class DicePoolFFG {
    * @returns {string} a dice expression that can be used to roll the dice pool
    */
   renderDiceExpression() {
-    if (gmDifficulty().enabled && !this._gmResolved) {
+    if (gmDifficulty(this).enabled && !this._gmResolved) {
       const pool = effectivePool(this);
       pool._gmResolved = true;
       return pool.renderDiceExpression();
     }
-    let setbackDice = game.settings.get("starwarsffg", "ApplyRemoveSetbackMods")
-      ? Math.max(0, this.setback - this.remsetback)
-      : this.setback;
+    const setbackDice = setbackAfterRemovals(this);
 
     let dicePool = [
       this.proficiency + "dp",
@@ -302,7 +302,7 @@ export class DicePoolFFG {
     this._addIcons(container, CONFIG.FFG.SETBACK_ICON, setbackTotal-cancelledSetback, height, width);
     for(let i=0;i<cancelledSetback;i++){
       const die=document.createElement('span');die.classList.add('ffg-cancelled-setback');die.style.width=width+'px';die.style.height=height+'px';
-      const label=game.i18n?.lang==='fr'?'Dé d’Infortune annulé - non lancé':'Cancelled Setback die - not rolled';
+      const label=game.i18n.localize("SWFFG.UI.Dice.CancelledSetbackDieNotRolled");
       die.title=label;die.setAttribute('role','img');die.setAttribute('aria-label',label);
       const img=document.createElement('img');img.src=CONFIG.FFG.SETBACK_ICON;img.width=width;img.height=height;img.setAttribute('aria-hidden','true');die.appendChild(img);container.appendChild(die);
     }

@@ -1,3 +1,4 @@
+import {systemI18n} from '../system-i18n.mjs';
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFile} from 'node:fs/promises';
 const root=fileURLToPath(new URL('../../modules/helpers/',import.meta.url));
@@ -5,7 +6,7 @@ async function load(skill='Ranged: Light',journals){
  const seen={dialogs:[],descriptions:0};
  const element=()=>({children:[],style:{},append(e){this.children.push(e);},addEventListener(){},classList:{add(){}},setAttribute(k,v){this[k]=v;},after(e){this.children.push(e);},getBoundingClientRect:()=>({height:300,left:100,top:30,right:450,width:350}),querySelector(selector){return selector==='.window-title'?this:null;},querySelectorAll:()=>[]});
  const pages=['6-1','6-4','6-2','6-3','6-7'].map(id=>({type:'text',name:id+' · Table',text:{content:'<table><tr><td>'+id+'</td></tr></table>'},testUserPermission:()=>true,getFlag:()=>[],isOwner:false}));
- const game={modules:new Map([['swffg-compendium-bilingual',{active:true}]]),user:{},packs:new Map(),journal:journals??[{name:'Tables de combat et soins',flags:{},pages,testUserPermission:()=>true,getFlag:()=>false}]};
+ const game={i18n:await systemI18n('fr'),modules:new Map([['swffg-compendium-bilingual',{active:true}]]),user:{},packs:new Map(),journal:journals??[{name:'Tables de combat et soins',flags:{},pages,testUserPermission:()=>true,getFlag:()=>false}]};
  const context=vm.createContext({game,window:{innerWidth:1500,innerHeight:900},document:{createElement:element},requestAnimationFrame:fn=>fn(),foundry:{applications:{ux:{TextEditor:{enrichHTML:async html=>html}},api:{DialogV2:class {
   constructor(options){seen.dialogs.push(options);this.element=element();}async render(){}async close(){}setPosition(){}
  }}}}});

@@ -10,21 +10,21 @@
     <div class="flex block-attribute">
       <div class="flex">
         <div>
-          <i class="fas fa-minus-circle medical"></i>
+          <i class="fas fa-minus-circle medical" role="button" tabindex="0" title="{{localize 'SWFFG.UI.Actor.MedicalAdjust'}}" aria-label="{{localize 'SWFFG.UI.Actor.MedicalAdjust'}}"></i>
             {{#if (ne value undefined)}}
                 {{value}}/5
             {{else}}
                 0/5
             {{/if}}
 
-          <i class="fas fa-plus-circle medical"></i>
+          <i class="fas fa-plus-circle medical" role="button" tabindex="0" title="{{localize 'SWFFG.UI.Actor.MedicalUse'}}" aria-label="{{localize 'SWFFG.UI.Actor.MedicalUse'}}"></i>
         </div>
       </div>
       <div>
         <button
           type="button"
           value="resetUses"
-          class="resetMedical"
+          class="resetMedical" title="{{localize 'SWFFG.UI.Actor.MedicalReset'}}" aria-label="{{localize 'SWFFG.UI.Actor.MedicalReset'}}"
         ><i class="fas fa-recycle"></i></button>
       </div>
     </div>

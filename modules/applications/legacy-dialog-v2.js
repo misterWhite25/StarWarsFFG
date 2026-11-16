@@ -14,7 +14,7 @@ export class LegacyDialogV2 extends DialogV2 {
         default: config.default === action,
         callback: async (event, _button, dialog) => button.callback?.($(dialog.element), event),
       }));
-    if (!buttons.length) buttons.push({ action: "close", label: "Close", default: true });
+    if (!buttons.length) buttons.push({ action: "close", label: game.i18n.localize("SWFFG.ButtonClose"), default: true });
 
     super({
       ...options,

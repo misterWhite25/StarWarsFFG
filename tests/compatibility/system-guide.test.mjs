@@ -3,15 +3,17 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {systemGuideTours} from '../../modules/helpers/system-guide-content.js';
+import {systemI18n} from '../system-i18n.mjs';
 
 const sourceUrl = name => new URL(`../../modules/helpers/${name}.js`, import.meta.url);
 
-test('Steelers publishes six independent tours with valid images and a GM-only Pilotage tour', async () => {
+test('Steelers publishes nine independent tours with valid images and a GM-only Pilotage tour', async () => {
   assert.deepEqual(systemGuideTours.map(t => t.id), [
-    'steelers-systeme', 'steelers-voyages', 'steelers-des', 'steelers-vehicules', 'steelers-talents', 'steelers-pilotage-mj',
+    'steelers-systeme', 'steelers-voyages', 'steelers-des', 'steelers-vehicules', 'steelers-talents', 'steelers-pilotage-mj', 'steelers-marche', 'steelers-combat-spatial', 'steelers-flottes',
   ]);
-  assert.deepEqual(systemGuideTours.filter(t => t.restricted).map(t => t.id), ['steelers-pilotage-mj']);
+  assert.deepEqual(systemGuideTours.filter(t => t.restricted).map(t => t.id), ['steelers-pilotage-mj', 'steelers-flottes']);
   const images = new Set();
+  const languages = await Promise.all([systemI18n('en'),systemI18n('fr')]);
   for (const tour of systemGuideTours) {
     assert(tour.display && tour.canBeResumed && !tour.closeWindows);
     assert(tour.description && tour.steps.length > 1);
@@ -19,10 +21,15 @@ test('Steelers publishes six independent tours with valid images and a GM-only P
     assert(!JSON.stringify(tour).includes(String.fromCharCode(8212)));
     for (const step of tour.steps) {
       assert(step.title && !step.selector);
-      assert(step.content.includes('ffg-guide-path'));
-      for (const [, file, alt] of step.content.matchAll(/<img src="systems\/starwarsffg\/([^"]+)" alt="([^"]+)"/g)) {
+      for (const i18n of languages) {
+      assert.notEqual(i18n.localize(step.title),step.title);
+      const content=i18n.localize(step.content);
+      assert(content.includes('ffg-guide-path'));
+      assert(!content.includes('\\\"'));
+      for (const [, file, alt] of content.matchAll(/<img src="systems\/starwarsffg\/([^"]+)" alt="([^"]+)"/g)) {
         assert(alt.trim());
         images.add(file);
+      }
       }
     }
   }
@@ -34,6 +41,7 @@ test('Steelers publishes six independent tours with valid images and a GM-only P
 });
 
 async function loadGuide(context) {
+  context.game.i18n ??= await systemI18n('fr');
   const content = new vm.SourceTextModule(await readFile(sourceUrl('system-guide-content'), 'utf8'), {context});
   await content.link(() => {});
   await content.evaluate();
@@ -68,7 +76,7 @@ test('register once, keep independent progress, and only mark the introduction s
   const vehicles = tours.get('starwarsffg.steelers-vehicules');
   vehicles.stepIndex = 2;
   guide.registerSystemGuideTours();
-  assert.equal(tours.size, 6);
+  assert.equal(tours.size, 9);
   assert.equal(tours.get('starwarsffg.steelers-vehicules'), vehicles);
   await guide.showSystemGuideAfterUpdate();
   assert.equal(values.get('systemGuideSeenVersion'), '');
@@ -135,4 +143,73 @@ test('real Foundry v14 resumes the right tour, recovers stale progress and resto
   Tour.prototype._renderStep = async () => { throw Error('render blocked'); };
   await assert.rejects(vehicles.start(), /render blocked/);
   assert.equal(restored, 1);
+});
+
+async function startupFixture(sizes={}) {
+  const values=new Map(),tours=new Map(),starts=[],nativeStarts=[],timers=[];
+  class Tour {
+    static STATUS={UNSTARTED:'unstarted'};
+    static tourInProgress=false;
+    constructor(config){this.config=config;this.steps=config.steps;this.stepIndex=-1;}
+    async start(){starts.push(this.config.id);Tour.tourInProgress=true;}
+    async _renderStep(){this.targetElement=null;}
+  }
+  tours.set('core.welcome',{status:Tour.STATUS.UNSTARTED,start(){assert.equal(Tour.tourInProgress,false);nativeStarts.push('welcome');Tour.tourInProgress=true;}});
+  const game={user:{isGM:true},system:{version:'test-version'},settings:{
+    register:(_scope,key,config)=>values.set(key,config.default),
+    get:(scope,key)=>scope==='core'&&key==='nue.shownTips'?true:values.get(key),
+    set:async(_scope,key,value)=>values.set(key,value)
+  },tours:{has:key=>tours.has(key),get:key=>tours.get(key),register:(scope,id,tour)=>tours.set(scope+'.'+id,tour)}};
+  for(const key of ['actors','scenes','items','journal'])game[key]=new Map(sizes[key]?[['existing',{}]]:[]);
+  const context=vm.createContext({game,console:{error(){}},ui:{notifications:{error(){}}},
+    foundry:{nue:{Tour},applications:{instances:new Map()},utils:{getRoute:value=>value,fetchWithTimeout:async()=>({json:async()=>({})})}},
+    window:{setTimeout:callback=>timers.push(callback)},canvas:{animatePan:async()=>{}}
+  });
+  const guide=await loadGuide(context);guide.registerSystemGuide();guide.registerSystemGuideTours();
+  return {guide,context,game,Tour,tours,values,starts,nativeStarts,timers};
+}
+
+test('a fresh world reserves startup for the native delayed welcome and keeps the guide available',async t=>{
+  let source;
+  try {source=await readFile('/home/tonio2581/foundry-v14/client/nue/nue-manager.mjs','utf8');}
+  catch {t.skip('Local Foundry v14 runtime unavailable');return;}
+  const f=await startupFixture();
+  await f.guide.showSystemGuideAfterUpdate();
+  assert.deepEqual(f.starts,[]);assert.equal(f.values.get('systemGuideSeenVersion'),'');
+  assert.ok(f.tours.has('starwarsffg.steelers-systeme'));
+  const Scene={canUserCreate:()=>true,implementation:{
+    fromImport:async()=>({id:'NUEDEFAULTSCENE0',updateSource(){},dimensions:{rect:{center:{x:0,y:0}}}}),
+    create:async scene=>{f.game.scenes.set(scene.id,scene);return scene;}
+  }};
+  const mocks={
+    '../helpers/hooks.mjs':{on(){}},
+    '../documents/chat-message.mjs':{},
+    '@client/documents/scene.mjs':Scene
+  };
+  const native=new vm.SourceTextModule(source,{context:f.context});
+  await native.link(specifier=>{
+    assert.ok(Object.hasOwn(mocks,specifier),'Unexpected native welcome import: '+specifier);
+    return new vm.SyntheticModule(['default'],function(){this.setExport('default',mocks[specifier]);},{context:f.context});
+  });
+  await native.evaluate();f.game.nue=new native.namespace.default();f.game.nue.initialize();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(f.timers.length,1);assert.equal(f.nativeStarts.length,0);
+  f.timers.shift()();await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(f.nativeStarts,['welcome']);assert.deepEqual(f.starts,[]);
+});
+
+test('an existing world does not postpone the guide merely because welcome was never started',async()=>{
+  for(const key of ['actors','scenes','items','journal']){
+    const f=await startupFixture({[key]:1});
+    await f.guide.showSystemGuideAfterUpdate();
+    assert.deepEqual(f.starts,['steelers-systeme'],key);
+    assert.equal(f.values.get('systemGuideSeenVersion'),'test-version',key);
+  }
+  const f=await startupFixture();f.tours.get('core.welcome').status='completed';
+  await f.guide.showSystemGuideAfterUpdate();assert.deepEqual(f.starts,['steelers-systeme']);
+});
+
+test('closing a guide during native step rendering leaves no target to decorate',async()=>{
+  const f=await startupFixture();
+  await assert.doesNotReject(f.tours.get('starwarsffg.steelers-systeme')._renderStep());
 });

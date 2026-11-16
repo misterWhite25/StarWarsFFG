@@ -19,7 +19,7 @@ export default class ItemDescriptors {
     let totalCount = items.length;
     let currentCount = 0;
     let pack;
-    CONFIG.logger.debug(`Starting Oggdude Item Descriptor Import`);
+    
     $(".import-progress.itemmodifier").toggleClass("import-hidden");
     const packMap = {
       "armor": await ImportHelpers.getCompendiumPack("Item", "oggdude.ArmorMods"),
@@ -93,6 +93,6 @@ export default class ItemDescriptors {
         CONFIG.logger.error(`Error importing record : `, err);
       }
     });
-    CONFIG.logger.debug(`Completed Oggdude Item Descriptor Import`);
+    
   }
 }

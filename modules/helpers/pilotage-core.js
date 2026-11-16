@@ -4,7 +4,7 @@ const groups=[['RangedLight','Ranged: Light','Armes légères','SWFFG.SkillsName
 export function skillKey(value){const name=normalize(value);return groups.find(group=>group.some(alias=>normalize(alias)===name))?.[0]??name;}
 export function matchingModifiers(entries,subjectUuid,skill){return entries.filter(entry=>entry.state==='pending'&&entry.subjectUuid===subjectUuid&&(!entry.skill||skillKey(entry.skill)===skillKey(skill)));}
 export function modifierTotals(entries){return entries.reduce((total,entry)=>({boost:total.boost+entry.boost,setback:total.setback+entry.setback}),{boost:0,setback:0});}
-export function modifierCounts(value){const result={};for(const key of ['boost','setback']){const n=Number(value[key]);if(!Number.isInteger(n)||n<0||n>20)throw Error('Saisir entre 0 et 20 dés.');result[key]=n;}return result;}
+export function modifierCounts(value){const result={};for(const key of ['boost','setback']){const n=Number(value[key]);if(!Number.isInteger(n)||n<0||n>20)throw Error(game.i18n.localize("SWFFG.UI.Pilotage.ModifierCountInvalid"));result[key]=n;}return result;}
 export function adjacentPlacement(rect,viewport,{gap=12,preferredWidth=520,minWidth=300}={}){
   const margin=12,rightSpace=viewport.width-margin-rect.right-gap,leftSpace=rect.left-margin-gap;
   const side=rightSpace>=leftSpace?'right':'left';

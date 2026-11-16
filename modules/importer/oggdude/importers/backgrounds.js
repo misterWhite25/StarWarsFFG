@@ -40,7 +40,7 @@ export default class Backgrounds {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Backgrounds`);
-        CONFIG.logger.debug(`Starting Oggdude Backgrounds Import`);
+        
         $(".import-progress.background").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(items, async (item) => {
@@ -84,7 +84,7 @@ export default class Backgrounds {
     } catch (err) {
       CONFIG.logger.error(`Error importing background record : `, err);
     }
-    CONFIG.logger.debug(`Completed Oggdude Background Import`);
+    
   }
 }
 

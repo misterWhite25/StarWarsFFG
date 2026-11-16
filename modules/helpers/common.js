@@ -3,11 +3,6 @@ export default class Helpers {
     log: (...args) => {
       console.log(`${CONFIG.module} | `, ...args);
     },
-    debug: (...args) => {
-      if (game.settings.get("starwarsffg", "enableDebug")) {
-        console.debug(`${CONFIG.module} | `, ...args);
-      }
-    },
     warn: (...args) => {
       console.warn(`${CONFIG.module} | `, ...args);
     },
@@ -72,7 +67,7 @@ export default class Helpers {
 
     const response = await ForgeAPI.call("assets/upload", fd);
     if (!response || response.error) {
-      ui.notifications.error(response ? response.error : "An unknown error occured accessing The Forge API");
+      ui.notifications.error(response ? response.error : game.i18n.localize("SWFFG.UI.Interface.ForgeError"));
       return false;
     } else {
       return { path: response.url };

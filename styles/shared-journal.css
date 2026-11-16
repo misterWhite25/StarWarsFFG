@@ -1,0 +1,13 @@
+.journal-entry.application .journal-sidebar>.ffg-journal-sharing {
+  flex:0 0 auto;display:grid;grid-template-columns:16px minmax(0,1fr);align-items:center;
+  gap:4px 8px;margin:0 8px 6px;padding:8px 0 2px;
+  border-top:1px solid color-mix(in srgb,currentColor 22%,transparent);
+  color:inherit;font-family:inherit;font-size:var(--font-size-12,12px);line-height:1.4;
+  cursor:pointer;
+}
+.journal-entry.application .ffg-journal-sharing>input {width:16px;height:16px;margin:0;}
+.journal-entry.application .ffg-journal-sharing>small {
+  grid-column:2;min-width:0;font-size:inherit;opacity:.75;overflow-wrap:anywhere;
+}
+.journal-entry.application .ffg-journal-sharing>small:empty {display:none;}
+.journal-entry.application:not(.expanded) .journal-sidebar>.ffg-journal-sharing {display:none;}

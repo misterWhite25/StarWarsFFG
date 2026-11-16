@@ -1,3 +1,6 @@
+import {npcAdversaryRank} from './npc-command-data.mjs';
+import {vehicleMinionGroup} from './vehicle-minion-group.mjs';
+
 export function registerTokenControls() {
   game.settings.register("starwarsffg", "showMinionCount", {
     name: game.i18n.localize("SWFFG.Settings.showMinionCount.Name"),
@@ -29,7 +32,15 @@ export function registerTokenControls() {
 }
 
 export function drawMinionCount(token) {
-  if (!game.settings.get("starwarsffg", "showMinionCount")) {
+  const actor = token?.actor;
+  const group = actor?.type === "vehicle" ? vehicleMinionGroup(actor) : null;
+  const existing = token.children.find(child => child.name === "minionCount");
+  if (!game.settings.get("starwarsffg", "showMinionCount") || !(actor?.type === "minion" || group?.enabled)) {
+    if (existing) {
+      token.removeChild(existing);
+      existing.destroy({children: true});
+    }
+    token.minionCount = null;
     return;
   }
   const borderWidth = 0.35;
@@ -37,8 +48,8 @@ export function drawMinionCount(token) {
   const enemyColor = "0x8800154D";
   const overflowColor = "0xDAA520";
   // calculate total and alive numbers of minions
-  const curCount = Math.max(token.actor.system.quantity.value, 0);
-  const maxCount = token.actor.system.quantity.max;
+  const curCount = group?.enabled ? group.alive : Math.max(actor.system.quantity.value, 0);
+  const maxCount = group?.enabled ? group.count : actor.system.quantity.max;
   const maxRender = 6;
 
   // attempt to draw it on the token directly
@@ -48,6 +59,7 @@ export function drawMinionCount(token) {
     countContainer.name = "minionCount";
     token.minionCount = token.addChild(countContainer);
   } else {
+    token.minionCount = existing;
     token.minionCount.removeChildren().forEach(i => i.destroy());
   }
 
@@ -110,35 +122,35 @@ export function drawMinionCount(token) {
 }
 
 export function drawAdversaryCount(token) {
-  if (!game.settings.get("starwarsffg", "showAdversaryCount")) {
+  const rank=game.settings.get('starwarsffg','showAdversaryCount')
+    ?npcAdversaryRank(token?.actor??{},game.settings.get('starwarsffg','adversaryItemName')):0;
+  let container=token.children.find(child=>child.name==='adversaryLevel');
+  if(!rank){
+    if(container){token.removeChild(container);container.destroy({children:true});}
+    token.adversaryLevel=null;
     return;
   }
-  const overflowColor = "0xDAA520";
-  const itemName = game.settings.get("starwarsffg", "adversaryItemName");
-  const adversaryItems = token?.actor?.items?.filter(i => i.name === itemName) || [];
-  let adversaryLevel = 0;
-  adversaryItems.forEach(function (item) {
-    adversaryLevel += Math.min(item?.system?.ranks?.current || 0, 6);
+  const signature=['dot',rank,token.w,token.h].join(':');
+  if(container?._adversarySignature===signature)return;
+  if(!container){
+    container=new PIXI.Container();container.name='adversaryLevel';
+    token.addChild(container);
+  }else container.removeChildren().forEach(child=>child.destroy());
+  token.adversaryLevel=container;
+  container.eventMode='none';
+  container._adversarySignature=signature;
+  // A small circular badge stays near the rim instead of covering the portrait.
+  const radius=Math.max(5,Math.min(16,Math.min(token.w,token.h)*0.10));
+  container.position.set(token.w*0.87,token.h*0.86);
+  const seal=new PIXI.Graphics();
+  seal.lineStyle(Math.max(1.5,radius*0.12),0x10151f,1);
+  seal.beginFill(0x48265e,1);seal.drawCircle(0,0,radius);seal.endFill();
+  seal.lineStyle(Math.max(0.7,radius*0.05),0xbca4cc,1);
+  seal.drawCircle(0,0,radius);
+  const text=new PIXI.Text(String(rank),{
+    fontFamily:'Arial',fontSize:radius*(rank>99?0.85:rank>9?1.1:1.45),fontWeight:'bold',
+    fill:0xffffff,align:'center',stroke:0x24132f,strokeThickness:1
   });
-  if (adversaryLevel > 0) {
-    // attempt to draw it on the token directly
-    // check for existing copies of the container
-    if (!token.children.find(i => i.name === "adversaryLevel")) {
-      const countContainer = new PIXI.Container();
-      countContainer.name = "adversaryLevel";
-      token.adversaryLevel = token.addChild(countContainer);
-    } else {
-      token.adversaryLevel.removeChildren().forEach(i => i.destroy());
-    }
-    const sprite = PIXI.Sprite.from(`systems/starwarsffg/images/adversary/adversary-${adversaryLevel}.png`);
-    sprite.width = token.w / 1.5;
-    sprite.height = token.h / 2;
-    sprite.x = (token.w / 2) - (sprite.width / 2);
-    sprite.y = (token.h / 1.25) - (sprite.height / 2);
-    if (adversaryLevel > 5) {
-      sprite.tint = overflowColor;
-      adversaryLevel = 6;
-    }
-    token.adversaryLevel.addChild(sprite);
-  }
+  text.anchor.set(0.5);text.resolution=2;
+  container.addChild(seal,text);
 }

@@ -1,0 +1,224 @@
+.pilotage-mj-dialog .pilotage-tabs {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding-bottom:8px;
+  margin-bottom:14px;
+  border-bottom:1px solid #64747760;
+}
+.pilotage-mj-dialog .pilotage-tabs button {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  width:auto;
+  flex:0 1 auto;
+  padding:6px 12px;
+  font-size:13px;
+  border-radius:5px;
+}
+.pilotage-mj-dialog .pilotage-tabs [aria-selected=true] {
+  background:#52686b20;
+  border-color:#52686b;
+  box-shadow:inset 0 -2px #52686b;
+  font-weight:600;
+}
+.pilotage-mj-dialog .pilotage-tabs button:focus-visible {
+  outline:2px solid #709c9b;
+  outline-offset:2px;
+}
+.pilotage-mj-dialog [data-pilotage-panel][hidden] { display:none; }
+.pilotage-mj-dialog [data-pilotage-panel="views"] { min-width:0; }
+.pilotage-mj-dialog .pilotage-views-empty {
+  font-size:12px;
+  font-style:italic;
+  color:var(--color-text-secondary);
+  text-align:justify;
+}
+.pilotage-mj-dialog [data-pilotage-panel="views"]:has(.pilotage-shared-window) .pilotage-views-empty { display:none; }
+
+
+.pilotage-mj-dialog .pilotage-views-description {
+  margin:0 0 14px;
+  font-size:12px;
+  line-height:1.5;
+  font-style:italic;
+  color:var(--color-text-secondary);
+  text-align:justify;
+}
+
+.pilotage-mj-dialog.pilotage-modern {--font-body:Arial,"Helvetica Neue",sans-serif;--pm-line:color-mix(in srgb,var(--color-text-primary) 17%,transparent);--pm-muted:var(--color-text-secondary);--pm-panel:color-mix(in srgb,var(--color-text-primary) 3%,transparent);--pm-blue:#526f7e;--pm-bordeaux:#743d42;max-width:calc(100vw - 24px);max-height:calc(100dvh - 32px);min-width:320px;container-type:inline-size;container-name:pilotage;}
+.pilotage-mj-dialog.pilotage-modern .window-title {font-family:Arial,"Helvetica Neue",sans-serif;font-size:14px;font-weight:600;text-shadow:none;}
+.pilotage-mj-dialog.pilotage-modern .window-content {padding:16px;overflow:auto;font:13px/1.45 Arial,"Helvetica Neue",sans-serif;}
+.pilotage-mj-dialog.pilotage-modern .dialog-content,.pilotage-mj-dialog.pilotage-modern .dialog-form {min-width:0;width:100%;box-sizing:border-box;}
+.pilotage-mj-dialog.pilotage-modern .dialog-content {gap:0;}
+.pilotage-mj-dialog.pilotage-modern h3,.pilotage-mj-dialog.pilotage-modern h4 {font-family:inherit;line-height:1.4;text-shadow:none;letter-spacing:normal;border:0;}
+.pilotage-mj-dialog.pilotage-modern h3 {font-size:14px;margin:0;font-weight:600;}
+.pilotage-mj-dialog.pilotage-modern h4 {font-size:13px;margin:0 0 8px;font-weight:600;}
+.pilotage-mj-dialog.pilotage-modern .window-content button,.pilotage-mj-dialog.pilotage-modern input,.pilotage-mj-dialog.pilotage-modern select {font-family:inherit;font-size:13px;box-shadow:none;}
+.pilotage-mj-dialog.pilotage-modern .window-content button {min-height:32px;height:auto;border-radius:5px;}
+.pilotage-mj-dialog.pilotage-modern label {font-family:inherit;font-weight:400;text-shadow:none;}
+.pilotage-mj-dialog.pilotage-modern input:not([type=checkbox]),.pilotage-mj-dialog.pilotage-modern select {min-height:32px;height:32px;width:100%;min-width:0;border:1px solid var(--pm-line);border-radius:5px;}
+.pilotage-mj-dialog.pilotage-modern input[type=checkbox] {width:16px;height:16px;flex:0 0 16px;margin:0;}
+.pilotage-mj-dialog.pilotage-modern button:focus-visible,.pilotage-mj-dialog.pilotage-modern input:focus-visible,.pilotage-mj-dialog.pilotage-modern select:focus-visible {outline:2px solid #709c9b;outline-offset:2px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-tabs {display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 0 10px;padding:4px;border:1px solid var(--pm-line);border-radius:8px;background:var(--pm-panel);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-tabs button {width:100%;min-width:0;justify-content:center;padding:8px 12px;border:1px solid transparent;background:transparent;border-radius:5px;font-size:13px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-tabs [aria-selected=true] {background:var(--pm-blue);color:#fff;box-shadow:0 1px 3px #0002;border-color:var(--pm-blue);font-weight:600;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-assets-actions {display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin:0 0 16px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-assets-actions button {display:flex;align-items:center;gap:7px;padding:5px 10px;flex:0 1 auto;width:auto;border:1px solid var(--pm-line);background:var(--pm-panel);font-size:12px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-columns {display:grid;grid-template-columns:208px minmax(0,1fr);align-items:start;gap:16px;min-width:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-columns>section {min-width:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-card {padding:14px;border:1px solid var(--pm-line);border-radius:8px;background:var(--pm-panel);box-shadow:0 1px 2px #00000008;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-card-heading {display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--pm-line);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-card-heading>i {color:var(--pm-blue);}
+.pilotage-mj-dialog.pilotage-modern .gm-dice-preview {display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px;min-height:52px;padding:8px;margin:0 0 8px;border:1px solid var(--pm-line);border-radius:6px;background:color-mix(in srgb,var(--color-text-primary) 2%,transparent);}
+.pilotage-mj-dialog.pilotage-modern .gm-dice-preview img {width:24px;height:24px;border:0;}
+.pilotage-mj-dialog.pilotage-modern .gm-upgrade-buttons {display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.pilotage-mj-dialog.pilotage-modern .gm-upgrade-buttons button {margin:0;min-width:0;font-size:12px;}
+.pilotage-mj-dialog.pilotage-modern .gm-dice-table {table-layout:fixed;border:0;border-collapse:collapse;width:100%;margin:0 0 8px;background:transparent;font-size:12px;}
+.pilotage-mj-dialog.pilotage-modern .gm-dice-table td {padding:5px 3px;border-bottom:1px solid var(--pm-line);}
+.pilotage-mj-dialog.pilotage-modern .gm-dice-table td:first-child {width:28px;text-align:center;}
+.pilotage-mj-dialog.pilotage-modern .gm-dice-table td:nth-child(2) {width:42px;text-align:center;}
+.pilotage-mj-dialog.pilotage-modern .gm-dice-table img {display:block;border:0;margin:auto;}
+.pilotage-mj-dialog.pilotage-modern [data-gm-count] {width:36px;padding:0;font-size:14px;font-weight:600;text-align:center;background:transparent;border:1px solid var(--pm-line);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-note,.pilotage-mj-dialog.pilotage-modern .pilotage-views-description,.pilotage-mj-dialog.pilotage-modern .pilotage-shared-hint {font-size:11px;line-height:1.5;font-style:italic;text-align:justify;color:var(--pm-muted);margin:6px 0 10px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-enable {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;font-size:12px;}
+.pilotage-mj-dialog.pilotage-modern button.pilotage-primary {background:var(--pm-bordeaux);border:1px solid var(--pm-bordeaux);color:#fff;font-weight:600;width:100%;padding:7px 10px;margin:0;}
+.pilotage-mj-dialog.pilotage-modern button.pilotage-primary:hover:not(:disabled) {filter:brightness(1.1);}
+.pilotage-mj-dialog.pilotage-modern button.pilotage-primary:disabled {opacity:.5;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-section-heading {margin:0 0 10px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-section-heading .pilotage-note {margin:3px 0 0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-list {max-height:none;overflow:visible;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-groups {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.pilotage-mj-dialog.pilotage-modern [data-pilotage-group] {padding:10px;border:1px solid var(--pm-line);border-radius:8px;min-width:0;background:var(--pm-panel);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-vitality-filter {display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:var(--pm-muted);margin:0 0 8px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-vitality-filter select {width:75%;max-width:180px;height:28px;min-height:28px;font-size:12px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-group-list {max-height:230px;overflow:auto;scrollbar-gutter:stable;padding:2px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-group-list>small {display:block;padding:10px 3px;font-size:12px;font-style:italic;color:var(--pm-muted);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-row {display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;min-height:42px;padding:6px 8px;margin:0 0 5px;border:1px solid var(--pm-line);border-radius:5px;text-align:left;white-space:normal;background:transparent;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-row img {width:28px;height:28px;border:0;border-radius:50%;object-fit:cover;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-row span:nth-child(2) {flex:1;min-width:0;overflow-wrap:anywhere;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-row strong {font-size:12px;font-weight:600;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-row small {display:block;font-size:11px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-row:hover {background:color-mix(in srgb,var(--pm-blue) 10%,transparent);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-token-row[aria-pressed=true] {border-color:var(--pm-blue);background:color-mix(in srgb,var(--pm-blue) 16%,transparent);color:var(--color-text-primary);outline:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-effect-summary {width:100%;font-size:11px;color:var(--pm-muted);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-editor {margin-top:14px;border-top:3px solid var(--pm-blue);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-editor-heading {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--pm-line);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-target-title {font-size:12px;color:var(--pm-muted);font-weight:400;overflow-wrap:anywhere;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-modifier-inputs {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-modifier-inputs label {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border:1px solid var(--pm-line);border-radius:6px;margin:0;min-width:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-modifier-inputs label>span {display:flex;align-items:center;gap:7px;font-size:12px;min-width:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-modifier-inputs img {object-fit:contain;border:0;flex:none;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-modifier-inputs input[type=number] {width:52px;flex:0 0 52px;text-align:center;font-size:14px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-field {display:flex;flex-direction:column;gap:5px;font-size:12px;min-width:0;margin:0 0 12px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-assignment-row {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-assignment-row label {margin:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-assignment-row button {width:auto;max-width:200px;white-space:normal;min-height:32px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-pending {margin-top:10px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-pending:empty {display:none;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-pending.is-empty {padding-top:10px;border-top:1px solid var(--pm-line);font-size:12px;font-style:italic;color:var(--pm-muted);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-pending-effect {display:flex;align-items:center;gap:10px;padding:9px;margin-top:8px;border:1px solid var(--pm-line);border-radius:5px;background:var(--pm-panel);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-effect-body {flex:1;min-width:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-effect-dice {display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-effect-die {display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-effect-die img {width:20px;height:20px;border:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-effect-skill,.pilotage-mj-dialog.pilotage-modern .pilotage-effect-reason {display:block;font-size:12px;overflow-wrap:anywhere;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-effect-skill {font-weight:600;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-pending-effect button {width:auto;flex:none;font-size:12px;padding:4px 8px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-window,.pilotage-mj-dialog.pilotage-modern .ffg-shared-portraits-controls {border:1px solid var(--pm-line);border-radius:8px;padding:14px;background:var(--pm-panel);box-shadow:none;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading {margin-bottom:12px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-window h3 {font-size:14px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-owner {grid-template-columns:80px minmax(0,1fr);}
+.pilotage-mj-dialog.pilotage-modern .form-footer {margin-top:14px;padding-top:12px;border-top:1px solid var(--pm-line);justify-content:flex-end;}
+.pilotage-mj-dialog.pilotage-modern .form-footer button {flex:0 0 auto;width:auto;min-width:100px;padding:6px 16px;}
+@container pilotage (max-width:760px){.pilotage-mj-dialog.pilotage-modern .pilotage-columns{grid-template-columns:1fr}.pilotage-mj-dialog.pilotage-modern .pilotage-difficulty-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pilotage-mj-dialog.pilotage-modern .gm-upgrade-buttons{margin-bottom:0}}
+@container pilotage (max-width:500px){.pilotage-mj-dialog.pilotage-modern .window-content{padding:12px}.pilotage-mj-dialog.pilotage-modern .pilotage-token-groups{grid-template-columns:1fr}.pilotage-mj-dialog.pilotage-modern .pilotage-modifier-inputs{grid-template-columns:1fr}.pilotage-mj-dialog.pilotage-modern .pilotage-assignment-row{grid-template-columns:1fr}.pilotage-mj-dialog.pilotage-modern .pilotage-assignment-row button{width:100%;max-width:none}.pilotage-mj-dialog.pilotage-modern .pilotage-tabs button{padding:7px;font-size:12px}.pilotage-mj-dialog.pilotage-modern .pilotage-assets-actions{justify-content:flex-start}}
+:is(body.theme-dark .pilotage-mj-dialog.pilotage-modern:not(.theme-light),.pilotage-mj-dialog.pilotage-modern.theme-dark) {--ffg-window-background:#222a31;--ffg-panel:#2b353e;--ffg-input:#25313a;--ffg-ink:#dde5e9;--ffg-muted-ink:#b8c7cf;--ffg-line:#526570;--color-text-primary:#dde5e9;--color-text-secondary:#b8c7cf;--color-scrollbar:#607e8c;color:var(--ffg-ink);}
+:is(body.theme-dark .pilotage-mj-dialog.pilotage-modern:not(.theme-light),.pilotage-mj-dialog.pilotage-modern.theme-dark)>.window-header {background:#28343e;color:#dde5e9;border-bottom:1px solid #435662;}
+:is(body.theme-dark .pilotage-mj-dialog.pilotage-modern:not(.theme-light),.pilotage-mj-dialog.pilotage-modern.theme-dark) img[src$="/black.png"] {outline:1px solid #8e9fa8;outline-offset:-1px;}
+
+/* État réellement appliqué, indépendant des modifications en attente. */
+.pilotage-mj-dialog.pilotage-modern .pilotage-card-heading>[data-pilotage-difficulty-status] {color:light-dark(#b23a45,#f08e98);}
+.pilotage-mj-dialog.pilotage-modern .pilotage-card-heading>[data-pilotage-difficulty-status][data-active=true] {color:light-dark(#2f8049,#78cc96);}
+
+.pilotage-mj-dialog .pilotage-shared-owner [hidden]{display:none}
+.pilotage-mj-dialog .pilotage-shared-status{display:block;min-width:0;line-height:1.4;font-size:12px;font-style:italic;color:var(--color-text-secondary)}
+
+/* Mode commun de la scène, piloté exclusivement depuis Pilotage MJ. */
+.pilotage-mj-dialog.pilotage-modern .pilotage-left-column {display:grid;align-content:start;gap:12px;min-width:0;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-movement {margin:0;padding:12px;min-width:0;}
+.pilotage-mj-dialog .pilotage-movement[hidden] {display:none;}
+.pilotage-mj-dialog .pilotage-movement-heading {margin-bottom:8px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-movement-heading h3 {display:flex;align-items:center;gap:6px;font-size:13px;}
+.pilotage-mj-dialog .pilotage-movement-heading i {color:var(--pm-blue);}
+.pilotage-mj-dialog .pilotage-movement-switch {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}
+.pilotage-mj-dialog .pilotage-movement-switch [data-pilotage-movement-mode=none] {grid-column:1 / -1;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-movement-switch button {width:100%;min-width:0;min-height:28px;padding:3px 4px;font-size:11px;line-height:1.3;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-movement-switch [aria-pressed=true] {background:var(--pm-blue);border-color:var(--pm-blue);color:#fff;font-weight:600;opacity:1;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-movement-ranges {width:100%;min-height:28px;margin-top:6px;padding:3px 6px;font-size:12px;}
+.pilotage-mj-dialog.pilotage-modern .pilotage-movement .pilotage-note {margin:7px 0 0;text-align:justify;}
+
+/* Two primary tabs share a single combat roster and modifier editor. */
+.pilotage-mj-dialog.pilotage-modern .pilotage-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.pilotage-mj-dialog.pilotage-modern .pilotage-views-content{display:flex;flex-direction:column;gap:10px;min-width:0}
+.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-shared-windows{display:grid;grid-template-columns:1fr;gap:8px;margin:0}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-window,.pilotage-mj-dialog.pilotage-modern .ffg-shared-portraits-controls{padding:10px}
+.pilotage-mj-dialog.pilotage-modern .ffg-shared-portraits-controls{margin:0}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading{margin-bottom:6px;gap:6px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading h3{font-size:12px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading label{font-size:11px;white-space:nowrap}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-owner{grid-template-columns:70px minmax(0,1fr);gap:5px;font-size:11px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-status{font-size:10px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-hint{font-size:10px;margin:0;text-align:justify}
+.pilotage-mj-dialog.pilotage-modern .ffg-portrait-toolbar{gap:6px;margin:0}
+.pilotage-mj-dialog.pilotage-modern .ffg-portrait-toolbar>label{min-width:115px;font-size:11px}
+.pilotage-mj-dialog.pilotage-modern .ffg-portrait-notes{display:none}
+.pilotage-mj-dialog.pilotage-modern .ffg-portrait-panel-heading{margin-bottom:6px}
+.pilotage-mj-dialog.pilotage-modern .ffg-portrait-panel-heading h3{font-size:12px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-left-column .pilotage-assets-actions{display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:5px!important;justify-content:stretch;margin:0!important;padding:6px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-left-column .pilotage-assets-actions button{min-width:0;width:100%!important;justify-content:center;gap:4px!important;padding:4px 5px!important;min-height:28px;font-size:11px!important;line-height:1.3;white-space:nowrap}
+.pilotage-mj-dialog.pilotage-modern .pilotage-difficulty-section>.pilotage-note{display:none}
+.pilotage-mj-dialog.pilotage-modern .pilotage-difficulty-section{padding:12px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-difficulty-section .pilotage-card-heading{margin-bottom:8px;padding-bottom:8px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-difficulty-section .gm-upgrade-buttons{margin-bottom:8px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-difficulty-section .gm-dice-preview{min-height:40px;padding:5px}
+.npc-command .nc-roster-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px}
+.npc-command .nc-roster-tabs button{width:100%;padding:5px 3px;min-height:36px;font:600 11px/1.3 Arial,sans-serif!important;border:1px solid var(--nc-line);border-radius:5px}
+.npc-command .nc-roster-tabs [aria-selected=true]{background:var(--pm-blue,#526f7e);border-color:var(--pm-blue,#526f7e);color:#fff}
+.npc-command .nc-roster-tabs span{white-space:nowrap}
+.npc-command .nc-roster-empty{font-size:11px;margin:5px 0}
+.npc-command .nc-neutral-heading{font-size:11px;margin:12px 0 5px;border-top:1px solid var(--nc-line);padding-top:7px}
+.npc-command .nc-modifier-details>.pilotage-editor{margin-top:4px;padding:8px;border-top-width:1px}
+.npc-command .nc-modifier-details .pilotage-editor-heading{display:none}
+.npc-command .nc-modifier-details .pilotage-modifier-inputs{gap:5px;margin-bottom:6px}
+.npc-command .nc-modifier-details .pilotage-modifier-inputs label{padding:4px;gap:4px}
+.npc-command .nc-modifier-details .pilotage-modifier-inputs label>span{font-size:11px;gap:4px}
+.npc-command .nc-modifier-details .pilotage-modifier-inputs input{width:40px;flex-basis:40px;font-size:12px;text-align:center}
+.npc-command .nc-modifier-details .pilotage-field{margin-bottom:6px;gap:3px;font-size:11px}
+.npc-command .nc-modifier-details .pilotage-assignment-row{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:5px}
+.npc-command .nc-modifier-details .pilotage-assignment-row button{font-size:11px!important;padding:3px 7px;max-width:130px}
+.npc-command .nc-modifier-details .pilotage-pending.is-empty{display:none}
+.npc-command .nc-modifier-details .pilotage-pending-effect{padding:5px;margin-top:5px;gap:5px}
+.npc-command .nc-modifier-details .pilotage-effect-dice{gap:5px;margin:0}
+.npc-command .nc-modifier-details .pilotage-effect-skill,.npc-command .nc-modifier-details .pilotage-effect-reason{font-size:10px}
+@container pilotage (max-width:600px){.npc-command .nc-modifier-details .pilotage-assignment-row{grid-template-columns:1fr}.npc-command .nc-modifier-details .pilotage-assignment-row button{max-width:none;width:100%}}
+
+/* Movement controls sit below shared portraits in the main column. */
+.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 8px;padding:10px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement[hidden]{display:none}
+.pilotage-mj-dialog .pilotage-views-content .pilotage-movement-heading{grid-column:1 / -1;margin:0}
+.pilotage-mj-dialog .pilotage-views-content .pilotage-movement-switch{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pilotage-mj-dialog .pilotage-views-content .pilotage-movement-switch [data-pilotage-movement-mode=none]{grid-column:auto}
+.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-ranges{width:auto;min-height:28px;margin:0;font-size:11px;line-height:1.3}
+.pilotage-mj-dialog .pilotage-views-content .pilotage-movement .pilotage-note{grid-column:1 / -1}
+@container pilotage (max-width:500px){.pilotage-mj-dialog .pilotage-views-content .pilotage-movement{grid-template-columns:minmax(0,1fr)}.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-ranges{width:100%}}
+
+/* The modifier editor stays available while the character's information scrolls. */
+.npc-command .nc-layout>section.nc-card{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.npc-command .nc-card-body{flex:1;min-height:0;overflow:auto;scrollbar-gutter:stable}
+.npc-command .nc-card>.nc-modifier-details{flex:none;margin-top:6px;padding-top:6px}
+.npc-command .nc-modifier-details>h3{margin:0 0 4px!important;font-size:12px}
+.npc-command .nc-modifier-details .pilotage-assignment-row .pilotage-field{margin:0}
+.npc-command .nc-modifier-details .pilotage-assignment-row button{white-space:nowrap}
+.npc-command .nc-modifier-details .pilotage-pending{max-height:88px;overflow-y:auto}

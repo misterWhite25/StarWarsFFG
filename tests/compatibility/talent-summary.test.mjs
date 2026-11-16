@@ -1,6 +1,8 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {summaryTalents,talentMechanism} from '../../modules/helpers/talent-summary.js';
+globalThis.game={i18n:await systemI18n('fr')};
 
 test('summary hides creation tools, prioritizes active talents and totals ranked thresholds', () => {
   const talents = [

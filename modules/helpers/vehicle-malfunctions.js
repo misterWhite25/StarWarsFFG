@@ -16,8 +16,8 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({
 const bilingual = (fr, en) => game.i18n.lang === 'fr' ? fr : en;
 const formatNumber = value => Number(value).toLocaleString(game.i18n.lang, {maximumFractionDigits: 2});
 function repairLabel(quote) {
-  return quote.total === null ? bilingual('À chiffrer', 'To be priced') :
-    formatNumber(quote.total) + bilingual(' crédits', ' credits');
+  return quote.total === null ? game.i18n.localize("SWFFG.UI.Vehicle.CostToDetermine") :
+    formatNumber(quote.total) + game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionCredits");
 }
 
 export function isMalfunctionTable(table) {
@@ -32,20 +32,20 @@ async function selectMalfunctionTarget(actor, result) {
   const shields = actor.system?.stats?.shields ?? {};
   const disabledWeapons = rule.target === 'weapon' ? malfunctionNavigation(actor).disabledWeapons : [];
   const choices = rule.target === 'shield'
-    ? Object.entries({fore: 'Avant', aft: 'Arrière', port: 'Bâbord', starboard: 'Tribord'})
+    ? Object.entries({fore: game.i18n.localize("SWFFG.UI.Vehicle.Fore"), aft: game.i18n.localize("SWFFG.UI.Vehicle.Aft"), port: game.i18n.localize("SWFFG.UI.Vehicle.Port"), starboard: game.i18n.localize("SWFFG.UI.Vehicle.Starboard")})
       .filter(([arc]) => Number(shields[arc]) > 0)
     : Array.from(actor.items ?? []).filter(item =>
       rule.target === 'weapon' ? item.type === 'shipweapon' && !disabledWeapons.includes(item.id) : !['criticaldamage', 'criticalinjury'].includes(item.type))
       .map(item => [item.id, item.name]);
-  if (!choices.length) throw Error(bilingual('Aucune cible applicable pour cette avarie.', 'No applicable target for this malfunction.'));
+  if (!choices.length) throw Error(game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionNoApplicableTargetForThisMalfunction"));
   const selected = choices.length === 1 ? choices[0][0] : await foundry.applications.api.DialogV2.prompt({
     window: {title: result.name}, classes: ['starwarsffg', 'themed'],
-    content: '<label>' + bilingual('Système concerné', 'Affected system') + '<select name="target">' +
+    content: '<label>' + game.i18n.localize("SWFFG.UI.Vehicle.AffectedSystem") + '<select name="target">' +
       choices.map(([id, name]) => '<option value="' + escape(id) + '">' + escape(name) + '</option>').join('') + '</select></label>',
-    ok: {label: bilingual('Choisir', 'Choose'), callback: (_event, button) => button.form.elements.target.value},
+    ok: {label: game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionChoose"), callback: (_event, button) => button.form.elements.target.value},
     rejectClose: false
   });
-  if (!selected) throw Error(bilingual('Tirage annulé.', 'Roll cancelled.'));
+  if (!selected) throw Error(game.i18n.localize("SWFFG.UI.Vehicle.RollCanceled"));
   return rule.target === 'shield' ? {arc: selected} : {target: actor.items.get(selected)};
 }
 
@@ -70,7 +70,7 @@ export async function drawVehicleMalfunction(actor, {table: selectedTable = null
   for (let attempt = 0; attempt < 20; attempt++) {
     const roll = await new Roll('max(1, 1d100 + @modifier)', {modifier: modifiers.total + adjustment}).evaluate();
     const result = table.getResultsForRoll(roll.total)[0];
-    if (!result) throw Error(bilingual('Aucun résultat pour ce total.', 'No result for this total.'));
+    if (!result) throw Error(game.i18n.localize("SWFFG.UI.Vehicle.NoTotalResult"));
     if (!applicableResult(actor, result)) continue;
     const target = await selectMalfunctionTarget(actor, result);
     const record = buildMalfunction(actor, result, {total: roll.total, ...target});
@@ -85,7 +85,7 @@ export async function drawVehicleMalfunction(actor, {table: selectedTable = null
       text: record.description.replace(/<[^>]*>/g, ' ')
     };
   }
-  throw Error(bilingual('Aucune avarie applicable après les nouveaux tirages.', 'No applicable malfunction after rerolling.'));
+  throw Error(game.i18n.localize("SWFFG.UI.Vehicle.NoApplicableMalfunction"));
 }
 
 export async function rollAndRecordMalfunction(actor, options = {}) {
@@ -95,26 +95,25 @@ export async function rollAndRecordMalfunction(actor, options = {}) {
     await mutate(actor, entries => [...entries, entry], {instant: entry});
   }
   const content = '<h3>' + escape(record.title) + '</h3>' + record.description +
-    '<p>' + bilingual('Réparation', 'Repair') + ' : ' + escape(repairLabel(record.repair)) + '</p>';
+    '<p>' + game.i18n.localize("SWFFG.UI.Vehicle.Repair") + ' : ' + escape(repairLabel(record.repair)) + '</p>';
   try { await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({actor}), content, rolls: [Roll.fromData(record.roll)],
-    flavor: bilingual('Avarie', 'Malfunction') + ' - ' + actor.name
-  }); } catch { ui.notifications.warn(bilingual('Avarie enregistrée sur le vaisseau. Publication dans le chat impossible.','Malfunction saved on the vehicle. Could not publish to chat.')); }
+    flavor: game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionMalfunction") + ' - ' + actor.name
+  }); } catch { ui.notifications.warn(game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionChatFailed")); }
   return record;
 }
 
 export async function promptVehicleMalfunction(table) {
   const ships = Array.from(game.actors ?? []).filter(canWrite).sort((a, b) => a.name.localeCompare(b.name));
-  if (!ships.length) return ui.notifications.warn(bilingual('Aucun véhicule modifiable.', 'No editable vehicle.'));
+  if (!ships.length) return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Vehicle.NoEditableVehicle"));
   const choice = await foundry.applications.api.DialogV2.prompt({
-    window: {title: bilingual('Jet d’avarie du vaisseau', 'Vehicle malfunction check')},
+    window: {title: game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionVehicleMalfunctionCheck")},
     classes: ['starwarsffg', 'themed'], position: {width: 560},
-    content: '<p>' + bilingual('Le modificateur inclut les dégâts de coque, le stress mécanique, les avaries actives et les dégâts critiques.',
-      'The modifier includes hull trauma, system strain, active malfunctions and critical damage.') + '</p><label>' +
-      bilingual('Vaisseau', 'Vehicle') + '<select name="ship">' + ships.map(ship => '<option value="' + escape(ship.id) + '">' +
+    content: '<p>' + game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionModifierHint") + '</p><label>' +
+      game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionVehicle") + '<select name="ship">' + ships.map(ship => '<option value="' + escape(ship.id) + '">' +
         escape(ship.name) + ' (+' + malfunctionModifier(ship).total + ')</option>').join('') + '</select></label><label>' +
-      bilingual('Ajustement du MJ', 'GM adjustment') + '<input name="adjustment" type="number" step="1" min="-10000" max="10000" value="0"></label>',
-    ok: {label: bilingual('Lancer', 'Roll'), callback: (_event, button) => ({
+      game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionGMAdjustment") + '<input name="adjustment" type="number" step="1" min="-10000" max="10000" value="0"></label>',
+    ok: {label: game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionRoll"), callback: (_event, button) => ({
       ship: button.form.elements.ship.value, adjustment: Number(button.form.elements.adjustment.value)
     })},
     rejectClose: false
@@ -131,7 +130,7 @@ export async function prepareVehicleMalfunctions(actor) {
     ...entry,
     totalLabel: entry.total ?? '',
     repairLabel: repairLabel(entry.repair??repairQuote(actor,ruleFor(entry),actor.items?.get(ruleFor(entry).targetId))),
-    descriptionHTML: await editor.enrichHTML(entry.description + (entry.targetName?'<p><em>'+bilingual('Cible','Target')+' : '+escape(({fore:'Avant',aft:'Arrière',port:'Bâbord',starboard:'Tribord'})[entry.targetName]??entry.targetName)+'</em></p>':''), {
+    descriptionHTML: await editor.enrichHTML(entry.description + (entry.targetName?'<p><em>'+game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionTarget")+' : '+escape(({fore:game.i18n.localize("SWFFG.UI.Vehicle.Fore"),aft:game.i18n.localize("SWFFG.UI.Vehicle.Aft"),port:game.i18n.localize("SWFFG.UI.Vehicle.Port"),starboard:game.i18n.localize("SWFFG.UI.Vehicle.Starboard")})[entry.targetName]??entry.targetName)+'</em></p>':''), {
       secrets: actor.isOwner, relativeTo: actor
     })
   })));
@@ -163,7 +162,7 @@ export async function addVehicleMalfunction(actor, table, result, total = '') {
   }
   const selection = await selectMalfunctionTarget(actor, result);
   const record = buildMalfunction(actor, result, {total: rolled, ...selection});
-  if(record.unresolved) throw Error("Cette plage ne définit aucune avarie. Choisis un résultat avec le MJ.");
+  if(record.unresolved) throw Error(game.i18n.localize("SWFFG.UI.Vehicle.UndefinedMalfunctionRange"));
   const entry = {...record, id: foundry.utils.randomID(), when: new Date().toISOString(), source: "table", tableUuid: table.uuid};
   await mutate(actor, entries => [...entries, entry], {instant: entry});
 }

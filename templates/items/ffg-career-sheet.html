@@ -6,7 +6,7 @@
       </div>
       <div class="container flex-group-center">
         <div class="container flex-group-center item-name">
-          <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name" /></h1>
+          <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'SWFFG.Name'}}" /></h1>
         </div>
       </div>
     </div>
@@ -33,7 +33,7 @@
     </div>
     {{!-- Career Data Tab --}}
     <div class="tab career" data-group="primary" data-tab="career">
-      <h2>Career Skills</h2>
+      <h2>{{localize 'SWFFG.UI.Item.CareerSkills'}}</h2>
       <div class="container career-skills">
         {{#each data.careerSkills as |skill index|}}
           <div class="career-skill">

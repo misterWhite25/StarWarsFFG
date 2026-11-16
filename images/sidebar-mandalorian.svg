@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Casque mandalorien</title>
+  <defs><mask id="visor"><rect width="64" height="64" fill="white"/>
+    <path d="M11 24Q32 28 53 24V31L36 34L35 62H29L28 34L11 31Z" fill="black"/>
+    <path d="M13 36L24 41V44L13 39ZM51 36L40 41V44L51 39Z" fill="black"/>
+    <path d="M31 5H33V24H31Z" fill="black"/>
+  </mask></defs>
+  <g fill="black" mask="url(#visor)">
+    <path d="M9 28C9 12 18 4 32 4S55 12 55 28V49Q47 57 32 61Q17 57 9 49Z"/>
+    <rect x="5" y="27" width="4" height="19" rx="2"/><rect x="55" y="27" width="4" height="19" rx="2"/>
+  </g>
+</svg>

@@ -1,3 +1,8 @@
+import {resolveCrewActor} from '../helpers/integrated-crew.mjs';
+import {isHomesteadType,actorSheetType} from '../helpers/actor-types.mjs';
+import {crewRoleDefinitions,crewRoleDefinition,crewRolesForSkill} from "../helpers/crew-role-definitions.mjs";
+import {openEquipmentPicker} from "../helpers/equipment-picker.mjs";
+import {showMedicalUse,showMedicalReset,correctMedicalUses} from "../helpers/medical-controls.mjs";
 import {vehicleCrew} from '../helpers/crew-gunners.mjs';
 import {malfunctionNavigation} from '../helpers/vehicle-malfunction-engine.js';
 import CharacteristicIncrease from "../helpers/characteristic-increase.js";
@@ -59,7 +64,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
   /** @override */
   get template() {
     const path = "systems/starwarsffg/templates/actors";
-    return `${path}/ffg-${this.actor.type}-sheet.html`;
+    return `${path}/ffg-${actorSheetType(this.actor.type)}-sheet.html`;
   }
 
   /** @override */
@@ -87,7 +92,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if(itemData.type==='talent'){const {configureTalentDrop}=await import('../helpers/reviewed-talent-ui.js');itemData=await configureTalentDrop(this.actor,itemData);if(!itemData)return false;}
 
       if (["character", "minion", "rival"].includes(this.actor.type) && ["itemmodifier", "itemattachment"].includes(itemData.type)) {
-        ui.notifications.warn("You cannot add Item Modifiers or Attachments directly to actors.");
+        ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.NoDirectMods"));
         return false;
       }
 
@@ -116,7 +121,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         const {acquisitionNotice}=await import('../helpers/creation-guide.js');
           new LegacyDialogV2(
             {
-              title: payable?game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}):"Ajout - achat indisponible",
+              title: payable?game.i18n.format("SWFFG.DragDrop.Title", {cost: cost, talent: itemData.name}):game.i18n.localize("SWFFG.UI.Actor.GrantOnlyTitle"),
               content: acquisitionNotice(this.actor,itemData,cost),
               buttons: {
                 purchase: {
@@ -146,7 +151,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                         return this._onDropItemCreate(itemData);
                       }
                     } else {
-                      ui.notifications.warn(game.i18n.localize("SWFFG.DragDrop.NotEnoughXP"));
+                      ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
                       return false;
                     }
                   },
@@ -299,7 +304,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           await this.object._prepareCharacterData(data);
         }
 
-        if (data.data.stats.credits.value > 999) {
+        if (data.data.stats.credits?.value > 999) {
           data.data.stats.credits.value = data.data.stats.credits.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         data.data.enrichedBio = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.biography, {secrets: !data.limited});
@@ -319,19 +324,19 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         // look up the flag data
         const crew = vehicleCrew(this.actor);
         if (crew.length) {
-          const registeredRoles = game.settings.get('starwarsffg', 'arrayCrewRoles');
+          const registeredRoles = crewRoleDefinitions(this.actor);
           const navigation = malfunctionNavigation(this.actor);
           for (let i = 0; i < crew.length; i++) {
             try {
               // iterate over the crew members in the flag data
-              const actor = game.actors.get(crew[i].actor_id);
+              const actor = resolveCrewActor(crew[i],this.actor);
               // pull the image from the actor to display it
               const img = actor?.img || 'icons/svg/mystery-man.svg';
 
               // add them to the items, so we can render them on the sheet
               let roll;
               if (actor) {
-                if (crew[i].role !== "Pilot" && crew[i].role !== "Co-Pilot") {
+                if (!['pilot','copilot'].includes(crewRoleDefinition(this.actor,crew[i].role)?.kind)) {
                   roll = build_crew_roll(this.actor.id, crew[i].actor_id, crew[i].role);
                 } else {
                   roll = (await buildPilotRoll(this.actor.id, crew[i].actor_id, 0)).renderPreview().innerHTML;
@@ -339,19 +344,26 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
               } else {
                 deregister_crew(this.actor, crew[i].actor_id, crew[i].role);
               }
+              if(actor?._npcStation&&['pilot','copilot'].includes(crewRoleDefinition(this.actor,crew[i].role)?.kind))roll=get_dice_pool(actor,this.actor.system.spaceShip?'Piloting: Space':'Piloting: Planetary',new DicePoolFFG({difficulty:0})).renderPreview().innerHTML;
               if (!roll) {
                 roll = 'N/A';
               }
-              const pilotStation = crew[i].role === "Pilot" || crew[i].role === "Co-Pilot";
+              const pilotStation = ['pilot','copilot'].includes(crewRoleDefinition(this.actor,crew[i].role)?.kind);
               const stationWeapons = crewStationWeapons(this.actor, crew[i], registeredRoles, navigation);
               const gunneryRoll = actor && stationWeapons.length
-                ? get_dice_pool(crew[i].actor_id, "Gunnery", new DicePoolFFG({difficulty: 0})).renderPreview().innerHTML
+                ? get_dice_pool(actor, "Gunnery", new DicePoolFFG({difficulty: 0})).renderPreview().innerHTML
                 : null;
               data.crew.push({
                 'type': 'shipcrew',
+                'integrated': Boolean(crew[i].integrated),
+                'npcStation': Boolean(actor?._npcStation),
+                'profileKind': actor?._integratedCrew?.kind,
+                'supportSkill': ({engineer:'Mechanics',operator:'Computers',astromech:'Mechanics'})[actor?._integratedCrew?.kind]??null,
+                'supportRoll': actor?._integratedCrew&&['engineer','operator','astromech'].includes(actor._integratedCrew.kind)?get_dice_pool(actor,actor._integratedCrew.kind==='operator'?'Computers':'Mechanics',new DicePoolFFG({difficulty:0})).renderPreview().innerHTML:null,
                 'id': crew[i].actor_id,
                 'name': crew[i].actor_name,
                 'role': crew[i].role,
+                'roleLabel': crewRoleDefinition(this.actor,crew[i].role)?.label ?? crew[i].role,
                 'img': img,
                 'roll': roll,
                 'pilotRoll': pilotStation ? roll : null,
@@ -365,8 +377,9 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                 'id': crew[i].actor_id,
                 'name': crew[i].actor_name,
                 'role': crew[i].role,
+                'roleLabel': crewRoleDefinition(this.actor,crew[i].role)?.label ?? crew[i].role,
                 'img': '',
-                'roll': '(broken role)',
+                'roll': game.i18n.localize('SWFFG.UI.Actor.InvalidCrewRole'),
                 'link': '',
               });
             }
@@ -377,7 +390,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       default:
     }
 
-    if (this.actor.type !== "vehicle" && this.actor.type !== "homestead") {
+    if (this.actor.type !== "vehicle" && !isHomesteadType(this.actor.type)) {
       // Filter out skills that are not custom (manually added) or part of the current system skill list
       Object.keys(data.data.skills)
       .filter(s => !data.data.skills[s].custom && !CONFIG.FFG.skills[s])
@@ -459,7 +472,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     html.find(".popout-editor .popout-editor-button").on("click", this._onPopoutEditor.bind(this));
 
     // V2 supplies the context it just rendered. V1 listeners prepare it once for all rows.
-    const skills = html.find(".skill");
+    const skills = html.find(".skill").filter((_,row)=>row.dataset.ffgSkillPreview!=="ready");
     if (skills.length) {
       const renderPools = data => Promise.all(Array.from(skills, row => DiceHelpers.addSkillDicePool(data, row)));
       const previews = context ? renderPools(context) : this.getData({}).then(renderPools);
@@ -469,7 +482,8 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
 
-    if (Hooks.events.preCreateItem === undefined) {
+    if (!ActorSheetFFG.itemCreationGuardRegistered) {
+      ActorSheetFFG.itemCreationGuardRegistered = true;
       Hooks.on("preCreateItem", (item, _createData, _options, _userId) => {
         // Save persistent sheet height and width for future use.
         this.sheetWidth = this.position.width;
@@ -480,30 +494,30 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           const actor = item.actor
           // we only allow one species and one career, find any other species and remove them.
           if (item.type === "species" || item.type === "career") {
-            if (["character", "nemesis", "rival"].includes(actor.type)) {
+            if (["character", "nemesis", "rival"].includes(actor.type) || (actor.type === "minion" && item.type === "species")) {
               const itemToDelete = actor.items.filter((i) => (i.type === item.type) && (i.id !== item.id));
               itemToDelete.forEach((i) => {
                 actor.items.get(i.id).delete();
               });
             } else if (actor.type === "minion") {
-              ui.notifications.warn(`Item type '${item.type}' cannot be added to 'minion' actor types.`);
+              ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.ItemTypeDenied", {itemType: game.i18n.localize(`TYPES.Item.${item.type}`), actorType: game.i18n.localize(`TYPES.Actor.${actor.type}`)}));
               return false;
             }
           }
 
           // Critical Damage can only be added to "vehicle" actors and Critical Injury can only be added to "character" actors.
           if (item.type === "criticaldamage" && actor.type !== "vehicle") {
-            ui.notifications.warn("Critical Damage can only be added to 'vehicle' actor types.");
+            ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.VehicleCriticalsOnly"));
             return false;
           }
           if (item.type === "criticalinjury" && !["character", "nemesis", "rival"].includes(actor.type)) {
-            ui.notifications.warn("Critical Injuries can only be added to 'character' actor types.");
+            ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.CharacterCriticalsOnly"));
             return false;
           }
 
           // Prevent adding of character data type items to vehicles
           if (["career", "forcepower", "talent", "signatureability", "specialization", "species", "ability"].includes(item.type.toString()) && actor.type === "vehicle") {
-            ui.notifications.warn(`Item type '${item.type}' cannot be added to 'vehicle' actor types.`);
+            ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.ItemTypeDenied", {itemType: game.i18n.localize(`TYPES.Item.${item.type}`), actorType: game.i18n.localize(`TYPES.Actor.${actor.type}`)}));
             return false;
           }
         }
@@ -697,7 +711,6 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       });
       this.sheetoptions.register("talentSorting", {
         name: game.i18n.localize("SWFFG.EnableSortTalentsByActivation"),
-        hint: game.i18n.localize("SWFFG.EnableSortTalentsByActivationHint"),
         type: "Array",
         default: 0,
         options: [game.i18n.localize("SWFFG.UseGlobalSetting"), game.i18n.localize("SWFFG.OptionValueYes"), game.i18n.localize("SWFFG.OptionValueNo")],
@@ -720,7 +733,6 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       });
       this.sheetoptions.register("talentSorting", {
         name: game.i18n.localize("SWFFG.EnableSortTalentsByActivation"),
-        hint: game.i18n.localize("SWFFG.EnableSortTalentsByActivationHint"),
         type: "Array",
         default: 0,
         options: [game.i18n.localize("SWFFG.UseGlobalSetting"), game.i18n.localize("SWFFG.OptionValueYes"), game.i18n.localize("SWFFG.OptionValueNo")],
@@ -743,7 +755,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       });
     }
 
-    if (this.actor.type !== "homestead") {
+    if (!isHomesteadType(this.actor.type)) {
       this.sheetoptions.register("enableEditMode", {
         name: game.i18n.localize("SWFFG.EnableEditMode"),
         hint: game.i18n.localize("SWFFG.EnableEditModeHint"),
@@ -760,90 +772,19 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       await this._handleTagControl(ev);
     });
 
-    html.find(".medical").click(async (ev) => {
-      const item = await $(ev.currentTarget);
-      let prevUses = (this.object.system?.stats?.medical?.uses === undefined) ? 0 : this.object.system.stats.medical.uses;
-      let updateData = {};
-      let newUses = 0;
-      const item_name = this.object?.flags?.starwarsffg?.config?.medicalItemName || game.i18n.localize("SWFFG.DefaultMedicalItemName");
-      let msg_content;
-      if (item[0].className === "fas fa-plus-circle medical") {
-        newUses = prevUses + 1;
-        msg_content = `<i>${game.i18n.localize("SWFFG.MedicalItemUse")} ${item_name} #${newUses}</i>`;
-      } else {
-        newUses = prevUses - 1;
-        newUses = (newUses < 0) ? 0 : newUses;
-        msg_content = `<i>${game.i18n.localize("SWFFG.MedicalItemUnUse")} ${item_name} #${prevUses}</i>`;
-      }
-
-      ChatMessage.create({
-        speaker: { alias: this.object.name },
-        content: msg_content,
-      });
-
-      foundry.utils.setProperty(updateData, `system.stats.medical.uses`, newUses);
-      this.object.update(updateData);
-
+    html.find(".medical").click(async event=>{
+      event.preventDefault();event.stopPropagation();
+      try{
+        if(event.currentTarget.classList.contains('fa-plus-circle'))await showMedicalUse(this.actor);
+        else await correctMedicalUses(this.actor);
+      }catch(error){ui.notifications.warn(error.message);}
     });
-
-    html.find(".resetMedical").click(async (_ev) => {
-      if (game.settings.get("starwarsffg", "HealingItemAction") === '0') {
-          // prompt
-          // show a prompt asking what the user wants to do
-          new LegacyDialogV2(
-              {
-                  title: game.i18n.localize("SWFFG.MedicalItemNameUseTitle"),
-                  buttons: {
-                      done: {
-                          icon: '<i class="fas fa-hourglass"></i>',
-                          label: game.i18n.localize("SWFFG.MedicalItemNameUseRest"),
-                          callback: (_that) => {
-                              // rest
-                              let updateData = {};
-                              foundry.utils.setProperty(updateData, `system.stats.medical.uses`, 0);
-                              foundry.utils.setProperty(updateData, `system.stats.strain.value`, 0);
-                              foundry.utils.setProperty(updateData, `system.stats.wounds.value`, Math.max(0, this.object.system.stats.wounds.value - 1));
-                              this.object.update(updateData);
-                              ChatMessage.create({
-                                speaker: { alias: this.object.name },
-                                content: `<i>${game.i18n.localize("SWFFG.MedicalItemRest")}</i>`,
-                              });
-                          },
-                      },
-                      cancel: {
-                          icon: '<i class="fas fa-recycle"></i>',
-                          label: game.i18n.localize("SWFFG.MedicalItemNameUseReset"),
-                          callback: (_that) => {
-                              // reset
-                              let updateData = {};
-                              foundry.utils.setProperty(updateData, `system.stats.medical.uses`, 0);
-                              this.object.update(updateData);
-                              const item_name = this.object?.flags?.starwarsffg?.config?.medicalItemName || game.i18n.localize("SWFFG.DefaultMedicalItemName");
-                              ChatMessage.create({
-                                speaker: { alias: this.object.name },
-                                content: `<i>${game.i18n.localize("SWFFG.MedicalItemResetStart")} ${item_name} ${game.i18n.localize("SWFFG.MedicalItemResetEnd")}</i>`,
-                              });
-                          },
-                      },
-                  },
-              },
-              {
-                  classes: ["dialog", "starwarsffg"],
-              }
-          ).render(true);
-      } else if (game.settings.get("starwarsffg", "HealingItemAction") === '1') {
-        // rest
-        let updateData = {};
-        foundry.utils.setProperty(updateData, `system.stats.medical.uses`, 0);
-        foundry.utils.setProperty(updateData, `system.stats.strain.value`, 0);
-        foundry.utils.setProperty(updateData, `system.stats.wounds.value`, Math.max(0, this.object.system.stats.wounds.value - 1));
-        this.object.update(updateData);
-      } else if (game.settings.get("starwarsffg", "HealingItemAction") === '2') {
-        // reset
-        let updateData = {};
-        foundry.utils.setProperty(updateData, `system.stats.medical.uses`, 0);
-        this.object.update(updateData);
-      }
+    html.find(".resetMedical").click(async event=>{
+      event.preventDefault();event.stopPropagation();
+      try{await showMedicalReset(this.actor);}catch(error){ui.notifications.warn(error.message);}
+    });
+    html.find('.medical[role=button]').on('keydown',event=>{
+      if(['Enter',' '].includes(event.key)&&!event.currentTarget.closest('.ffg-combat-medical')){event.preventDefault();event.currentTarget.click();}
     });
 
     // Toggle item equipped
@@ -910,7 +851,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
             const tempItem = await new Item(itemData, { temporary: true });
             tempItem.sheet.render(true);
           } else {
-            CONFIG.logger.debug(`Unknown item type: ${itemType}, or lacking new embed system`);
+            
             let itemId = li.dataset.itemId;
             let modifierType = li.dataset.modifierType;
             let modifierId = li.dataset.modifierId;
@@ -963,8 +904,11 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         return;
       }
 
+      const type=ev.currentTarget.classList[1],openSheet=ev.currentTarget.dataset.openSheet==='true';
+      const createBlank=async(forceOpen=false)=>{
+        if(!this.isEditable||!this.actor.isOwner||!this.actor.verifyEditModeIsNotEnabled())return;
       let itemType = "";
-      switch (ev.currentTarget.classList[1]) {
+      switch (type) {
         case "armour":
           itemType = game.i18n.localize("TYPES.Item.armour");
           break;
@@ -985,13 +929,16 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
       let itemdata = {
         name: itemType,
-        type: ev.currentTarget.classList[1]
+        type: type
       };
 
-      const openSheet = ev.currentTarget.dataset.openSheet === "true";
-      if (openSheet && itemdata.type === "gear") itemdata.system = {quantity: {value: 1}};
+
+      if ((openSheet || forceOpen) && itemdata.type === "gear") itemdata.system = {quantity: {value: 1}};
       const created = await this.actor.createEmbeddedDocuments("Item", [itemdata]);
-      if (openSheet) created[0]?.sheet?.render(true);
+      if (openSheet || forceOpen) created[0]?.sheet?.render(true);
+      };
+      if(await openEquipmentPicker(this,{type,createBlank:()=>createBlank(true)}))return;
+      await createBlank();
     });
 
     html.find(".talent-delete").click(async (ev) => {
@@ -1003,23 +950,23 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       if (!item || item.type !== "talent") return;
       const content = document.createElement("div");
       const message = document.createElement("p");
-      message.textContent = `Supprimer « ${item.name} » et ses bonus associés ?`;
+      message.textContent = game.i18n.format("SWFFG.UI.Actor.DeleteTalentPrompt", {name: item.name});
       content.append(message);
       const confirmed = await foundry.applications.api.DialogV2.confirm({
-        window: {title: "Supprimer le talent"}, content,
+        window: {title: game.i18n.localize("SWFFG.UI.Actor.DeleteTalent")}, content,
         classes: ["starwarsffg", "themed"]
       });
       if (confirmed && this.actor.items.has(item.id)) await item.delete();
     });
-    // Delete Inventory Item
-    html.find(".item-delete").click((ev) => {
-      if(!this.actor.verifyEditModeIsNotEnabled()) {
-        return;
-      }
-
-      const li = $(ev.currentTarget).parents(".item");
-      this.actor.items.get(li.data("itemId"))?.delete();
-      li.slideUp(200, () => this.render(false));
+    // Item deletion already triggers the native actor sheet refresh.
+    html.find('.item-delete').click(async event=>{
+      event.preventDefault();event.stopPropagation();
+      if(!this.isEditable||!this.actor.isOwner||!this.actor.verifyEditModeIsNotEnabled())return;
+      const control=event.currentTarget;if(control.dataset.deleting)return;
+      const item=this.actor.items.get(control.closest('.item')?.dataset.itemId);if(!item)return;
+      control.dataset.deleting='true';control.setAttribute('aria-disabled','true');
+      try{await item.delete();}catch(error){ui.notifications.error(error.message);}
+      finally{if(control.isConnected){delete control.dataset.deleting;control.removeAttribute('aria-disabled');}}
     });
 
     // Edit Inventory Item
@@ -1115,7 +1062,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                   return;
                 }
                 const talentsToRemove = $(html).find("input[type='checkbox']:checked");
-                CONFIG.logger.debug(`Removing ${talentsToRemove.length} talents`);
+                
 
                 for (let i = 0; i < talentsToRemove.length; i += 1) {
                   const id = $(talentsToRemove[i]).val();
@@ -1183,47 +1130,12 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         await DiceHelpers.rollSkill(this, event, upgradeType);
       });
 
-    // Use medical/repair item
-    html
-      .find(".item-medical")
-      .on("click", async (event) => {
-        event.stopPropagation();
-
-        // Get current item's quantity
-        const li = $(event.currentTarget).parents(".item");
-        const itemId = li.data("itemId");
-        const item = this.actor.items.get(itemId);
-        const consumeHealingItemSetting = game.settings.get("starwarsffg", "consumeHealingItem");
-        // Check that current item is not empty of uses/quantity
-        if (item && (item.system.quantity.value > 0 || !consumeHealingItemSetting)) {
-          // Check that already used number of *stimpacks* is not maxed out
-          const prevUses = this.actor.system?.stats?.medical?.uses ?? 0;
-
-          if(consumeHealingItemSetting) {
-            const count = item.system.quantity.value - 1;
-            item.update({["system.quantity.value"]: count});
-          }
-          const newUses = prevUses + 1;
-          const currentWounds = this.actor.system?.stats?.wounds?.value ?? 0;
-          let woundsHealing = 0;
-          if (item.flags.starwarsffg.config.medicalType == 1) { // stimpack
-            woundsHealing = Math.max(5 - prevUses, 0);
-          }
-          else if (item.flags.starwarsffg.config.medicalType == 2) { // emergency droid patch
-            woundsHealing = 3;
-          }
-          const newWounds = Math.max(currentWounds - woundsHealing, 0);
-          this.actor.update({
-            ["system.stats.medical.uses"]: newUses,
-            ["system.stats.wounds.value"]: newWounds,
-          });
-          const itemName = this.actor?.flags?.starwarsffg?.config?.medicalItemName || game.i18n.localize("SWFFG.DefaultMedicalItemName");
-          ChatMessage.create({
-            speaker: { alias: this.actor.name },
-            content: `<i>${game.i18n.localize("SWFFG.MedicalItemUse")} ${itemName} #${newUses}</i>`,
-          });
-        }
-      });
+    // All healing items use the same confirmation, stock and recipient rules.
+    html.find('.item-medical').on('click',async event=>{
+      event.preventDefault();event.stopPropagation();
+      const itemId=event.currentTarget.closest('.item')?.dataset.itemId;
+      try{await showMedicalUse(this.actor,{itemId});}catch(error){ui.notifications.warn(error.message);}
+    });
 
     // Artillery is independent of the station's piloting or other skill roll.
     html.find(".crew-gunnery-roll").on("click", async (event) => {
@@ -1233,7 +1145,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const member = vehicleCrew(this.actor).find(entry =>
         entry.actor_id === row.dataset.actorId && entry.role === row.dataset.roleName);
       if (!member) return;
-      const weapons = crewStationWeapons(this.actor, member, game.settings.get("starwarsffg", "arrayCrewRoles"));
+      const weapons = crewStationWeapons(this.actor, member, crewRoleDefinitions(this.actor));
       if (!weapons.length) {
         ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoWeapons"));
         return;
@@ -1259,7 +1171,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const crew_role = row.dataset.roleName;
       const ship = this.actor;
 
-      if (crew_role === 'Pilot' || crew_role === 'Co-Pilot') {
+      if (['pilot','copilot'].includes(crewRoleDefinition(ship,crew_role)?.kind)) {
         await handlePilotCheck(ship, crew_id, crew_role);
         return;
       }
@@ -1274,9 +1186,9 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const crewSheet = game.actors.get(crew_id)?.sheet;
       const starting_pool = {'difficulty': 2};
 
-      const registeredRoles = await game.settings.get('starwarsffg', 'arrayCrewRoles');
+      const registeredRoles = crewRoleDefinitions(ship);
       // look up the defined metadata for the assigned role
-      const role_info = registeredRoles.filter(i => i.role_name === crew_role);
+      const role_info = [crewRoleDefinition(ship,crew_role)].filter(Boolean);
       // validate the role still exists in our settings
       if (role_info.length === 0) {
         ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Role.Removed"));
@@ -1361,10 +1273,10 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         return;
       }
       const navigation = malfunctionNavigation(ship);
-      if(navigation.disabledWeapons.includes(weapon.id)){ui.notifications.warn('Arme hors service : réparer son avarie.');return;}
+      if(navigation.disabledWeapons.includes(weapon.id)){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WeaponDisabled"));return;}
       const weaponSkill = weapon.system.skill.value;
       const crew = vehicleCrew(ship);
-      const skillRoles = game.settings.get("starwarsffg", "arrayCrewRoles").filter(role => role.role_skill === weaponSkill);
+      const skillRoles = crewRolesForSkill(this.actor,weaponSkill);
       const crewGunners = weaponCrewCandidates(weapon, crew, skillRoles, navigation);
       if (hasWeaponCrewAccess(weapon) && !crewGunners.length) {
         ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoCrew"));
@@ -1378,7 +1290,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         // build the dialog to select which gunner to use
         const crewMembers = {};
         for (let i = 0; i < crewGunners.length; i++) {
-          const actor = game.actors.get(crewGunners[i].actor_id);
+          const actor = resolveCrewActor(crewGunners[i], ship);
           const img = actor?.img ? actor.img : "icons/svg/mystery-man.svg";
           crewMembers['crew ' + i] = {
             icon: `<img src="${img}" style="max-width: 24px; max-height: 24px">`,
@@ -1465,7 +1377,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const itemId = a.dataset["id"];
       let item = this.actor.items.get(itemId);
       if (!item) {
-        return ui.notifications.warn("Unable to locate item on actor!");
+        return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.ItemNotFound"));
       }
       if (item?.sheet) {
         item.sheet.render(true);
@@ -1518,7 +1430,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const id = a.dataset["id"];
       const item = this.object.items.find(i => i.id === id);
       if (!item) {
-        return ui.notifications.warn("Unable to remove item: cannot find it!");
+        return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.DeleteItemNotFound"));
       }
       await this.object.deleteEmbeddedDocuments("Item", [id]);
     });
@@ -1576,26 +1488,31 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    */
   async vehicleCrewGunneryRoll(weapon, weaponSkill, selectedGunner) {
     const malfunctions=malfunctionNavigation(this.actor);
-    if(malfunctions.disabledWeapons.includes(weapon.id)){ui.notifications.warn('Arme hors service : réparer son avarie.');return;}
+    if(malfunctions.disabledWeapons.includes(weapon.id)){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WeaponDisabled"));return;}
     const current = vehicleCrew(this.actor).find(e => e.actor_id === selectedGunner.actor_id && e.role === selectedGunner.role);
-    const roles = game.settings.get('starwarsffg', 'arrayCrewRoles').filter(role => role.role_skill === weaponSkill);
+    const roles = crewRolesForSkill(this.actor,weaponSkill);
     if (!current || !weaponCrewCandidates(weapon, [current], roles, malfunctions).length) {
       ui.notifications.warn(game.i18n.localize('SWFFG.WeaponCrew.NoWeapons'));
       return;
     }
 
     const starting_pool = {'difficulty': 2, 'setback': malfunctions.weaponSetbacks[weapon.id]??0};
-    const crewSheet = game.actors.get(current.actor_id)?.sheet;
+    const crewActor = resolveCrewActor(current, this.actor);
+    const crewSheet = crewActor?.sheet;
     if (!crewSheet) return ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
+    if (crewActor._integratedCrew && !game.user.isGM) return ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoCrew"));
+    const crewData = await crewSheet.getData();
+    crewData.document = crewActor;
+    crewData.documentUuid = crewActor.uuid;
     const crew = {name: this.actor.name, img: this.actor.img, crew_card: true, role: current.role};
     // create the starting pool
     let pool = new DicePoolFFG(starting_pool);
     // update the pool with actor data
-    pool = get_dice_pool(current.actor_id, weaponSkill, pool);
+    pool = get_dice_pool(crewActor, weaponSkill, pool);
     pool = await DiceHelpers.getModifiers(pool, weapon);
     // display the roll dialog
-    await DiceHelpers.displayRollDialog(
-      crewSheet,
+    return await DiceHelpers.displayRollDialog(
+      crewData,
       pool,
       `${game.i18n.localize("SWFFG.Rolling")} ${weaponSkill}`,
       weaponSkill,
@@ -1640,7 +1557,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
             }
             continue;
           }
-          const text = property.replace(/^Skill:\s*/, 'Compétence : ')
+          const text = property.replace(/^Skill:\s*/, game.i18n.localize("SWFFG.UI.Item.SkillPrefix"))
             .replace(/<ul>([\s\S]*)<ul>/, '<ul>$1</ul>');
           const tag = $('<div class="tag"></div>').html(text);
           tag.find('ul > .item-pill-hover').each((_index, quality) => $(quality).wrap('<li></li>'));
@@ -1803,7 +1720,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
             callback: (html) => {
               let newCharacteristic = $(html).find("input[type='radio']:checked").val();
 
-              CONFIG.logger.debug(`Updating ${ability} Characteristic from ${characteristic} to ${newCharacteristic}`);
+              
 
               let updateData = {};
               setProperty(updateData, `system.skills.${ability}.characteristic`, newCharacteristic);
@@ -1859,7 +1776,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
               };
 
               if (name.trim().length > 0) {
-                CONFIG.logger.debug(`Creating new skill ${name} (${characteristic})`);
+                
                 let updateData = {};
                 foundry.utils.setProperty(updateData, `system.skills.${name}`, newSkill);
 
@@ -1971,7 +1888,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    * @returns {Promise<void>}
    */
   async _refundPurchase(purchaseId, mode) {
-    CONFIG.logger.debug(`refunding ${mode} for ${purchaseId}`);
+    
     const purchasedEffect = this.object.getEmbeddedCollection("ActiveEffect").find(ae => ae.name.includes(purchaseId));
     if (purchasedEffect) {
       new LegacyDialogV2(
@@ -1986,7 +1903,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                 if(!this.actor.verifyEditModeIsNotEnabled()) return;
 
                 await this.object.deleteEmbeddedDocuments("ActiveEffect", [purchasedEffect.id]);
-                CONFIG.logger.debug("deleted AE, updating log");
+                
                 let logEntries = this.object.getFlag("starwarsffg", "xpLog") || [];
                 let cost = 0;
                 let description = 'unknown';
@@ -2010,7 +1927,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                   description: description,
                 });
                 await this.object.setFlag("starwarsffg", "xpLog", logEntries);
-                CONFIG.logger.debug(`completed refund for ${purchaseId}!`);
+                
               },
             },
             cancel: {
@@ -2036,7 +1953,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     const ability = $(a).data("ability");
     const isCustom = $(a).data("custom");
     if (!isCustom) {
-      ui.notifications.info("You can only remove custom skills");
+      ui.notifications.info(game.i18n.localize("SWFFG.UI.Actor.CustomSkillsOnly"));
       return;
     }
     await this.object.update({ [`system.skills.${ability}`]: deleteDataField() });
@@ -2203,7 +2120,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    * @param  {Object} data
    */
   async _updateSpecialization(data) {
-    CONFIG.logger.debug(`Running Actor initial load`);
+    
     if (this.actor.flags.starwarsffg === undefined) {
         this.actor.flags.starwarsffg = {};
     }
@@ -2213,14 +2130,14 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       return item.type === "specialization";
     });
 
-    CONFIG.logger.debug(`_updateSpecialization(): data.talentList before we start:`);
-    CONFIG.logger.debug(data.talentList.slice());
+    
+    
 
     // start the talent list only with talents that did not come from a specialization
     const globalTalentList = data.talentList.filter(i => i.source.filter(s => s.type === "talent").length > 0)
 
     for await (const spec of specializations) {
-      CONFIG.logger.debug(`_updateSpecialization(): starting work on ${spec.name}`);
+      
 
       if (spec?.talentList && spec.talentList.length > 0) {
         spec.talentList.forEach((talent) => {
@@ -2244,14 +2161,14 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           }
         });
       }
-      CONFIG.logger.debug(`_updateSpecialization(): globalTalentList after current specialization:`);
-      CONFIG.logger.debug(globalTalentList.slice());
+      
+      
     }
 
     data.talentList = globalTalentList;
 
-    CONFIG.logger.debug(`_updateSpecialization(): data.talentList after update:`);
-    CONFIG.logger.debug(data.talentList.slice());
+    
+    
   }
 
   /**
@@ -2360,7 +2277,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     if (action === "specialization") {
       const inCareer = this.object.items.find(i => i.type === "career")?.system?.specializations;
       if (!inCareer) {
-        ui.notifications.warn("Ajoutez d’abord un objet Carrière et renseignez ses spécialités. Pour une attribution initiale gratuite, glissez la spécialité puis choisissez Attribuer.");
+        ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.SpecializationCareerRequired"));
         return;
       }
       const inCareerNames = Object.values(inCareer).map(i => i.name);
@@ -2394,7 +2311,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       const baseCost = (this.object.items.filter(i => i.type === "specialization").length + 1) * 10;
       const increasedCost = baseCost + 10;
       if (baseCost > availableXP) {
-        ui.notifications.warn(`Achat d’une spécialité : au moins ${baseCost} XP requis ; ${availableXP} XP disponibles. Pour une attribution initiale gratuite, glissez la spécialité puis choisissez Attribuer.`);
+        ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.SpecializationXPRequired", {cost: baseCost, available: availableXP}));
         return;
       } else if (increasedCost > availableXP) {
         outCareer = [];
@@ -2576,7 +2493,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       await this._buySkillRank(event.target.parentElement.parentElement.parentElement);
       return;
     } else {
-      CONFIG.logger.debug(`Refusing purchase action ${action} since it is not registered`);
+      
       return;
     }
 
@@ -2655,8 +2572,8 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     }
     new LegacyDialogV2(
       {
-        title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmTitle", {characteristic: characteristic}),
-        content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmText", {cost: cost, level: characteristicValue + 1, characteristic: characteristic}),
+        title: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmTitle", {characteristic: game.i18n.localize(`SWFFG.Characteristic${characteristic}`)}),
+        content: game.i18n.format("SWFFG.Actors.Sheets.Purchase.Characteristic.ConfirmText", {cost: cost, level: characteristicValue + 1, characteristic: game.i18n.localize(`SWFFG.Characteristic${characteristic}`)}),
         buttons: {
           done: {
             icon: '<i class="fa-regular fa-circle-up"></i>',
@@ -2741,7 +2658,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         },
         two: {
           icon: '<i class="fas fa-times"></i>',
-          label: "Cancel",
+          label: game.i18n.localize("SWFFG.Cancel"),
         },
       },
       default: "one",
@@ -2794,17 +2711,17 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
             reader.readAsText(file, 'UTF-8');
             reader.onload = async ({ target }) => {
               const parsedLog = JSON.parse(target.result);
-              CONFIG.logger.debug(`Loading processed XP log: ${JSON.stringify(parsedLog)}`);
+              
               await this.actor.setFlag("starwarsffg", "xpLog", parsedLog);
             }
             reader.onerror = function() {
-              ui.notifications.error("Failed to load file contents");
+              ui.notifications.error(game.i18n.localize("SWFFG.UI.Import.FileReadFailed"));
             }
           },
         },
         two: {
           icon: '<i class="fas fa-times"></i>',
-          label: "Cancel",
+          label: game.i18n.localize("SWFFG.Cancel"),
         },
       },
       default: "one",

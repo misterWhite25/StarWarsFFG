@@ -15,10 +15,10 @@ export function itemPillHover(event) {
     const rarity = li.data("rarity");
     const price = li.data("price");
     if (price) {
-      desc = `<span class="statt" title="Price"><i class="fa-solid fa-dollar-sign"></i>${price}</span>${desc}`
+      desc = `<span class="statt" title="${game.i18n.localize("SWFFG.UI.Equipment.Price")}"><i class="fa-solid fa-dollar-sign"></i>${price}</span>${desc}`
     }
     if (rarity) {
-      desc = `<span class="stat stat-right" title="Rarity"><i class="fa-solid fa-magnifying-glass"></i>${rarity}</span>${desc}`
+      desc = `<span class="stat stat-right" title="${game.i18n.localize("SWFFG.UI.Equipment.Rarity")}"><i class="fa-solid fa-magnifying-glass"></i>${rarity}</span>${desc}`
     }
 
     // if the item has embedded mods, pull the data and add it to the description
@@ -29,15 +29,15 @@ export function itemPillHover(event) {
       modNames = modNames.split("~");
       modDescs = modDescs.split("~");
       modActives = modActives.split("~");
-      CONFIG.logger.debug(modNames);
-      CONFIG.logger.debug(modDescs);
-      CONFIG.logger.debug(modActives);
-      let newDesc = `<hr><b>Mods</b>:<br>`;
+      
+      
+      
+      let newDesc = `<hr><b>${game.i18n.localize("SWFFG.UI.Equipment.Modifications")}</b>:<br>`;
       for (let i = 0; i < modNames.length - 1; i++) {
         if (modActives[i] === "true") {
-          modNames[i] = `<i class="fa-solid fa-user-check" title="Installed"></i>&nbsp;${modNames[i]}`;
+          modNames[i] = `<i class="fa-solid fa-user-check" title="${game.i18n.localize("SWFFG.UI.Equipment.Installed")}"></i>&nbsp;${modNames[i]}`;
         } else {
-          modNames[i] = `<i class="fa-duotone fa-solid fa-user-xmark" title="Not Installed"></i>&nbsp;${modNames[i]}`;
+          modNames[i] = `<i class="fa-duotone fa-solid fa-user-xmark" title="${game.i18n.localize("SWFFG.UI.Equipment.NotInstalled")}"></i>&nbsp;${modNames[i]}`;
         }
         newDesc += `<u>${modNames[i]}</u>:&nbsp;${modDescs[i]}<br>`;
       }
@@ -45,10 +45,10 @@ export function itemPillHover(event) {
     }
   }
   if (itemRanks > 0) {
-    descRanks = `${itemRanks} ranks`;
+    descRanks = game.i18n.format("SWFFG.UI.Equipment.RankCount",{ranks:itemRanks});
   } else {
     if (!["specialization", "signatureAbility", "itemattachment"].includes(itemType)) {
-      descRanks = "Not ranked";
+      descRanks = game.i18n.localize("SWFFG.UI.Equipment.NotRanked");
     }
   }
   let embeddedContent = `

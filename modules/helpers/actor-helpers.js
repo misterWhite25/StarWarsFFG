@@ -1,3 +1,4 @@
+import {isHomesteadType} from './actor-types.mjs';
 import { deleteDataField } from "../compatibility/data-operators.js";
 import {migrateDataToSystem} from "./migration.js";
 
@@ -16,7 +17,7 @@ export default class ActorHelpers {
           }
         });
       }
-      if (this.object.type !== "homestead") {
+      if (!isHomesteadType(this.object.type)) {
         if (this.object.type !== "vehicle") {
           // Handle credits
           if (formData.data.stats?.credits?.value) {
@@ -61,7 +62,7 @@ export default class ActorHelpers {
     const curXP = this.object?.system?.experience?.available ? this.object.system.experience.available : 0;
     const newXP = formData?.system?.experience?.available ? formData.system.experience.available : 0;
     if (curXP !== newXP && curXP !== 0 && newXP !== 0) {
-      await xpLogEarn(this.object, newXP - curXP, newXP, this.object?.system?.experience.total, "manual adjustment", "Self");
+      await xpLogEarn(this.object, newXP - curXP, newXP, this.object?.system?.experience.total, game.i18n.localize("SWFFG.UI.Interface.ManualXPAdjustment"), "Self");
     }
 
     return await this.object.update(formData);
@@ -77,7 +78,7 @@ export default class ActorHelpers {
    */
   static async beginEditMode(actor, persistChanges=false) {
     // Store initial state
-    CONFIG.logger.debug(`Beginning Edit mode for ${actor.name}`);
+    
     // Track both direct and item-based effects
     const initialState = {
       directEffects: [],
@@ -100,15 +101,15 @@ export default class ActorHelpers {
 
     // Record item-based effects
     for (const item of actor.items) {
-      CONFIG.logger.debug(`> examining ${item.name}`);
+      
       initialState.itemEffects[item.id] = [];
       for (const effect of item.effects) {
-        CONFIG.logger.debug(`>> Recording state for ${effect.name}`);
+        
         initialState.itemEffects[item.id].push({
           id: effect.id,
           disabled: effect.disabled,
         });
-        CONFIG.logger.debug(`>> Disabling AE for ${effect.name}`);
+        
         if (!persistChanges) {
           await effect.updateSource({disabled: true});
         } else {
@@ -117,12 +118,12 @@ export default class ActorHelpers {
       }
     }
 
-    CONFIG.logger.debug(`Final initial state: ${JSON.stringify(initialState)}`);
+    
     return initialState;
   }
 
   static async endEditMode(actor, originalState, persistChanges=false) {
-    CONFIG.logger.debug(`Ending Edit mode for ${actor.name} - original state: ${JSON.stringify(originalState)}`);
+    
     // revert the state for direct effects
     for (const effect of actor.effects) {
       const locatedEffect = originalState.directEffects.find((s) => s.id === effect.id);
@@ -138,26 +139,22 @@ export default class ActorHelpers {
 
     // revert the state for item-based effects
     for (const item of actor.items) {
-      CONFIG.logger.debug(`> examining ${item.name}`);
+      
       if (item.id in originalState.itemEffects) {
         const storedItemState = originalState.itemEffects[item.id];
-        CONFIG.logger.debug(`> found item AEs in stored state: ${JSON.stringify(storedItemState)}`);
+        
         for (const effect of item.effects) {
-          CONFIG.logger.debug(`>> examining ${effect.name}`);
+          
           const storedEffectState = storedItemState.find((s) => s.id === effect.id);
           if (storedEffectState && effect.disabled !== storedEffectState.disabled) {
-            CONFIG.logger.debug(">>> found a stored state for this effect, making adjustments");
+            
             if (!persistChanges) {
               await effect.updateSource({disabled: storedEffectState.disabled});
             } else {
               await effect.update({disabled: storedEffectState.disabled});
             }
-          } else {
-            CONFIG.logger.debug(">>> no stored state for this effect or the state is the same, not making adjustments");
           }
         }
-      } else {
-        CONFIG.logger.debug("> no item AEs in stored state, skipping further processing");
       }
     }
   }
@@ -203,7 +200,7 @@ async function notifyXpSpend(actor, action) {
       speaker: {
         actor: actor,
       },
-      content: `bought ${action}`,
+      content: game.i18n.format("SWFFG.UI.Interface.BoughtAction",{action}),
       whisper: ChatMessage.getWhisperRecipients("GM"),
     };
     await ChatMessage.create(chatData);
@@ -263,7 +260,7 @@ export async function xpLogUndo(actor, undone, available, total) {
       total: total,
     },
     date: date,
-    description: "Species XP",
+    description: game.i18n.localize("SWFFG.UI.Interface.SpeciesXP"),
   };
   await actor.setFlag("starwarsffg", "xpLog", [newEntry, ...xpLog]);
 }

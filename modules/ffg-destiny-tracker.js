@@ -25,7 +25,7 @@ export default class DestinyTracker extends FormApplicationV2 {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: "destiny-tracker",
       classes: ["starwarsffg"],
-      title: "Destiny Tracker",
+      title: game.i18n.localize("SWFFG.UI.Root.DestinyTracker"),
       // This HUD is anchored by CSS, independently of ApplicationV2 window positioning.
       window: { frame: false, positioned: false },
       template: "systems/starwarsffg/templates/ffg-destiny-tracker.html",
@@ -107,7 +107,7 @@ export default class DestinyTracker extends FormApplicationV2 {
 
       if (!add && !remove) {
         if (game.settings.get("starwarsffg", pointType) == 0) {
-          ui.notifications.warn(`Cannot flip a ${typeName} point; 0 remaining.`);
+          ui.notifications.warn(game.i18n.format("SWFFG.UI.Root.DestinyEmpty", {type: typeName}));
           return;
         } else {
           let pool = { light: 0, dark: 0 };
@@ -134,18 +134,18 @@ export default class DestinyTracker extends FormApplicationV2 {
         }
       } else if (add) {
         if (!game.user.isGM) {
-          ui.notifications.warn("Only GMs can add or remove points from the Destiny Pool.");
+          ui.notifications.warn(game.i18n.localize("SWFFG.UI.Root.DestinyGMOnly"));
           return;
         }
         game.settings.set("starwarsffg", pointType, game.settings.get("starwarsffg", pointType) + 1);
-        messageText = "Added a " + typeName + " point.";
+        messageText = game.i18n.format("SWFFG.UI.Root.DestinyAdded", {type: typeName});
       } else if (remove) {
         if (!game.user.isGM) {
-          ui.notifications.warn("Only GMs can add or remove points from the Destiny Pool.");
+          ui.notifications.warn(game.i18n.localize("SWFFG.UI.Root.DestinyGMOnly"));
           return;
         }
         game.settings.set("starwarsffg", pointType, game.settings.get("starwarsffg", pointType) - 1);
-        messageText = "Removed a " + typeName + " point.";
+        messageText = game.i18n.format("SWFFG.UI.Root.DestinyRemoved", {type: typeName});
       }
 
       ChatMessage.create({
@@ -311,11 +311,11 @@ export default class DestinyTracker extends FormApplicationV2 {
   }
 
   async _processDestinyRequests() {
-    CONFIG.logger.debug(`Processing ${this.destinyQueue.length} Destiny Requests`);
+    
 
     while (this.destinyQueue.length > 0) {
       const request = this.destinyQueue.shift();
-      CONFIG.logger.debug(`Processing Destiny Request (${request.type}) from User ${request.id}`, request);
+      
 
       const light = await game.settings.get("starwarsffg", "dPoolLight");
       const dark = await game.settings.get("starwarsffg", "dPoolDark");
@@ -335,7 +335,7 @@ export default class DestinyTracker extends FormApplicationV2 {
       }
     }
 
-    CONFIG.logger.debug(`Done Processing Destiny Requests`);
+    
     this.isRunningQueue = false;
   }
 

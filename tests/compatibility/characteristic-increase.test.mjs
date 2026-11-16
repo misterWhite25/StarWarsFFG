@@ -1,3 +1,6 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
+globalThis.game={i18n:frI18n};
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import Increase from '../../modules/helpers/characteristic-increase.js';

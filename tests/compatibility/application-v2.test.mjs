@@ -30,9 +30,7 @@ test("system applications no longer depend directly on FormApplication", async (
     "modules/popout-modifiers.js",
     "modules/ffg-destiny-tracker.js",
     "modules/items/item-editor.js",
-    "modules/settings/crew-settings.js",
     "modules/settings/ui-settings.js",
-    "modules/importer/skills-list-importer.js",
     "modules/importer/swa-importer.js",
     "modules/dice/roll-builder.js",
     "tests/ffg-tests.js",
@@ -123,9 +121,9 @@ test("V14 sheet options are exposed through native ApplicationV2 header controls
 });
 
 
-test("combat choices use native DialogV2 results", async () => {
+test("combat choices use V2 adapters and typed initiative results", async () => {
   const source = await read("modules/combat-ffg.js");
-  assert.match(source, /DialogV2\.wait\s*\(/);
+  assert.match(source, /new LegacyDialogV2\s*\(/);
   assert.match(source, /DialogV2\.input\s*\(/);
   assert.match(source, /Number\(result\.initiative\)/);
 });

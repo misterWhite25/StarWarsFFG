@@ -1,3 +1,5 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
 import assert from 'node:assert/strict';import fs from 'node:fs';import test from 'node:test';import vm from 'node:vm';
 async function fixture({requested='a',gm=false,action=()=>{},before=()=>{},cancel=false,fail=false}={}){
  let serial=0;const handlers=new Map(),listeners=new Map();
@@ -6,7 +8,7 @@ async function fixture({requested='a',gm=false,action=()=>{},before=()=>{},cance
  const nodes={select:{value:''},name:{textContent:''},image:{hidden:true,src:''},button:{disabled:false}};
  const selectors={'[name=target]':nodes.select,'[data-target-name]':nodes.name,'[data-target-image]':nodes.image,'[data-action=ok]':nodes.button};
  const body={html:'',set innerHTML(value){this.html=value;nodes.select.value=value.match(/<option value="([^"]*)" selected>/)?.[1]??''},get innerHTML(){return this.html},addEventListener:(n,fn)=>listeners.set(n,fn),removeEventListener:n=>listeners.delete(n)},root={querySelector:s=>selectors[s]};
- const canvas={scene:{id:'s'},tokens:{placeables:[a,b,hidden]}},game={user:{id:'me',isGM:gm},i18n:{lang:'fr'}};let config;
+ const canvas={scene:{id:'s'},tokens:{placeables:[a,b,hidden]}},game={user:{id:'me',isGM:gm},i18n:frI18n};let config;
  const context=vm.createContext({game,canvas,Hooks:hooks,document:{createElement:()=>body},foundry:{applications:{api:{DialogV2:{prompt:async opts=>{config=opts;await before({emit,a,b,hidden,nodes,canvas,body});opts.render(null,{element:root});await action({emit,a,b,hidden,nodes,canvas,body,change:()=>listeners.get('change')()});if(fail)throw Error('Render failed');return cancel?null:opts.ok.callback();}}}}}});
  const mod=new vm.SourceTextModule(fs.readFileSync(new URL('../../modules/helpers/token-target-picker.js',import.meta.url),'utf8'),{context});await mod.link(()=>{});await mod.evaluate();
  let result,error;try{result=await mod.namespace.chooseTokenTarget([a,b,hidden],{requested})}catch(e){error=e}

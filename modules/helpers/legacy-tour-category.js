@@ -15,7 +15,7 @@ export function registerLegacyTourCategory() {
       system.entries = system.entries.filter(entry => !legacyKeys.has(entry.id));
       categories['starwarsffg-legacy'] = {
         id: 'starwarsffg-legacy',
-        label: 'Star Wars FFG - Legacy',
+        label: game.i18n.localize('SWFFG.Guide.LegacyCategory'),
         entries,
       };
     }

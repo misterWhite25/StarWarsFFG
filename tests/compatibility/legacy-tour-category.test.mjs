@@ -1,3 +1,4 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -22,7 +23,7 @@ test('native tour management separates Legacy while retaining native keys, progr
   ].map(tour => ({title: tour.id, description: 'Description', status: 'unstarted', canStart: true,
     stepIndex: -1, steps: Array(5), ...tour, config: {display: true, restricted: tour.restricted, canBeResumed: true}}));
   const context = vm.createContext({
-    game: {system: {id: 'starwarsffg', title: 'Steelers'}, tours, user: {isGM: true},
+    game: {i18n:await systemI18n('fr'),system: {id: 'starwarsffg', title: 'Steelers'}, tours, user: {isGM: true},
       modules: new Map([['other-module', {id: 'other-module', title: 'Other module'}]])},
     _loc: (key, values) => values ? JSON.stringify(values) : key,
   });
@@ -46,7 +47,7 @@ test('native tour management separates Legacy while retaining native keys, progr
   const categories = manager._prepareCategoryData();
   assert.equal(categories.system.entries.length, 6);
   const legacy = categories['starwarsffg-legacy'];
-  assert.equal(legacy.label, 'Star Wars FFG - Legacy');
+  assert.equal(legacy.label, context.game.i18n.localize('SWFFG.Guide.LegacyCategory'));
   assert.deepEqual(Array.from(legacy.entries, e => e.id), ['starwarsffg.character', 'starwarsffg.edit-mode']);
   assert.deepEqual(Array.from(legacy.entries, e => e.label), ['Actor Guide', 'Edit Mode']);
   assert.equal(legacy.entries[1].status, '{"current":2,"total":5}');

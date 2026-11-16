@@ -22,7 +22,7 @@ export function treeTalentDescription(talent,enrichedHTML,names){
  // Rephrase the known imported summary only; preserve custom additions and house rules.
  const original=plain(talent.description).replace(/[’]/g,"'");
  const canonical=originalPointBlank.replace(/[’]/g,"'");
- if(normalize(talent.name)==='boutportant'&&original===canonical)return `<p>${pointBlankText}</p>`;
+ if(normalize(talent.name)==='boutportant'&&original===canonical)return `<p>${game.i18n.localize("SWFFG.UI.Talent.PointBlankDescription")}</p>`;
  return formatTalentMentions(enrichedHTML,names);
 }
 const bookFamily=value=>{
@@ -37,12 +37,12 @@ export function treeHeaderDescription(html,name){
  let first=true;
  body=body.replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi,(heading,level,inner)=>{
   if(!first)return heading;first=false;
-  const text=plain(inner),prefix=new RegExp(`^${escapeRegExp(name)}(?:\\s*[—–:-]\\s*|$)`,'iu');
+  const text=plain(inner),prefix=new RegExp(`^${escapeRegExp(name)}(?:\\s*[\u2014–:-]\\s*|$)`,'iu');
   if(!prefix.test(text))return heading;
   const subtitle=text.replace(prefix,'').trim();return subtitle?`<p class="tree-subtitle">${escapeHTML(subtitle)}</p>`:'';
  });
  const pageSources=[];
- body=body.replace(/Voir\s+p\.\s*([\d–—,\- ]+)\s+du\s+Livre\s+de\s+règles\s+(?:de\s+)?([^<\n]+?)(?:\.(?=\s|<|$)|(?=<|$))/gi,(_all,page,book)=>{
+ body=body.replace(/Voir\s+p\.\s*([\d–\u2014,\- ]+)\s+du\s+Livre\s+de\s+règles\s+(?:de\s+)?([^<\n]+?)(?:\.(?=\s|<|$)|(?=<|$))/gi,(_all,page,book)=>{
   pageSources.push({book:plain(book),page:page.trim()});return '';
  });
  const books=[];

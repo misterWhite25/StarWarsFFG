@@ -73,7 +73,7 @@ async function warnTheme() {
     const messageData = {
       author: game.user.id,
       style: CONST.CHAT_MESSAGE_STYLES.OTHER,
-      content: "You are using an unsupported theme. Expected issues, or swap to the Mandar theme.<br>(This message will only show once.)",
+      content: game.i18n.localize("SWFFG.UI.Root.UnsupportedTheme"),
     };
     ChatMessage.create(messageData);
   }
@@ -413,12 +413,12 @@ async function migrateTo1907() {
       try {
         await ModifierHelpers.applyActiveEffectOnUpdate(item, itemData);
       } catch {
-        ui.notifications.warn(`Failed to migrate item ${item.name}, it may need to be recreated by hand`);
+        ui.notifications.warn(game.i18n.format("SWFFG.UI.Root.ItemMigrationFailed", {name: item.name}));
       }
     }
   } catch (e) {
-    ui.notifications.error("The migration to 1.907 has failed for an unknown world. You may need to replace items on actors with items to fully experience 1.907.");
-    CONFIG.logger.debug(e);
+    ui.notifications.error(game.i18n.localize("SWFFG.UI.Root.LegacyMigrationFailed"));
+    
   }
 }
 

@@ -54,3 +54,23 @@ test('equipping imported armour refreshes stale inherent bonuses without changin
   await helpers.updateEncumbranceOnEquip(item, effect, false);
   assert.equal(effect.changes[0].value, 2);
 });
+
+for (const [type,field] of [['specialization','talents'],['forcepower','upgrades']]) {
+  test(`${type}: absent traits are skipped while learned and unlearned effect states are synchronized`, async () => {
+    const helpers = await loadHelper('item-helpers.js'), updates = [];
+    const effect = {name:'bonus', update:async data=>updates.push({...data})};
+    const item = {type, system:{[field]:{
+      missing:null, noAttributes:{islearned:true}, unrelated:{attributes:{other:{}},islearned:true},
+      learned:{attributes:{bonus:{}},islearned:true}, unlearned:{attributes:{bonus:{}},islearned:false}
+    }}};
+    await helpers.syncAEStatus(item,[effect]);
+    assert.deepEqual(updates,[{disabled:false},{disabled:true}]);
+  });
+
+  test(`${type}: a matching effect write failure propagates to the awaited caller`, async () => {
+    const helpers = await loadHelper('item-helpers.js'), failure = Error('permission denied');
+    const item = {type, system:{[field]:{learned:{attributes:{bonus:{}},islearned:true}}}};
+    const effect = {name:'bonus', update:async()=>{throw failure;}};
+    await assert.rejects(helpers.syncAEStatus(item,[effect]),error=>error===failure);
+  });
+}

@@ -1,8 +1,8 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
-  <p class="notes">You may import character data from an exported OggDuce XML file.</p>
-  <p class="notes">This operation will update the data for a previously imported version.</p>
+  <p class="notes">{{localize 'SWFFG.UI.Import.CharacterXMLHint'}}</p>
+  <p class="notes">{{localize 'SWFFG.UI.Import.UpdateExistingHint'}}</p>
   <div class="form-group">
-    <label for="data">Source Data</label>
+    <label for="data">{{localize 'SWFFG.UI.Import.SourceData'}}</label>
     <input type="file" name="data" />
   </div>
 </form>

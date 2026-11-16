@@ -156,18 +156,14 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
     const indexFields = ["img", "type", "system.metadata.tags", "system.metadata.sources"];
     const results = [];
     for (const pack of packs) {
-      let matched = 0;
-      let withTags = 0;
       try {
         const index = await pack.getIndex({ fields: indexFields });
         for (const entry of index) {
           if (!types.has(entry.type)) continue;
-          matched++;
           let tags = foundry.utils.getProperty(entry, "system.metadata.tags");
           if (!tags) tags = foundry.utils.getProperty(entry, "system.tags") || foundry.utils.getProperty(entry, "data.metadata.tags") || [];
           if (!Array.isArray(tags)) tags = [];
           const sources = foundry.utils.getProperty(entry, "system.metadata.sources") || [];
-          if (tags.length) withTags++;
           results.push({
             uuid: entry.uuid,
             name: entry.name,
@@ -178,12 +174,7 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
             packLabel: pack.metadata.label,
           });
         }
-      } catch (err) {
-        CONFIG.logger.debug(`CompendiumBrowser: failed to index pack ${pack.collection}`, err);
-      }
-      if (matched > 0) {
-        CONFIG.logger.debug(`CompendiumBrowser: pack ${pack.collection} matched ${matched} entries (${withTags} with tags)`);
-      }
+      } catch { /* An unreadable pack must not hide the results already indexed from other packs. */ }
     }
     results.sort((a, b) => a.name.localeCompare(b.name, game.i18n.lang));
     return results;
@@ -197,7 +188,7 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
     this._availableTags = [...set]
       .filter((t) => !IGNORED_TAG_HINTS.has(t) && t !== this._activeTab)
       .sort((a, b) => a.localeCompare(b, game.i18n.lang));
-    CONFIG.logger.debug(`CompendiumBrowser [${this._activeTab}]: ${this._fullIndex.length} items, ${set.size} unique tags before filtering -> ${this._availableTags.length} shown`, this._availableTags.slice(0, 15));
+    
   }
 
   _applyFilters() {
@@ -286,8 +277,6 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
     const data = { type: docType, uuid: entry.uuid };
     try {
       event.dataTransfer.setData("text/plain", JSON.stringify(data));
-    } catch (err) {
-      CONFIG.logger.debug(`CompendiumBrowser: drag start failed`, err);
-    }
+    } catch { /* Some drag events have no writable DataTransfer; keep the browser view usable. */ }
   }
 }

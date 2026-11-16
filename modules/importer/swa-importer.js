@@ -7,7 +7,7 @@ export default class SWAImporter extends FormApplicationV2 {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: "swa-importer",
       classes: ["starwarsffg", "data-import"],
-      title: "Adversaries Importer",
+      title: game.i18n.localize("SWFFG.UI.Import.AdversariesTitle"),
       template: "systems/starwarsffg/templates/importer/swa-importer.html",
     });
   }
@@ -41,7 +41,7 @@ export default class SWAImporter extends FormApplicationV2 {
   activateListeners(html) {
     super.activateListeners(html);
 
-    $(`<span class="debug"><label><input type="checkbox" /> Generate Log</label></span>`).insertBefore("#swa-importer header a");
+    $(`<span class="debug"><label><input type="checkbox" /> ${game.i18n.localize("SWFFG.UI.Import.GenerateLog")}</label></span>`).insertBefore("#swa-importer header a");
 
     html.find(".dialog-button").on("click", this._dialogButton.bind(this));
   }
@@ -53,7 +53,7 @@ export default class SWAImporter extends FormApplicationV2 {
     const action = a.dataset.button;
 
     if (action === "import") {
-      CONFIG.logger.debug("Importing SW Adversaries Data Files");
+      
       this._importLogger(`Starting SW Adversaries import`);
 
       const form = $("form.data-importer-window")[0];
@@ -77,14 +77,14 @@ export default class SWAImporter extends FormApplicationV2 {
         filesToCache.push({ name: "qualities", file: await this._getFilePath(zip.files, "qualities", false) });
 
         await ImportHelpers.asyncForEach(filesToCache, async (f) => {
-          CONFIG.logger.debug(`Caching file: ${f.name}`);
+          
           this._importLogger(`Caching ancillary data file ${f.name}`);
 
           let file;
           try {
             file = await zip.file(f.file).async("text");
           } catch(e) {
-            ui.notifications.error(`Failed to process data file ${f.name}! Import failed.`);
+            ui.notifications.error(game.i18n.format("SWFFG.UI.Import.ProcessFileFailed", {filename: f.name}));
             console.error(e);
             return;
           }
@@ -108,7 +108,7 @@ export default class SWAImporter extends FormApplicationV2 {
 
     delete CONFIG.temporary.swa;
 
-    CONFIG.logger.debug(`Completed Importing SW Adversaries Data Files`);
+    
     this._importLogger(`Completed Importing SW Adversaries Data Files`);
     this.close();
   }
@@ -830,7 +830,7 @@ export default class SWAImporter extends FormApplicationV2 {
                 let entry = pack.index.find((e) => e.name === item.name);
 
                 if (!entry) {
-                  CONFIG.logger.debug(`Importing Adversary - Actor`);
+                  
                   compendiumItem = new CONFIG.Actor.documentClass(adversary, { temporary: true });
                   this._importLogger(`New Adversary ${name} : ${JSON.stringify(compendiumItem)}`);
                   const created = await pack.importDocument(compendiumItem);
@@ -844,7 +844,7 @@ export default class SWAImporter extends FormApplicationV2 {
                     //await ImportHelpers.applyActiveEffectOnUpdate(item, item.toJSON());
                   }
                 } else {
-                  CONFIG.logger.debug(`Update Adversary - Actor`);
+                  
                   //let updateData = ImportHelpers.buildUpdateData(item);
                   let updateData = adversary;
                   updateData["_id"] = entry._id;
@@ -908,7 +908,7 @@ export default class SWAImporter extends FormApplicationV2 {
       return file.name;
     }
     catch (e) {
-      ui.notifications.error(`Failed to process data file ${name}.json! Import failed.`);
+      ui.notifications.error(game.i18n.format("SWFFG.UI.Import.ProcessFileFailed", {filename: `${name}.json`}));
       console.error(e);
     }
   }

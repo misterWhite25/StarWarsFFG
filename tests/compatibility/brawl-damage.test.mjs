@@ -1,10 +1,13 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
+globalThis.game={i18n:frI18n};
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {brawlAttackProfile,isBrawlSkill,supportsWeaponSelection} from '../../modules/helpers/weapon-selection.js';
 import {calculateDamage,spendingOptions,weaponEffects} from '../../modules/helpers/combat-actions.js';
 const actor=value=>({system:{characteristics:{Brawn:{value}}}});
 test('unarmed Brawl uses current derived Brawn, never skill rank, and persists a per-roll snapshot',()=>{
- globalThis.game={i18n:{lang:'fr'}};const a=actor(3);a.system.skills={Brawl:{rank:5}};
+ globalThis.game={i18n:frI18n};const a=actor(3);a.system.skills={Brawl:{rank:5}};
  const item=brawlAttackProfile(a,'Brawl',{});assert.equal(item.system.damage.adjusted,3);assert.equal(item.system.crit.adjusted,5);assert.equal(item.system.range.value,'Engaged');assert.equal(item.type,'weapon');assert(!item.id);assert(!item.uuid);
  a.system.characteristics.Brawn.value=6;assert.equal(JSON.parse(JSON.stringify(item)).system.damage.adjusted,3);assert.equal(brawlAttackProfile(a,'SWFFG.SkillsNameBrawl',{}).system.damage.adjusted,6);
 });
@@ -28,7 +31,7 @@ test('natural weapon damage is preserved and non-Brawl rolls are not converted',
  assert.equal(supportsWeaponSelection('Brawl'),true);assert.equal(isBrawlSkill('Pugilat'),true);assert.equal(isBrawlSkill('SWFFG.SkillsNameBrawl'),true);
 });
 test('unarmed critical and qualities are available after success only, without implicit activation',()=>{
- globalThis.game={i18n:{lang:'fr'}};const item=brawlAttackProfile(actor(3),'Brawl',{});
+ globalThis.game={i18n:frI18n};const item=brawlAttackProfile(actor(3),'Brawl',{});
  assert.equal(spendingOptions(item,{success:1}).find(o=>o.id==='critical').payments.advantage,5);
  assert(!spendingOptions(item,{success:0}).some(o=>o.id==='critical'));
  const effects=weaponEffects(item,true);assert(effects.some(e=>e.name==='Disorient'&&e.rank===1&&e.cost===2));assert(effects.some(e=>e.name==='Knockdown'&&e.cost===2));assert.equal(weaponEffects(item,false).length,0);

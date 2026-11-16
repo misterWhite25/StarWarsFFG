@@ -1,3 +1,5 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
 import {loadActorModule, loadSystemModule} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';import vm from 'node:vm';
 import {isPossession,possessionData,possessionUpdate} from '../../modules/helpers/inventory-location.js';
@@ -23,8 +25,10 @@ console.log('OK : copie sans mutation, trois types, quantités, mise en possessi
 // Exercise the add command without writing to a Foundry world.
 let addHandler,choice,createdCalls=[],renders=0;
 const addControl={addEventListener:(_name,fn)=>addHandler=fn};
-const uiContext=vm.createContext({structuredClone,document:{createElement:()=>({})},foundry:{applications:{api:{DialogV2:{wait:async()=>choice}}}},ui:{notifications:{error:error=>{throw Error(error);}}}});
-const uiModule = await loadSystemModule('helpers/inventory-possessions.js', uiContext);
+const uiContext=vm.createContext({game:{i18n:frI18n},structuredClone,document:{createElement:()=>({})},foundry:{applications:{api:{DialogV2:{wait:async()=>choice}}}},ui:{notifications:{error:error=>{throw Error(error);}}}});
+const uiModule = await loadSystemModule('helpers/inventory-possessions.js', uiContext, {
+ 'helpers/equipment-picker.mjs': {openEquipmentPicker: async () => false},
+});
 const testSheet={isEditable:true,actor:{type:'character',isOwner:true,verifyEditModeIsNotEnabled:()=>true,createEmbeddedDocuments:async(type,data)=>{createdCalls.push({type,data});return [{sheet:{render:()=>renders++}}];}},element:{querySelectorAll:()=>[],querySelector:()=>addControl}};
 uiModule.namespace.activateInventoryPossessions(testSheet);
 for(const type of ['weapon','armour','gear']){choice={type,name:'Essai '+type};await addHandler({preventDefault(){},stopPropagation(){}});}

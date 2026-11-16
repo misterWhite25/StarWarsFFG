@@ -13,12 +13,20 @@ export async function loadSystemModule(path, context, mocks = {}) {
       ? new vm.SyntheticModule(Object.keys(values), function () {
           for (const [key, value] of Object.entries(values)) this.setExport(key, value);
         }, {context, identifier: url.href})
-      : new vm.SourceTextModule(readFileSync(url, 'utf8'), {context, identifier: url.href});
+      : new vm.SourceTextModule(readFileSync(url, 'utf8'), {context, identifier: url.href,
+          importModuleDynamically: async (specifier, parent) => {
+            const dependency = resolve(new URL(specifier, parent.identifier));
+            if (dependency.status === 'unlinked') await dependency.link(link);
+            if (dependency.status === 'linked') await dependency.evaluate();
+            return dependency;
+          },
+        });
     cache.set(url.href, module);
     return module;
   }
+  const link = (specifier, parent) => resolve(new URL(specifier, parent.identifier));
   const entry = resolve(new URL(path, modules));
-  await entry.link((specifier, parent) => resolve(new URL(specifier, parent.identifier)));
+  await entry.link(link);
   await entry.evaluate();
   return entry;
 }

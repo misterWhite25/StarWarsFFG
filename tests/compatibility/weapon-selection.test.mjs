@@ -1,9 +1,11 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 const read=file=>readFile(new URL('../../modules/'+file,import.meta.url),'utf8');
-async function load(){const m=new vm.SourceTextModule(await read('helpers/weapon-selection.js'));await m.link(()=>{});await m.evaluate();return m.namespace;}
+async function load(lang='fr'){const context=vm.createContext({game:{i18n:await systemI18n(lang)}});const m=new vm.SourceTextModule(await read('helpers/weapon-selection.js'),{context});await m.link(()=>{});await m.evaluate();return m.namespace;}
 
 test('weapon choice survives reopening, remains per actor and skill, and recalculates current modifiers',async()=>{
  const api=await load(), flags=new Map();
@@ -72,7 +74,7 @@ test('quality labels translate and distinguish active, passive and pre-shot sett
  assert.match(api.describeWeaponQuality(q('Stun Quality'),'fr'),/déclenché/);
  assert.match(api.describeWeaponQuality(q('May Select Additional Jury Rigged Option Mod'),'fr'),/modification passive/);
  assert.match(api.describeWeaponQuality(q('Custom quality'),'fr'),/type non identifié/);
- assert.match(api.describeWeaponQuality(q('Accurate Quality'),'en'),/accurate 1 \(passive\)/);
+ assert.match((await load('en')).describeWeaponQuality(q('Accurate Quality'),'en'),/accurate 1 \(passive\)/);
 });
 
 test('Auto-fire choice recognizes imports and adds just one Difficulty die without changing Challenge dice',async()=>{
@@ -91,7 +93,7 @@ test('chat quality names translate without changing names used for import lookup
  assert.equal(api.weaponQualityName('Auto-Fire Quality','fr'),'Tir automatique');
  assert.equal(api.weaponQualityName('Stun Setting Quality','fr'),'Réglage étourdissant');
  assert.equal(api.weaponQualityName('Auto-Fire Quality 1','fr'),'Tir automatique');
- assert.equal(api.weaponQualityName('Réglage étourdissant','en'),'stun setting');
+ assert.equal((await load('en')).weaponQualityName('Réglage étourdissant','en'),'stun setting');
  assert.equal(api.weaponQualityName('Custom quality','fr'),'Custom quality');
 });
 

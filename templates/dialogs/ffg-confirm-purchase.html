@@ -5,7 +5,7 @@
       <optgroup label="{{ group }} {{ localize 'SWFFG.ForceRating' }}">
     {{else}}
         {{#if (eq ../itemCategory "specialization") }}
-          <optgroup label="{{ group }}">
+          <optgroup label="{{#if (eq group 'Universal')}}{{localize 'SWFFG.Spec.Universal'}}{{else if (eq group 'In Career')}}{{localize 'SWFFG.UI.Actor.InCareer'}}{{else if (eq group 'Out of Career')}}{{localize 'SWFFG.UI.Actor.OutOfCareer'}}{{else}}{{group}}{{/if}}">
         {{else}}
           <optgroup label="{{ group }}">
         {{/if}}

@@ -21,7 +21,7 @@ export class itemEditor extends FormApplicationV2  {
     return foundry.utils.mergeObject(
       super.defaultOptions,
       {
-        title: `Embedded Item Editor`, // should not be seen by anyone, as it is dynamically set on getData()
+        title: game.i18n.localize("SWFFG.UI.Item.EmbeddedEditor"), // should not be seen by anyone, as it is dynamically set on getData()
         //height: 720,
         width: 520,
         template: "systems/starwarsffg/templates/items/dialogs/ffg-embedded-itemattachment.html",
@@ -100,9 +100,9 @@ export class itemEditor extends FormApplicationV2  {
   }
 
   async onDropMod(event) {
-    CONFIG.logger.debug("caught mod drag-and-drop");
+    
     if (this.data.clickedObject.type !== "itemattachment") {
-      ui.notifications.info("You can only drag-and-drop mods onto attachments.");
+      ui.notifications.info(game.i18n.localize("SWFFG.UI.Item.ModsOnAttachmentsOnly"));
       return;
     }
 
@@ -149,11 +149,11 @@ export class itemEditor extends FormApplicationV2  {
         direct = true;
       }
 
-      CONFIG.logger.debug(`caught creating a new mod on an attachment. data: ${modificationId}, ${direct}`);
-      CONFIG.logger.debug(modifierTypes);
-      CONFIG.logger.debug(modifierChoices);
-      CONFIG.logger.debug(`expected new modtype is ${Object.keys(modifierTypes)[0]}`);
-      CONFIG.logger.debug(`expected new mod mod is ${modifierChoices[Object.keys(modifierTypes)[0]]}`);
+      
+      
+      
+      
+      
 
       let rendered = await foundry.applications.handlebars.renderTemplate(
         'systems/starwarsffg/templates/items/dialogs/ffg-mod.html',
@@ -183,7 +183,7 @@ export class itemEditor extends FormApplicationV2  {
         const modId = $(mod).data("attribute");
         const match = this.data.sourceObject.effects.find(i => i.name === modId);
         if (match) {
-          CONFIG.logger.debug(`Detected mod present on removed modification, deleting active effect added by ${modId}`);
+          
           await this.data.sourceObject.deleteEmbeddedDocuments("ActiveEffect", [match.id]);
         }
       }
@@ -211,7 +211,7 @@ export class itemEditor extends FormApplicationV2  {
           modChoices: modChoices,
           direct: true,
           mod: {
-            name: "New Modification",
+            name: game.i18n.localize("SWFFG.UI.Item.NewModification"),
             system: {
               description: "Placeholder description",
               active: false,
@@ -232,7 +232,7 @@ export class itemEditor extends FormApplicationV2  {
         const modId = $(mod).data("attribute");
         const match = this.data.sourceObject.effects.find(i => i.name === modId);
         if (match) {
-          CONFIG.logger.debug(`Detected mod present on removed modification, deleting active effect added by ${modId}`);
+          
           await this.data.sourceObject.deleteEmbeddedDocuments("ActiveEffect", [match.id]);
         }
       }
@@ -323,31 +323,31 @@ export class itemEditor extends FormApplicationV2  {
     // if it's an attachment, locate the attachment to update
     let updateData;
     if (this.data.clickedObject.type === "itemattachment") {
-      CONFIG.logger.debug("> Detected item type of itemattachment");
+      
       updateData = this.data.sourceObject.system.itemattachment;
       for (let attachment of updateData) {
         if (attachment._id === this.data.clickedObject._id) {
-          CONFIG.logger.debug(`>> Found relevant attachment: ${attachment.name} / ${attachment.id}, looking for removed keys`);
+          
           // iterate over the mods on the existing attachment and remove them if they are not present in the new data
           for (let modKey of Object.keys(attachment.system.attributes)) {
             if (!Object.keys(formData.system.attributes).includes(modKey)) {
-              CONFIG.logger.debug(`>> Detected key ${modKey} was removed, attempting to locate matching active effect`);
+              
               formData.system.attributes[modKey] = deleteDataField();
               delete attachment.system.attributes[modKey];
               // delete the active effect
               const match = existingActiveEffects.find(i => i.name === modKey);
               if (match) {
-               CONFIG.logger.debug(`>>> Active effect located (${match.id}), deleting`);
+               
                 await this.data.sourceObject.deleteEmbeddedDocuments("ActiveEffect", [match.id]);
               }
             }
           }
-          CONFIG.logger.debug(">> Looking for new or updated ");
+          
           if (Object.keys(formData.system).includes("attributes")) {
             for (const modKey of Object.keys(formData.system.attributes)) {
-              CONFIG.logger.debug(">>> Checking modKey", modKey);
+              
               if (modKey.startsWith("-=")) {
-                CONFIG.logger.debug(`>>>> Skipping mod ${modKey} which will be deleted`);
+                
                 // skip anything queued for deletion
                 continue;
               }
@@ -368,7 +368,7 @@ export class itemEditor extends FormApplicationV2  {
 
               if (match) {
                 // existing entry
-                CONFIG.logger.debug(`>>>> Staged AE changes for update: ${JSON.stringify(changes)}`);
+                
                 await match.update({
                   changes: changes,
                   disabled: !equipped,
@@ -380,26 +380,26 @@ export class itemEditor extends FormApplicationV2  {
                   changes: changes,
                   disabled: !equipped,
                 };
-                CONFIG.logger.debug(`>>>> Staged AE for creation: ${JSON.stringify(effect)}`);
+                
                 await this.data.sourceObject.createEmbeddedDocuments("ActiveEffect", [effect]);
               }
             }
           }
 
           // repeat the process, but this time for mods on modifications on the attachment
-          CONFIG.logger.debug(">> checking modifications...");
+          
           if (Object.keys(formData.system).includes("itemmodifier")) {
             for (const modifier of Object.values(formData.system.itemmodifier)) {
               if (!Object.keys(modifier.system).includes("attributes")) {
                 // skip anything that doesn't have attributes
-                CONFIG.logger.debug(`>>> modification ${modifier.name} has no mods, skipping further processing`);
+                
                 continue;
               }
 
               for (const modKey of Object.keys(modifier.system.attributes)) {
-                CONFIG.logger.debug(">>> Checking modKey", modKey);
+                
                 if (modKey.startsWith("-=")) {
-                  CONFIG.logger.debug(`>>>> Skipping mod ${modKey} which will be deleted`);
+                  
                   // skip anything queued for deletion
                   continue;
                 }
@@ -431,7 +431,7 @@ export class itemEditor extends FormApplicationV2  {
 
                 if (match) {
                   // existing entry
-                  CONFIG.logger.debug(`>>>> Staged AE changes for update: ${JSON.stringify(changes)}`);
+                  
                   await match.update({
                     changes: changes,
                     disabled: disabled,
@@ -443,7 +443,7 @@ export class itemEditor extends FormApplicationV2  {
                     disabled: disabled,
                     changes: changes,
                   };
-                  CONFIG.logger.debug(`>>>> Staged AE for creation: ${JSON.stringify(effect)}`);
+                  
                   await this.data.sourceObject.createEmbeddedDocuments("ActiveEffect", [effect]);
                 }
               }
@@ -476,7 +476,7 @@ export class itemEditor extends FormApplicationV2  {
               // delete the active effect
               const match = existingActiveEffects.find(i => i.name === modKey);
               if (match) {
-                CONFIG.logger.debug(`>>> Active effect located (${match.id}), deleting`);
+                
                 await this.data.sourceObject.deleteEmbeddedDocuments("ActiveEffect", [match.id]);
               }
             }
@@ -514,7 +514,7 @@ export class itemEditor extends FormApplicationV2  {
 
         if (match) {
           // existing entry
-          CONFIG.logger.debug(`>>>> Staged AE changes for update: ${JSON.stringify(changes)}`);
+          
           await match.update({
             changes: changes,
             disabled: !equipped,
@@ -526,7 +526,7 @@ export class itemEditor extends FormApplicationV2  {
             changes: changes,
             disabled: !equipped,
           };
-          CONFIG.logger.debug(`>>>> Staged AE for creation: ${JSON.stringify(effect)}`);
+          
           await this.data.sourceObject.createEmbeddedDocuments("ActiveEffect", [effect]);
         }
       }
@@ -547,7 +547,7 @@ export class forcePowerEditor extends itemEditor {
     return foundry.utils.mergeObject(
       super.defaultOptions,
       {
-        title: `Embedded Force Power Editor`, // should not be seen by anyone, as it is dynamically set on getData()
+        title: game.i18n.localize("SWFFG.UI.Item.EmbeddedForceEditor"), // should not be seen by anyone, as it is dynamically set on getData()
         //height: 720,
         width: 520,
         closeOnSubmit: false,
@@ -610,11 +610,11 @@ export class forcePowerEditor extends itemEditor {
       const modificationId = $(event.currentTarget).data("modification-id");
       const direct = this.data.clickedObject.type !== "itemattachment";
 
-      CONFIG.logger.debug(`caught creating a new mod on an upgrade. data: ${modificationId}, ${direct}`);
-      CONFIG.logger.debug(modifierTypes);
-      CONFIG.logger.debug(modifierChoices);
-      CONFIG.logger.debug(`expected new modtype is ${Object.keys(modifierTypes)[0]}`);
-      CONFIG.logger.debug(`expected new mod mod is ${modifierChoices[Object.keys(modifierTypes)[0]]}`);
+      
+      
+      
+      
+      
 
       let rendered = await foundry.applications.handlebars.renderTemplate(
         'systems/starwarsffg/templates/items/dialogs/ffg-mod.html',
@@ -659,7 +659,7 @@ export class forcePowerEditor extends itemEditor {
   /** @override */
   async _updateObject(event, initialFormData) {
     let formData = initialFormData;
-    CONFIG.logger.debug("Updating upgrade");
+    
     formData = foundry.utils.expandObject(formData);
 
     // move attributes out of "system" since they aren't here for upgrades
@@ -681,20 +681,20 @@ export class forcePowerEditor extends itemEditor {
           // delete the active effect
           const match = existingActiveEffects.find(i => i.name === attrKey);
           if (match) {
-            CONFIG.logger.debug(`>>> Active effect located (${match.id}), deleting`);
+            
             await this.data.sourceObject.deleteEmbeddedDocuments("ActiveEffect", [match.id]);
           }
         }
       }
     }
 
-    CONFIG.logger.debug(">> Looking for new or updated ");
+    
     // iterate over newly added or updated attributes and create the active effects
     if (Object.keys(formData).includes("attributes")) {
       for (const modKey of Object.keys(formData.attributes)) {
-        CONFIG.logger.debug(">>> Checking modKey", modKey);
+        
         if (modKey.startsWith("-=")) {
-          CONFIG.logger.debug(`>>>> Skipping mod ${modKey} which will be deleted`);
+          
           // skip anything queued for deletion
           continue;
         }
@@ -716,7 +716,7 @@ export class forcePowerEditor extends itemEditor {
 
         if (match) {
           // existing entry
-          CONFIG.logger.debug(`>>>> Staged AE changes for update: ${JSON.stringify(changes)}`);
+          
           await match.update({
             changes: changes,
             disabled: !this.data.clickedObject.islearned,
@@ -728,7 +728,7 @@ export class forcePowerEditor extends itemEditor {
             changes: changes,
             disabled: !this.data.clickedObject.islearned,
           };
-          CONFIG.logger.debug(`>>>> Staged AE for creation: ${JSON.stringify(effect)}`);
+          
           await this.data.sourceObject.createEmbeddedDocuments("ActiveEffect", [effect]);
         }
       }
@@ -741,7 +741,7 @@ export class forcePowerEditor extends itemEditor {
       formData,
     );
 
-    CONFIG.logger.debug(formData);
+    
 
     await this.data.sourceObject.update({
       system: {

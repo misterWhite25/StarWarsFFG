@@ -21,7 +21,7 @@ export default class Gear {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Gear`);
-        CONFIG.logger.debug(`Starting Oggdude Gear Import`);
+        
         $(".import-progress.gear").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(items, async (item) => {
@@ -74,7 +74,7 @@ export default class Gear {
                 data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
               }
             } catch {
-              CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+              
             }
             if (item?.Type) {
               // the "type" can be useful as a tag as well

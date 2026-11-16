@@ -40,7 +40,7 @@ export default class Obligation {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Obligations`);
-        CONFIG.logger.debug(`Starting Oggdude Obligations Import`);
+        
         $(".import-progress.obligation").toggleClass("import-hidden");
         const typeMap = {
           "Strength": "Emotional Strength",
@@ -69,7 +69,7 @@ export default class Obligation {
           try {
             data.data.subtype = typeMap[item.Type];
           } catch (error) {
-            CONFIG.logger.debug(`Unknown obligation subtype: ${item.Type}`, error);
+            
           }
 
           let imgPath = await ImportHelpers.getImageFilename(zip, "Talent", "", data.flags.starwarsffg.ffgimportid);
@@ -96,7 +96,7 @@ export default class Obligation {
     } catch (err) {
       CONFIG.logger.error(`Error importing Obligations record : `, err);
     }
-    CONFIG.logger.debug(`Completed Oggdude Obligations Import`);
+    
   }
 }
 

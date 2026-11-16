@@ -1,3 +1,5 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
 import {loadSystemModule} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -6,7 +8,7 @@ import vm from 'node:vm';
 async function setup(modifier) {
   const draws=[], warnings=[]; let dialog, evaluations=0;
   const context=vm.createContext({
-    game:{i18n:{localize:k=>k}}, ui:{notifications:{warn:m=>warnings.push(m)}},
+    game:{i18n:frI18n}, ui:{notifications:{warn:m=>warnings.push(m)}},
     foundry:{applications:{api:{DialogV2:{prompt:async config=>{dialog=config;return modifier;}}}}},
     Roll:class {constructor(formula,data){this.formula=formula;this.data=data;} async evaluate(){evaluations++;this.total=Math.max(1,100+this.data.modifier);return this;}},
     Hooks:{on(){},once(){}},
@@ -41,8 +43,8 @@ test('vehicle criticals use their own dialog and resolve totals above 153',async
   s.table.getFlag=(_scope,key)=>key==='criticalKind'?'vehicle':undefined;
   s.table.getResultsForRoll=total=>total>=154?[{name:'Désintégré',total}]:[];
   await s.api.drawCriticalTable(s.table);
-  assert.equal(s.dialog().window.title,'SWFFG.CriticalTable.VehicleTitle');
-  assert.match(s.dialog().content,/VehicleHint/);
+  assert.equal(s.dialog().window.title,frI18n.localize('SWFFG.CriticalTable.VehicleTitle'));
+  assert.ok(s.dialog().content.includes(frI18n.localize('SWFFG.CriticalTable.VehicleHint')));
   assert.equal(s.draws[0].roll.total,250);
   assert.equal(s.draws[0].results[0].name,'Désintégré');
 });
@@ -56,7 +58,7 @@ for(const [modifier,total] of [[-20,80],[-200,1]])test(`signed critical modifier
 test('an unflagged malfunction table opens the ship prompt through the native draw button', async () => {
   let render, click, warned;
   const context = vm.createContext({Hooks:{on:(_name,fn)=>{render=fn;},once(){}},
-    game:{actors:[],i18n:{lang:'en'}},ui:{notifications:{warn:s=>{warned=s;}}}});
+    game:{actors:[],i18n:await systemI18n('en')},ui:{notifications:{warn:s=>{warned=s;}}}});
   const module = await loadSystemModule('helpers/critical-table-roll.js',context);
   module.namespace.registerCriticalTableRolls();
   const button = {dataset:{}, disabled:false, addEventListener:(_name,fn)=>{click=fn;}};

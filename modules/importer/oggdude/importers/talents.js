@@ -21,7 +21,7 @@ export default class Talents {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Talents`);
-        CONFIG.logger.debug(`Starting Oggdude Talents Import`);
+        
         $(".import-progress.talent").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(items, async (item) => {
@@ -94,7 +94,7 @@ export default class Talents {
                 data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
               }
             } catch {
-              CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+              
             }
             if (item?.Type) {
               // the "type" can be useful as a tag as well
@@ -123,6 +123,6 @@ export default class Talents {
     } catch (err) {
       CONFIG.logger.error(`Error importing record : `, err);
     }
-    CONFIG.logger.debug(`Completed Oggdude Talents Import`);
+    
   }
 }

@@ -1,15 +1,16 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs/promises';
 async function load(){
- const context=vm.createContext({structuredClone,game:{i18n:{lang:'fr',localize:k=>k},combat:null,user:{isGM:true},settings:{get:()=>true}},foundry:{utils:{getProperty:(o,p)=>p.split('.').reduce((v,k)=>v?.[k],o),deepClone:structuredClone}}});
+ const context=vm.createContext({structuredClone,game:{i18n:await systemI18n('fr'),combat:null,user:{isGM:true},settings:{get:()=>true}},foundry:{utils:{getProperty:(o,p)=>p.split('.').reduce((v,k)=>v?.[k],o),deepClone:structuredClone}}});
  const cache=new Map();
  async function module(name){if(cache.has(name))return cache.get(name);const m=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/'+name,import.meta.url),'utf8'),{context});cache.set(name,m);await m.link(s=>module(s.split('/').at(-1)));await m.evaluate();return m;}
  return {state:(await module('reviewed-talent-state.js')).namespace,roll:(await module('roll-talents.js')).namespace,combat:(await module('combat-actions.js')).namespace,ui:(await module('reviewed-talent-ui.js')).namespace,context};
 }
 function actor(talents=[]){
- const a={uuid:'Actor.a',type:'character',isOwner:true,system:{skills:{Charm:{careerskill:false},Coercion:{careerskill:false},Negotiation:{careerskill:false},Deception:{careerskill:false},Athletics:{careerskill:true},Mechanics:{careerskill:false},Education:{type:'Knowledge',careerskill:false}},stats:{strain:{max:15,value:4},wounds:{max:12,value:2},defence:{melee:0,ranged:1}}},flags:{},items:talents};
+ const a={uuid:'Actor.a',type:'character',isOwner:true,system:{skills:{Charm:{careerskill:false},Coercion:{careerskill:false},Negotiation:{careerskill:false},Deception:{careerskill:false},Athletics:{careerskill:true},Mechanics:{careerskill:false},Education:{label:'SWFFG.SkillsNameKnowledgeEducation',type:'Knowledge',careerskill:false}},stats:{strain:{max:15,value:4},wounds:{max:12,value:2},defence:{melee:0,ranged:1}}},flags:{},items:talents};
  a.items.get=id=>a.items.find(i=>i.id===id);for(const i of a.items)i.parent=a;
  a.talentList=talents.filter(i=>i.type==='talent').map(i=>({itemId:i.id,name:i.name,isRanked:i.system.ranks?.ranked,rank:i.system.ranks?.current??1}));
  a.update=async data=>{for(const [path,value]of Object.entries(data)){const keys=path.split('.');let o=a;for(const k of keys.slice(0,-1))o=o[k]??={};o[keys.at(-1)]=value;}};return a;
@@ -121,7 +122,7 @@ test('Accompli groups actual skill options and persists through the actor before
  a.updateEmbeddedDocuments=async(type,updates)=>{assert.equal(type,'Item');assert.equal(updates[0]._id,t.id);t.flags.starwarsffg={reviewedTalentChoices:{_self:updates[0]['flags.starwarsffg.reviewedTalentChoices._self']}};saved=true;};
  context.ui={notifications:{info(){}}};
  context.foundry.applications={api:{DialogV2:{prompt:async opts=>{
-  assert.match(opts.content,/<optgroup label="General">/);assert.match(opts.content,/<optgroup label="Combat">/);assert.match(opts.content,/<optgroup label="Social">/);
+  for(const group of ['General','Combat','Social'])assert(opts.content.includes('<optgroup label="'+context.game.i18n.localize('SWFFG.Skills'+group)+'">'));
   const result=await opts.ok.callback(null,{form:{querySelector:selector=>({value:selector.includes('skill0')?'Charm':'Mechanics'})}},null);
   assert(saved);return result;
  }}}};

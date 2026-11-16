@@ -1,0 +1,11 @@
+.application.starwarsffg.sheet.actor.v2 .sheet-tabs .ffg-open-owned-vehicle {position:relative;}
+.application.starwarsffg.sheet.actor.v2 .ffg-owned-vehicle-count {position:absolute;right:2px;top:2px;display:flex;align-items:center;justify-content:center;min-width:13px;height:13px;padding:0 2px;border-radius:3px;background:#243f50;color:#fff;font:600 9px/1 Arial,sans-serif;}
+.application.starwarsffg.sheet.actor.v2 .ffg-combat-actions .ffg-open-owned-vehicle {white-space:nowrap;}
+.ffg-owned-vehicle-choice .window-content {font:13px/1.4 Arial,"Helvetica Neue",sans-serif;}
+.ffg-owned-vehicle-choice .window-title {font-family:Arial,"Helvetica Neue",sans-serif;font-size:14px;}
+.ffg-owned-vehicle-choice label {display:flex;flex-direction:column;gap:6px;font:inherit;margin-bottom:10px;}
+.ffg-owned-vehicle-choice select {width:100%;height:32px;font:inherit;}
+.ffg-owned-vehicle-choice .form-footer {justify-content:flex-end;}
+.ffg-owned-vehicle-choice .form-footer button {flex:0 1 auto;width:auto;padding:5px 10px;font:12px Arial,"Helvetica Neue",sans-serif;}
+
+.application.starwarsffg.sheet.actor.v2 .ffg-owned-vehicle-xwing {display:inline-block;flex:none;width:20px;height:20px;background:currentColor;mask:url('../images/ship-icons/x-wing.svg') center / contain no-repeat;vertical-align:middle;}

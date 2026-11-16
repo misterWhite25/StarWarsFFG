@@ -79,7 +79,6 @@ export class AdversarySheetFFG extends ActorSheetFFG {
       });
       this.sheetoptions.register("talentSorting", {
         name: game.i18n.localize("SWFFG.EnableSortTalentsByActivation"),
-        hint: game.i18n.localize("SWFFG.EnableSortTalentsByActivationHint"),
         type: "Array",
         default: 0,
         options: [game.i18n.localize("SWFFG.UseGlobalSetting"), game.i18n.localize("SWFFG.OptionValueYes"), game.i18n.localize("SWFFG.OptionValueNo")],

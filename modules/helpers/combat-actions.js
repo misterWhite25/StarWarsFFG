@@ -1,3 +1,4 @@
+import {vehicleDamageResource} from './vehicle-minion-group.mjs';
 import { chooseTokenTarget, preferredTokenTarget as preferredDamageTarget, watchTokenTarget as watchDamageTarget } from './token-target-picker.js';
 export { preferredDamageTarget, watchDamageTarget };
 import { damageModeFromSnapshot, weaponQualityName, combatModeForRoll } from "./weapon-selection.js";
@@ -6,20 +7,19 @@ import { tonioRulesEnabled, weaponSuccessDamage } from "./custom-rules.js";
 const scope = 'starwarsffg';
 const key = 'combatActions';
 const activeQualities = [
-  {names:['auto-fire','auto fire','autofire','automatique','tir automatique'],cost:2,note:['Nécessite la difficulté accrue avant le jet ; chaque activation ajoute une touche.','Requires increased difficulty before rolling; each activation adds a hit.']},
-  {names:['linked','lie','liee'],cost:2,note:['Une touche supplémentaire sur la même cible ; nombre limité par le rang.','One extra hit on the same target; limited by rating.']},
-  {names:['blast','souffle','explosion'],cost:2,note:['Résoudre les dégâts de zone selon les cibles au contact. Sur un échec, le coût est de 3 avantages.','Resolve blast damage against engaged targets. On a miss the cost is 3 advantages.']},
+  {names:['auto-fire','auto fire','autofire','automatique','tir automatique'],cost:2,note:"SWFFG.UI.Combat.Spending.RequiresIncreasedDifficultyBeforeRollingEachActivationAddsA"},
+  {names:['linked','lie','liee'],cost:2,note:"SWFFG.UI.Combat.Spending.OneExtraHitOnTheSameTargetLimitedBy"},
+  {names:['blast','souffle','explosion'],cost:2,note:"SWFFG.UI.Combat.Spending.ResolveBlastDamageAgainstEngagedTargetsOnAMiss"},
   {names:['burn','brulure','incendiaire'],cost:2},
   {names:['concussive','choc','concussion'],cost:2},
   {names:['disorient','desorientation'],cost:2},
   {names:['ensnare','immobilisation','entrave'],cost:2},
-  {names:['knockdown','renversement'],cost:2,note:['Ajouter 1 avantage au coût par point de gabarit de la cible au-delà de 1.','Add 1 advantage to the cost per target silhouette above 1.']},
-  {names:['sunder','destruction','fracassage'],cost:1,note:['Un cran de détérioration par activation ; choisir un objet admissible.','One step of damage per activation; choose an eligible item.']},
+  {names:['knockdown','renversement'],cost:2,note:"SWFFG.UI.Combat.Spending.AddAdvantageToTheCostPerTargetSilhouetteAbove"},
+  {names:['sunder','destruction','fracassage'],cost:1,note:"SWFFG.UI.Combat.Spending.OneStepOfDamagePerActivationChooseAnEligible"},
   {names:['stun','etourdissement'],cost:2},
-  {names:['guided','guide','guidage'],cost:3,note:['Activation après un tir raté ; attaque guidée à résoudre en fin de round.','Activate after a miss; resolve the guided attack at the end of the round.']},
+  {names:['guided','guide','guidage'],cost:3,note:"SWFFG.UI.Combat.Spending.ActivateAfterAMissResolveTheGuidedAttackAt"},
 ];
 const normalized = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/\s+quality(?:\s+\d+)?$/,'');
-const t = (fr, en) => game.i18n.lang === 'fr' ? fr : en;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num = value => Number.isFinite(Number(value)) ? Number(value) : 0;
 const state = message => foundry.utils.deepClone(message.getFlag(scope, key) ?? {entries: []});
@@ -32,11 +32,11 @@ export function adjustedResult(raw,entries=[]){
  return {...raw,success:Math.max(0,net),failure:Math.max(0,-net)};
 }
 export function successConversionSummary(raw,entries=[]){
- const names={'smooth-talker':'Beau Parleur','knowledge-specialization':'Connaissances Spécialisées'};
+ const names={'smooth-talker':game.i18n.localize("SWFFG.UI.Combat.Talents.SmoothTalker"),'knowledge-specialization':game.i18n.localize("SWFFG.UI.Combat.Talents.KnowledgeSpecialization")};
  const gains=Object.entries(names).map(([id,name])=>({name,added:entries.filter(e=>e.effect===id&&!e.undone).reduce((n,e)=>n+num(e.successGain),0)})).filter(e=>e.added>0);
  if(!gains.length)return '';
  const adjusted=adjustedResult(raw,entries);
- return gains.map(e=>`${e.name} : +${e.added} réussite(s).`).join(' ')+` Total des réussites ajoutées : +${gains.reduce((n,e)=>n+e.added,0)}. Nouveau total : ${adjusted.success} réussite(s)`+(adjusted.failure>0?`, ${adjusted.failure} échec(s) restant(s)`:'')+'.';
+ return gains.map(e=>game.i18n.format("SWFFG.UI.Combat.Talents.SuccessGain",{name:e.name,added:e.added})).join(' ')+game.i18n.format("SWFFG.UI.Combat.Talents.SuccessGainTotal",{gain:gains.reduce((n,e)=>n+e.added,0),success:adjusted.success})+(adjusted.failure>0?game.i18n.format("SWFFG.UI.Combat.Talents.RemainingFailure",{failure:adjusted.failure}):'')+'.';
 }
 const result = message => adjustedResult(rawResult(message),message.getFlag(scope,key)?.entries??[]);
 const weapon = message => {
@@ -77,7 +77,7 @@ export function weaponEffects(item, successful, autoFire = false) {
     const blast=rule.names[0]==='blast',guided=rule.names[0]==='guided';
     if((guided&&successful)||(!successful&&!blast&&!guided)) return [];
     const rig=item?.flags?.starwarsffg?.juryRiggedApplied;const reduction=rig?.effect==='quality'&&normalized(quality.name).replace(/[^a-z]/g,'')===rig.quality?1:0;
-    return [{...quality,id:`quality-${index}`,cost:Math.max(1,(blast&&!successful?3:rule.cost)-reduction),preselected:rule.names[0]==='auto-fire',note:rule.note,variable:rule.names[0]==='knockdown'}];
+    return [{...quality,id:`quality-${index}`,cost:Math.max(1,(blast&&!successful?3:rule.cost)-reduction-(blast&&item?.flags?.starwarsffg?.masterGrenadier?1:0)),preselected:rule.names[0]==='auto-fire',note:rule.note,variable:rule.names[0]==='knockdown'}];
   });
 }
 function qualityRank(item, names) {
@@ -88,7 +88,7 @@ async function dialog(title, content, label, callback) {
   const raw=body.querySelector('[name="raw"]'),reduction=body.querySelector('[name="reduction"]');
   if(raw&&reduction) {
     const total=document.createElement('p');total.setAttribute('role','status');body.append(total);
-    const refresh=()=>{total.textContent=`${t('À appliquer','To apply')}: ${Math.max(0,Math.floor(num(raw.value)-num(reduction.value)))}`;};
+    const refresh=()=>{total.textContent=`${game.i18n.localize("SWFFG.UI.Combat.CombatActions.ToApply")}: ${Math.max(0,Math.floor(num(raw.value)-num(reduction.value)))}`;};
     raw.addEventListener('input',refresh);reduction.addEventListener('input',refresh);refresh();
   }
   const effect=body.querySelector('[name="effect"]'),cost=body.querySelector('[name="cost"]');
@@ -106,60 +106,60 @@ async function edit(message, action) {
 async function saveEntry(message, entry) {
   const current = state(message);
   const left = remainingSymbols(result(message), current.entries);
-  if (entry.currency && (!(entry.currency in left) || !Number.isInteger(entry.cost) || entry.cost < 1 || entry.cost > left[entry.currency])) throw Error(t('Symboles insuffisants.', 'Not enough symbols.'));
+  if (entry.currency && (!(entry.currency in left) || !Number.isInteger(entry.cost) || entry.cost < 1 || entry.cost > left[entry.currency])) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.NotEnoughSymbols"));
   entry.id = foundry.utils.randomID();
   current.entries.push(entry);
   await message.setFlag(scope,key,current);
   return entry;
 }
-const symbolNames = () => ({advantage:t('avantages','advantages'),triumph:t('triomphes','triumphs'),threat:t('menaces','threats'),despair:t('désastres','despairs')});
+const symbolNames = () => ({advantage:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Advantages"),triumph:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Triumphs"),threat:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Threats"),despair:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Despairs")});
 
 // Core rulebook, combat spending tables 6-2 and 6-3. Narrative consequences
 // are recorded, not silently translated into permanent Actor modifications.
 export function spendingOptions(item, results, {strain = 0, canStrain = false, negative = true, autoFire = false, combatMode = 'personal',smoothTalker=null,knowledgeSpecialization=null,reviewedCombat=null} = {}) {
   if(combatMode==='vehicle')return vehicleSpendingOptions(item,results,{negative,autoFire});
   const options=[];
-  if(knowledgeSpecialization?.rank>0)options.push({id:'knowledge-specialization',name:`Connaissances spécialisées : échanger 1 Triomphe contre ${knowledgeSpecialization.rank} Réussite(s)`,payments:{triumph:1},successPerActivation:knowledgeSpecialization.rank});
-  if(reviewedCombat?.success&&reviewedCombat.disorient>0)options.push({id:'talent-disorient',name:`Désorientation : cible désorientée pendant ${reviewedCombat.disorient} round(s)`,payments:{advantage:2},max:1});
-  if(reviewedCombat?.success&&reviewedCombat.stunningImproved)options.push({id:'talent-stagger',name:'Coup Assommant (Amélioré) : cible étourdie, 1 round par Triomphe',payments:{triumph:1}});
-  if(smoothTalker?.rank>0)options.push({id:'smooth-talker',name:t(`Beau Parleur : échanger 1 Triomphe contre ${smoothTalker.rank} Réussite(s)`,`Smooth Talker: exchange 1 Triumph for ${smoothTalker.rank} Success(es)`),payments:{triumph:1},successPerActivation:smoothTalker.rank});
-  const add=(id,fr,en,cost,extra={})=>options.push({id,name:t(fr,en),payments:cost,...extra});
+  if(knowledgeSpecialization?.rank>0)options.push({id:'knowledge-specialization',name:game.i18n.format("SWFFG.UI.Combat.Talents.KnowledgeExchange",{rank:knowledgeSpecialization.rank}),payments:{triumph:1},successPerActivation:knowledgeSpecialization.rank});
+  if(reviewedCombat?.success&&reviewedCombat.disorient>0)options.push({id:'talent-disorient',name:game.i18n.format("SWFFG.UI.Combat.Talents.TalentDisorient",{rounds:reviewedCombat.disorient}),payments:{advantage:2},max:1});
+  if(reviewedCombat?.success&&reviewedCombat.stunningImproved)options.push({id:'talent-stagger',name:game.i18n.localize("SWFFG.UI.Combat.Talents.ImprovedStunningBlow"),payments:{triumph:1}});
+  if(smoothTalker?.rank>0)options.push({id:'smooth-talker',name:game.i18n.format("SWFFG.UI.Combat.CombatActions.SmoothTalkerExchangeTriumphForSuccessEs",{value1:smoothTalker.rank}),payments:{triumph:1},successPerActivation:smoothTalker.rank});
+  const add=(id,name,cost,extra={})=>options.push({id,name,payments:cost,...extra});
   const positive=n=>({advantage:n,triumph:1}), bad=n=>({threat:n,despair:1});
-  if(canStrain && strain>0) add('strain','Éliminer 1 point de stress','Recover 1 strain',positive(1),{max:strain});
-  add('aid-next','Ajouter 1 Fortune au prochain allié actif','Give the next active ally 1 Boost',positive(1),{aid:'next'});
-  add('notice','Remarquer un détail important','Notice an important detail',positive(1));
-  add('aid-chosen','Ajouter 1 Fortune à un allié choisi (soi compris)','Give a chosen ally 1 Boost (including yourself)',positive(2),{aid:'chosen'});
-  add('maneuver','Exécuter une manœuvre gratuite immédiate (dans la limite de deux manœuvres par tour)','Perform an immediate free maneuver (within the limit of two maneuvers per turn)',positive(2),{max:1});
-  add('setback','Ajouter 1 Infortune au prochain test de la cible','Add 1 Setback to the target’s next check',positive(2),{target:true});
-  add('defense','Annuler les bonus défensifs de la cible jusqu’à la fin du round','Negate the target’s defensive bonuses until the round ends',positive(3),{target:true,max:1});
-  add('environment','Ignorer les pénalités environnementales jusqu’à la fin de son prochain tour','Ignore environmental penalties until your next turn ends',positive(3),{max:1});
-  add('gain-defense','Gagner +1 défense de mêlée ou à distance jusqu’à la fin de son prochain tour','Gain +1 melee or ranged defense until your next turn ends',positive(3));
-  add('drop','Faire lâcher une arme à la cible','Make the target drop a weapon',positive(3),{target:true});
-  add('difficulty','Améliorer la difficulté du prochain test de la cible','Upgrade the difficulty of the target’s next check',{triumph:1},{target:true});
-  add('upgrade','Améliorer le prochain test d’un allié (soi compris)','Upgrade an ally’s next check (including yourself)',{triumph:1},{target:true});
-  add('vital','Effectuer une action cruciale','Do something vital',{triumph:1});
+  if(canStrain && strain>0) add('strain',game.i18n.localize("SWFFG.UI.Combat.Spending.RecoverStrain"),positive(1),{max:strain});
+  add('aid-next',game.i18n.localize("SWFFG.UI.Combat.Spending.GiveTheNextActiveAllyBoost"),positive(1),{aid:'next'});
+  add('notice',game.i18n.localize("SWFFG.UI.Combat.Spending.NoticeAnImportantDetail"),positive(1));
+  add('aid-chosen',game.i18n.localize("SWFFG.UI.Combat.Spending.GiveAChosenAllyBoostIncludingYourself"),positive(2),{aid:'chosen'});
+  add('maneuver',game.i18n.localize("SWFFG.UI.Combat.Spending.PerformAnImmediateFreeManeuverWithinTheLimitOf"),positive(2),{max:1});
+  add('setback',game.i18n.localize("SWFFG.UI.Combat.Spending.AddSetbackToTheTargetSNextCheck"),positive(2),{target:true});
+  add('defense',game.i18n.localize("SWFFG.UI.Combat.Spending.NegateTheTargetSDefensiveBonusesUntilTheRound"),positive(3),{target:true,max:1});
+  add('environment',game.i18n.localize("SWFFG.UI.Combat.Spending.IgnoreEnvironmentalPenaltiesUntilYourNextTurnEnds"),positive(3),{max:1});
+  add('gain-defense',game.i18n.localize("SWFFG.UI.Combat.Spending.GainMeleeOrRangedDefenseUntilYourNextTurn"),positive(3));
+  add('drop',game.i18n.localize("SWFFG.UI.Combat.Spending.MakeTheTargetDropAWeapon"),positive(3),{target:true});
+  add('difficulty',game.i18n.localize("SWFFG.UI.Combat.Spending.UpgradeTheDifficultyOfTheTargetSNextCheck"),{triumph:1},{target:true});
+  add('upgrade',game.i18n.localize("SWFFG.UI.Combat.Spending.UpgradeAnAllySNextCheckIncludingYourself"),{triumph:1},{target:true});
+  add('vital',game.i18n.localize("SWFFG.UI.Combat.Spending.DoSomethingVital"),{triumph:1});
   if(item && num(results?.success)>0) {
-    const condition=t('La cible subit des dégâts après encaissement.','The target takes damage past soak.');
+    const condition=game.i18n.localize("SWFFG.UI.Combat.CombatActions.TheTargetTakesDamagePastSoak");
     const crit=num(item.system?.crit?.adjusted ?? item.system?.crit?.value);
-    if(crit>0) add('critical','Dégâts critiques (+10 par activation supplémentaire sur la même touche)','Critical injury (+10 per extra activation on the same hit)',positive(crit),{target:true,condition});
-    add('disable','Neutraliser temporairement la cible ou son équipement au lieu des dégâts','Temporarily disable the target or its gear instead of damage',positive(3),{target:true,max:1,condition:t('L’attaque infligerait des dégâts ; le MJ accepte de les remplacer par cet effet temporaire.','The attack would deal damage; the GM agrees to replace it with this temporary effect.')});
-    add('destroy','Détruire un équipement de la cible en plus des dégâts','Destroy a piece of the target’s equipment in addition to damage',{triumph:2},{target:true,condition});
+    if(crit>0) add('critical',game.i18n.localize("SWFFG.UI.Combat.Spending.CriticalInjuryPerExtraActivationOnTheSameHit"),positive(crit),{target:true,condition});
+    add('disable',game.i18n.localize("SWFFG.UI.Combat.Spending.TemporarilyDisableTheTargetOrItsGearInsteadOf"),positive(3),{target:true,max:1,condition:game.i18n.localize("SWFFG.UI.Combat.CombatActions.TheAttackWouldDealDamageTheGMAgrees")});
+    add('destroy',game.i18n.localize("SWFFG.UI.Combat.Spending.DestroyAPieceOfTheTargetSEquipmentIn"),{triumph:2},{target:true,condition});
   }
-  for(const q of weaponEffects(item,num(results?.success)>0,autoFire)) add(q.id,`Activer ${weaponQualityName(q.name,game.i18n.lang)} ${q.rank||''}`,`Activate ${weaponQualityName(q.name,game.i18n.lang)} ${q.rank||''}`,positive(q.cost),{
+  for(const q of weaponEffects(item,num(results?.success)>0,autoFire)) add(q.id,game.i18n.format("SWFFG.UI.Combat.Spending.Activate",{value1:weaponQualityName(q.name,game.i18n.lang),value2:q.rank||''}),positive(q.cost),{
     target:true,variable:q.variable,max:normalized(q.name)==='linked'||['lie','liee'].includes(normalized(q.name))?q.rank:undefined,
-    condition:q.preselected?undefined:q.note?t(...q.note):t('Les conditions de cet attribut sont remplies.','The conditions for this quality are satisfied.')});
+    condition:q.preselected?undefined:q.note?game.i18n.localize(q.note):game.i18n.localize("SWFFG.UI.Combat.CombatActions.TheConditionsForThisQualityAreSatisfied")});
   if(negative) {
-    if(canStrain) add('suffer-strain','Subir 1 point de stress','Suffer 1 strain',bad(1));
-    add('lose-maneuver','Perdre le bénéfice d’une manœuvre jusqu’à la refaire','Lose a maneuver’s benefit until it is performed again',bad(1));
-    add('enemy-maneuver','Accorder une manœuvre gratuite immédiate à un adversaire','Grant an opponent an immediate free maneuver',bad(2),{target:true});
-    add('enemy-boost','Ajouter 1 Fortune au prochain test du personnage visé','Add 1 Boost to the targeted character’s next check',bad(2),{target:true});
-    add('ally-setback','Ajouter 1 Infortune à sa prochaine action ou à celle d’un allié','Add 1 Setback to your or an ally’s next action',bad(2),{target:true});
-    add('prone','Tomber à terre','Fall prone',bad(3),{max:1});
-    add('enemy-edge','Accorder un avantage important à l’ennemi','Give the enemy a significant advantage',bad(3));
-    add('ally-difficulty','Améliorer la difficulté du prochain test d’un allié (soi compris)','Upgrade your or an ally’s next check difficulty',{despair:1},{target:true});
+    if(canStrain) add('suffer-strain',game.i18n.localize("SWFFG.UI.Combat.Spending.SufferStrain"),bad(1));
+    add('lose-maneuver',game.i18n.localize("SWFFG.UI.Combat.Spending.LoseAManeuverSBenefitUntilItIsPerformed"),bad(1));
+    add('enemy-maneuver',game.i18n.localize("SWFFG.UI.Combat.Spending.GrantAnOpponentAnImmediateFreeManeuver"),bad(2),{target:true});
+    add('enemy-boost',game.i18n.localize("SWFFG.UI.Combat.Spending.AddBoostToTheTargetedCharacterSNextCheck"),bad(2),{target:true});
+    add('ally-setback',game.i18n.localize("SWFFG.UI.Combat.Spending.AddSetbackToYourOrAnAllySNext"),bad(2),{target:true});
+    add('prone',game.i18n.localize("SWFFG.UI.Combat.Spending.FallProne"),bad(3),{max:1});
+    add('enemy-edge',game.i18n.localize("SWFFG.UI.Combat.Spending.GiveTheEnemyASignificantAdvantage"),bad(3));
+    add('ally-difficulty',game.i18n.localize("SWFFG.UI.Combat.Spending.UpgradeYourOrAnAllySNextCheckDifficulty"),{despair:1},{target:true});
     if(item) {
-      if(!reviewedCombat?.spareClip||qualities(item).some(q=>['limitedammo','munitionslimitees'].includes(normalized(q.name).replace(/[^a-z]/g,''))))add('ammo','Épuiser les munitions de l’arme à distance','Run out of ammunition for this encounter',{despair:1},{max:1,condition:t('Il s’agit d’une arme à distance utilisant des munitions.','This is a ranged weapon using ammunition.')});
-      add('damage-gear','Endommager l’arme de mêlée ou l’outil utilisé','Damage the melee weapon or tool being used',{despair:1},{condition:t('L’objet utilisé est un outil ou une arme de mêlée.','The item being used is a tool or melee weapon.')});
+      if(!reviewedCombat?.spareClip||qualities(item).some(q=>['limitedammo','munitionslimitees'].includes(normalized(q.name).replace(/[^a-z]/g,''))))add('ammo',game.i18n.localize("SWFFG.UI.Combat.Spending.RunOutOfAmmunitionForThisEncounter"),{despair:1},{max:1,condition:game.i18n.localize("SWFFG.UI.Combat.CombatActions.ThisIsARangedWeaponUsingAmmunition")});
+      add('damage-gear',game.i18n.localize("SWFFG.UI.Combat.Spending.DamageTheMeleeWeaponOrToolBeingUsed"),{despair:1},{condition:game.i18n.localize("SWFFG.UI.Combat.CombatActions.TheItemBeingUsedIsAToolOr")});
     }
   }
   return options;
@@ -170,38 +170,38 @@ export function spendingOptions(item, results, {strain = 0, canStrain = false, n
 // Vehicle effects are recorded for the GM; do not apply system strain to the pilot.
 export function vehicleSpendingOptions(item, results, {negative=true,autoFire=false}={}) {
   const options=[],positive=n=>({advantage:n,triumph:1}),bad=n=>({threat:n,despair:1});
-  const add=(id,fr,en,payments,extra={})=>options.push({id,name:t(fr,en),payments,...extra});
-  const skillsFR='Pilotage, Artillerie, Informatique ou Mécanique',skillsEN='Piloting, Gunnery, Computers, or Mechanics';
-  add('vehicle-aid-next',`Ajouter 1 Fortune au prochain allié actif (test de ${skillsFR})`,`Give the next active ally 1 Boost (${skillsEN} check)`,positive(1));
-  add('vehicle-notice','Découvrir un détail important dans la bataille','Notice an important detail in the battle',positive(1));
-  add('vehicle-maneuver','Exécuter une manœuvre gratuite immédiate (si deux manœuvres n’ont pas déjà été accomplies ce tour)','Perform an immediate free maneuver (if you have not already performed two this turn)',positive(2),{max:1});
-  add('vehicle-setback','Ajouter 1 Infortune au prochain test du personnage visé','Add 1 Setback to the targeted character’s next check',positive(2));
-  add('vehicle-aid-chosen',`Ajouter 1 Fortune à un allié, soi compris (prochain test de ${skillsFR})`,`Give an ally, including yourself, 1 Boost (next ${skillsEN} check)`,positive(2));
-  add('vehicle-environment','Ignorer les pénalités du terrain ou des phénomènes célestes jusqu’à la fin de son prochain tour','Ignore terrain or celestial phenomena penalties until the end of your next turn',positive(3),{max:1});
-  add('vehicle-pilot-maneuver','Exécuter une manœuvre gratuite de pilote (aux commandes, dans la limite de deux manœuvres par tour)','Perform a free pilot maneuver (at the controls, within the limit of two maneuvers per turn)',positive(3),{max:1});
-  add('vehicle-change-course','Forcer un changement de cap annulant les effets de Viser et Coller à la cible','Force a course change, canceling Aim and Stay on Target benefits',positive(3));
-  add('vehicle-enemy-difficulty','Améliorer la difficulté du prochain test de Pilotage ou d’Artillerie du personnage visé','Upgrade the difficulty of the targeted character’s next Piloting or Gunnery check',{triumph:1});
-  add('vehicle-ally-upgrade',`Améliorer l’aptitude du prochain test de ${skillsFR} d’un allié`,`Upgrade an ally’s next ${skillsEN} check`,{triumph:1});
-  add('vehicle-vital','Réussir un coup d’éclat qui renverse le cours de la bataille','Do something vital that turns the tide of battle',{triumph:1});
+  const add=(id,name,payments,extra={})=>options.push({id,name,payments,...extra});
+  const skills=game.i18n.localize("SWFFG.UI.Combat.Spending.PilotingGunneryComputersOrMechanics");
+  add('vehicle-aid-next',game.i18n.format("SWFFG.UI.Combat.Spending.GiveTheNextActiveAllyBoostCheck",{value1:skills}),positive(1));
+  add('vehicle-notice',game.i18n.localize("SWFFG.UI.Combat.Spending.NoticeAnImportantDetailInTheBattle"),positive(1));
+  add('vehicle-maneuver',game.i18n.localize("SWFFG.UI.Combat.Spending.PerformAnImmediateFreeManeuverIfYouHaveNot"),positive(2),{max:1});
+  add('vehicle-setback',game.i18n.localize("SWFFG.UI.Combat.Spending.AddSetbackToTheTargetedCharacterSNextCheck"),positive(2));
+  add('vehicle-aid-chosen',game.i18n.format("SWFFG.UI.Combat.Spending.GiveAnAllyIncludingYourselfBoostNextCheck",{value1:skills}),positive(2));
+  add('vehicle-environment',game.i18n.localize("SWFFG.UI.Combat.Spending.IgnoreTerrainOrCelestialPhenomenaPenaltiesUntilTheEnd"),positive(3),{max:1});
+  add('vehicle-pilot-maneuver',game.i18n.localize("SWFFG.UI.Combat.Spending.PerformAFreePilotManeuverAtTheControlsWithin"),positive(3),{max:1});
+  add('vehicle-change-course',game.i18n.localize("SWFFG.UI.Combat.Spending.ForceACourseChangeCancelingAimAndStayOn"),positive(3));
+  add('vehicle-enemy-difficulty',game.i18n.localize("SWFFG.UI.Combat.Spending.UpgradeTheDifficultyOfTheTargetedCharacterSNext"),{triumph:1});
+  add('vehicle-ally-upgrade',game.i18n.format("SWFFG.UI.Combat.Spending.UpgradeAnAllySNextCheck",{value1:skills}),{triumph:1});
+  add('vehicle-vital',game.i18n.localize("SWFFG.UI.Combat.Spending.DoSomethingVitalThatTurnsTheTideOfBattle"),{triumph:1});
   if(item && num(results?.success)>0) {
     const crit=num(item.system?.crit?.adjusted??item.system?.crit?.value);
-    if(crit>0)add('critical','Dégâts critiques de véhicule (+10 par activation supplémentaire sur la même touche)','Vehicle critical hit (+10 per extra activation on the same hit)',positive(crit),{condition:t('L’attaque a percé le blindage de la cible.','The attack penetrated the target’s armor.')});
-    add('vehicle-disable-component','Endommager temporairement un composant choisi au lieu des dégâts ou du stress mécanique','Temporarily damage a chosen component instead of damage or system strain',positive(3),{condition:t('Attaque réussie : l’effet remplace les dégâts ou le stress mécanique et est convenu avec le MJ.','Successful attack: replace damage or system strain with an effect agreed with the GM.'),max:1});
-    add('vehicle-destroy-component','Détruire un composant important au lieu des dégâts ou du stress mécanique (réparable)','Destroy an important component instead of damage or system strain (repairable)',{triumph:2},{condition:t('Attaque réussie : composant choisi avec le MJ, désactivé jusqu’à réparation.','Successful attack: choose the component with the GM; disabled until repaired.'),max:1});
+    if(crit>0)add('critical',game.i18n.localize("SWFFG.UI.Combat.Spending.VehicleCriticalHitPerExtraActivationOnTheSame"),positive(crit),{condition:game.i18n.localize("SWFFG.UI.Combat.CombatActions.TheAttackPenetratedTheTargetSArmor")});
+    add('vehicle-disable-component',game.i18n.localize("SWFFG.UI.Combat.Spending.TemporarilyDamageAChosenComponentInsteadOfDamageOr"),positive(3),{condition:game.i18n.localize("SWFFG.UI.Combat.CombatActions.SuccessfulAttackReplaceDamageOrSystemStrainWith"),max:1});
+    add('vehicle-destroy-component',game.i18n.localize("SWFFG.UI.Combat.Spending.DestroyAnImportantComponentInsteadOfDamageOrSystem"),{triumph:2},{condition:game.i18n.localize("SWFFG.UI.Combat.CombatActions.SuccessfulAttackChooseTheComponentWithTheGM"),max:1});
   }
   if(negative) {
-    add('vehicle-reduce-speed','Réduire la vitesse de 1 à cause de manœuvres inattendues','Reduce speed by 1 due to unexpected maneuvers',bad(1));
-    add('vehicle-lose-maneuver','Perdre les effets d’une manœuvre (évasion, viser…) jusqu’à la refaire','Lose a maneuver’s benefits (evasive maneuvers, aim…) until performed again',bad(1));
-    add('vehicle-system-strain','Infliger 1 point de stress mécanique au véhicule (répétable)','Inflict 1 system strain on the vehicle (repeatable)',bad(1));
-    add('vehicle-enemy-maneuver','Accorder à un adversaire une manœuvre gratuite immédiate en réaction au test','Grant an opponent an immediate free maneuver in response to the check',bad(2));
-    add('vehicle-enemy-boost','Ajouter 1 Fortune au prochain test de Pilotage ou d’Artillerie du personnage visé','Add 1 Boost to the targeted character’s next Piloting or Gunnery check',bad(2));
-    add('vehicle-ally-setback','Ajouter 1 Infortune à sa prochaine action ou à celle d’un allié','Add 1 Setback to your or an ally’s next action',bad(2));
-    add('vehicle-last-slot','Déplacer le créneau du joueur en dernière position dans l’ordre d’initiative','Move the player’s initiative slot to last in the order',bad(3),{max:1});
-    add('vehicle-enemy-edge','Conférer un avantage majeur à l’ennemi jusqu’au début de son prochain tour','Give the enemy a major advantage until the start of your next turn',bad(3));
-    add('vehicle-weapon-damaged','Endommager l’armement principal ou l’arme utilisée (dégât critique de composant, hors total des critiques)','Damage the main armament or weapon used (component critical hit, not counted toward total critical hits)',{despair:1});
-    add('vehicle-ally-difficulty',`Améliorer la difficulté du prochain test de ${skillsFR} d’un allié, soi compris`,`Upgrade the difficulty of your or an ally’s next ${skillsEN} check`,{despair:1});
-    add('vehicle-minor-collision','Subir une collision mineure avec un adversaire à portée proche, le terrain ou un objet flottant','Suffer a minor collision with a close-range opponent, terrain, or floating object',{despair:1});
-    if(num(results?.success)<=0)add('vehicle-major-collision','Subir une collision majeure avec un adversaire à portée proche, le terrain ou un objet flottant (test raté)','Suffer a major collision with a close-range opponent, terrain, or floating object (failed check)',{despair:1});
+    add('vehicle-reduce-speed',game.i18n.localize("SWFFG.UI.Combat.Spending.ReduceSpeedByDueToUnexpectedManeuvers"),bad(1));
+    add('vehicle-lose-maneuver',game.i18n.localize("SWFFG.UI.Combat.Spending.LoseAManeuverSBenefitsEvasiveManeuversAimUntil"),bad(1));
+    add('vehicle-system-strain',game.i18n.localize("SWFFG.UI.Combat.Spending.InflictSystemStrainOnTheVehicleRepeatable"),bad(1));
+    add('vehicle-enemy-maneuver',game.i18n.localize("SWFFG.UI.Combat.Spending.GrantAnOpponentAnImmediateFreeManeuverInResponse"),bad(2));
+    add('vehicle-enemy-boost',game.i18n.localize("SWFFG.UI.Combat.Spending.AddBoostToTheTargetedCharacterSNextPiloting"),bad(2));
+    add('vehicle-ally-setback',game.i18n.localize("SWFFG.UI.Combat.Spending.AddSetbackToYourOrAnAllySNext"),bad(2));
+    add('vehicle-last-slot',game.i18n.localize("SWFFG.UI.Combat.Spending.MoveThePlayerSInitiativeSlotToLastIn"),bad(3),{max:1});
+    add('vehicle-enemy-edge',game.i18n.localize("SWFFG.UI.Combat.Spending.GiveTheEnemyAMajorAdvantageUntilTheStart"),bad(3));
+    add('vehicle-weapon-damaged',game.i18n.localize("SWFFG.UI.Combat.Spending.DamageTheMainArmamentOrWeaponUsedComponentCritical"),{despair:1});
+    add('vehicle-ally-difficulty',game.i18n.format("SWFFG.UI.Combat.Spending.UpgradeTheDifficultyOfYourOrAnAllyS",{value1:skills}),{despair:1});
+    add('vehicle-minor-collision',game.i18n.localize("SWFFG.UI.Combat.Spending.SufferAMinorCollisionWithACloseRangeOpponent"),{despair:1});
+    if(num(results?.success)<=0)add('vehicle-major-collision',game.i18n.localize("SWFFG.UI.Combat.Spending.SufferAMajorCollisionWithACloseRangeOpponent"),{despair:1});
   }
   options.push(...spendingOptions(item,results,{negative:false,autoFire,combatMode:'personal'}).filter(o=>o.id.startsWith('quality-')));
   return options;
@@ -209,17 +209,17 @@ export function vehicleSpendingOptions(item, results, {negative=true,autoFire=fa
 
 export function validateSpending(results, entries, options, selections) {
   const left=remainingSymbols(results,entries), counts={};
-  if(!selections.length) throw Error(t('Sélectionne au moins un effet.','Select at least one effect.'));
+  if(!selections.length) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.SelectAtLeastOneEffect"));
   return selections.map(selection=>{
     const option=options.find(o=>o.id===selection.effect),quantity=Number(selection.quantity);
-    if(!option || !Number.isInteger(quantity)||quantity<1 || !option.payments[selection.currency]) throw Error(t('Sélection invalide.','Invalid selection.'));
+    if(!option || !Number.isInteger(quantity)||quantity<1 || !option.payments[selection.currency]) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.InvalidSelection"));
     const unit=option.variable && selection.currency==='advantage'?Number(selection.unit):option.payments[selection.currency];
-    if(!Number.isInteger(unit)||unit<option.payments[selection.currency]) throw Error(t('Coût invalide.','Invalid cost.'));
+    if(!Number.isInteger(unit)||unit<option.payments[selection.currency]) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.InvalidCost"));
     counts[option.id]=(counts[option.id]??0)+quantity;
-    if(counts[option.id]>(option.max??Infinity)) throw Error(t('Nombre maximal d’activations dépassé.','Maximum activations exceeded.'));
-    if(option.condition&&!selection.confirmed) throw Error(t('Confirme les conditions de l’effet sélectionné.','Confirm the selected effect’s conditions.'));
+    if(counts[option.id]>(option.max??Infinity)) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.MaximumActivationsExceeded"));
+    if(option.condition&&!selection.confirmed) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.ConfirmTheSelectedEffectSConditions"));
     const cost=unit*quantity;left[selection.currency]-=cost;
-    if(left[selection.currency]<0) throw Error(t('Symboles insuffisants.','Not enough symbols.'));
+    if(left[selection.currency]<0) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.NotEnoughSymbols"));
     return {...selection,cost,quantity,option};
   });
 }
@@ -248,7 +248,7 @@ async function spendDialog(message) {
       return order.indexOf(spendingColor(a))-order.indexOf(spendingColor(b));
     });
   const icons=Object.fromEntries(await Promise.all(Object.entries({advantage:'AD',triumph:'TR',threat:'TH',despair:'DE',boost:'BO',setback:'SE'}).map(async ([key,tag])=>{
-    const name=({boost:t('Fortune','Boost'),setback:t('Infortune','Setback')})[key]??symbolNames()[key];
+    const name=({boost:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Boost"),setback:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Setback")})[key]??symbolNames()[key];
     const html=await foundry.applications.ux.TextEditor.enrichHTML(`[${tag}]`);
     return [key,`<span class="spending-symbol" role="img" aria-label="${esc(name)}" title="${esc(name)}">${html}</span>`];
   })));
@@ -267,17 +267,17 @@ async function spendDialog(message) {
     .ffg-spending .effect[data-cost-color="negative"]{--cost-color:#62636b;--cost-bg:#eeeef1}
     .ffg-spending .effect>strong{color:var(--cost-color,#444)}
 .ffg-spending .spending-symbol{display:inline-block;vertical-align:middle;line-height:1;margin:0 2px}.ffg-spending .spending-symbol .dietype{font-size:20px;line-height:1}.ffg-spending .payments{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0}.ffg-spending label{display:block}.ffg-spending input[type=number]{width:64px;background:white;color:#222}.ffg-spending input[type=text],.ffg-spending select{background:white;color:#222;width:100%}.ffg-spending .condition{font-size:12px;margin:6px 0}.ffg-spending .error{color:#941d2b}.ffg-spending button{margin-top:10px}</style>
-    ${vehicleMode?`<p><strong>${t('Combat spatial / véhicules','Space / vehicle combat')}</strong></p>`:''}
-    <p><strong>${weapon(message)?`${t('Arme','Weapon')} : ${esc(weapon(message).name)}`:t('Aucune arme associée à ce jet : critiques et attributs d’arme indisponibles.','No weapon associated with this roll: criticals and weapon qualities unavailable.')}</strong></p>
-    ${qualities(weapon(message)).some(q=>['stun setting','reglage etourdissant'].includes(normalized(q.name)))?`<p>${t('Réglage étourdissant : se choisit avant le tir, sans dépenser d’avantages. Dégâts de stress, portée courte. Ce n’est pas l’attribut actif Étourdissement.','Stun setting: choose before firing, without spending advantages. Strain damage, short range. This is not the active Stun quality.')}</p>`:''}
-    <p>${t('Choisis plusieurs effets et leur nombre d’activations. Le paiement se choisit dans les colonnes de symboles.','Choose several effects and their activation counts. Choose payment using the symbol columns.')}</p>
-    <div class="budget" role="status"></div><div class="effects">${options.map(o=>`<section class="effect" data-effect="${o.id}" data-cost-color="${spendingColor(o)}"><strong>${effectName(o.name)}</strong><div><small>${t('Coût','Cost')} : ${Object.entries(o.payments).map(([c,n])=>symbols(c,n)).join(t(' ou ',' or '))} ${t('par activation','per activation')}${o.id==='strain'?t(' (1 point de stress ; répétable).',' (1 strain; repeatable).'):''}</small></div>
+    ${vehicleMode?`<p><strong>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.SpaceVehicleCombat")}</strong></p>`:''}
+    <p><strong>${weapon(message)?`${game.i18n.localize("SWFFG.UI.Combat.CombatActions.Weapon")} : ${esc(weapon(message).name)}`:game.i18n.localize("SWFFG.UI.Combat.CombatActions.NoWeaponAssociatedWithThisRollCriticalsAnd")}</strong></p>
+    ${qualities(weapon(message)).some(q=>['stun setting','reglage etourdissant'].includes(normalized(q.name)))?`<p>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.StunSettingChooseBeforeFiringWithoutSpendingAdvantages")}</p>`:''}
+    <p>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.ChooseSeveralEffectsAndTheirActivationCountsChoose")}</p>
+    <div class="budget" role="status"></div><div class="effects">${options.map(o=>`<section class="effect" data-effect="${o.id}" data-cost-color="${spendingColor(o)}"><strong>${effectName(o.name)}</strong><div><small>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.Cost")} : ${Object.entries(o.payments).map(([c,n])=>symbols(c,n)).join(game.i18n.localize("SWFFG.UI.Combat.CombatActions.Or"))} ${game.i18n.localize("SWFFG.UI.Combat.CombatActions.PerActivation")}${o.id==='strain'?game.i18n.localize("SWFFG.UI.Combat.CombatActions.StrainRepeatable"):''}</small></div>
     <div class="payments">${Object.entries(o.payments).map(([c,n])=>`<label>${symbols(c,n)} <input aria-label="${esc(o.name)} - ${symbolNames()[c]}" type="number" min="0" step="1" value="0" data-currency="${c}"></label>`).join('')}</div>
-    ${o.variable?`<label>${t('Coût en avantages par activation (gabarit de la cible)','Advantages per activation (target silhouette)')}<input name="unit" type="number" min="${o.payments.advantage}" step="1" value="${o.payments.advantage}"></label>`:''}
+    ${o.variable?`<label>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.AdvantagesPerActivationTargetSilhouette")}<input name="unit" type="number" min="${o.payments.advantage}" step="1" value="${o.payments.advantage}"></label>`:''}
     ${o.condition?`<label class="condition"><input type="checkbox" name="confirmed"> ${esc(o.condition)}</label>`:''}
     </section>`).join('')}</div>
-    <p>${vehicleMode?t('Effets consignés dans le chat, à appliquer manuellement au véhicule ou au personnage concerné. Menaces et désastres : dépense par le MJ.','Effects recorded in chat; apply manually to the relevant vehicle or character. Threats and Despairs: spent by the GM.'):t('Stress : appliqué à la fiche. Bonus de dés : à appliquer manuellement. Autres effets : consignés, à résoudre avec le MJ. Les menaces et désastres sont dépensés par le MJ.','Strain: applied to the sheet. Dice bonuses: apply manually. Other effects: recorded, resolve with the GM. Threats and Despairs are spent by the GM.')}</p>
-    <p class="error" role="alert"></p><button type="button" class="apply">${t('Appliquer la sélection','Apply selection')}</button>`;
+    <p><em>${vehicleMode?game.i18n.localize("SWFFG.UI.Combat.CombatActions.EffectsRecordedInChatApplyManuallyToThe"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.StrainAppliedToTheSheetDiceBonusesApply")}</em></p>
+    <p class="error" role="alert"></p><button type="button" class="apply">${game.i18n.localize("SWFFG.UI.Combat.CombatActions.ApplySelection")}</button>`;
   const read=()=>[...body.querySelectorAll('[data-currency]')].filter(input=>Number(input.value)!==0).map(input=>{
     const row=input.closest('[data-effect]');return {effect:row.dataset.effect,currency:input.dataset.currency,quantity:Number(input.value),unit:field(row,'unit'),target:field(row,'target')??'',recipient:field(row,'recipient'),confirmed:row.querySelector('[name=confirmed]')?.checked};
   });
@@ -285,7 +285,7 @@ async function spendDialog(message) {
   const refresh=()=>{
     const selections=read(),left={...available};
     for(const s of selections) {const o=options.find(o=>o.id===s.effect);left[s.currency]-=s.quantity*(o.variable&&s.currency==='advantage'?num(s.unit):o.payments[s.currency]);}
-    body.querySelector('.budget').innerHTML=`${t('Restants','Remaining')} : `+Object.entries(left).filter(([c])=>available[c]>0).map(([c,n])=>symbols(c,n)).join(' · ');
+    body.querySelector('.budget').innerHTML=`${game.i18n.localize("SWFFG.UI.Combat.CombatActions.Remaining")} : `+Object.entries(left).filter(([c])=>available[c]>0).map(([c,n])=>symbols(c,n)).join(' · ');
     for(const input of body.querySelectorAll('[data-currency]')) {
       const o=options.find(o=>o.id===input.closest('[data-effect]').dataset.effect),c=input.dataset.currency;
       const unit=o.variable&&c==='advantage'?num(field(input.closest('[data-effect]'),'unit')):o.payments[c];
@@ -301,13 +301,13 @@ async function spendDialog(message) {
   };
   refresh();
   const content=document.createElement('div');content.append(body);
-  const app=new foundry.applications.api.DialogV2({window:{title:t('Utiliser les avantages / menaces','Spend advantages / threats')},classes:['starwarsffg','themed'],position:{width:740},content,buttons:[{action:'close',label:t('Fermer','Close')}],rejectClose:false});
+  const app=new foundry.applications.api.DialogV2({window:{title:game.i18n.localize("SWFFG.UI.Combat.CombatActions.SpendAdvantagesThreats")},classes:['starwarsffg','themed'],position:{width:740},content,buttons:[{action:'close',label:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Close")}],rejectClose:false});
   await app.render({force:true});
   // DialogV2 serializes supplied HTML; bind to the rendered nodes, not the source.
   body=app.element.querySelector('.ffg-spending');button=body.querySelector('.apply');error=body.querySelector('.error');
   const trigger=message.getFlag(scope,'triggeredTalent'),special=[];
-  if(['stimap','stimapimp'].includes(trigger)&&result(message)?.success>0&&available.triumph>0&&reviewedRank(actor,['stimapplicationsupreme','dosedestimulantultime','dosedestimulantsupreme'])>0)special.push({name:'Dose de Stimulant (Ultime) - choisir les caractéristiques supplémentaires',action:()=>stimulusDialog(message)});
-  if(trigger==='fldcomm'&&result(message)?.success>0&&available.triumph>0&&reviewedRank(actor,['fieldcommanderimproved','officiersuperieurameliore'])>0)special.push({name:'Officier Supérieur (Amélioré) - accorder les actions aux alliés',action:()=>commanderDialog(message)});
+  if(['stimap','stimapimp'].includes(trigger)&&result(message)?.success>0&&available.triumph>0&&reviewedRank(actor,['stimapplicationsupreme','dosedestimulantultime','dosedestimulantsupreme'])>0)special.push({name:game.i18n.localize("SWFFG.UI.Combat.Talents.SupremeStimSelection"),action:()=>stimulusDialog(message)});
+  if(trigger==='fldcomm'&&result(message)?.success>0&&available.triumph>0&&reviewedRank(actor,['fieldcommanderimproved','officiersuperieurameliore'])>0)special.push({name:game.i18n.localize("SWFFG.UI.Combat.Talents.ImprovedCommanderSelection"),action:()=>commanderDialog(message)});
   for(const item of special.reverse()){const section=document.createElement('section');section.className='effect';section.dataset.costColor='talent';const action=document.createElement('button');action.type='button';action.textContent=item.name;action.addEventListener('click',async()=>{await app.close();await edit(message,item.action);});section.append(action);body.querySelector('.effects').prepend(section);}
 
   body.addEventListener('input',refresh);body.addEventListener('change',refresh);refresh();
@@ -380,7 +380,7 @@ export async function consumeAid(entries,context) {
   if(!entries?.length) return;
   const current=foundry.utils.deepClone(game.user.getFlag(scope,'rollAid') ?? {pending:[],used:[]});
   const valid=new Set(pendingAid(context).map(a=>a.id));
-  if(entries.some(a=>!valid.has(a.id)||current.used.includes(a.id))) throw Error(t('Cette aide a changé ou a déjà été utilisée. Rouvre le jet.','This assistance changed or was already used. Reopen the roll.'));
+  if(entries.some(a=>!valid.has(a.id)||current.used.includes(a.id))) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.ThisAssistanceChangedOrWasAlreadyUsedReopen"));
   const ids=new Set(entries.map(a=>a.id));
   current.pending=current.pending.filter(a=>!ids.has(a.id));current.used.push(...ids);
   await game.user.setFlag(scope,'rollAid',current);
@@ -393,13 +393,13 @@ export async function restoreAid(entries) {
   await game.user.setFlag(scope,'rollAid',current);
 }
 async function chooseDamageTarget(tokens,requested) {
-  return chooseTokenTarget(tokens,{requested,title:t('Choisir la cible','Choose target'),confirmLabel:t('Calculer','Calculate')});
+  return chooseTokenTarget(tokens,{requested,title:game.i18n.localize("SWFFG.UI.Combat.CombatActions.ChooseTarget"),confirmLabel:game.i18n.localize("SWFFG.UI.Combat.CombatActions.Calculate")});
 }
 
 async function damageDialog(message) {
   const item=weapon(message);if(!item || num(result(message)?.success)<=0) return;
   const tokens=(canvas.tokens?.placeables ?? []).filter(token=>token.actor && (game.user.isGM || (token.visible && !token.document.hidden)));
-  if(!tokens.length) throw Error(t('Aucun token sur la scène.','No tokens on this scene.'));
+  if(!tokens.length) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.NoTokensOnThisScene"));
   const request=state(message).request;
   const targets=[...game.user.targets], controlled=canvas.tokens.controlled ?? [];
   const preferred=preferredDamageTarget(request?.target,targets,controlled);
@@ -410,31 +410,31 @@ async function damageDialog(message) {
   const token=await fromUuid(choose), actor=token?.actor;if(!actor) return;
   const vehicle=actor.type==='vehicle', shipWeapon=item.type==='shipweapon';
   const scale=shipWeapon===vehicle?1:shipWeapon?10:0.1;
-  const soak=vehicle?actor.system.stats?.armour?.value:actor.system.stats?.soak?.value;
+  const pressure=pressurePointApplies(item,actor);const soak=pressure?0:vehicle?actor.system.stats?.armour?.value:actor.system.stats?.soak?.value;
   const computed=calculateDamage({base:weaponHitDamage(item,state(message).entries),successes:result(message).success,soak,
     pierce:qualityRank(item,['pierce','perforant']),breach:qualityRank(item,['breach','breche']),vehicle,scale,tonioRules:tonioRulesEnabled()});
   if(request?.target===choose) {computed.raw=request.raw;computed.reduction=request.reduction;}
   const damageMode=damageModeFromSnapshot(message.getFlag(scope,'shot'),item);
-  const talentStun=message.getFlag(scope,'rollTalents')?.some(t=>t.id==='stunning-blow');
+  const talentStun=pressure||message.getFlag(scope,'rollTalents')?.some(t=>t.id==='stunning-blow');
   const damageType=talentStun?'strain':request?.target===choose?request.type:damageMode.damageType;
   const prior=state(message).entries.filter(e=>e.kind==='damage'&&!e.undone&&e.change?.actor===actor.uuid);
-  await dialog(t('Appliquer les dégâts','Apply damage'),`<p><strong>${esc(token.name)}</strong></p>
-    ${prior.length?`<p><strong>${t('Attention : ce jet a déjà appliqué des dégâts à cette cible. Nouvelle touche seulement.','Warning: this roll already applied damage to this target. Additional hit only.')}</strong></p>`:''}
-    <p>${t('Vérifie les qualités de l’arme et les cas particuliers. Les valeurs restent modifiables.','Check weapon qualities and special cases. Values remain editable.')}${scale!==1?` ${t('Changement d’échelle','Scale conversion')} ×${scale}.`:''}</p>
-    <label>${t('Dégâts bruts','Raw damage')}<input type="number" name="raw" min="0" value="${computed.raw}"></label>
-    <label>${t('Réduction effective (encaissement / blindage)','Effective reduction (soak / armour)')}<input type="number" name="reduction" min="0" value="${computed.reduction}"></label>
-    ${damageMode.requiresConfirmation?`<p>${t('Ancien jet : le mode étourdissant n’a pas été enregistré. Choisis le type réellement utilisé.','Older roll: stun mode was not saved. Choose the type actually used.')}</p>`:''}
-    <label>${t('Type','Type')}<select name="type"><option value="" ${!damageType?'selected':''} disabled>${t('Choisir le mode réel du tir','Choose the actual firing mode')}</option><option value="wounds" ${damageType==='wounds'?'selected':''}>${t('Blessures / dégâts de coque','Wounds / hull trauma')}</option><option value="strain" ${damageType==='strain'?'selected':''}>${t('Stress / stress mécanique','Strain / system strain')}</option></select></label>
-    <p>${t('Les boucliers ne sont pas de l’encaissement. Les sbires et rivaux subissent le stress comme blessures.','Shields are not soak. Minions and rivals suffer strain as wounds.')}</p>`,actor.isOwner?t('Appliquer','Apply'):t('Demander au MJ','Request GM'),async root=>{
-      if(!['wounds','strain'].includes(field(root,'type')))throw Error(t('Choisis le type de dégâts du tir.','Choose the shot damage type.'));
-      const raw=num(field(root,'raw')),reduction=num(field(root,'reduction'));if(raw<0||reduction<0) throw Error(t('Valeurs invalides.','Invalid values.'));
+  await dialog(game.i18n.localize("SWFFG.UI.Combat.CombatActions.ApplyDamage"),`<p><strong>${esc(token.name)}</strong></p>
+    ${prior.length?`<p><strong>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.WarningThisRollAlreadyAppliedDamageToThis")}</strong></p>`:''}
+    <p>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.CheckWeaponQualitiesAndSpecialCasesValuesRemain")}${scale!==1?` ${game.i18n.localize("SWFFG.UI.Combat.CombatActions.ScaleConversion")} ×${scale}.`:''}</p>
+    <label>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.RawDamage")}<input type="number" name="raw" min="0" value="${computed.raw}"></label>
+    <label>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.EffectiveReductionSoakArmour")}<input type="number" name="reduction" min="0" value="${computed.reduction}"></label>
+    ${damageMode.requiresConfirmation?`<p>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.OlderRollStunModeWasNotSavedChoose")}</p>`:''}
+    <label>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.Type")}<select name="type"><option value="" ${!damageType?'selected':''} disabled>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.ChooseTheActualFiringMode")}</option><option value="wounds" ${damageType==='wounds'?'selected':''}>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.WoundsHullTrauma")}</option><option value="strain" ${damageType==='strain'?'selected':''}>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.StrainSystemStrain")}</option></select></label>
+    <p>${game.i18n.localize("SWFFG.UI.Combat.CombatActions.ShieldsAreNotSoakMinionsAndRivalsSuffer")}</p>`,actor.isOwner?game.i18n.localize("SWFFG.UI.Combat.CombatActions.Apply"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.RequestGM"),async root=>{
+      if(!['wounds','strain'].includes(field(root,'type')))throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.ChooseTheShotDamageType"));
+      const raw=num(field(root,'raw')),reduction=num(field(root,'reduction'));if(raw<0||reduction<0) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.InvalidValues"));
       if(!actor.isOwner) {const s=state(message);s.request={target:choose,raw,reduction,type:field(root,'type')};await message.setFlag(scope,key,s);return;}
       const strain=talentStun||field(root,'type')==='strain';
-      const stat=vehicle?(strain?'systemStrain':'hullTrauma'):(strain&&actor.system.stats?.strain&&!['minion','rival'].includes(actor.type)?'strain':'wounds');
-      if(!actor.system.stats?.[stat]) throw Error(t('Statistique absente sur cette cible.','Target lacks this statistic.'));
+      const stat=vehicle?vehicleDamageResource(actor,strain?'systemStrain':'hullTrauma'):(strain&&actor.system.stats?.strain&&!['minion','rival'].includes(actor.type)?'strain':'wounds');
+      if(!actor.system.stats?.[stat]) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.TargetLacksThisStatistic"));
       const path=`system.stats.${stat}.value`,before=num(actor.system.stats[stat].value),amount=Math.max(0,Math.floor(raw-reduction));
       const change={actor:actor.uuid,path,before,after:before+amount};
-      const statName=vehicle?(strain?t('stress mécanique','system strain'):t('dégâts de coque','hull trauma')):(stat==='strain'?t('stress','strain'):t('blessures','wounds'));
+      const statName=vehicle?(stat==='systemStrain'?game.i18n.localize("SWFFG.UI.Combat.CombatActions.SystemStrain"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.HullTrauma")):(stat==='strain'?game.i18n.localize("SWFFG.UI.Combat.CombatActions.Strain"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.Wounds"));
       const entry=await saveEntry(message,{kind:'damage',label:`${token.name}: +${amount} ${statName}`,change});
       try {await actor.update({[path]:change.after});} catch(error){await markUndone(message,entry.id);throw error;}
       const s=state(message);delete s.request;await message.setFlag(scope,key,s);
@@ -443,8 +443,11 @@ async function damageDialog(message) {
 async function markUndone(message,id) {const current=state(message);const entry=current.entries.find(e=>e.id===id);if(entry) entry.undone=true;await message.setFlag(scope,key,current);}
 async function undo(message,id) {
   const entry=state(message).entries.find(e=>e.id===id);if(!entry||entry.undone) return;
-  if(entry.effect==='stim-application'){const target=await fromUuid(entry.change.actor);if(!target?.isOwner||num(foundry.utils.getProperty(target,entry.change.path))!==entry.change.after)throw Error('Le bénéficiaire a changé depuis : annulation à vérifier avec le MJ.');await target.update({[entry.change.path]:entry.change.before,'flags.starwarsffg.stimBonuses':(target.getFlag(scope,'stimBonuses')??[]).filter(b=>!entry.stimBonusIds.includes(b.id))});await markUndone(message,id);return;}
-  if(entry.kind==='destiny-talent'){if(state(message).entries.some(e=>e.kind==='damage'&&!e.undone))throw Error('Annulez d’abord les dégâts de cette attaque.');const {refundTalentDestiny}=await import('./reviewed-destiny.js');await refundTalentDestiny(entry.destiny);await markUndone(message,id);return;}
+  if(entry.effect==='encounter-recovery'){const target=await fromUuid(entry.change.actor);if(!target?.isOwner||num(target.system.stats.strain.value)!==entry.change.after||target.getFlag(scope,'lastRecoveredEncounter')!==entry.encounter)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecoveryChanged"));await target.update({[entry.change.path]:entry.change.before,'flags.starwarsffg.lastRecoveredEncounter':entry.previous});await markUndone(message,id);return;}
+  if(entry.effect==='rhetoric'){for(const change of entry.changes){const target=await fromUuid(change.actor);if(!target?.isOwner||num(foundry.utils.getProperty(target,change.path))!==change.after)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecipientChangedUndoBlocked"));}for(const change of entry.changes){const target=await fromUuid(change.actor);await target.update({[change.path]:change.before,'flags.starwarsffg.timedTalentModifiers':(target.getFlag(scope,'timedTalentModifiers')??[]).filter(e=>e.id!==entry.id)});}await markUndone(message,id);return;}
+  if(entry.effect==='full-throttle'){const vehicle=await fromUuid(entry.vehicle);if(!vehicle?.isOwner||vehicle.getFlag(scope,'fullThrottle')?.source!==message.uuid)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.VehicleEffectChanged"));await vehicle.update({'flags.starwarsffg.fullThrottle':entry.previous??null});await markUndone(message,id);return;}
+  if(entry.effect==='stim-application'){const target=await fromUuid(entry.change.actor);if(!target?.isOwner||num(foundry.utils.getProperty(target,entry.change.path))!==entry.change.after)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecipientChangedConsultGM"));await target.update({[entry.change.path]:entry.change.before,'flags.starwarsffg.stimBonuses':(target.getFlag(scope,'stimBonuses')??[]).filter(b=>!entry.stimBonusIds.includes(b.id))});await markUndone(message,id);return;}
+  if(entry.kind==='destiny-talent'){if(state(message).entries.some(e=>e.kind==='damage'&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.UndoDamageFirst"));const {refundTalentDestiny}=await import('./reviewed-destiny.js');await refundTalentDestiny(entry.destiny);await markUndone(message,id);return;}
   if(entry.kind==='astrogation'){const {undoAstrogationEntry}=await import('./astrogation-spending.js');return undoAstrogationEntry(message,entry);}
   if(entry.effect==='critical') {
     const {undoCritical}=await import('./critical-actions.js');
@@ -452,58 +455,64 @@ async function undo(message,id) {
   }
   if(entry.kind==='aid') {
     const user=game.users.get(entry.recipient),aid=user?.getFlag(scope,'rollAid');
-    if(aid?.pending?.some(a=>a.id===`${message.id}:${id}`)||aid?.used?.includes(`${message.id}:${id}`)) throw Error(t('Cette aide a déjà été acceptée.','This assistance was already accepted.'));
+    if(aid?.pending?.some(a=>a.id===`${message.id}:${id}`)||aid?.used?.includes(`${message.id}:${id}`)) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.ThisAssistanceWasAlreadyAccepted"));
   }
   if(entry.change) {
     const actor=await fromUuid(entry.change.actor);
-    if(!actor?.isOwner) throw Error(t('Seul le propriétaire ou le MJ peut annuler.','Only the owner or GM can undo.'));
-    if(num(foundry.utils.getProperty(actor,entry.change.path))!==entry.change.after) throw Error(t('La valeur a changé depuis. Corrige la fiche manuellement pour préserver les actions suivantes.','The value changed since this action. Adjust the sheet manually to preserve later actions.'));
+    if(!actor?.isOwner) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.OnlyTheOwnerOrGMCanUndo"));
+    if(num(foundry.utils.getProperty(actor,entry.change.path))!==entry.change.after) throw Error(game.i18n.localize("SWFFG.UI.Combat.CombatActions.TheValueChangedSinceThisActionAdjustThe"));
     await actor.update({[entry.change.path]:entry.change.before});
   }
   await markUndone(message,id);
 }
 export function renderCombatActions(message,element) {
   if(!message.isContentVisible || !result(message)) return;
-  if(message.getFlag(scope,'talentReplacement')){const root=element instanceof HTMLElement?element:element?.[0];if(root&&!root.querySelector('.ffg-talent-replaced')){const p=document.createElement('p');p.className='ffg-talent-replaced';p.textContent='Jet remplacé par une relance de talent : utiliser uniquement le nouveau résultat.';root.append(p);}return;}
+  if(message.getFlag(scope,'talentReplacement')){const root=element instanceof HTMLElement?element:element?.[0];if(root&&!root.querySelector('.ffg-talent-replaced')){const p=document.createElement('p');p.className='ffg-talent-replaced';p.textContent=game.i18n.localize("SWFFG.UI.Combat.Talents.RollReplaced");root.append(p);}return;}
   const root=element instanceof HTMLElement?element:element?.[0];if(!root||root.querySelector('.ffg-combat-actions')) return;
   const s=state(message),left=remainingSymbols(result(message),s.entries),editable=canEdit(message);
   const box=document.createElement('section');box.className='ffg-combat-actions';box.style.cssText='border-top:1px solid currentColor;padding-top:6px;margin-top:6px';
   const conversion=successConversionSummary(rawResult(message),s.entries);
   if(conversion){const p=document.createElement('p');p.className='ffg-talent-success-summary';p.textContent=conversion;box.append(p);}
   const shot=message.getFlag(scope,'shot');
-  if(shot?.damageType){const note=document.createElement('p');note.className='ffg-shot-status';note.textContent=shot.damageType==='strain'?t('Tir étourdissant - dégâts de stress (encaissement applicable)','Stun shot - strain damage (soak applies)'):t('Tir normal - blessures','Normal shot - wounds');box.append(note);}
+  if(shot?.damageType){const note=document.createElement('p');note.className='ffg-shot-status';note.textContent=shot.damageType==='strain'?game.i18n.localize("SWFFG.UI.Combat.CombatActions.StunShotStrainDamageSoakApplies"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.NormalShotWounds");box.append(note);}
   const talents=message.getFlag(scope,'rollTalents')??[];
   if(talents.length) {
     const note=document.createElement('p');
-    note.innerHTML='<strong>'+esc(t('Talents activés :','Activated talents:'))+'</strong> '+talents.map(talent=>esc(talent.name)+(talent.cost?' <em>('+esc(talent.cost)+' '+esc(t('stress','strain'))+')</em>':'')).join(' · ');
+    note.innerHTML='<strong>'+esc(game.i18n.localize("SWFFG.UI.Combat.CombatActions.ActivatedTalents"))+'</strong> '+talents.map(talent=>esc(talent.name)+(talent.cost?' <em>('+esc(talent.cost)+' '+esc(game.i18n.localize("SWFFG.UI.Combat.CombatActions.Strain"))+')</em>':'')).join(' · ');
     box.append(note);
   }
-  if(messageCombatMode(message)==='vehicle'){const context=document.createElement('p');context.textContent=t('Combat spatial / véhicules','Space / vehicle combat');context.style.cssText='font-weight:bold;font-size:12px';box.append(context);}
+  if(messageCombatMode(message)==='vehicle'){const context=document.createElement('p');context.textContent=game.i18n.localize("SWFFG.UI.Combat.CombatActions.SpaceVehicleCombat");context.style.cssText='font-weight:bold;font-size:12px';box.append(context);}
   if(message.getFlag(scope,'autoFire')===true && !root.querySelector('.ffg-auto-fire-status')) {
     const status=document.createElement('p');status.className='ffg-auto-fire-status';
-    status.textContent=t('Tir automatique activé','Auto-fire enabled');
-    status.title=t('Choisi avant le jet : +1 dé de Difficulté.','Selected before rolling: +1 Difficulty die.');
+    status.textContent=game.i18n.localize("SWFFG.UI.Combat.CombatActions.AutoFireEnabled");
+    status.title=game.i18n.localize("SWFFG.UI.Combat.CombatActions.SelectedBeforeRollingDifficultyDie");
     status.style.cssText='display:block;margin:6px 0;padding:4px 7px;border-left:3px solid #236b68;border-radius:3px;background:#e1f3f0;color:#236b68;font-size:12px;font-weight:bold;line-height:1.4';
     box.append(status);
   }
   const addButton=(label,callback)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='height:auto;white-space:normal;margin:2px 0';b.addEventListener('click',async event=>{event.preventDefault();b.disabled=true;try{await callback();}catch(error){ui.notifications.error(error.message);}finally{b.disabled=false;}});box.append(b);};
   if(editable) {
     const actor=game.actors?.get(message.speaker?.actor);
-    if(result(message)?.success>0&&['stimap','stimapimp'].includes(message.getFlag(scope,'triggeredTalent')))addButton('Appliquer Dose de Stimulant',()=>edit(message,()=>stimulusDialog(message)));
-    if(result(message)?.success>0&&message.getFlag(scope,'triggeredTalent')==='fldcomm')addButton('Accorder les effets d’Officier Supérieur',()=>edit(message,()=>commanderDialog(message)));
+    if(result(message)?.success>0&&['insprhet','insprhetsup','scath','scathsup'].includes(message.getFlag(scope,'triggeredTalent')))addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.ApplyTalent"),()=>edit(message,()=>rhetoricDialog(message)));
+    if(result(message)?.success>0&&['fullth','fullthimp'].includes(message.getFlag(scope,'triggeredTalent')))addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.ApplyFullThrottle"),()=>edit(message,()=>fullThrottleDialog(message)));
+    if(result(message)?.success>0&&['stimap','stimapimp'].includes(message.getFlag(scope,'triggeredTalent')))addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.ApplyStim"),()=>edit(message,()=>stimulusDialog(message)));
+    if(result(message)?.success>0&&message.getFlag(scope,'triggeredTalent')==='fldcomm')addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.ApplyCommander"),()=>edit(message,()=>commanderDialog(message)));
     const skill=String(message.getFlag(scope,'combatSkill')??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'');
-    if(['mechanics','mecanique','swffgskillsnamemechanics'].includes(skill)&&result(message)?.success>0&&reviewedRank(actor,['finetuning','mecaniciendeprecision'])>0)addButton('Réparer du stress mécanique - Mécanicien de Précision',()=>edit(message,()=>fineTuningDialog(message)));
-    if(['computers','informatique','swffgskillsnamecomputers'].includes(skill)&&reviewedRank(actor,['technicalaptitude','geniedelinformatique'])>0)addButton('Calculer la durée - Génie de l’Informatique',()=>edit(message,()=>technicalDurationDialog(message)));
-    for(const option of destinyHitOptions(actor,message))addButton('Utiliser '+option.label,()=>edit(message,()=>destinyHitDialog(message,option.id)));
-    for(const option of talentRerollOptions(actor,message)){const names={'natural-enforcer':'Brute-Née','natural-doctor':'Médecin-Né','natural-negotiator':'Négociateur-Né'};addButton('Relancer avec '+names[option.id],()=>rerollWithTalent(message,option.id));}
-    const count=document.createElement('p');count.textContent=`${t('Restants','Remaining')}: `+(Object.entries(left).filter(([,n])=>n>0).map(([c,n])=>`${n} ${symbolNames()[c]}`).join(' · ')||'0');box.append(count);
-    if(left.advantage>0||left.triumph>0||(game.user.isGM&&(left.threat>0||left.despair>0))) addButton(t('Utiliser les avantages / menaces','Spend advantages / threats'),()=>spendDialog(message));
-    if(weapon(message)&&num(result(message).success)>0) addButton(s.request?t('Demande de dégâts - valider','Damage request - review'):t('Appliquer les dégâts…','Apply damage…'),()=>edit(message,()=>damageDialog(message)));
+    if(['mechanics','mecanique','swffgskillsnamemechanics'].includes(skill)&&result(message)?.success>0&&reviewedRank(actor,['finetuning','mecaniciendeprecision'])>0)addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.FineTuningButton"),()=>edit(message,()=>fineTuningDialog(message)));
+    if(['cool','discipline','calme','sangfroid'].includes(skill)&&actor?.getFlag?.(scope,'lastCompletedEncounter')&&(reviewedRank(actor,['rapidrecovery','recuperationrapide'])>0||message.getFlag(scope,'rollTalents')?.some(t=>t.id==='balance')))addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.RecoverEncounter"),()=>edit(message,()=>encounterRecoveryDialog(message)));
+    if(halvedTaskTalents(message).length)addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.CalculateTask"),()=>edit(message,()=>halvedTaskDialog(message)));
+    if(['negotiation','negociation'].includes(skill)&&result(message)?.success>0&&reviewedRank(actor,['wheelanddeal','sensdesaffaires'])>0)addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.CalculateSale"),()=>edit(message,()=>wheelDealDialog(message)));
+    if(['mechanics','mecanique','swffgskillsnamemechanics'].includes(skill)&&result(message)?.success>0&&reviewedRank(actor,['solidrepairs','reparationssolides'])>0)addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.SolidRepairsButton"),()=>edit(message,()=>fineTuningDialog(message,true)));
+    if(['computers','informatique','swffgskillsnamecomputers'].includes(skill)&&reviewedRank(actor,['technicalaptitude','geniedelinformatique'])>0)addButton(game.i18n.localize("SWFFG.UI.Combat.Talents.TechnicalAptitudeButton"),()=>edit(message,()=>technicalDurationDialog(message)));
+    for(const option of destinyHitOptions(actor,message))addButton(game.i18n.format("SWFFG.UI.Combat.Talents.UseTalent",{talent:option.label}),()=>edit(message,()=>destinyHitDialog(message,option.id)));
+    for(const option of talentRerollOptions(actor,message)){const names={'natural-enforcer':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalEnforcer"),'natural-doctor':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalDoctor"),'natural-negotiator':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalNegotiator"),'natural-driver':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalDriver"),'natural-pilot':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalPilot"),'natural-leader':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalLeader"),'natural-programmer':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalProgrammer"),'natural-marksman':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalMarksman"),'natural-rogue':game.i18n.localize("SWFFG.UI.Combat.Talents.NaturalRogue")};addButton(game.i18n.format("SWFFG.UI.Combat.Talents.RerollTalent",{talent:names[option.id]}),()=>rerollWithTalent(message,option.id));}
+    const count=document.createElement('p');count.textContent=`${game.i18n.localize("SWFFG.UI.Combat.CombatActions.Remaining")}: `+(Object.entries(left).filter(([,n])=>n>0).map(([c,n])=>`${n} ${symbolNames()[c]}`).join(' · ')||'0');box.append(count);
+    if(left.advantage>0||left.triumph>0||(game.user.isGM&&(left.threat>0||left.despair>0))) addButton(game.i18n.localize("SWFFG.UI.Combat.CombatActions.SpendAdvantagesThreats"),()=>spendDialog(message));
+    if(weapon(message)&&num(result(message).success)>0) addButton(s.request?game.i18n.localize("SWFFG.UI.Combat.CombatActions.DamageRequestReview"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.ApplyDamage_d4840e"),()=>edit(message,()=>damageDialog(message)));
   }
   const criticalGroups=new Set();
   for(const entry of s.entries.filter(e=>!e.undone)) {
     const line=document.createElement('p');line.textContent=`${entry.label}${entry.note?` - ${entry.note}`:''}${entry.cost?` (${entry.cost} ${symbolNames()[entry.currency] ?? entry.currency})`:''}`;box.append(line);
-    if(entry.kind==='aid'&&entry.recipient===game.user.id) addButton(t('Accepter pour mon prochain jet','Accept for my next roll'),()=>acceptAid(message,entry));
+    if(entry.kind==='aid'&&entry.recipient===game.user.id) addButton(game.i18n.localize("SWFFG.UI.Combat.CombatActions.AcceptForMyNextRoll"),()=>acceptAid(message,entry));
     if(entry.effect==='critical') {
       const group=entry.batch??entry.id;
       if(criticalGroups.has(group))continue;
@@ -512,12 +521,12 @@ export function renderCombatActions(message,element) {
       if(resolution?.summary) {const summary=document.createElement('p');summary.textContent=resolution.summary;box.append(summary);}
       if(editable&&resolution?.status!=='applied') {
         const ids=s.entries.filter(candidate=>candidate.effect==='critical'&&!candidate.undone&&(entry.batch?candidate.batch===entry.batch:candidate.id===entry.id)).map(candidate=>candidate.id);
-        addButton(resolution?.status==='requested'?t('Demande de critique - valider','Critical request - review'):t('Résoudre le critique…','Resolve critical…'),()=>edit(message,async()=>{
+        addButton(resolution?.status==='requested'?game.i18n.localize("SWFFG.UI.Combat.CombatActions.CriticalRequestReview"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.ResolveCritical"),()=>edit(message,async()=>{
           const {resolveCritical}=await import('./critical-actions.js');await resolveCritical(message,ids);
         }));
       }
     }
-    if(editable) addButton(entry.effect==='critical'?t('Annuler le critique et sa dépense','Undo critical and spending'):t('Annuler cette application','Undo this application'),()=>edit(message,()=>undo(message,entry.id)));
+    if(editable) addButton(entry.effect==='critical'?game.i18n.localize("SWFFG.UI.Combat.CombatActions.UndoCriticalAndSpending"):game.i18n.localize("SWFFG.UI.Combat.CombatActions.UndoThisApplication"),()=>edit(message,()=>undo(message,entry.id)));
   }
   if(box.childElementCount) root.append(box);
 }
@@ -538,7 +547,7 @@ export function reviewedCombatForMessage(actor,message){
  return {spareClip:reviewedRank(actor,['spareclip','jamaisacourt'])>0,success:result(message)?.success>0,disorient:combat?reviewedRank(actor,['disorient','desorientation']):0,stunningImproved:melee&&stun&&reviewedRank(actor,['stunningblowimproved','improvedstunningblow','coupassommantameliore'])>0};
 }
 
-export const sessionRerollRules=[
+export const sessionRerollRules=[{"id": "natural-driver", "names": ["naturaldriver", "fonceurne"], "skills": ["pilotingplanetary", "pilotageplanetaire", "gunnery", "artillerie"]}, {"id": "natural-pilot", "names": ["naturalpilot", "pilotene"], "skills": ["pilotingspace", "pilotagespatial", "pilotageespace", "gunnery", "artillerie"]}, {"id": "natural-leader", "names": ["naturalleader", "meneurne"], "skills": ["cool", "calme", "leadership", "commandement"]}, {"id": "natural-programmer", "names": ["naturalprogrammer", "programmeurne"], "skills": ["computers", "informatique", "astrogation"]}, {"id": "natural-marksman", "names": ["naturalmarksman", "tireurne"], "skills": ["rangedlight", "rangedheavy", "armeslegeres", "armeslourdes"]}, {"id": "natural-rogue", "names": ["naturalrogue", "voyoune"], "skills": ["skulduggery", "magouilles", "stealth", "discretion"]},
  {id:'natural-enforcer',names:['naturalenforcer','brutenee'],skills:['coercion','streetwise','systemed']},
  {id:'natural-doctor',names:['naturaldoctor','medecinne'],skills:['medicine','medecine']},
  {id:'natural-negotiator',names:['naturalnegotiator','negociateurne'],skills:['cool','calme','negotiation','negociation']}
@@ -552,18 +561,19 @@ export function talentRerollOptions(actor,message){
  return sessionRerollRules.filter(r=>r.skills.includes(skill)&&reviewedRank(actor,r.names)>0&&!actor.getFlag?.(scope,'talentSessionUsage')?.[r.id]);
 }
 export async function rerollWithTalent(message,id){
- const actor=await speakerActor(message);if(!canEdit(message)||!actor?.isOwner)throw Error('Le propriétaire doit relancer ce test.');
- if(rerollLocks.has(actor.uuid))throw Error('Une relance est déjà en cours.');
+ const actor=await speakerActor(message);if(!canEdit(message)||!actor?.isOwner)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.OwnerMustReroll"));
+ if(rerollLocks.has(actor.uuid))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RerollPending"));
  rerollLocks.add(actor.uuid);let used=false,replacement;
  try{
   const option=talentRerollOptions(actor,message).find(r=>r.id===id),old=message.rolls?.find(r=>r.hasFFG);
-  if(!option||!old)throw Error('Relance indisponible : usage de session, compétence ou dépenses déjà effectuées.');
-  const additions={};for(const a of old.addedResults??[]){const field=String(a.type??'').toLowerCase();if(['success','failure','advantage','threat','triumph','despair','light','dark'].includes(field))additions[field]=(additions[field]??0)+Number(a.value)*(a.negative?-1:1);}
+  if(!option||!old)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RerollUnavailable"));
+  const additions={};for(const a of old.addedResults??[]){if(a.talentGenerated)continue;const field=String(a.type??'').toLowerCase();if(['success','failure','advantage','threat','triumph','despair','light','dark'].includes(field))additions[field]=(additions[field]??0)+Number(a.value)*(a.negative?-1:1);}
   await actor.update({['flags.starwarsffg.talentSessionUsage.'+id]:true});used=true;
+  if(old.forceTalentMode)additions._forceTalent=foundry.utils.deepClone(old.forceTalentMode);
   const flags=foundry.utils.deepClone(message.flags?.starwarsffg??{});delete flags.combatActions;delete flags.usedAid;
   flags.talentReroll={id,source:message.uuid};
   const roll=new game.ffg.RollFFG(old.formula,foundry.utils.deepClone(old.data),additions,old.flavor);
-  const messageData=await roll.toMessage({speaker:message.speaker,flavor:'Relance de talent - '+(message.flavor??''),flags:{starwarsffg:flags}},{create:false});messageData.whisper=Array.from(message.whisper??[]);messageData.blind=Boolean(message.blind);replacement=await ChatMessage.create(messageData);
+  const messageData=await roll.toMessage({speaker:message.speaker,flavor:game.i18n.format("SWFFG.UI.Combat.Talents.TalentRerollFlavor",{flavor:message.flavor??''}),flags:{starwarsffg:flags}},{create:false});messageData.whisper=Array.from(message.whisper??[]);messageData.blind=Boolean(message.blind);replacement=await ChatMessage.create(messageData);
   await message.setFlag(scope,'talentReplacement',replacement.uuid);
   return replacement;
  }catch(error){if(used&&!replacement)await actor.update({['flags.starwarsffg.talentSessionUsage.'+id]:false});throw error;}
@@ -571,66 +581,67 @@ export async function rerollWithTalent(message,id){
 }
 
 export function fineTuningRepair(current,base,rank){
- if(!Number.isFinite(current)||current<0||!Number.isInteger(base)||base<1||!Number.isInteger(rank)||rank<1)throw Error('Réparation invalide.');
+ if(!Number.isFinite(current)||current<0||!Number.isInteger(base)||base<1||!Number.isInteger(rank)||rank<1)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.InvalidRepair"));
  return {base,bonus:rank,removed:Math.min(current,base+rank),after:Math.max(0,current-base-rank)};
 }
 export function technicalTaskDuration(minutes,rank){
- if(!Number.isFinite(minutes)||minutes<=0||!Number.isInteger(rank)||rank<1)throw Error('Durée ou rang invalide.');
- if(rank>=4)throw Error('Réduction de 100 % ou plus : durée minimale à arbitrer par le MJ, aucun plancher inventé.');
+ if(!Number.isFinite(minutes)||minutes<=0||!Number.isInteger(rank)||rank<1)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.InvalidTimeOrRank"));
+ if(rank>=4)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.FullTimeReductionNeedsGM"));
  return minutes*(1-0.25*rank);
 }
-async function fineTuningDialog(message){
- const actor=await speakerActor(message),rank=reviewedRank(actor,['finetuning','mecaniciendeprecision']);
- if(!actor?.isOwner||!rank||num(result(message)?.success)<1)throw Error('Réparation indisponible.');
- const vehicles=Array.from(game.actors?.contents??[]).filter(a=>a.type==='vehicle'&&a.isOwner&&num(a.system.stats?.systemStrain?.value)>0);
- if(!vehicles.length)throw Error('Aucun véhicule accessible avec du stress mécanique à réparer.');
- const chosen=await foundry.applications.api.DialogV2.prompt({window:{title:'Mécanicien de Précision'},classes:['starwarsffg','themed'],rejectClose:false,content:'<p style="text-align:justify">Confirmez les points normalement réparés par ce test. Le talent ajoute '+rank+' point(s), sans dépasser le stress mécanique restant. Aucun dégât de coque n’est réparé.</p><label>Véhicule<select name="vehicle">'+vehicles.map(v=>'<option value="'+esc(v.id)+'">'+esc(v.name)+'</option>').join('')+'</select></label><label>Points réparés avant talent<input type="number" name="base" min="1" step="1" required></label>',ok:{label:'Réparer',callback:(_e,_b,app)=>({id:field(app.element,'vehicle'),base:Number(field(app.element,'base'))})}});
+async function fineTuningDialog(message,repairHull=false){
+ const group=repairHull?'hullTrauma':'systemStrain',effectName=repairHull?'solid-repairs':'fine-tuning',title=repairHull?game.i18n.localize("SWFFG.UI.Combat.Talents.SolidRepairs"):game.i18n.localize("SWFFG.UI.Combat.Talents.FineTuning");
+ const actor=await speakerActor(message),rank=reviewedRank(actor,repairHull?['solidrepairs','reparationssolides']:['finetuning','mecaniciendeprecision']);
+ if(!actor?.isOwner||!rank||num(result(message)?.success)<1)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RepairUnavailable"));
+ const vehicles=Array.from(game.actors?.contents??[]).filter(a=>a.type==='vehicle'&&a.isOwner&&num(a.system.stats?.[group]?.value)>0);
+ if(!vehicles.length)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.NoVehicleStrain"));
+ const chosen=await foundry.applications.api.DialogV2.prompt({window:{title},classes:['starwarsffg','themed'],rejectClose:false,content:`<p style="text-align:justify">${game.i18n.format("SWFFG.UI.Combat.Talents.RepairHint",{rank})}</p><label>${game.i18n.localize("SWFFG.UI.Combat.Talents.Vehicle")}<select name="vehicle">`+vehicles.map(v=>'<option value="'+esc(v.id)+'">'+esc(v.name)+'</option>').join('')+`</select></label><label>${game.i18n.localize("SWFFG.UI.Combat.Talents.BaseRepairPoints")}<input type="number" name="base" min="1" step="1" required></label>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Repair"),callback:(_e,_b,app)=>({id:field(app.element,'vehicle'),base:Number(field(app.element,'base'))})}});
  if(!chosen)return;
- const vehicle=vehicles.find(v=>v.id===chosen.id);if(!vehicle?.isOwner)throw Error('Véhicule inaccessible.');
- const current=state(message);if(current.entries.some(e=>e.effect==='fine-tuning'&&!e.undone))throw Error('Ce test a déjà réparé un véhicule.');
- const before=num(vehicle.system.stats.systemStrain.value),repair=fineTuningRepair(before,chosen.base,rank);
- const entry={id:foundry.utils.randomID(),kind:'effect',effect:'fine-tuning',label:'Mécanicien de Précision : '+repair.base+' + '+rank+' = '+repair.removed+' stress mécanique réparé(s)',note:vehicle.name,change:{actor:vehicle.uuid,path:'system.stats.systemStrain.value',before,after:repair.after}};
+ const vehicle=vehicles.find(v=>v.id===chosen.id);if(!vehicle?.isOwner)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.VehicleUnavailable"));
+ const current=state(message);if(current.entries.some(e=>['fine-tuning','solid-repairs'].includes(e.effect)&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.VehicleAlreadyRepaired"));
+ const before=num(vehicle.system.stats[group].value),repair=fineTuningRepair(before,chosen.base,rank);
+ const entry={id:foundry.utils.randomID(),kind:'effect',effect:effectName,label:game.i18n.format("SWFFG.UI.Combat.Talents.RepairReceipt",{talent:title,base:repair.base,rank,repaired:repair.removed}),note:vehicle.name,change:{actor:vehicle.uuid,path:'system.stats.'+group+'.value',before,after:repair.after}};
  await vehicle.update({[entry.change.path]:repair.after});
- try{current.entries.push(entry);await message.setFlag(scope,key,current);}catch(error){if(num(vehicle.system.stats.systemStrain.value)===repair.after)await vehicle.update({[entry.change.path]:before});throw error;}
+ try{current.entries.push(entry);await message.setFlag(scope,key,current);}catch(error){if(num(vehicle.system.stats[group].value)===repair.after)await vehicle.update({[entry.change.path]:before});throw error;}
 }
 async function technicalDurationDialog(message){
  const actor=await speakerActor(message),rank=reviewedRank(actor,['technicalaptitude','geniedelinformatique']);
- if(!actor?.isOwner||!rank)throw Error('Talent indisponible.');
- return foundry.applications.api.DialogV2.prompt({window:{title:'Génie de l’Informatique'},classes:['starwarsffg','themed'],rejectClose:false,content:'<label>Durée normale de la tâche (minutes)<input type="number" name="minutes" min="0.01" step="any" required></label>',ok:{label:'Calculer',callback:async(_e,_b,app)=>{
+ if(!actor?.isOwner||!rank)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.TalentUnavailable"));
+ return foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.TechnicalAptitude")},classes:['starwarsffg','themed'],rejectClose:false,content:`<label>${game.i18n.localize("SWFFG.UI.Combat.Talents.NormalTaskMinutes")}<input type="number" name="minutes" min="0.01" step="any" required></label>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Calculate"),callback:async(_e,_b,app)=>{
   const minutes=Number(field(app.element,'minutes')),after=technicalTaskDuration(minutes,rank),current=state(message);
-  current.entries.push({id:foundry.utils.randomID(),kind:'effect',effect:'technical-aptitude',label:'Génie de l’Informatique : '+minutes+' min → '+after+' min (-'+rank*25+' %)',note:'Calcul de durée, sans modification de l’horloge de campagne.'});await message.setFlag(scope,key,current);return after;
+  current.entries.push({id:foundry.utils.randomID(),kind:'effect',effect:'technical-aptitude',label:game.i18n.format("SWFFG.UI.Combat.Talents.TechnicalDurationReceipt",{minutes,after,percent:rank*25}),note:game.i18n.localize("SWFFG.UI.Combat.Talents.TimeCalculationHint")});await message.setFlag(scope,key,current);return after;
  }}});
 }
 export function destinyHitOptions(actor,message){
  const item=weapon(message);if(!actor?.isOwner||!item||item.type!=='weapon'||messageCombatMode(message)==='vehicle'||num(result(message)?.success)<1)return [];
  if(state(message).entries.some(e=>e.kind==='damage'&&!e.undone))return [];
- return [{id:'anatomy-lessons',names:['anatomylessons','leconsdanatomie'],label:'Leçons d’Anatomie',stat:'Intellect'},{id:'targeted-blow',names:['targetedblow','coupcible'],label:'Coup Ciblé',stat:'Agility'}].filter(r=>reviewedRank(actor,r.names)>0&&!state(message).entries.some(e=>e.effect===r.id&&!e.undone));
+ return [{id:'soft-spot',names:['softspot','pointfaible'],label:game.i18n.localize("SWFFG.UI.Combat.Talents.SoftSpot"),stat:'Cunning'},{id:'anatomy-lessons',names:['anatomylessons','leconsdanatomie'],label:game.i18n.localize("SWFFG.UI.Combat.Talents.AnatomyLessons"),stat:'Intellect'},{id:'targeted-blow',names:['targetedblow','coupcible'],label:game.i18n.localize("SWFFG.UI.Combat.Talents.TargetedBlow"),stat:'Agility'}].filter(r=>reviewedRank(actor,r.names)>0&&!state(message).entries.some(e=>e.effect===r.id&&!e.undone));
 }
 async function destinyHitDialog(message,id){
- const actor=await speakerActor(message),option=destinyHitOptions(actor,message).find(o=>o.id===id);if(!option)throw Error('Talent indisponible pour cette attaque.');
- if(!game.user.isGM)throw Error('Le MJ doit confirmer cette dépense de Destin.');
- const pool=await foundry.applications.api.DialogV2.prompt({window:{title:option.label},classes:['starwarsffg','themed'],rejectClose:false,content:'<p style="text-align:justify">1 point de Destin, dégâts supplémentaires pour une seule touche réussie.</p><label>Réserve<select name="pool"><option value="light">Lumineux</option><option value="dark">Obscur</option></select></label>',ok:{label:'Activer',callback:(_e,_b,app)=>field(app.element,'pool')}});
+ const actor=await speakerActor(message),option=destinyHitOptions(actor,message).find(o=>o.id===id);if(!option)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.AttackTalentUnavailable"));
+ if(!game.user.isGM)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.GMConfirmDestiny"));
+ const pool=await foundry.applications.api.DialogV2.prompt({window:{title:option.label},classes:['starwarsffg','themed'],rejectClose:false,content:`<p style="text-align:justify">${game.i18n.localize("SWFFG.UI.Combat.Talents.DestinyDamageHint")}</p><label>${game.i18n.localize("SWFFG.UI.Combat.Talents.Pool")}<select name="pool"><option value="light">${game.i18n.localize("SWFFG.UI.Combat.Talents.Light")}</option><option value="dark">${game.i18n.localize("SWFFG.UI.Combat.Talents.Dark")}</option></select></label>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Activate"),callback:(_e,_b,app)=>field(app.element,'pool')}});
  if(!pool)return;
  const {reserveTalentDestiny,refundTalentDestiny}=await import('./reviewed-destiny.js'),destiny=await reserveTalentDestiny(pool);
- try{const current=state(message);if(!destinyHitOptions(actor,message).some(o=>o.id===id))throw Error('L’attaque a changé depuis la confirmation.');current.entries.push({id:foundry.utils.randomID(),kind:'destiny-talent',effect:id,label:option.label+' : +'+num(actor.system.characteristics?.[option.stat]?.value)+' dégâts sur une touche',damageBonus:num(actor.system.characteristics?.[option.stat]?.value),destiny});await message.setFlag(scope,key,current);}catch(error){await refundTalentDestiny(destiny);throw error;}
+ try{const current=state(message);if(!destinyHitOptions(actor,message).some(o=>o.id===id))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.AttackChanged"));current.entries.push({id:foundry.utils.randomID(),kind:'destiny-talent',effect:id,label:game.i18n.format("SWFFG.UI.Combat.Talents.DestinyHitReceipt",{talent:option.label,damage:num(actor.system.characteristics?.[option.stat]?.value)}),damageBonus:num(actor.system.characteristics?.[option.stat]?.value),destiny});await message.setFlag(scope,key,current);}catch(error){await refundTalentDestiny(destiny);throw error;}
 }
 
 export function stimulusChoiceLimit(triumph,hasSupreme){return 1+(hasSupreme?Math.max(0,Math.floor(Number(triumph)||0)):0);}
 export async function applyStimulus(message,target,choices,contactConfirmed){
  const actor=await speakerActor(message),trigger=message.getFlag(scope,'triggeredTalent');
  const improved=trigger==='stimapimp';
- if(!canEdit(message)||!actor?.isOwner||!target?.isOwner||!['stimap','stimapimp'].includes(trigger)||num(result(message)?.success)<1||!contactConfirmed)throw Error('Confirmez le bénéficiaire au contact, les droits et la réussite du jet de Dose de Stimulant.');
- const combat=game.combat;if(!combat?.started)throw Error('Un combat actif est nécessaire pour gérer la durée jusqu’à la fin de la rencontre.');
- const current=state(message);if(current.entries.some(e=>e.effect==='stim-application'&&!e.undone))throw Error('Ce test a déjà appliqué Dose de Stimulant.');
+ if(!canEdit(message)||!actor?.isOwner||!target?.isOwner||!['stimap','stimapimp'].includes(trigger)||num(result(message)?.success)<1||!contactConfirmed)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.StimConditionsRequired"));
+ const combat=game.combat;if(!combat?.started)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.EncounterNeeded"));
+ const current=state(message);if(current.entries.some(e=>e.effect==='stim-application'&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.StimAlreadyApplied"));
  const supreme=reviewedRank(actor,['stimapplicationsupreme','dosedestimulantultime','dosedestimulantsupreme'])>0;
  const left=remainingSymbols(result(message),current.entries),limit=stimulusChoiceLimit(left.triumph,supreme);
- if(!choices.length||new Set(choices).size!==choices.length||choices.length>limit||choices.some(k=>!target.system.characteristics?.[k]))throw Error('Choix de caractéristiques ou budget de Triomphes invalide.');
+ if(!choices.length||new Set(choices).size!==choices.length||choices.length>limit||choices.some(k=>!target.system.characteristics?.[k]))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.StimBudgetInvalid"));
  const old=target.getFlag(scope,'stimBonuses')??[];
- if(choices.some(k=>old.some(b=>b.encounterId===combat.id&&b.characteristic===k)))throw Error('Une de ces caractéristiques a déjà été augmentée par ce talent pendant cette rencontre.');
+ if(choices.some(k=>old.some(b=>b.encounterId===combat.id&&b.characteristic===k)))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.CharacteristicAlreadyBoosted"));
  const stat=target.system.stats?.strain?.max>0?{path:'system.stats.strain.value',value:target.system.stats.strain.value}:target.type==='rival'?{path:'system.stats.wounds.value',value:target.system.stats.wounds.value}:null;
- if(!stat)throw Error('Le coût de stress de ce bénéficiaire doit être résolu avec le MJ.');
+ if(!stat)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecipientStrainNeedsGM"));
  const id=foundry.utils.randomID(),cost=improved?1:4,bonuses=choices.map(k=>({id:id+':'+k,source:message.uuid,encounterId:combat.id,characteristic:k}));
- const entry={id,kind:'effect',effect:'stim-application',label:'Dose de Stimulant : '+choices.map(k=>game.i18n.localize('SWFFG.Characteristic'+k)).join(', ')+' +1 jusqu’à la fin de la rencontre',note:target.name,stimBonusIds:bonuses.map(b=>b.id),change:{actor:target.uuid,path:stat.path,before:num(stat.value),after:num(stat.value)+cost},...(choices.length>1?{currency:'triumph',cost:choices.length-1}:{} )};
+ const entry={id,kind:'effect',effect:'stim-application',label:game.i18n.format("SWFFG.UI.Combat.Talents.StimReceipt",{traits:choices.map(k=>game.i18n.localize('SWFFG.Characteristic'+k)).join(', ')}),note:target.name,stimBonusIds:bonuses.map(b=>b.id),change:{actor:target.uuid,path:stat.path,before:num(stat.value),after:num(stat.value)+cost},...(choices.length>1?{currency:'triumph',cost:choices.length-1}:{} )};
  await target.update({[stat.path]:entry.change.after,'flags.starwarsffg.stimBonuses':[...old,...bonuses]});
  try{current.entries.push(entry);await message.setFlag(scope,key,current);}catch(error){await target.update({[stat.path]:entry.change.before,'flags.starwarsffg.stimBonuses':old});throw error;}
  return entry;
@@ -638,24 +649,94 @@ export async function applyStimulus(message,target,choices,contactConfirmed){
 async function stimulusDialog(message){
  const actor=await speakerActor(message),candidates=[...new Map([actor,...(canvas.tokens?.placeables??[]).map(t=>t.actor)].filter(a=>a?.isOwner&&['character','rival','nemesis'].includes(a.type)).map(a=>[a.uuid,a])).values()];
  const choices=['Brawn','Agility','Intellect','Cunning','Willpower','Presence'];
- const selected=await foundry.applications.api.DialogV2.prompt({window:{title:'Dose de Stimulant'},classes:['starwarsffg','themed'],rejectClose:false,content:'<label>Bénéficiaire<select name="actor">'+candidates.map(a=>'<option value="'+esc(a.uuid)+'">'+esc(a.name)+'</option>').join('')+'</select></label><p style="text-align:justify">Confirmez le contact et la disponibilité de médicaments, médipack ou stimpack. Une caractéristique ; avec le talent Ultime, chaque caractéristique supplémentaire coûte un Triomphe réellement disponible.</p><label><input type="checkbox" name="contact">Conditions de contact et matériel remplies</label>'+choices.map(k=>'<label><input type="checkbox" name="trait" value="'+k+'">'+esc(game.i18n.localize('SWFFG.Characteristic'+k))+'</label>').join(''),ok:{label:'Appliquer',callback:(_e,_b,app)=>({actor:field(app.element,'actor'),traits:Array.from(app.element.querySelectorAll('[name=trait]:checked')).map(e=>e.value),contact:app.element.querySelector('[name=contact]').checked})}});
+ const selected=await foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.StimApplication")},classes:['starwarsffg','themed'],rejectClose:false,content:`<label>${game.i18n.localize("SWFFG.UI.Combat.Talents.Recipient")}<select name="actor">`+candidates.map(a=>'<option value="'+esc(a.uuid)+'">'+esc(a.name)+'</option>').join('')+`</select></label><p style="text-align:justify">${game.i18n.localize("SWFFG.UI.Combat.Talents.StimEquipmentHint")}</p><label><input type="checkbox" name="contact">${game.i18n.localize("SWFFG.UI.Combat.Talents.StimConditions")}</label>`+choices.map(k=>'<label><input type="checkbox" name="trait" value="'+k+'">'+esc(game.i18n.localize('SWFFG.Characteristic'+k))+'</label>').join(''),ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Apply"),callback:(_e,_b,app)=>({actor:field(app.element,'actor'),traits:Array.from(app.element.querySelectorAll('[name=trait]:checked')).map(e=>e.value),contact:app.element.querySelector('[name=contact]').checked})}});
  if(selected)await applyStimulus(message,candidates.find(a=>a.uuid===selected.actor),selected.traits,selected.contact);
 }
 export function commanderCapacity(presence,improved){return Math.max(0,Number(presence)||0)*(improved?2:1);}
 async function commanderDialog(message){
- const actor=await speakerActor(message);if(!actor?.isOwner||message.getFlag(scope,'triggeredTalent')!=='fldcomm'||num(result(message)?.success)<1)throw Error('Action d’Officier Supérieur réussie requise.');
+ const actor=await speakerActor(message);if(!actor?.isOwner||message.getFlag(scope,'triggeredTalent')!=='fldcomm'||num(result(message)?.success)<1)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.CommanderSuccessRequired"));
  const improved=reviewedRank(actor,['fieldcommanderimproved','officiersuperieurameliore'])>0,limit=commanderCapacity(actor.system.characteristics?.Presence?.value,improved);
  const tokens=(canvas.tokens?.placeables??[]).filter(t=>t.actor?.isOwner&&['character','rival','nemesis'].includes(t.actor.type));
  const candidates=[...new Map(tokens.filter(t=>t.actor.uuid!==actor.uuid).map(t=>[t.actor.uuid,t.actor])).values()];
- if(!candidates.length)throw Error('Aucun allié accessible sur la scène. Le MJ peut appliquer les effets aux autres personnages.');
- const selected=await foundry.applications.api.DialogV2.prompt({window:{title:'Officier Supérieur'},classes:['starwarsffg','themed'],rejectClose:false,content:'<p style="text-align:justify">Jusqu’à '+limit+' allié(s). Chacun subit 1 stress avant de jouer. Les manœuvres accordées ne comptent pas dans la limite habituelle par tour. L’officier décide de leur ordre. Les actions sont ensuite jouées par les interfaces normales.</p>'+candidates.map((a,i)=>'<label><input type="checkbox" name="ally" value="'+i+'">'+esc(a.name)+(improved?' <input type="checkbox" name="action'+i+'">Action au lieu de manœuvre (1 Triomphe)':'')+'</label>').join(''),ok:{label:'Accorder',callback:(_e,_b,app)=>Array.from(app.element.querySelectorAll('[name=ally]:checked')).map(e=>({actor:candidates[Number(e.value)],action:app.element.querySelector('[name=action'+e.value+']')?.checked===true}))}});
+ if(!candidates.length)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.NoAccessibleAlly"));
+ const selected=await foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.FieldCommander")},classes:['starwarsffg','themed'],rejectClose:false,content:`<p style="text-align:justify">${game.i18n.format("SWFFG.UI.Combat.Talents.CommanderHint",{limit})}</p>`+candidates.map((a,i)=>'<label><input type="checkbox" name="ally" value="'+i+'">'+esc(a.name)+(improved?' <input type="checkbox" name="action'+i+'">'+game.i18n.localize('SWFFG.UI.Combat.Talents.CommanderActionOption'):'')+'</label>').join(''),ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Grant"),callback:(_e,_b,app)=>Array.from(app.element.querySelectorAll('[name=ally]:checked')).map(e=>({actor:candidates[Number(e.value)],action:app.element.querySelector('[name=action'+e.value+']')?.checked===true}))}});
  if(!selected)return;
  const current=state(message),left=remainingSymbols(result(message),current.entries);
- if(current.entries.some(e=>e.effect==='field-commander'&&!e.undone))throw Error('Ce jet a déjà accordé ses effets.');
- if(!selected.length||selected.length>limit||selected.filter(s=>s.action).length>left.triumph)throw Error('Nombre d’alliés ou budget de Triomphes invalide.');
+ if(current.entries.some(e=>e.effect==='field-commander'&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.EffectsAlreadyGranted"));
+ if(!selected.length||selected.length>limit||selected.filter(s=>s.action).length>left.triumph)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.CommanderBudgetInvalid"));
  const applied=[];
  try{
-  for(const {actor:target,action}of selected){if(!target?.isOwner)throw Error('Bénéficiaire inaccessible.');const stat=target.system.stats?.strain?.max>0?{path:'system.stats.strain.value',value:target.system.stats.strain.value}:target.type==='rival'?{path:'system.stats.wounds.value',value:target.system.stats.wounds.value}:null;if(!stat)throw Error('Coût du bénéficiaire à résoudre avec le MJ.');const entry={id:foundry.utils.randomID(),kind:'effect',effect:'field-commander',label:'Officier Supérieur : '+(action?'action':'manœuvre hors limite habituelle'),note:target.name,change:{actor:target.uuid,path:stat.path,before:num(stat.value),after:num(stat.value)+1},...(action?{currency:'triumph',cost:1}:{})};await target.update({[stat.path]:entry.change.after});applied.push({target,entry});}
+  for(const {actor:target,action}of selected){if(!target?.isOwner)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecipientUnavailable"));const stat=target.system.stats?.strain?.max>0?{path:'system.stats.strain.value',value:target.system.stats.strain.value}:target.type==='rival'?{path:'system.stats.wounds.value',value:target.system.stats.wounds.value}:null;if(!stat)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecipientCostNeedsGM"));const entry={id:foundry.utils.randomID(),kind:'effect',effect:'field-commander',label:action?game.i18n.localize("SWFFG.UI.Combat.Talents.CommanderActionReceipt"):game.i18n.localize("SWFFG.UI.Combat.Talents.CommanderManeuverReceipt"),note:target.name,change:{actor:target.uuid,path:stat.path,before:num(stat.value),after:num(stat.value)+1},...(action?{currency:'triumph',cost:1}:{})};await target.update({[stat.path]:entry.change.after});applied.push({target,entry});}
   current.entries.push(...applied.map(x=>x.entry));await message.setFlag(scope,key,current);
  }catch(error){for(const {target,entry}of applied.reverse())if(num(foundry.utils.getProperty(target,entry.change.path))===entry.change.after)await target.update({[entry.change.path]:entry.change.before});throw error;}
 }
+
+export async function applyFullThrottle(message,vehicle,pilotingConfirmed){
+ const actor=await speakerActor(message),trigger=message.getFlag(scope,'triggeredTalent'),combat=game.combat;
+ if(!actor?.isOwner||!vehicle?.isOwner||vehicle.type!=='vehicle'||!pilotingConfirmed||!['fullth','fullthimp'].includes(trigger)||num(result(message)?.success)<1||!combat?.started)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.FullThrottleConditions"));
+ if(reviewedRank(actor,['fullthrottle','pleinsgaz'])<1)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.FullThrottleNotAcquired"));
+ const duration=Number(actor.system.characteristics?.Cunning?.value);if(!Number.isInteger(duration)||duration<1)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.InvalidCunning"));
+ const current=state(message);if(current.entries.some(e=>e.effect==='full-throttle'&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.FullThrottleAlreadyApplied"));
+ const previous=vehicle.getFlag(scope,'fullThrottle')??null;if(previous&&!previous.expired&&previous.combatId===combat.id&&(combat.round<previous.expiresRound||combat.round===previous.expiresRound&&combat.turn<previous.expiresTurn))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.FullThrottleAlreadyActive"));
+ const bonus=reviewedRank(actor,['fullthrottlesupreme','pleinsgazultime'])>0?2:1,effect={source:message.uuid,actor:actor.uuid,combatId:combat.id,bonus,expiresRound:combat.round+duration,expiresTurn:combat.turn};
+ await vehicle.update({'flags.starwarsffg.fullThrottle':effect});
+ try{current.entries.push({id:foundry.utils.randomID(),kind:'effect',effect:'full-throttle',vehicle:vehicle.uuid,previous,label:game.i18n.format("SWFFG.UI.Combat.Talents.FullThrottleReceipt",{bonus,rounds:duration}),note:game.i18n.format("SWFFG.UI.Combat.Talents.FullThrottleNote",{vehicle:vehicle.name})});await message.setFlag(scope,key,current);}catch(error){if(vehicle.getFlag(scope,'fullThrottle')?.source===message.uuid)await vehicle.update({'flags.starwarsffg.fullThrottle':previous});throw error;}return effect;
+}
+async function fullThrottleDialog(message){
+ const vehicles=Array.from(game.actors?.contents??[]).filter(a=>a.type==='vehicle'&&a.isOwner);if(!vehicles.length)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.NoVehicle"));
+ const choice=await foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.FullThrottle")},classes:['starwarsffg','themed'],rejectClose:false,content:`<label>${game.i18n.localize("SWFFG.UI.Combat.Talents.Vehicle")}<select name="vehicle">`+vehicles.map(v=>'<option value="'+esc(v.id)+'">'+esc(v.name)+'</option>').join('')+`</select></label><label><input type="checkbox" name="pilot">${game.i18n.localize("SWFFG.UI.Combat.Talents.PilotingConfirmed")}</label>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Apply"),callback:(_e,_b,app)=>({id:field(app.element,'vehicle'),confirmed:app.element.querySelector('[name=pilot]').checked})}});if(choice)await applyFullThrottle(message,vehicles.find(v=>v.id===choice.id),choice.confirmed);
+}
+
+export async function applyRhetoric(message,allocations,rangeConfirmed){
+ const actor=await speakerActor(message),trigger=message.getFlag(scope,'triggeredTalent'),inspiring=['insprhet','insprhetsup'].includes(trigger),scathing=['scath','scathsup'].includes(trigger),successes=Math.floor(num(result(message)?.success));
+ if(!actor?.isOwner||(!inspiring&&!scathing)||successes<1||!rangeConfirmed||!allocations.length||allocations.length>successes)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RhetoricConditions"));
+ const current=state(message);if(current.entries.some(e=>e.effect==='rhetoric'&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.EffectsAlreadyApplied"));
+ const unique=new Set(allocations.map(a=>a.actor.uuid));if(unique.size!==allocations.length)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.DuplicateTarget"));
+ const extra=allocations.reduce((n,a)=>n+a.extra,0),available=remainingSymbols(result(message),current.entries);if(allocations.some(a=>!Number.isInteger(a.extra)||a.extra<0)||extra>available.advantage)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.InvalidAdvantageBudget"));
+ const improved=reviewedRank(actor,inspiring?['inspiringrhetoricimproved','sensdelarhetoriqueameliore']:['scathingtiradeimproved','repartiecaustiqueameliore'])>0,combat=game.combat;
+ if(improved&&!combat?.started)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.ImprovedTalentNeedsCombat"));
+ const skill=inspiring?'Leadership':'Coercion',duration=Number(actor.system.skills?.[skill]?.rank);if(improved&&(!Number.isInteger(duration)||duration<1))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.InvalidDurationSkillRank"));
+ const id=foundry.utils.randomID(),changes=[];const present=new Set((canvas.tokens?.placeables??[]).filter(t=>game.user.isGM||(t.visible&&!t.document.hidden)).map(t=>t.actor?.uuid));
+ for(const allocation of allocations){const target=allocation.actor;if(!target?.isOwner||!present.has(target.uuid)||inspiring&&target.uuid===actor.uuid)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RhetoricTargetRequired"));const strain=target.system.stats?.strain;const account=Number(strain?.max)>0?{path:'system.stats.strain.value',stat:strain}:!inspiring&&target.type==='rival'?{path:'system.stats.wounds.value',stat:target.system.stats.wounds}:null;if(!account)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.TargetStrainNeedsGM"));const before=Number(account.stat.value);if(!Number.isFinite(before)||inspiring&&before<=0)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.NoTargetStrain"));const after=inspiring?Math.max(0,before-1-allocation.extra):before+1+allocation.extra;changes.push({actor:target.uuid,path:account.path,before,after,target,modifiers:target.getFlag(scope,'timedTalentModifiers')??[]});}
+ const applied=[];
+ try{for(const change of changes){const update={[change.path]:change.after};if(improved){const kind=inspiring?'boost':'setback',family=inspiring?'inspiring-rhetoric':'scathing-tirade';update['flags.starwarsffg.timedTalentModifiers']=[...change.modifiers,{id,kind,family,source:message.uuid,combatId:combat.id,expiresRound:combat.round+duration,expiresTurn:combat.turn}];}await change.target.update(update);applied.push(change);}
+ current.entries.push({id,kind:'effect',effect:'rhetoric',label:game.i18n.format("SWFFG.UI.Combat.Talents.RhetoricReceipt",{talent:inspiring?game.i18n.localize("SWFFG.UI.Combat.Talents.InspiringRhetoric"):game.i18n.localize("SWFFG.UI.Combat.Talents.ScathingTirade"),targets:changes.length,advantages:extra}),changes:changes.map(({target,modifiers,...change})=>change),...(extra?{currency:'advantage',cost:extra}:{})});await message.setFlag(scope,key,current);
+ }catch(error){for(const change of applied)if(num(foundry.utils.getProperty(change.target,change.path))===change.after)await change.target.update({[change.path]:change.before,'flags.starwarsffg.timedTalentModifiers':change.modifiers});throw error;}return changes.map(({target,modifiers,...change})=>change);
+}
+async function rhetoricDialog(message){
+ const candidates=Array.from(new Map((canvas.tokens?.placeables??[]).filter(t=>t.actor?.isOwner&&(game.user.isGM||t.visible&&!t.document.hidden)).map(t=>[t.actor.uuid,t.actor])).values());
+ if(!candidates.length)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.NoVisibleTarget"));
+ const choice=await foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.TalentEffects")},classes:['starwarsffg','themed'],rejectClose:false,content:`<p style="text-align:justify">${game.i18n.localize("SWFFG.UI.Combat.Talents.RhetoricTargetHint")}</p>`+candidates.map((a,i)=>'<label><input type="checkbox" name="target" value="'+i+'">'+esc(a.name)+' <input type="number" name="extra-'+i+'" min="0" step="1" value="0" aria-label="'+esc(game.i18n.format("SWFFG.UI.Combat.Talents.ExtraAdvantages",{name:a.name}))+'"></label>').join('')+`<label><input type="checkbox" name="range">${game.i18n.localize("SWFFG.UI.Combat.Talents.RhetoricRangeConfirmed")}</label>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Apply"),callback:(_e,_b,app)=>({allocations:Array.from(app.element.querySelectorAll('[name=target]:checked')).map(e=>({actor:candidates[Number(e.value)],extra:Number(field(app.element,'extra-'+e.value))})),confirmed:app.element.querySelector('[name=range]').checked})}});if(choice)await applyRhetoric(message,choice.allocations,choice.confirmed);
+}
+
+const encounterRecoveryLocks=new Set();
+export async function recoverEncounterStrain(message,confirmed){
+ const actor=await speakerActor(message),encounter=actor?.getFlag?.(scope,'lastCompletedEncounter');
+ const skill=String(message.getFlag(scope,'combatSkill')??'').toLowerCase().replace(/[^a-z]/g,'');
+ if(!actor?.isOwner||!encounter||!confirmed||!['cool','discipline','calme','sangfroid'].includes(skill))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecoveryConditions"));
+ if(game.combat?.id===encounter&&game.combat.started)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.EncounterStillActive"));
+ if(encounterRecoveryLocks.has(actor.uuid))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecoveryPending"));encounterRecoveryLocks.add(actor.uuid);
+ try{if(actor.getFlag(scope,'lastRecoveredEncounter')===encounter)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.RecoveryAlreadyDone"));
+ const rapid=reviewedRank(actor,['rapidrecovery','recuperationrapide']),balance=message.getFlag(scope,'rollTalents')?.some(t=>t.id==='balance'),rolled=result(message),light=balance?Math.max(0,Math.floor(num(rolled?.light))):0,successes=Math.max(0,Math.floor(num(rolled?.success))),before=num(actor.system.stats?.strain?.value),amount=successes+rapid+light,after=Math.max(0,before-amount);
+ if(!(Number(actor.system.stats?.strain?.max)>0))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.NoPersonalStrain"));
+ const previous=actor.getFlag(scope,'lastRecoveredEncounter')??null;await actor.update({'system.stats.strain.value':after,'flags.starwarsffg.lastRecoveredEncounter':encounter});
+ try{const current=state(message);current.entries.push({id:foundry.utils.randomID(),kind:'effect',effect:'encounter-recovery',label:game.i18n.format("SWFFG.UI.Combat.Talents.RecoveryReceipt",{successes,rapid,light,recovered:before-after,after}),change:{actor:actor.uuid,path:'system.stats.strain.value',before,after},encounter,previous});await message.setFlag(scope,key,current);}catch(error){if(actor.system.stats.strain.value===after)await actor.update({'system.stats.strain.value':before,'flags.starwarsffg.lastRecoveredEncounter':previous});throw error;}
+ return {successes,rapid,light,recovered:before-after,after};
+ }finally{encounterRecoveryLocks.delete(actor.uuid);}
+}
+async function encounterRecoveryDialog(message){return foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.EncounterRecovery")},classes:['starwarsffg','themed'],rejectClose:false,content:`<label><input type="checkbox" name="confirm">${game.i18n.localize("SWFFG.UI.Combat.Talents.RecoveryCheckConfirmed")}</label>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Recover"),callback:(_e,_b,app)=>recoverEncounterStrain(message,app.element.querySelector('[name=confirm]').checked)}});}
+
+export function wheelDealPrice(price,rank){if(!Number.isFinite(price)||price<0||!Number.isInteger(rank)||rank<1)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.InvalidPriceOrRank"));const bonus=Math.round(price*rank*10)/100;return {base:price,bonus,total:Math.round((price+bonus)*100)/100};}
+async function wheelDealDialog(message){const actor=await speakerActor(message),rank=reviewedRank(actor,['wheelanddeal','sensdesaffaires']);return foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.WheelAndDeal")},classes:['starwarsffg','themed'],rejectClose:false,content:`<label>${game.i18n.localize("SWFFG.UI.Combat.Talents.NormalSalePrice")}<input name="price" type="number" min="0" step="0.01"></label><label><input type="checkbox" name="legal">${game.i18n.localize("SWFFG.UI.Combat.Talents.LegalSaleConfirmed")}</label>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Calculate"),callback:async(_e,_b,app)=>{if(!app.element.querySelector('[name=legal]').checked)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.ConfirmSaleConditions"));const calculation=wheelDealPrice(Number(field(app.element,'price')),rank),current=state(message);if(current.entries.some(e=>e.effect==='wheel-and-deal'&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.SaleAlreadyCalculated"));current.entries.push({id:foundry.utils.randomID(),kind:'effect',effect:'wheel-and-deal',label:game.i18n.format("SWFFG.UI.Combat.Talents.SaleReceipt",{base:calculation.base,bonus:calculation.bonus,total:calculation.total}),note:game.i18n.localize("SWFFG.UI.Combat.Talents.PriceOnlyHint")});await message.setFlag(scope,key,current);return calculation;}}});}
+
+export function halvedTaskTalents(message){
+ const skill=String(message.getFlag(scope,'combatSkill')??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'');
+ return (message.getFlag(scope,'rollTalents')??[]).filter(t=>t.id==='utinni'||['survival','survie'].includes(skill)&&['expert-tracker','forager'].includes(t.id));
+}
+export function halvedTaskDuration(minutes){if(!Number.isFinite(minutes)||minutes<=0)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.InvalidNormalDuration"));return minutes/2;}
+async function halvedTaskDialog(message){
+ const talents=halvedTaskTalents(message);if(!talents.length)throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.TalentMustBeUsed"));
+ return foundry.applications.api.DialogV2.prompt({window:{title:game.i18n.localize("SWFFG.UI.Combat.Talents.TaskDuration")},classes:['starwarsffg','themed'],rejectClose:false,content:`<label>${game.i18n.localize("SWFFG.UI.Combat.Talents.NormalMinutes")}<input name="minutes" type="number" min="0.01" step="any"></label><p style="text-align:justify">${game.i18n.localize("SWFFG.UI.Combat.Talents.HalfTimeHint")}</p>`,ok:{label:game.i18n.localize("SWFFG.UI.Combat.Talents.Calculate"),callback:async(_e,_b,app)=>{const base=Number(field(app.element,'minutes')),after=halvedTaskDuration(base),current=state(message);if(current.entries.some(e=>e.effect==='halved-task-duration'&&!e.undone))throw Error(game.i18n.localize("SWFFG.UI.Combat.Talents.TaskAlreadyCalculated"));current.entries.push({id:foundry.utils.randomID(),kind:'effect',effect:'halved-task-duration',label:talents.map(t=>t.name??t.id).join(', ')+' : '+base+' min → '+after+' min',note:game.i18n.localize("SWFFG.UI.Combat.Talents.TaskTimeOnlyHint")});await message.setFlag(scope,key,current);return after;}}});
+}
+
+export function pressurePointApplies(item,target){return Boolean(target?.type!=='vehicle'&&typeof target?.uuid==='string'&&item?.flags?.starwarsffg?.brawlAttack?.unarmed&&item.flags.starwarsffg.pressurePointTarget===target.uuid);}

@@ -1,44 +1,44 @@
 import {skills as standardSkills} from '../config/ffg-skills.js';
 
 const normalize=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-// Descriptifs abrégés en français, reformulés depuis le chapitre Compétences du
+// Localized summaries, paraphrased from the Skills chapter of the supplied
 // livre Age of Rebellion fourni (extraction locale migration-work/rules-audit).
 const summaries={
-  'Astrogation':[116,'Calculer une route hyperspatiale et exploiter les données de navigation pour rejoindre une destination.'],
-  'Athletics':[117,'Accomplir des efforts physiques tels que courir, grimper, sauter ou nager.'],
-  'Brawl':[131,'Combattre à mains nues ou avec des armes conçues pour le pugilat.'],
-  'Charm':[117,'Obtenir la sympathie ou la coopération de quelqu’un grâce à son aisance personnelle.'],
-  'Coercion':[118,'Faire céder quelqu’un par l’intimidation, les menaces ou la pression.'],
-  'Computers':[119,'Exploiter des systèmes informatiques, rechercher des données et intervenir sur des programmes ou leurs protections.'],
-  'Cool':[120,'Conserver son sang-froid et réagir avec assurance dans une situation à laquelle on s’est préparé.'],
-  'Coordination':[121,'Garder son équilibre et maîtriser des mouvements précis ou acrobatiques.'],
-  'Deception':[121,'Tromper un interlocuteur, dissimuler ses intentions ou présenter une fausse version des faits.'],
-  'Discipline':[122,'Maintenir sa concentration et sa maîtrise de soi face à la peur, aux distractions ou aux pressions.'],
-  'Gunnery':[131,'Utiliser des armes lourdes montées, des tourelles et les systèmes d’armement de véhicules ou de vaisseaux.'],
-  'Leadership':[123,'Diriger, inspirer et coordonner d’autres personnes pour les conduire vers un objectif commun.'],
-  'Mechanics':[124,'Diagnostiquer et réparer des équipements, des machines ou des véhicules, et intervenir sur leurs composants.'],
-  'Medicine':[125,'Évaluer et traiter des blessures ou des maladies, pratiquer les premiers secours et assurer des soins médicaux.'],
-  'Melee':[133,'Combattre au contact avec des armes de mêlée, telles que des lames, bâtons ou vibro-armes.'],
-  'Negotiation':[125,'Discuter les termes d’un échange, marchander et parvenir à un accord avantageux.'],
-  'Perception':[126,'Observer activement son environnement pour repérer des indices, des personnes ou des éléments dissimulés.'],
-  'Piloting: Planetary':[126,'Manœuvrer des véhicules terrestres ou atmosphériques dans des conditions exigeantes, notamment lors d’une poursuite.'],
-  'Piloting: Space':[127,'Manœuvrer un vaisseau spatial, négocier des obstacles et gérer des poursuites ou des engagements dans l’espace.'],
-  'Ranged: Heavy':[133,'Effectuer des attaques à distance avec des armes généralement tenues à deux mains, telles que les fusils.'],
-  'Ranged: Light':[133,'Effectuer des attaques à distance avec des armes légères généralement maniées d’une main, telles que les pistolets.'],
-  'Resilience':[127,'Résister physiquement à l’épuisement, aux conditions difficiles et aux atteintes à l’organisme.'],
-  'Skulduggery':[128,'Accomplir des actions discrètes de manipulation, telles que crocheter une serrure ou subtiliser un objet.'],
-  'Stealth':[128,'Se déplacer ou agir sans être remarqué, en utilisant les abris et les distractions disponibles.'],
-  'Streetwise':[130,'Trouver des contacts, des renseignements ou des ressources dans les milieux urbains et les réseaux informels.'],
-  'Survival':[130,'Se débrouiller dans un environnement sauvage : s’orienter, trouver des ressources et suivre des pistes.'],
-  'Vigilance':[130,'Être prêt à réagir à une menace imprévue ou à un changement soudain de situation.'],
-  'Knowledge: Core Worlds':[134,'Mobiliser ses connaissances des mondes du Noyau, de leurs cultures, institutions et échanges.'],
-  'Knowledge: Education':[135,'Mobiliser des connaissances générales acquises par l’étude, notamment dans les domaines scientifiques et techniques.'],
-  'Knowledge: Lore':[135,'Identifier des traditions, récits anciens et connaissances historiques ou ésotériques.'],
-  'Knowledge: Outer Rim':[135,'Mobiliser ses connaissances des mondes de la Bordure extérieure, de leurs habitants et particularités.'],
-  'Knowledge: Underworld':[136,'Identifier les organisations criminelles, leurs pratiques, leurs activités et leurs relations.'],
-  'Knowledge: Warfare':[136,'Comprendre la tactique, les opérations militaires et les moyens employés dans un conflit.'],
-  'Knowledge: Xenology':[137,'Identifier les espèces, leurs particularités biologiques et les éléments de leurs cultures.'],
-  'Lightsaber':[null,'Manier un sabre laser et employer les techniques de combat associées.']
+  'Astrogation':[116,"SWFFG.UI.SkillInformation.Summary.Astrogation"],
+  'Athletics':[117,"SWFFG.UI.SkillInformation.Summary.Athletics"],
+  'Brawl':[131,"SWFFG.UI.SkillInformation.Summary.Brawl"],
+  'Charm':[117,"SWFFG.UI.SkillInformation.Summary.Charm"],
+  'Coercion':[118,"SWFFG.UI.SkillInformation.Summary.Coercion"],
+  'Computers':[119,"SWFFG.UI.SkillInformation.Summary.Computers"],
+  'Cool':[120,"SWFFG.UI.SkillInformation.Summary.Cool"],
+  'Coordination':[121,"SWFFG.UI.SkillInformation.Summary.Coordination"],
+  'Deception':[121,"SWFFG.UI.SkillInformation.Summary.Deception"],
+  'Discipline':[122,"SWFFG.UI.SkillInformation.Summary.Discipline"],
+  'Gunnery':[131,"SWFFG.UI.SkillInformation.Summary.Gunnery"],
+  'Leadership':[123,"SWFFG.UI.SkillInformation.Summary.Leadership"],
+  'Mechanics':[124,"SWFFG.UI.SkillInformation.Summary.Mechanics"],
+  'Medicine':[125,"SWFFG.UI.SkillInformation.Summary.Medicine"],
+  'Melee':[133,"SWFFG.UI.SkillInformation.Summary.Melee"],
+  'Negotiation':[125,"SWFFG.UI.SkillInformation.Summary.Negotiation"],
+  'Perception':[126,"SWFFG.UI.SkillInformation.Summary.Perception"],
+  'Piloting: Planetary':[126,"SWFFG.UI.SkillInformation.Summary.PilotingPlanetary"],
+  'Piloting: Space':[127,"SWFFG.UI.SkillInformation.Summary.PilotingSpace"],
+  'Ranged: Heavy':[133,"SWFFG.UI.SkillInformation.Summary.RangedHeavy"],
+  'Ranged: Light':[133,"SWFFG.UI.SkillInformation.Summary.RangedLight"],
+  'Resilience':[127,"SWFFG.UI.SkillInformation.Summary.Resilience"],
+  'Skulduggery':[128,"SWFFG.UI.SkillInformation.Summary.Skulduggery"],
+  'Stealth':[128,"SWFFG.UI.SkillInformation.Summary.Stealth"],
+  'Streetwise':[130,"SWFFG.UI.SkillInformation.Summary.Streetwise"],
+  'Survival':[130,"SWFFG.UI.SkillInformation.Summary.Survival"],
+  'Vigilance':[130,"SWFFG.UI.SkillInformation.Summary.Vigilance"],
+  'Knowledge: Core Worlds':[134,"SWFFG.UI.SkillInformation.Summary.KnowledgeCoreWorlds"],
+  'Knowledge: Education':[135,"SWFFG.UI.SkillInformation.Summary.KnowledgeEducation"],
+  'Knowledge: Lore':[135,"SWFFG.UI.SkillInformation.Summary.KnowledgeLore"],
+  'Knowledge: Outer Rim':[135,"SWFFG.UI.SkillInformation.Summary.KnowledgeOuterRim"],
+  'Knowledge: Underworld':[136,"SWFFG.UI.SkillInformation.Summary.KnowledgeUnderworld"],
+  'Knowledge: Warfare':[136,"SWFFG.UI.SkillInformation.Summary.KnowledgeWarfare"],
+  'Knowledge: Xenology':[137,"SWFFG.UI.SkillInformation.Summary.KnowledgeXenology"],
+  'Lightsaber':[null,"SWFFG.UI.SkillInformation.Summary.Lightsaber"]
 };
 
 export function skillDescriptor(builder){
@@ -53,7 +53,7 @@ export function skillDescriptor(builder){
 }
 const readable=html=>Boolean(String(html??'').replace(/<[^>]*>/g,'').trim())&&!/Dataset did not have a description/i.test(String(html));
 export async function skillDescription(skill){
-  if(readable(skill.data.description))return {html:skill.data.description,source:'Description de la fiche du personnage.'};
+  if(readable(skill.data.description))return {html:skill.data.description,source:game.i18n.localize('SWFFG.UI.SkillInformation.CharacterSource')};
   const compendiumAliases={rangedlight:['Distance (Armes légères)'],rangedheavy:['Distance (Armes lourdes)']};
   const names=[skill.key,skill.label,...(compendiumAliases[normalize(skill.key)]??[])];
   const matches=name=>names.some(value=>normalize(name)===normalize(value));
@@ -69,6 +69,6 @@ export async function skillDescription(skill){
     if(entry){const result=fromJournal(await pack.getDocument(entry._id));if(result)return result;}
   }
   const summary=summaries[skill.key];
-  if(summary)return {html:`<p>${summary[1]}</p>`,source:summary[0]?`Résumé - Age of Rebellion, livre de base fourni, p. ${summary[0]}.`:'Descriptif abrégé du projet.'};
-  return {html:'<p>La description de cette compétence n’a pas encore été renseignée.</p>',source:null};
+  if(summary)return {html:`<p style="text-align:justify">${game.i18n.localize(summary[1])}</p>`,source:summary[0]?game.i18n.format('SWFFG.UI.SkillInformation.RulebookSource',{page:summary[0]}):game.i18n.localize('SWFFG.UI.SkillInformation.ProjectSource')};
+  return {html:`<p style="text-align:justify">${game.i18n.localize('SWFFG.UI.SkillInformation.MissingDescription')}</p>`,source:null};
 }

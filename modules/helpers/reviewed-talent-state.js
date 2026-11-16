@@ -1,6 +1,6 @@
 // User-reviewed choices and equipment bonuses. Source statistics are never changed.
 export const normalizeTalent = s => String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'');
-export const choiceKinds = {wellRounded:['wellrounded','accompli'],smoothTalker:['smoothtalker','beauparleur'],knowledgeSpecialization:['knowledgespecialization','connaissancesspecialisees'],dedication:['dedication','entrainement']};
+export const choiceKinds = {deadlyAccuracy:['deadlyaccuracy','precisionmortelle'],wellRounded:['wellrounded','accompli'],smoothTalker:['smoothtalker','beauparleur'],knowledgeSpecialization:['knowledgespecialization','connaissancesspecialisees'],dedication:['dedication','entrainement']};
 const juryNames=['juryrigged','bidouillage'];
 export const normalizeJuryQuality=name=>normalizeTalent(String(name??'').replace(/\s+quality(?:\s+\d+)?$/i,''));
 export const juryQualityNames=['autofire','automatique','tirautomatique','linked','lie','liee','blast','souffle','explosion','burn','brulure','incendiaire','concussive','choc','concussion','disorient','desorientation','ensnare','immobilisation','entrave','knockdown','renversement','sunder','destruction','fracassage','stun','etourdissement','guided','guide','guidage'];
@@ -20,19 +20,23 @@ export function talentChoiceKind(name) {
   const key = normalizeTalent(name);
   return Object.keys(choiceKinds).find(kind => choiceKinds[kind].includes(key));
 }
-export function validateTalentChoice(actor,kind,skills,retainedSkills=[]){
-  const wanted=kind==='wellRounded'?2:['smoothTalker','knowledgeSpecialization'].includes(kind)?1:0;
-  if(!wanted||skills.length!==wanted||new Set(skills).size!==wanted)throw Error('Choix de compétences invalide.');
-  for(const skill of skills){if(!actor.system?.skills?.[skill])throw Error('Compétence inconnue.');
-    if(kind==='wellRounded'&&actor.system.skills[skill].careerskill&&!retainedSkills.includes(skill))throw Error('Choisissez des compétences qui ne sont pas déjà de carrière.');
-    if(kind==='knowledgeSpecialization'&&!/knowledge|connaissance/i.test(actor.system.skills[skill].type??'')&&!/^(Knowledge|knowledge)/.test(skill))throw Error('Choisissez une compétence de Connaissance.');
-    if(kind==='smoothTalker'&&!['Charm','Coercion','Negotiation','Deception'].includes(skill))throw Error('Cette compétence ne peut pas être liée à Beau Parleur.');}
+export function validateTalentChoice(actor,kind,skills,retainedSkills=[],choiceCount=null){
+  const wanted=kind==='deadlyAccuracy'?(choiceCount??ownedTalentSources(actor,choiceKinds.deadlyAccuracy).reduce((n,s)=>n+s.rank,0)):kind==='wellRounded'?2:['smoothTalker','knowledgeSpecialization'].includes(kind)?1:0;
+  if(!wanted||skills.length!==wanted||new Set(skills).size!==wanted)throw Error(game.i18n.localize("SWFFG.UI.Talent.InvalidSkillChoice"));
+  for(const skill of skills){if(!actor.system?.skills?.[skill])throw Error(game.i18n.localize("SWFFG.UI.Talent.UnknownSkill"));
+    if(kind==='wellRounded'&&actor.system.skills[skill].careerskill&&!retainedSkills.includes(skill))throw Error(game.i18n.localize("SWFFG.UI.Talent.ChooseNonCareerSkills"));
+    if(kind==='knowledgeSpecialization'&&!/knowledge|connaissance/i.test(actor.system.skills[skill].type??'')&&!/^(Knowledge|knowledge)/.test(skill))throw Error(game.i18n.localize("SWFFG.UI.Talent.ChooseKnowledgeSkill"));
+    if(kind==='deadlyAccuracy'){if(!/combat/i.test(actor.system.skills[skill].type??'')&&!['Brawl','Melee','Ranged: Light','Ranged: Heavy','Gunnery','Lightsaber'].includes(skill))throw Error(game.i18n.localize("SWFFG.UI.Talent.ChooseCombatSkill"));const occupied=ownedTalentSources(actor,choiceKinds.deadlyAccuracy).flatMap(s=>s.choice?.skills??[]);if(occupied.includes(skill)&&!retainedSkills.includes(skill))throw Error(game.i18n.localize("SWFFG.UI.Talent.DeadlyAccuracyAlreadyLinked"));}
+    if(kind==='smoothTalker'&&!['Charm','Coercion','Negotiation','Deception'].includes(skill))throw Error(game.i18n.localize("SWFFG.UI.Talent.SmoothTalkerNotAllowed"));}
   return {kind,skills:[...skills]};
 }
 export function applyReviewedActorData(actor){
   actor._reviewedTalentPaths=[];
   actor._reviewedTalentPending=[];
   if(actor.type==='vehicle'){
+   const effect=actor.getFlag?.('starwarsffg','fullThrottle');
+   if(fullThrottleActive(effect,game.combat)&&actor.system.stats?.speed){actor.system.stats.speed.max=(Number(actor.system.stats.speed.max)||0)+effect.bonus;actor._reviewedTalentPaths.push('system.stats.speed.max');}
+
    const pilots=(actor.flags?.starwarsffg?.crew??[]).filter(c=>c.role==='Pilot');
    const ranks=pilots.map(c=>ownedTalentSources(game.actors?.get(c.actor_id),['defensivedriving','conduitestrategique']).reduce((n,s)=>n+s.rank,0));
    const rank=Math.max(0,...ranks);
@@ -41,6 +45,11 @@ export function applyReviewedActorData(actor){
     actor._reviewedTalentPaths.push('system.stats.shields.'+zone);
    }
   }
+  const fixedCareers=[{names:['welltraveled','bourlingueur'],skills:['coreworlds','outerrim']},{names:['basiccombattraining','entrainementaucombatdebase'],skills:['brawl','rangedlight']},{names:['tacticalcombattraining','entrainementaucombattactique'],skills:['melee','rangedheavy']},{names:['vehiclecombattraining','entrainementaucombatvehicule'],skills:['gunnery','pilotingplanetary']}];
+  for(const rule of fixedCareers)if(ownedTalentSources(actor,rule.names).length)for(const[key,skill]of Object.entries(actor.system.skills??{}))if(rule.skills.includes(normalizeTalent(skill.value??key).replace(/^knowledge/,''))){skill.careerskill=true;actor._reviewedTalentPaths.push(`system.skills.${key}.careerskill`);}
+  const appliedTimedFamilies=new Set();for(const effect of actor.getFlag?.('starwarsffg','timedTalentModifiers')??[])if(timedTalentModifierActive(effect,game.combat)&&!appliedTimedFamilies.has(effect.family??effect.kind)){appliedTimedFamilies.add(effect.family??effect.kind);for(const[key,skill]of Object.entries(actor.system.skills??{})){const field=effect.kind==='boost'?'boost':'setback';skill[field]=(Number(skill[field])||0)+1;actor._reviewedTalentPaths.push('system.skills.'+key+'.'+field);}}
+  const reflexSources=ownedTalentSources(actor,['superiorreflexes','reflexesaiguises']);
+  if(reflexSources.length&&actor.system.stats?.defence){const represented=Array.from(actor.allApplicableEffects?.()??[]).filter(e=>!e.disabled&&e.active!==false&&reflexSources.some(src=>src.item===e.parent||e.origin?.endsWith('.Item.'+src.item.id))).flatMap(e=>e._source?.system?.changes??e.system?.changes??e.changes??[]).filter(c=>c.key==='system.stats.defence.melee'&&(c.type==='add'||c.mode===2)).reduce((n,c)=>n+(Number(c.value)||0),0);const legacy=reflexSources.some(src=>Object.values(src.node.attributes??{}).some(a=>a.modtype==='Stat'&&a.mod==='Defence-Melee'));if(legacy&&!represented)actor._reviewedTalentPending.push({talent:reflexSources[0].node.name,reason:game.i18n.localize("SWFFG.UI.Talent.LegacyBonusCalibration")});else{actor.system.stats.defence.melee=(Number(actor.system.stats.defence.melee)||0)+1-represented;actor._reviewedTalentPaths.push('system.stats.defence.melee');}}
   // Derived only: preserve existing career origins and source statistics.
   if(ownedTalentSources(actor,['insight','intuition']).length)for(const [key,skill]of Object.entries(actor.system.skills??{}))if(['perception','discipline'].includes(normalizeTalent(skill.value??key))){skill.careerskill=true;actor._reviewedTalentPaths.push(`system.skills.${key}.careerskill`);}
   const armour=Array.from(actor.items??[]).filter(i=>i.type==='armour'&&i.system?.equippable?.equipped&&Number(i.system.quantity?.value??1)>0&&i.flags?.starwarsffg?.inventoryLocation!=='possession');
@@ -53,7 +62,7 @@ export function applyReviewedActorData(actor){
     const represented=Array.from(actor.allApplicableEffects?.()??[]).filter(e=>e.active!==false&&!e.disabled&&sources.some(src=>src.item===e.parent||e.origin?.endsWith('.Item.'+src.item.id))).flatMap(e=>e._source?.system?.changes??e.system?.changes??e.changes??[]).filter(c=>c.key==='system.stats.'+path&&(c.type==='add'||c.mode===2)).reduce((n,c)=>n+(Number(c.value)||0),0);
     const legacy=sources.some(src=>Object.values(src.node.attributes??{}).some(a=>a.modtype==='Stat'&&normalizeTalent(a.mod)===normalizeTalent(path==='soak.value'?'Soak':path==='defence.melee'?'Defence-Melee':'Defence-Ranged')));
     // A manual base value may already contain this legacy bonus. Its origin cannot be inferred.
-    if(legacy&&!represented&&!actor.flags?.starwarsffg?.automaticStats?.enabled){actor._reviewedTalentPending??=[];actor._reviewedTalentPending.push({talent:sources[0].node.name,path,reason:'Ancien modificateur sans effet identifié ; bonus éventuellement déjà inclus dans la valeur de base.'});continue;}
+    if(legacy&&!represented&&!actor.flags?.starwarsffg?.automaticStats?.enabled){actor._reviewedTalentPending??=[];actor._reviewedTalentPending.push({talent:sources[0].node.name,path,reason:game.i18n.localize("SWFFG.UI.Talent.LegacyModifierUncertain")});continue;}
     const [group,field]=path.split('.');if(actor.system.stats?.[group]){actor.system.stats[group][field]=(Number(actor.system.stats[group][field])||0)+wanted-represented;actor._reviewedTalentPaths.push('system.stats.'+path);}
    }
   }
@@ -98,13 +107,13 @@ export function juryEffectChoices(item){
   return item.type==='weapon'?['damage','critical','quality','encumbrance']:item.type==='armour'?['defence-melee','defence-ranged','encumbrance']:[];
 }
 export function validateJuryAssignment(actor,item,effect,quality=''){
-  if(!actor?.isOwner||item.parent?.uuid!==actor.uuid)throw Error('Équipement non possédé par ce personnage.');
-  if(!juryEffectChoices(item).includes(effect))throw Error('Amélioration inadmissible pour cet équipement.');
+  if(!actor?.isOwner||item.parent?.uuid!==actor.uuid)throw Error(game.i18n.localize("SWFFG.UI.Talent.EquipmentNotOwned"));
+  if(!juryEffectChoices(item).includes(effect))throw Error(game.i18n.localize("SWFFG.UI.Talent.EquipmentImprovementInvalid"));
   const used=Array.from(actor.items).filter(i=>i.id!==item.id&&i.flags?.starwarsffg?.juryRigged).length;
-  if(used>=juryCapacity(actor))throw Error('Tous les rangs de Bidouillage sont déjà utilisés.');
-  if(effect==='critical'&&!(Number(item.system?.crit?.adjusted??item.system?.crit?.value)>0))throw Error('Cette arme ne peut pas infliger de critique.');
-  if(effect==='quality'&&!juryQualityNames.includes(normalizeJuryQuality(quality)))throw Error('Seules les qualités actives avec un coût connu sont automatisées.');
-  if(effect==='quality'&&!Object.values(item.system?.adjusteditemmodifier??item.system?.itemmodifier??[]).some(q=>normalizeJuryQuality(q.name)===normalizeJuryQuality(quality)))throw Error('Choisissez une qualité présente sur cette arme.');
+  if(used>=juryCapacity(actor))throw Error(game.i18n.localize("SWFFG.UI.Talent.JuryRanksUsed"));
+  if(effect==='critical'&&!(Number(item.system?.crit?.adjusted??item.system?.crit?.value)>0))throw Error(game.i18n.localize("SWFFG.UI.Talent.WeaponCannotCrit"));
+  if(effect==='quality'&&!juryQualityNames.includes(normalizeJuryQuality(quality)))throw Error(game.i18n.localize("SWFFG.UI.Talent.ActiveQualitiesOnly"));
+  if(effect==='quality'&&!Object.values(item.system?.adjusteditemmodifier??item.system?.itemmodifier??[]).some(q=>normalizeJuryQuality(q.name)===normalizeJuryQuality(quality)))throw Error(game.i18n.localize("SWFFG.UI.Talent.ChooseExistingQuality"));
   return {effect,quality:effect==='quality'?normalizeJuryQuality(quality):null,createdAt:item.flags?.starwarsffg?.juryRigged?.createdAt??new Date().toISOString()};
 }
 export function applyJuryItemData(item){
@@ -126,16 +135,30 @@ export function talentChoiceStatus(actor,itemId,slot=null){
  const sources = Object.entries(choiceKinds).flatMap(([kind, names]) => itemTalentSources(item, names)
    .filter(source => !slot || source.slot === slot).map(source => ({...source, kind})));
  return sources.map(src=>{
-  const wanted=src.kind==='dedication'?src.rank:src.kind==='wellRounded'?2:1;
+  const wanted=['dedication','deadlyAccuracy'].includes(src.kind)?src.rank:src.kind==='wellRounded'?2:1;
   const skills=src.kind==='dedication'?(src.choice?.skills??[]).filter(k=>actor.system.characteristics?.[k]):[...new Set(src.choice?.skills??[])].filter(k=>actor.system?.skills?.[k]);
   const names = skills.map(key => game.i18n.localize(src.kind === 'dedication'
     ? 'SWFFG.Characteristic' + key : actor.system.skills?.[key]?.label ?? ('SWFFG.SkillsName' + key.replace(/[^a-zA-Z0-9]/g, ''))));
   const missing=Math.max(0,wanted-skills.length);
-  if(!skills.length)return {skills,missing,text:(src.kind==='dedication'?'Caractéristique choisie':'Compétence choisie')+' : aucune.'};
-  return {skills,missing,text:(src.kind==='dedication'?'Caractéristiques choisies':'Compétence'+(wanted>1?'s choisies':' choisie'))+' : '+(names.join(', ')||'aucune')+'.'+(missing?' Choix incomplet : '+missing+(src.kind==='dedication'?' rang':' compétence')+(missing>1?'s':'')+' à choisir.':'')};
+  const emptyLabel=game.i18n.localize("SWFFG.UI.Talent.ChoiceNone");
+  const heading=!skills.length?(src.kind==='dedication'?game.i18n.localize('SWFFG.UI.Talent.ChosenCharacteristic'):game.i18n.localize('SWFFG.UI.Talent.ChosenSkill')):src.kind==='dedication'?(skills.length?game.i18n.localize("SWFFG.UI.Talent.ChosenCharacteristics"):game.i18n.localize("SWFFG.UI.Talent.ChosenCharacteristic")):(wanted>1?game.i18n.localize("SWFFG.UI.Talent.ChosenSkills"):game.i18n.localize("SWFFG.UI.Talent.ChosenSkill"));
+  let text=game.i18n.format("SWFFG.UI.Talent.ChosenValues", {label:heading,values:names.join(', ')||emptyLabel});
+  if(skills.length&&missing){const unit=src.kind==='dedication'?(missing>1?game.i18n.localize("SWFFG.UI.Talent.RanksUnit"):game.i18n.localize("SWFFG.UI.Talent.RankUnit")):(missing>1?game.i18n.localize("SWFFG.UI.Talent.SkillsUnit"):game.i18n.localize("SWFFG.UI.Talent.SkillUnit"));text+=game.i18n.format("SWFFG.UI.Talent.MissingChoices", {count:missing,unit});}
+  return {skills,missing,text,emptyLabel};
  });
 }
 export function talentChoiceDescription(actor,itemId,slot=null){
  const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- return talentChoiceStatus(actor,itemId,slot).map(status=>'<p class="ffg-talent-choice-description"><em>'+(status.skills.length?escape(status.text):escape(status.text).replace('aucune','<strong class="ffg-talent-choice-empty">aucune</strong>'))+'</em></p>').join('');
+ return talentChoiceStatus(actor,itemId,slot).map(status=>'<p class="ffg-talent-choice-description"><em>'+(status.skills.length?escape(status.text):escape(status.text).replace(escape(status.emptyLabel),'<strong class="ffg-talent-choice-empty">'+escape(status.emptyLabel)+'</strong>'))+'</em></p>').join('');
+}
+
+export function fullThrottleActive(effect,combat){
+ return Boolean(effect&&!effect.expired&&combat?.started&&effect.combatId===combat.id&&Number.isInteger(effect.bonus)&&effect.bonus>0&&(combat.round<effect.expiresRound||combat.round===effect.expiresRound&&combat.turn<effect.expiresTurn));
+}
+
+export function timedTalentModifierActive(effect,combat){return Boolean(effect&&['boost','setback'].includes(effect.kind)&&combat?.started&&effect.combatId===combat.id&&(combat.round<effect.expiresRound||combat.round===effect.expiresRound&&combat.turn<effect.expiresTurn));}
+
+export function stimpackHealing(actor,previousUses){
+ if(!Number.isInteger(previousUses)||previousUses<0)throw Error(game.i18n.localize("SWFFG.UI.Talent.InvalidStimpackCount"));if(previousUses>=5)return 0;
+ const rank=ownedTalentSources(actor,['stimpackspecialization','secretsinfirmiers']).reduce((n,s)=>n+s.rank,0);return 5-previousUses+rank;
 }

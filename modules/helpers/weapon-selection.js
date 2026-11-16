@@ -18,23 +18,58 @@ const qualityLabels = [
   ['inferior','Qualité inférieure','passive'], ['superior','Qualité supérieure','passive'],
   ['tractor','Rayon tracteur','passive'], ['fragile','Fragile','passive'],
 ];
+const qualityDisplayKeys = {
+  "accurate": "SWFFG.UI.Dice.WeaponQuality.Accurate",
+  "inaccurate": "SWFFG.UI.Dice.WeaponQuality.Inaccurate",
+  "auto-fire": "SWFFG.UI.Dice.WeaponQuality.AutoFire",
+  "linked": "SWFFG.UI.Dice.WeaponQuality.Linked",
+  "blast": "SWFFG.UI.Dice.WeaponQuality.Blast",
+  "burn": "SWFFG.UI.Dice.WeaponQuality.Burn",
+  "concussive": "SWFFG.UI.Dice.WeaponQuality.Concussive",
+  "disorient": "SWFFG.UI.Dice.WeaponQuality.Disorient",
+  "ensnare": "SWFFG.UI.Dice.WeaponQuality.Ensnare",
+  "knockdown": "SWFFG.UI.Dice.WeaponQuality.Knockdown",
+  "sunder": "SWFFG.UI.Dice.WeaponQuality.Sunder",
+  "stun": "SWFFG.UI.Dice.WeaponQuality.Stun",
+  "guided": "SWFFG.UI.Dice.WeaponQuality.Guided",
+  "stun setting": "SWFFG.UI.Dice.WeaponQuality.StunSetting",
+  "stun damage": "SWFFG.UI.Dice.WeaponQuality.StunDamage",
+  "pierce": "SWFFG.UI.Dice.WeaponQuality.Pierce",
+  "breach": "SWFFG.UI.Dice.WeaponQuality.Breach",
+  "vicious": "SWFFG.UI.Dice.WeaponQuality.Vicious",
+  "defensive": "SWFFG.UI.Dice.WeaponQuality.Defensive",
+  "deflection": "SWFFG.UI.Dice.WeaponQuality.Deflection",
+  "cumbersome": "SWFFG.UI.Dice.WeaponQuality.Cumbersome",
+  "unwieldy": "SWFFG.UI.Dice.WeaponQuality.Unwieldy",
+  "limited ammo": "SWFFG.UI.Dice.WeaponQuality.LimitedAmmo",
+  "slow-firing": "SWFFG.UI.Dice.WeaponQuality.SlowFiring",
+  "slow firing": "SWFFG.UI.Dice.WeaponQuality.SlowFiring",
+  "prepare": "SWFFG.UI.Dice.WeaponQuality.Prepare",
+  "piercing": "SWFFG.UI.Dice.WeaponQuality.Piercing",
+  "ion": "SWFFG.UI.Dice.WeaponQuality.Ion",
+  "cortosis": "SWFFG.UI.Dice.WeaponQuality.Cortosis",
+  "inferior": "SWFFG.UI.Dice.WeaponQuality.Inferior",
+  "superior": "SWFFG.UI.Dice.WeaponQuality.Superior",
+  "tractor": "SWFFG.UI.Dice.WeaponQuality.Tractor",
+  "fragile": "SWFFG.UI.Dice.WeaponQuality.Fragile"
+};
 const cleanQualityName = name => String(name ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/\s+quality(?:\s+\d+)?$/,'');
-export function describeWeaponQuality(quality, language = 'en') {
-  const original=String(quality?.name ?? ''), name=cleanQualityName(original),fr=language==='fr';
+export function describeWeaponQuality(quality, _language = 'en') {
+  const original=String(quality?.name ?? ''), name=cleanQualityName(original);
   const entry=qualityLabels.find(([en,translated])=>name===en||name===cleanQualityName(translated));
   const raw=quality?.system?.rank_current ?? quality?.system?.rank;
   const rank=raw?.value ?? raw;
   const suffix=rank!==undefined&&rank!==null&&rank!==''?` ${rank}`:'';
   if(entry) {
-    const mode=entry[2]==='before'?(fr?'choix avant le jet, déclenché après':'choose before rolling, trigger after'):entry[2]==='active'?(fr?'déclenché':'active'):entry[2]==='setting'?(fr?'passif - réglage avant le tir':'passive - set before firing'):(fr?'passif':'passive');
-    return `${fr?entry[1]:entry[0]}${suffix} (${mode})`;
+    const mode=entry[2]==='before'?(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.ChooseBeforeRollingTriggerAfter")):entry[2]==='active'?(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.Active")):entry[2]==='setting'?(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.PassiveSetBeforeFiring")):(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.Passive"));
+    return `${game.i18n.localize(qualityDisplayKeys[entry[0]])}${suffix} (${mode})`;
   }
   const mods={
-    'may select additional jury rigged option mod':'Option supplémentaire de modification artisanale (Jury Rigged)',
-    'decreases encumbrance mod':'Réduction de l’encombrement',
+    'may select additional jury rigged option mod':'SWFFG.UI.Dice.WeaponQuality.AdditionalJuryRiggedOption',
+    'decreases encumbrance mod':'SWFFG.UI.Dice.WeaponQuality.ReducedEncumbrance',
   };
-  if(mods[name])return `${fr?mods[name]:original}${suffix} (${fr?'modification passive':'passive modification'})`;
-  return `${original}${suffix} (${fr?'type non identifié':'unclassified'})`;
+  if(Object.hasOwn(mods,name))return `${game.i18n.localize(mods[name])}${suffix} (${game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.PassiveModification")})`;
+  return `${original}${suffix} (${game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.Unclassified")})`;
 }
 export function missingAccurateBoost(quality, configuredBoost = 0) {
   const name = String(quality?.name ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/\s+quality(?:\s+\d+)?$/,'');
@@ -100,11 +135,11 @@ export function setAutoFirePool(pool, previous, enabled) {
   pool.difficulty=Math.max(0,(Number(pool.difficulty)||0)+(enabled?1:-1));
 }
 
-export function weaponQualityName(name, language = 'en') {
+export function weaponQualityName(name, _language = 'en') {
   const cleaned=cleanQualityName(name);
   const entry=qualityLabels.find(([en,fr])=>cleaned===en||cleaned===cleanQualityName(fr));
-  if(entry)return language==='fr'?entry[1]:entry[0];
-  if(['auto fire','autofire','automatique'].includes(cleaned))return language==='fr'?'Tir automatique':'Auto-fire';
+  if(entry)return game.i18n.localize(qualityDisplayKeys[entry[0]]);
+  if(['auto fire','autofire','automatique'].includes(cleaned))return game.i18n.localize(qualityDisplayKeys['auto-fire']);
   return String(name??'');
 }
 
@@ -131,11 +166,11 @@ export function resolveShot(item,{mode,targetRange}={}) {
   const fr=globalThis.game?.i18n?.lang==='fr',profile=weaponStunProfile(item);
   if(profile.fixed)return {damageType:'strain',weaponMode:'fixed-stun',shortOnly:false};
   if(mode==='stun') {
-    if(!profile.setting)throw Error(fr?'Cette arme ne propose plus de réglage étourdissant. Rouvre le jet.':'This weapon no longer has a stun setting. Reopen the roll.');
-    if(!['engaged','short'].includes(targetRange))throw Error(fr?'Réglage étourdissant : confirme une cible au contact ou à courte portée avant de lancer.':'Stun setting: confirm engaged or short range before rolling.');
+    if(!profile.setting)throw Error(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.ThisWeaponNoLongerHasAStunSetting"));
+    if(!['engaged','short'].includes(targetRange))throw Error(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.StunSettingConfirmEngagedOrShortRangeBefore"));
     return {damageType:'strain',weaponMode:'stun',shortOnly:true,targetRange};
   }
-  if(mode!==undefined&&mode!=='normal')throw Error(fr?'Mode de tir invalide.':'Invalid firing mode.');
+  if(mode!==undefined&&mode!=='normal')throw Error(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.InvalidFiringMode"));
   return {damageType:'wounds',weaponMode:'normal',shortOnly:false};
 }
 export function damageModeFromSnapshot(snapshot,item) {
@@ -154,10 +189,10 @@ export function isBrawlSkill(skill){
 export function brawlAttackProfile(actor,skill,item={}){
  if(!isBrawlSkill(skill))return item;
  const armed=item?.type==='weapon';
- const profile=armed?JSON.parse(JSON.stringify(item.toObject?item.toObject():item)):{name:globalThis.game?.i18n?.lang==='fr'?'Mains nues':'Unarmed',type:'weapon',img:'icons/svg/fist.svg',system:{}};
+ const profile=armed?JSON.parse(JSON.stringify(item.toObject?item.toObject():item)):{name:game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.Unarmed"),type:'weapon',img:'icons/svg/fist.svg',system:{}};
  if(armed)profile.system=JSON.parse(JSON.stringify(item.system));
  const data=profile.system??={},brawn=Number(actor?.system?.characteristics?.Brawn?.value);
- if(!armed&&!Number.isFinite(brawn))throw Error(globalThis.game?.i18n?.lang==='fr'?'Vigueur introuvable : dégâts de Pugilat impossibles à calculer.':'Missing Brawn: cannot calculate unarmed damage.');
+ if(!armed&&!Number.isFinite(brawn))throw Error(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.MissingBrawnCannotCalculateUnarmedDamage"));
  if(!armed){data.damage={value:brawn,adjusted:brawn};data.range={value:'Engaged',adjusted:'Engaged'};data.skill={value:'Brawl'};data.characteristic={value:'Brawn'};}
  const critical=Number(data.crit?.adjusted??data.crit?.value);data.crit={...(data.crit??{}),value:critical>0?Math.min(5,critical):5,adjusted:critical>0?Math.min(5,critical):5};
  const adjustedQualities=Object.values(data.adjusteditemmodifier??{}).filter(Boolean);

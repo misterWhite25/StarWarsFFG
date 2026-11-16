@@ -1,3 +1,5 @@
+import {resolveCrewActor} from './integrated-crew.mjs';
+import {crewRoleDefinitions,crewRoleDefinition} from './crew-role-definitions.mjs';
 import {malfunctionNavigation} from './vehicle-malfunction-engine.js';
 import {assignArmedCrew,isGunner,parseCrewSelections,crewWeaponChoices} from './crew-gunners.mjs';
 import {editVehicleCrew} from './crew-assignments.mjs';
@@ -11,21 +13,18 @@ import {DicePoolFFG} from "../dice/pool.js";
  * @returns args - the input args (unmodified)
  */
 export async function register_crew(...args) {
-    CONFIG.logger.debug("Got possible register crew request");
+    
     // check if this is an actor being dragged onto a vehicle
     let vehicle_actor;
     if (args[1].token) {
       // this is a token, not a real actor
       vehicle_actor = args[1].token?.actor;
-      if (!vehicle_actor) {
-        CONFIG.logger.debug("Not registering crew as entity is a token without a matching actor");
-      }
     } else {
       vehicle_actor = args[0];
     }
     if (vehicle_actor?.type !== 'vehicle' || args[2].type !== 'Actor') {
         // the target is not a vehicle or the actor being dragged onto it is a vehicle
-        CONFIG.logger.debug("Not registering crew as item is not an actor or the target is not a vehicle");
+        
         return args;
     }
     let drag_actor = null;
@@ -35,7 +34,7 @@ export async function register_crew(...args) {
         drag_actor = game.actors.get(args[2].id);
     }
     if (!drag_actor || drag_actor.type === 'vehicle') {
-      CONFIG.logger.debug("Not registering crew as item is a vehicle");
+      
       return args;
     }
 
@@ -51,7 +50,7 @@ export async function register_crew(...args) {
  * @param crew_role role of the crew to remove
  */
 export function deregister_crew(vehicle_actor, crew_member, crew_role) {
-    CONFIG.logger.debug("Got deregister crew request");
+    
     return editVehicleCrew(vehicle_actor, crew => crew.filter(entry =>
       entry.actor_id !== crew_member || entry.role !== crew_role));
 }
@@ -70,7 +69,7 @@ export async function change_role(vehicle_actor, crew_member, old_crew_role, new
       ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Role.Duplicate"));
       return null;
     }
-    const member = game.actors.get(crew_member);
+    const member = resolveCrewActor(crew_member);
     if (!member) return null;
     const roles = crew.filter(e => e.actor_id === crew_member).map(e => e.role === old_crew_role ? new_crew_role : e.role);
     const link = crew.find(e => e.actor_id === crew_member)?.link ?? null;
@@ -86,12 +85,12 @@ export async function change_role(vehicle_actor, crew_member, old_crew_role, new
  * @returns {Promise<void>}
  */
 export async function updateRoles(vehicle_actor, crew_member_id, new_crew_roles) {
-  const gunnerRole = game.settings.get('starwarsffg', 'arrayCrewRoles').find(r => isGunner(r.role_name))?.role_name ?? 'Gunner';
+  const gunnerRole = (vehicle_actor.getFlag('starwarsffg','crew')??[]).find(entry=>entry.actor_id===crew_member_id&&isGunner(entry.role))?.role ?? 'Gunner';
   const selection = parseCrewSelections(new_crew_roles, gunnerRole);
   if (!selection.valid) {ui.notifications.warn(game.i18n.localize('SWFFG.Crew.WeaponAssignment.OneWeapon'));return;}
   const roles = selection.roles;
   return editVehicleCrew(vehicle_actor, async crew => {
-    const member = game.actors.get(crew_member_id);
+    const member = resolveCrewActor(crew_member_id);
     if (!member) return null;
     const link = await foundry.applications.ux.TextEditor.enrichHTML(member.link) || null;
     return await assignArmedCrew(vehicle_actor, crew, member, roles, link, {weaponId:selection.weaponId});
@@ -107,38 +106,18 @@ export async function updateRoles(vehicle_actor, crew_member_id, new_crew_roles)
  */
 export function build_crew_roll(vehicle, crew_id, crew_role) {
   // look up the sheet for passing to the roller
-  const crew_member = game.actors.get(crew_id);
+  const crew_member = resolveCrewActor(crew_id);
   const vehicle_actor = game.actors.get(vehicle);
   if (crew_member === undefined) {
     ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
     deregister_crew(vehicle_actor, crew_id, crew_role);
     return false;
   }
-  if (crew_role === "Pilot" || crew_role === "Co-Pilot") {
-    return buildPilotRoll(vehicle_actor, crew_id).renderPreview().innerHTML;
-  }
-  const starting_pool = {'difficulty': 0};
-  const registeredRoles = game.settings.get('starwarsffg', 'arrayCrewRoles');
-  // don't attempt to draw a roll for the initiative role
-  const initiativeRole = game.settings.get('starwarsffg', 'initiativeCrewRole');
-  if (crew_role === initiativeRole.role_name) {
-    return false;
-  }
-  // look up the defined metadata for the assigned role
-  const role_info = registeredRoles.filter(i => i.role_name === crew_role);
-  // validate the role still exists in our settings
-  if (role_info.length === 0) {
-    ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Role.Removed"));
-    return false;
-  }
-  // validate that it's a valid role
-  if (role_info[0].role_skill === undefined) {
-    ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Role.Invalid"));
-    return false;
-  }
-  if (crew_role === "Pilot") {
-    return buildPilotRoll(vehicle_actor, crew_id).renderPreview().innerHTML;
-  }
+  const role = crewRoleDefinition(vehicle_actor,crew_role);
+  if (role?.kind === 'pilot' || role?.kind === 'copilot') return buildPilotRoll(vehicle_actor,crew_id).renderPreview().innerHTML;
+  if (!role || role.kind === 'initiative' || !role.role_skill) return false;
+  const starting_pool = {difficulty:0};
+  const role_info = [role];
   // check if the pool uses handling
   if (role_info[0].use_handling) {
     const handling = vehicle_actor?.system?.stats?.handling?.value;
@@ -219,12 +198,13 @@ export function buildPilotRoll(vehicle_id, pilot_id, difficulty) {
  * @returns {Promise<void>}
  */
 export async function handlePilotCheck(vehicle, pilot_id, role = "Pilot") {
-  const crewSheet = game.actors.get(pilot_id)?.sheet;
+  const crewSheet = resolveCrewActor(pilot_id)?.sheet;
   if (!crewSheet) {
     ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
     return;
   }
   const pool = await buildPilotRoll(vehicle, pilot_id);
+  const data=await crewSheet.getData();data.document=resolveCrewActor(pilot_id,vehicle);data.documentUuid=data.document.uuid;
 
   // create chat card data
   const card_data = {
@@ -246,7 +226,7 @@ export async function handlePilotCheck(vehicle, pilot_id, role = "Pilot") {
 
   // open the roll dialog (skill name is already localized)
   await DiceHelpers.displayRollDialog(
-    crewSheet,
+    data,
     pool,
     `${game.i18n.localize("SWFFG.Rolling")} ${skill}`,
     skill,
@@ -255,19 +235,19 @@ export async function handlePilotCheck(vehicle, pilot_id, role = "Pilot") {
 }
 
 export async function selectRoles(vehicle, crew_member_id) {
-  const crew_member = game.actors.get(crew_member_id);
-  const registeredRoles = game.settings.get('starwarsffg', 'arrayCrewRoles');
+  const crew_member = resolveCrewActor(crew_member_id);
+  const registeredRoles = crewRoleDefinitions(vehicle);
   const vehicleRoles = vehicle.getFlag('starwarsffg', 'crew') || [];
 
   const crewMemberRoles = vehicleRoles.filter(role => role.actor_id === crew_member_id);
   const weapons = crewWeaponChoices(vehicleRoles, vehicle.items, crew_member_id).map(w => ({...w,label:game.i18n.localize('SWFFG.Crew.WeaponAssignment.Gunner')+' - '+w.name+' ('+(w.occupant ? game.i18n.format('SWFFG.Crew.WeaponAssignment.Occupied',{name:w.occupant}) : game.i18n.localize('SWFFG.Crew.WeaponAssignment.Free'))+')'}));
-  const rolesInUse = crewMemberRoles.filter(r => !isGunner(r.role)).map(r => r.role).concat(weapons.filter(w => w.selected).map(w => w.value));
+  const rolesInUse = crewMemberRoles.filter(r => !isGunner(r.role)).map(r => {const kind=crewRoleDefinition(vehicle,r.role)?.kind;return kind==='pilot'?'Pilot':kind==='copilot'?'Co-Pilot':r.role;}).concat(weapons.filter(w => w.selected).map(w => w.value));
 
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/starwarsffg/templates/dialogs/ffg-crew-change.html",
     {
       actor: crew_member,
-      roles: registeredRoles.filter(role => !isGunner(role.role_name)),
+      roles: registeredRoles.filter(role => !['pilot','copilot','gunner'].includes(role.kind) && (role.kind !== 'initiative' || vehicleRoles.some(entry=>entry.role===role.role_name))),
       weapons,
       rolesInUse: rolesInUse,
     }

@@ -1,3 +1,8 @@
+import {resolveCrewActor,resolveCrewDocument,integratedCrewVehicle,integratedCrewGroupSignature} from '../helpers/integrated-crew.mjs';
+import {requireLivingVehicleGroup} from '../helpers/vehicle-minion-group.mjs';
+import {applyTargetAdversary} from '../helpers/target-adversary.mjs';
+import {activateRollTargets,closeRollTargets} from '../helpers/roll-target-selection.mjs';
+import {setbackAfterRemovals} from "../helpers/setback-removal.mjs";
 import {preparePilotage,renderPilotageNotice,pilotageTotals,poolModifiers,reservePilotage,restorePilotage} from "../helpers/pilotage-mj.js";
 import {renderSkillInformation} from "../helpers/skill-information-ui.js";
 import { effectivePool, gmDifficulty, NEGATIVE_DICE } from "../helpers/gm-difficulty.js";
@@ -6,6 +11,8 @@ import { pendingAid, consumeAid, restoreAid } from "../helpers/combat-actions.js
 import { renderPreciseAimButton, selectedRollTalents, rollTalentPool, commitRollTalents, rollbackRollTalents, renderRollTalents, talentWeaponSnapshot, talentWeaponPreview } from "../helpers/roll-talents.js";
 import { FormApplicationV2 } from "../applications/form-application-v2.js";
 import { MonteCarlo } from "../../lib/@swrpg-online/monte-carlo/dist/index.esm.js";
+
+const SIMULATION_ITERATIONS = 10000;
 
 export default class RollBuilderFFG extends FormApplicationV2 {
   constructor(rollData, rollDicePool, rollDescription, rollSkillName, rollItem, rollAdditionalFlavor, rollSound) {
@@ -29,8 +36,10 @@ export default class RollBuilderFFG extends FormApplicationV2 {
   }
 
   async close(options) {
-    if(this._frenziedBusy){ui.notifications.warn('Terminez ou annulez le choix d’Attaque furieuse avant de fermer ce jet.');return this;}
+    if(this._postingRoll){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Dice.WaitBeforeClose"));return this;}
+    if(this._frenziedBusy){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Dice.FinishFrenziedAttack"));return this;}
     this._reviewedClosed=true;
+    closeRollTargets(this);
     if(this._frenziedPaid){const {cancelFrenziedAttack}=await import("../helpers/roll-talents.js");await cancelFrenziedAttack(this);}
     Hooks.off("ffgPilotageChanged",this._pilotageHook);
     await this._skillInformationWindow?.close();
@@ -63,8 +72,8 @@ export default class RollBuilderFFG extends FormApplicationV2 {
   async getData() {
     // Chat flags contain document data only. Restore the exact actor (including a synthetic token actor).
     if (this.roll.data?.documentUuid && typeof this.roll.data.document?.getEmbeddedCollection !== 'function') {
-      const actor = await fromUuid(this.roll.data.documentUuid);
-      if (!actor) throw new Error(game.i18n.lang === 'fr' ? 'Le personnage de ce jet est introuvable.' : 'This roll actor no longer exists.');
+      const actor = resolveCrewDocument(this.roll.data.documentUuid)??await fromUuid(this.roll.data.documentUuid);
+      if (!actor) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisRollActorNoLongerExists"));
       this.roll.data.document = actor;
     }
     preparePilotage(this);
@@ -75,8 +84,6 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       this.dicePool.boost = Number(this.dicePool.boost) + this._aidEntries.length;
     }
     if (this.weaponContext && !this._weaponBaseline) this._weaponBaseline = {...this.dicePool, boost:Number(this.dicePool.boost) - (this._aidEntries?.length ?? 0)};
-    //get all possible sounds
-    let sounds = [];
     const diceSymbols = {
       advantage: await foundry.applications.ux.TextEditor.enrichHTML("[AD]"),
       success: await foundry.applications.ux.TextEditor.enrichHTML("[SU]"),
@@ -89,39 +96,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       dark: await foundry.applications.ux.TextEditor.enrichHTML("[DA]"),
     };
 
-    let canUserAddAudio = await game.settings.get("starwarsffg", "allowUsersAddRollAudio");
-
-    if (game.user.isGM) {
-      game.playlists.contents.forEach((playlist) => {
-        playlist.sounds.forEach((sound) => {
-          let selected = false;
-          const s = this.roll?.sound ?? this.roll?.item?.flags?.starwarsffg?.ffgsound;
-          if (s === sound.path) {
-            selected = true;
-          }
-          sounds.push({ name: sound.name, path: sound.path, selected });
-        });
-      });
-    } else if (canUserAddAudio) {
-      const playlistId = await game.settings.get("starwarsffg", "allowUsersAddRollAudioPlaylist");
-      const playlist = await game.playlists.get(playlistId);
-
-      if (playlist) {
-        playlist.sounds.forEach((sound) => {
-          let selected = false;
-          const s = this.roll?.sound ?? this.roll?.item?.flags?.starwarsffg?.ffgsound;
-          if (s === sound.path) {
-            selected = true;
-          }
-          sounds.push({ name: sound.name, path: sound.path, selected });
-        });
-      } else {
-        CONFIG.logger.warn(`Playlist for players does not exist, disabling audio`);
-        canUserAddAudio = false;
-      }
-    }
-
-    let users = [{ name: "Send To All", id: "all" }];
+    let users = [{ name: game.i18n.localize("SWFFG.UI.Dice.SendToAll"), id: "all" }];
     if (game.user.isGM) {
       game.users.contents.forEach((user) => {
         if (user.visible && user.id !== game.user.id) {
@@ -143,16 +118,14 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     }
 
     return {
-      sounds,
       isGM: game.user.isGM,
-      canUserAddAudio,
       flavor: this.roll.flavor,
       users,
       enableForceDie,
       labels,
       diceSymbols,
       simDisplay: display,
-      simCount: game.settings.get("starwarsffg", "rollSimulation")
+      simCount: SIMULATION_ITERATIONS
     };
   }
 
@@ -164,53 +137,43 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     this._activateInputs(html);
     this._activateWeaponSelection(html);
     this._activateFixedWeapon(html);
+    activateRollTargets(this,html);
     this._activateAutoFire(html);
     this._activateShotMode(html);
     this._activateCombatContext(html);
     void renderRollTalents(this, html).catch(error => ui.notifications.error(error.message));
     if (this._aidEntries?.length) {
       const notice = document.createElement("p");
-      notice.textContent = game.i18n.lang === "fr"
-        ? `Aide acceptée : +${this._aidEntries.length} dé(s) de Fortune, inclus dans ce jet.`
-        : `Accepted assistance: +${this._aidEntries.length} Boost die/dice included in this roll.`;
+      notice.textContent = game.i18n.format("SWFFG.UI.Dice.AcceptedAssistanceBoostDieDiceIncludedIn",{value1:this._aidEntries.length});
       html[0].prepend(notice);
     }
 
     html.find(".btn").click(async (_event) => {
-      if (this._postingRoll || this._selectingWeapon || this._frenziedBusy) return;
+      if (this._postingRoll || this._selectingWeapon || this._selectingTarget || this._frenziedBusy) return;
       this._postingRoll = true;
       let aidConsumed = false;
       let posted = false;
       let talentTransaction;
       let pilotageTransaction;
       const resourceTransaction = {};
-      const talentActor = this.weaponContext?.actor ?? this.roll.data?.document ?? game.actors.get(this.roll.data?.actor?._id);
+      const talentActor = this.weaponContext?.actor ?? this.roll.data?.document ?? resolveCrewActor(this.roll.data?.actor?._id);
       const talentSkill = this.weaponContext?.skillKey ?? this.roll.skillName;
       try {
-      if((this._talentSelections??[]).some(s=>s.id==='confidence')){const fear=this._previewPool();if(!fear.difficulty&&!fear.challenge){ui.notifications.info('Aplomb : aucun test de peur nécessaire, la difficulté est nulle.');return;}}
+      this._rollTargets?.refreshUI();
+      if(this._rollTargets?.error)throw new Error(this._rollTargets.error);
+      if((this._talentSelections??[]).some(s=>s.id==='confidence')){const fear=this._previewPool();if(!fear.difficulty&&!fear.challenge){ui.notifications.info(game.i18n.localize("SWFFG.UI.Dice.NoFearCheck"));return;}}
       // Validate talent limits before ammunition or one-shot effects are touched.
       selectedRollTalents(talentActor, talentSkill, this._talentSelections ?? [], {item:this.roll.item,precisePaid:this._preciseAimPaid,frenziedPaid:this._frenziedPaid?.selection});
       if(this._talentSelections?.length && html.find('.user-selection')?.[0]?.value) {
-        throw new Error(game.i18n.lang === 'fr'
-          ? 'Les talents sélectionnés appartiennent à ce personnage. Lance ce jet toi-même.'
-          : 'Selected talents belong to this actor. Roll this check yourself.');
+        throw new Error(game.i18n.localize("SWFFG.UI.Dice.SelectedTalentsBelongToThisActorRoll"));
       }
       if (this.weaponContext && this.roll.item?.id) {
         const selected = matchingWeapons(this.weaponContext.actor, this.weaponContext.skillKey).find(item => item.id === this.roll.item.id);
-        if (!selected) throw new Error(game.i18n.lang === 'fr' ? 'Cette arme a été retirée ou sa compétence a changé. Rouvre le jet.' : 'This weapon was removed or its skill changed. Reopen the roll.');
-        if (selected.getFlag('starwarsffg','config.enableAmmo') && Number(selected.system.ammo?.value) <= 0) throw new Error(game.i18n.lang === 'fr' ? 'Cette arme n’a plus de munitions.' : 'This weapon has no ammunition.');
+        if (!selected) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisWeaponWasRemovedOrItsSkill"));
+        if (selected.getFlag('starwarsffg','config.enableAmmo') && Number(selected.system.ammo?.value) <= 0) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisWeaponHasNoAmmunition"));
         this.roll.item = selected;
       }
       const shot = this.roll.item?.type === 'weapon' ? resolveShot(this.roll.item,{mode:this.roll.shotMode,targetRange:this.roll.shotRange}) : undefined;
-      // if sound was not passed search for sound dropdown value
-      if (!this.roll.sound) {
-        const sound = html.find(".sound-selection")?.[0]?.value;
-        if (sound) {
-          this.roll.sound = sound;
-          if (this.roll.item?.setFlag) await this.roll.item.setFlag('starwarsffg','ffgsound',sound);
-        }
-      }
-
       if (!this.roll.flavor) {
         const flavor = html.find(".flavor-text")?.[0]?.value;
         if (flavor) {
@@ -221,7 +184,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       // validate that required data is present
       if (this.roll.item?.type !== 'shipweapon' && this.roll.item?.uuid && !this.roll.item.flags?.starwarsffg?.uuid) {
         // uuid flag is missing, look up the item and set it, so it's fixed going forward
-        const tmp_item = await fromUuid(this.roll.item.uuid);
+        const tmp_item = resolveCrewDocument(this.roll.item.uuid)??await fromUuid(this.roll.item.uuid);
         await tmp_item.setFlag("starwarsffg", "uuid", this.roll.item.uuid);
       }
 
@@ -230,12 +193,8 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       if(this.roll.data?.triggeredTalent){const {commitTriggeredTalentUsage}=await import('../helpers/triggered-talents.js');const changes=await commitTriggeredTalentUsage(talentActor,this.roll.data.triggeredTalent);talentTransaction.changes.push(...changes);}
       const sentToPlayer = html.find(".user-selection")?.[0]?.value;
       if (sentToPlayer) {
-        if (this._talentSelections?.length) throw new Error(game.i18n.lang === 'fr'
-          ? 'Les talents sélectionnés appartiennent à ce personnage. Lance ce jet toi-même.'
-          : 'Selected talents belong to this actor. Roll this check yourself.');
-        if (this._aidEntries?.length) throw new Error(game.i18n.lang === "fr"
-          ? "Cette réserve contient ton aide personnelle. Lance-la toi-même ; elle ne peut pas être transférée."
-          : "This pool includes your accepted assistance. Roll it yourself; it cannot be forwarded.");
+        if (this._talentSelections?.length) throw new Error(game.i18n.localize("SWFFG.UI.Dice.SelectedTalentsBelongToThisActorRoll"));
+        if (this._aidEntries?.length) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisPoolIncludesYourAcceptedAssistanceRoll"));
         let container = $(`<div class='dice-pool'></div>`)[0];
         this.dicePool.renderAdvancedPreview(container);
 
@@ -285,14 +244,14 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         rollItem = talentWeaponSnapshot(rollItem, talentTransaction.selections,talentActor,talentSkill);
         if (rollItem?.type === 'shipweapon' || rollItem?.crew?.crew_card) this.roll.combatMode = 'vehicle';
         const pilotageEntries = poolModifiers(this.dicePool);
-        const finalPool = rollTalentPool(effectivePool(this.dicePool), talentTransaction.selections,talentActor,talentSkill);
+        const finalPool = rollTalentPool(applyTargetAdversary(effectivePool(this.dicePool),this.roll.targetAdversary), talentTransaction.selections,talentActor,talentSkill);
         pilotageTransaction = await reservePilotage(this.dicePool,pilotageEntries);
         await this._reserveRollResources(resourceTransaction);
         const roll = new game.ffg.RollFFG(finalPool.renderDiceExpression(), rollItem, finalPool, this.roll.flavor);
         await roll.toMessage({
           author: game.user.id,
-          speaker: ChatMessage.getSpeaker({actor: this.roll.data.document ?? game.actors.get(this.roll.data?.actor?._id)}),
-          flags: {starwarsffg: {triggeredTalent:this.roll.data?.triggeredTalent, talentProtection:finalPool._talentProtection,pilotageEffects:pilotageTransaction.entries.map(e=>({id:e.id,subjectUuid:e.subjectUuid,boost:e.boost,setback:e.setback,reason:e.reason})), shot, combatMode:this.roll.combatMode, combatSkill:this.roll.skillName, autoFire:Boolean(this.roll.autoFire && hasAutoFire(this.roll.item)), rollTalents:talentTransaction.selections, usedAid: (this._aidEntries ?? []).map(a => a.id)}},
+          speaker: ChatMessage.getSpeaker({actor: integratedCrewVehicle(talentActor) ?? talentActor,alias:talentActor?.name}),
+          flags: {starwarsffg: {targetTokenUuids:this.roll.targetTokenUuids,targetAdversary:this.roll.targetAdversary,triggeredTalent:this.roll.data?.triggeredTalent, talentProtection:finalPool._talentProtection,pilotageEffects:pilotageTransaction.entries.map(e=>({id:e.id,subjectUuid:e.subjectUuid,boost:e.boost,setback:e.setback,reason:e.reason})), shot, combatMode:this.roll.combatMode, combatSkill:this.roll.skillName, autoFire:Boolean(this.roll.autoFire && hasAutoFire(this.roll.item)), rollTalents:talentTransaction.selections, usedAid: (this._aidEntries ?? []).map(a => a.id)}},
           flavor: `${game.i18n.localize("SWFFG.Rolling")} ${game.i18n.localize(this.roll.skillName)}...`,
         });
         posted = true;
@@ -326,6 +285,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         ui.notifications.error(error.message);
       } finally {
         this._postingRoll = false;
+        void this._rollTargets?.sync();
       }
     });
 
@@ -356,11 +316,11 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     const group = document.createElement('div');
     group.className = 'ffg-weapon-selection';
     group.style.cssText = 'display:block;margin-bottom:10px';
-    group.append(document.createTextNode(game.i18n.lang === 'fr' ? 'Arme utilisée (facultatif)' : 'Weapon used (optional)'));
+    group.append(document.createTextNode(game.i18n.localize("SWFFG.UI.Dice.WeaponUsedOptional")));
     const select = document.createElement('select');
-    select.setAttribute('aria-label',game.i18n.lang === 'fr' ? 'Arme utilisée (facultatif)' : 'Weapon used (optional)');
+    select.setAttribute('aria-label',game.i18n.localize("SWFFG.UI.Dice.WeaponUsedOptional"));
     select.style.width = '100%';
-    const none = document.createElement('option');none.value = '';none.textContent = isBrawlSkill(context.skillKey)?(game.i18n.lang === 'fr'?'Mains nues':'Unarmed'):(game.i18n.lang === 'fr' ? 'Aucune arme' : 'No weapon');select.append(none);
+    const none = document.createElement('option');none.value = '';none.textContent = isBrawlSkill(context.skillKey)?(game.i18n.localize("SWFFG.UI.Dice.Unarmed")):(game.i18n.localize("SWFFG.UI.Dice.NoWeapon"));select.append(none);
     for (const item of matchingWeapons(context.actor,context.skillKey)) {
       const option = document.createElement('option');option.value = item.id;option.textContent = item.name;select.append(option);
     }
@@ -382,8 +342,8 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       this._selectingWeapon = true;select.disabled = true;
       try {
         const item = select.value ? matchingWeapons(context.actor,context.skillKey).find(i=>i.id===select.value) : null;
-        if (select.value && !item) throw new Error(game.i18n.lang === 'fr' ? 'Arme indisponible.' : 'Weapon unavailable.');
-        if (item?.getFlag('starwarsffg','config.enableAmmo') && Number(item.system.ammo?.value) <= 0) throw new Error(game.i18n.lang === 'fr' ? 'Cette arme n’a plus de munitions.' : 'This weapon has no ammunition.');
+        if (select.value && !item) throw new Error(game.i18n.localize("SWFFG.UI.Dice.WeaponUnavailable"));
+        if (item?.getFlag('starwarsffg','config.enableAmmo') && Number(item.system.ammo?.value) <= 0) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisWeaponHasNoAmmunition"));
         const next = await context.makePool(item ?? {});
         await rememberWeapon(context.actor, context.skillKey, item);
         setAutoFirePool(this.dicePool,this.roll.autoFire,false);
@@ -400,29 +360,24 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         this._activateShotMode(html);
         if(!this._combatModeExplicit)this.roll.combatMode=combatModeForRoll(this.roll.skillName,item);
         this._activateCombatContext(html);
-        this._initialRollSound ??= this.roll.sound ?? '';
-        this.roll.sound = item?.flags?.starwarsffg?.ffgsound ?? this._initialRollSound;
         this._initializeInputs(html);
       } catch(error) {select.value = previousID;ui.notifications.error(error.message);}
-      finally {this._selectingWeapon = false;select.disabled = false;}
+      finally {this._selectingWeapon = false;select.disabled = false;void this._rollTargets?.sync(true);}
     });
   }
 
   /** Spend ammunition and one-shot effects only for the actual roll, after validation. */
   async _reserveRollResources(transaction) {
     const itemUuid = this.roll.item?.uuid ?? this.roll.item?.flags?.starwarsffg?.uuid ?? this.roll.item?.flags?.starwarsffg?.ffgUuid;
-    const item = this.roll.item?.type === 'weapon' && itemUuid ? await fromUuid(itemUuid) : null;
-    if (this.roll.item?.type === 'weapon' && itemUuid && !item) throw new Error(game.i18n.lang === 'fr'
-      ? 'Cette arme a été retirée. Rouvre le jet.' : 'This weapon was removed. Reopen the roll.');
-    if (item?.flags?.starwarsffg?.inventoryLocation === 'possession') throw new Error(game.i18n.lang === 'fr'
-      ? 'Cette arme est dans Possession : transporte-la avant de l’utiliser.'
-      : 'This weapon is a possession: carry it before using it.');
+    const item = this.roll.item?.type === 'weapon' && itemUuid ? resolveCrewDocument(itemUuid)??await fromUuid(itemUuid) : null;
+    if (this.roll.item?.type === 'weapon' && itemUuid && !item) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisWeaponWasRemovedReopenTheRoll"));
+    if (item?.flags?.starwarsffg?.inventoryLocation === 'possession') throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisWeaponIsAPossessionCarryIt"));
     const ammoEnabled = item?.getFlag('starwarsffg', 'config.enableAmmo');
     const before = Number(item?.system.ammo?.value);
-    if (ammoEnabled && (!Number.isFinite(before) || before <= 0)) throw new Error(game.i18n.lang === 'fr'
-      ? 'Cette arme n’a plus de munitions.' : 'This weapon has no ammunition.');
+    if (ammoEnabled && (!Number.isFinite(before) || before <= 0)) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisWeaponHasNoAmmunition"));
     let actor = this.roll.data?.document;
-    if (typeof actor?.getEmbeddedCollection !== 'function' && (this.roll.data?.documentUuid ?? actor?.uuid)) actor = await fromUuid(this.roll.data.documentUuid ?? actor.uuid);
+    if (typeof actor?.getEmbeddedCollection !== 'function' && (this.roll.data?.documentUuid ?? actor?.uuid)) actor = resolveCrewDocument(this.roll.data.documentUuid ?? actor.uuid)??await fromUuid(this.roll.data.documentUuid ?? actor.uuid);
+    const integratedVehicle=integratedCrewVehicle(actor);if(integratedVehicle){requireLivingVehicleGroup(integratedVehicle);if(this.roll.data.integratedCrewGroup&&this.roll.data.integratedCrewGroup!==integratedCrewGroupSignature(actor))throw Error('L’effectif du groupe a changé. Rouvrez le jet pour recalculer les dés.');}
     const effects = actor?.getEmbeddedCollection?.('ActiveEffect');
     const once = (effects?.contents ?? []).filter(effect => effect.system?.duration === 'once');
     if (once.length) {
@@ -442,9 +397,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       try {
         const current = Number(item.system.ammo?.value);
         if (current === after) await item.update({'system.ammo.value': before});
-        else if (current !== before) throw new Error(game.i18n.lang === 'fr'
-          ? 'Les munitions ont changé depuis : vérifie leur remboursement sur l’arme.'
-          : 'Ammunition changed meanwhile: check the weapon refund.');
+        else if (current !== before) throw new Error(game.i18n.localize("SWFFG.UI.Dice.AmmunitionChangedMeanwhileCheckTheWeaponRefund"));
       } catch (error) { errors.push(error.message); }
     }
     if (transaction.effects) {
@@ -467,13 +420,13 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     card.style.cssText='display:block;margin-top:6px;padding:8px 10px;border:1px solid #748a9166;border-left:3px solid #607d8b;border-radius:4px;background:#607d8b12;font-size:12px;line-height:1.45;color:inherit;white-space:normal';
     card.replaceChildren();
     let selections=[];try{selections=selectedRollTalents(this.weaponContext?.actor??this.roll.data?.document,this.weaponContext?.skillKey??this.roll.skillName,this._talentSelections??[],{item});}catch { /* Invalid selections are reported again when posting. */ }
-    const info=talentWeaponPreview(item,selections,this.weaponContext?.actor??this.roll.data?.document,this.weaponContext?.skillKey??this.roll.skillName),fr=game.i18n.lang==='fr';
+    const info=talentWeaponPreview(item,selections,this.weaponContext?.actor??this.roll.data?.document,this.weaponContext?.skillKey??this.roll.skillName);
     const line=(label,value)=>{const row=document.createElement('div'),title=document.createElement('strong');title.style.color='#496573';title.textContent=label+' : ';row.append(title,document.createTextNode(value));card.append(row);};
-    const rangeLabel=range=>range?game.i18n.localize(`SWFFG.WeaponRange${range}`):(fr?'non renseignée':'not specified');
-    line(fr?'Portée maximale':'Maximum range',rangeLabel(info.baseRange)+(info.range!==info.baseRange?' → '+rangeLabel(info.range):''));
-    line(fr?'Dégâts':'Damage',String(info.baseDamage)+(info.damageBonus?' → '+info.damage+' (+'+info.damageBonus+' '+(fr?'talent, une touche réussie':'talent, one successful hit')+')':''));
+    const rangeLabel=range=>range?game.i18n.localize(`SWFFG.WeaponRange${range}`):(game.i18n.localize("SWFFG.UI.Dice.NotSpecified"));
+    line(game.i18n.localize("SWFFG.UI.Dice.MaximumRange"),rangeLabel(info.baseRange)+(info.range!==info.baseRange?' → '+rangeLabel(info.range):''));
+    line(game.i18n.localize("SWFFG.UI.Dice.Damage"),String(info.baseDamage)+(info.damageBonus?' → '+info.damage+' (+'+info.damageBonus+' '+(game.i18n.localize("SWFFG.UI.Dice.TalentOneSuccessfulHit"))+')':''));
     const values=item.system?.adjusteditemmodifier??item.system?.itemmodifier??[];
-    line(fr?'Qualités':'Qualities',Object.values(values).filter(q=>q?.name).map(q=>describeWeaponQuality(q,game.i18n.lang)).join(' · ')||(fr?'aucune renseignée':'none listed'));
+    line(game.i18n.localize("SWFFG.UI.Dice.Qualities"),Object.values(values).filter(q=>q?.name).map(q=>describeWeaponQuality(q,game.i18n.lang)).join(' · ')||(game.i18n.localize("SWFFG.UI.Dice.NoneListed")));
   }
 
   _activateFixedWeapon(html) {
@@ -488,8 +441,8 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     const qualities = document.createElement('div');
     const values = this.roll.item.system?.adjusteditemmodifier ?? this.roll.item.system?.itemmodifier ?? [];
     const labels = Object.values(values).filter(q => q?.name).map(q => describeWeaponQuality(q, game.i18n.lang));
-    qualities.textContent = (game.i18n.lang === 'fr' ? 'Qualités : ' : 'Qualities: ') +
-      (labels.join(' · ') || (game.i18n.lang === 'fr' ? 'aucune renseignée' : 'none listed'));
+    qualities.textContent = (game.i18n.localize("SWFFG.UI.Dice.QualitiesPrefix")) +
+      (labels.join(' · ') || (game.i18n.localize("SWFFG.UI.Dice.NoneListed")));
     group.append(name, qualities);
     root.querySelector('input[name="boost"]')?.closest('table')?.after(group);
   }
@@ -500,14 +453,13 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     const root=html[0];root.querySelector('.ffg-combat-context')?.remove();
     const group=document.createElement('div');group.className='ffg-combat-context';
     group.style.cssText='margin:8px 0;font-size:12px';
-    const fr=game.i18n.lang==='fr';
     if(this.roll.item?.type === 'shipweapon' || this.roll.item?.crew?.crew_card) {
       this.roll.combatMode = 'vehicle';
-      group.textContent = fr ? 'Combat spatial / véhicules' : 'Space / vehicle combat';
+      group.textContent = game.i18n.localize("SWFFG.UI.Dice.SpaceVehicleCombat");
     } else if(kind==='gunnery') {
-      const label=document.createElement('label');label.textContent=fr?'Contexte du combat':'Combat context';
+      const label=document.createElement('label');label.textContent=game.i18n.localize("SWFFG.UI.Dice.CombatContext");
       const select=document.createElement('select');select.setAttribute('aria-label',label.textContent);select.style.width='100%';
-      for(const [value,text] of [['personal',fr?'Combat personnel':'Personal combat'],['vehicle',fr?'Combat spatial / véhicules':'Space / vehicle combat']]) {
+      for(const [value,text] of [['personal',game.i18n.localize("SWFFG.UI.Dice.PersonalCombat")],['vehicle',game.i18n.localize("SWFFG.UI.Dice.SpaceVehicleCombat")]]) {
         const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);
       }
       select.value=this.roll.combatMode;
@@ -516,7 +468,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         this.roll.combatMode=select.value;this._combatModeExplicit=true;
       });
       label.append(select);group.append(label);
-    } else group.textContent=fr?'Effets du jet : combat spatial / véhicules':'Roll effects: space / vehicle combat';
+    } else group.textContent=game.i18n.localize("SWFFG.UI.Dice.RollEffectsSpaceVehicleCombat");
     const weapon=root.querySelector('.ffg-weapon-selection');
     if(weapon)weapon.after(group);else root.querySelector('input[name="boost"]')?.closest('table')?.after(group);
   }
@@ -525,18 +477,18 @@ export default class RollBuilderFFG extends FormApplicationV2 {
   _activateShotMode(html) {
     const root=html[0];root.querySelector('.ffg-shot-mode')?.remove();
     if(this.roll.item?.type!=='weapon')return;
-    const profile=weaponStunProfile(this.roll.item),fr=game.i18n.lang==='fr';
+    const profile=weaponStunProfile(this.roll.item);
     if(!profile.fixed&&!profile.setting)return;
     const group=document.createElement('div');group.className='ffg-shot-mode';group.style.cssText='margin:8px 0;font-size:12px';
-    if(profile.fixed)group.textContent=fr?'Dégâts étourdissants : stress (encaissement applicable).':'Stun damage: strain (soak applies).';
+    if(profile.fixed)group.textContent=game.i18n.localize("SWFFG.UI.Dice.StunDamageStrainSoakApplies");
     else {
-      const label=document.createElement('label');label.textContent=fr?'Mode du tir':'Firing mode';
+      const label=document.createElement('label');label.textContent=game.i18n.localize("SWFFG.UI.Dice.FiringMode");
       const select=document.createElement('select');select.setAttribute('aria-label',label.textContent);select.style.width='100%';
-      for(const [value,text] of [['normal',fr?'Normal - blessures':'Normal - wounds'],['stun',fr?'Étourdissant - stress':'Stun - strain']]) {const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);}
+      for(const [value,text] of [['normal',game.i18n.localize("SWFFG.UI.Dice.NormalWounds")],['stun',game.i18n.localize("SWFFG.UI.Dice.StunStrain")]]) {const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);}
       select.value=this.roll.shotMode??'normal';label.append(select);group.append(label);
-      const rangeLabel=document.createElement('label');rangeLabel.textContent=fr?'Portée de la cible':'Target range';
+      const rangeLabel=document.createElement('label');rangeLabel.textContent=game.i18n.localize("SWFFG.UI.Dice.TargetRange");
       const range=document.createElement('select');range.setAttribute('aria-label',rangeLabel.textContent);range.style.width='100%';
-      for(const [value,text] of [['',fr?'À confirmer avant le tir':'Confirm before firing'],['engaged',fr?'Au contact':'Engaged'],['short',fr?'Courte':'Short'],['beyond',fr?'Moyenne ou au-delà - incompatible':'Medium or farther - incompatible']]) {const option=document.createElement('option');option.value=value;option.textContent=text;range.append(option);}
+      for(const [value,text] of [['',game.i18n.localize("SWFFG.UI.Dice.ConfirmBeforeFiring")],['engaged',game.i18n.localize("SWFFG.UI.Dice.Engaged")],['short',game.i18n.localize("SWFFG.UI.Dice.Short")],['beyond',game.i18n.localize("SWFFG.UI.Dice.MediumOrFartherIncompatible")]]) {const option=document.createElement('option');option.value=value;option.textContent=text;range.append(option);}
       range.value=this.roll.shotRange??'';rangeLabel.append(range);group.append(rangeLabel);
       const refresh=()=>{rangeLabel.hidden=select.value!=='stun';};refresh();
       select.addEventListener('change',()=>{if(this._postingRoll||this._selectingWeapon){select.value=this.roll.shotMode??'normal';return;}this.roll.shotMode=select.value;refresh();});
@@ -553,7 +505,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     label.className='ffg-auto-fire';
     label.style.cssText='display:flex;align-items:center;gap:6px;margin:6px 0;font-size:12px;white-space:normal';
     const input=document.createElement('input');input.type='checkbox';input.checked=Boolean(this.roll.autoFire);
-    label.append(input,document.createTextNode(game.i18n.lang==='fr'?'Tir automatique (+1 dé de Difficulté)':'Auto-fire (+1 Difficulty die)'));
+    label.append(input,document.createTextNode(game.i18n.localize("SWFFG.UI.Dice.AutoFireDifficultyDie")));
     const group=root.querySelector('.ffg-weapon-selection');
     if(group)group.append(label);
     else root.querySelector('input[name="boost"]')?.closest('table')?.after(label);
@@ -570,7 +522,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     poolDiv.innerHTML = "";
     const pool=this._previewPool(),base=effectivePool(this.dicePool);
     const total=Math.max(0,Number(base.setback)||0),remaining=Math.max(0,Number(pool.setback)||0);
-    const configuredRemoval=game.settings.get('starwarsffg','ApplyRemoveSetbackMods')?Math.min(remaining,Math.max(0,Number(pool.remsetback)||0)):0;
+    const configuredRemoval=Math.max(0,remaining-setbackAfterRemovals(pool));
     const cancelled=Math.max(0,Math.min(total,total-remaining+configuredRemoval));
     // Rendering only: the original pool and the dice expression stay unchanged.
     pool.renderPreview(poolDiv,{total,cancelled});
@@ -578,21 +530,23 @@ export default class RollBuilderFFG extends FormApplicationV2 {
   }
 
   _initializeInputs(html) {
+    this._rollTargets?.refreshUI();
     this._renderWeaponSummary(html);
-    const config = gmDifficulty();
+    const config = gmDifficulty(this.dicePool);
     const personal = pilotageTotals(this.dicePool);
     const pool = this._previewPool();
     const activeTalents = this._talentSelections ?? [];
     let removals=html[0].querySelector('.ffg-reviewed-removals');
     if(!removals){removals=document.createElement('p');removals.className='ffg-reviewed-removals';removals.setAttribute('role','status');html[0].querySelector('.roll-button')?.before(removals);}
-    const base=effectivePool(this.dicePool),removed=Math.max(0,(Number(base.setback)||0)-(Number(pool.setback)||0));
-    const details=(pool._reviewedRemovals??[]).filter(e=>e.removed>0).map(e=>`${e.name} : ${e.removed}`).join(', ');
-    removals.hidden=!removed;removals.textContent=`Infortunes retirées : ${removed}${details?' ('+details+')':''}.`;
+    const base=effectivePool(this.dicePool),removed=Math.max(0,(Number(base.setback)||0)-setbackAfterRemovals(pool));
+    const automatic=Math.max(0,(Number(pool.setback)||0)-setbackAfterRemovals(pool));
+    const details=[...(pool._reviewedRemovals??[]).filter(e=>e.removed>0).map(e=>`${e.name} : ${e.removed}`),...(automatic?[game.i18n.format('SWFFG.UI.Dice.SheetModifiers',{count:automatic})]:[])].join(', ');
+    removals.hidden=!removed;removals.textContent=game.i18n.format('SWFFG.UI.Dice.SetbackRemoved',{count:removed,details:details?' ('+details+')':''});
 
     renderPreciseAimButton(this,html,this.weaponContext?.actor??this.roll.data?.document,this.weaponContext?.skillKey??this.roll.skillName);
     let notice = html[0].querySelector(".ffg-gm-difficulty-notice");
     if (!notice) { notice = document.createElement("p"); notice.className = "ffg-gm-difficulty-notice"; html[0].prepend(notice); }
-    notice.textContent = config.enabled ? "Pilotage MJ" : "";
+    notice.textContent = config.enabled ? game.i18n.localize("SWFFG.UI.Dice.GMControl") : "";
     notice.hidden = !config.enabled;
     html.find("#upgrade-difficulty, #downgrade-difficulty").prop("disabled", config.enabled);
     html.find(".pool-value input").each((key, value) => {
@@ -618,6 +572,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     html.find(".upgrade-buttons button").on("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
+      if (this._postingRoll || this._selectingWeapon || this._selectingTarget) return;
 
       const id = $(event.currentTarget).attr("id");
 
@@ -643,6 +598,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     });
 
     html.find(".pool-container, .pool-additional").on("click", (event) => {
+      if (this._postingRoll || this._selectingWeapon || this._selectingTarget) return;
       let input;
 
       if ($(event.currentTarget).hasClass(".pool-container")) {
@@ -654,12 +610,13 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         }
       }
 
-      if (input.disabled || (gmDifficulty().enabled && NEGATIVE_DICE.includes(input.name))) return;
+      if (input.disabled || (gmDifficulty(this.dicePool).enabled && NEGATIVE_DICE.includes(input.name))) return;
       this.dicePool[input.name] = (Number(this.dicePool[input.name])||0)+1;
       this._initializeInputs(html);
     });
 
     html.find(".pool-container, .pool-additional").on("contextmenu", (event) => {
+      if (this._postingRoll || this._selectingWeapon || this._selectingTarget) return;
       let input;
 
       if ($(event.currentTarget).hasClass(".pool-container")) {
@@ -671,7 +628,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         }
       }
 
-      if (input.disabled || (gmDifficulty().enabled && NEGATIVE_DICE.includes(input.name))) return;
+      if (input.disabled || (gmDifficulty(this.dicePool).enabled && NEGATIVE_DICE.includes(input.name))) return;
       const allowNegative = $(input).attr("allowNegative");
 
       if ((Number(this.dicePool[input.name])||0) > 0 || allowNegative) this.dicePool[input.name]=(Number(this.dicePool[input.name])||0)-1;
@@ -682,12 +639,12 @@ export default class RollBuilderFFG extends FormApplicationV2 {
   _updateObject() {}
 
   _previewPool() {
-    const actor = this.weaponContext?.actor ?? this.roll.data?.document ?? game.actors.get(this.roll.data?.actor?._id);
+    const actor = this.weaponContext?.actor ?? this.roll.data?.document ?? resolveCrewActor(this.roll.data?.actor?._id);
     const skill = this.weaponContext?.skillKey ?? this.roll.skillName;
     let selected = [];
     try {selected = selectedRollTalents(actor,skill,this._talentSelections ?? [],{item:this.roll.item,precisePaid:this._preciseAimPaid,frenziedPaid:this._frenziedPaid?.selection});}
     catch (_) { /* Invalid/inapplicable choices are rejected again when posting. */ }
-    return rollTalentPool(effectivePool(this.dicePool),selected,actor,skill);
+    return rollTalentPool(applyTargetAdversary(effectivePool(this.dicePool),this.roll.targetAdversary),selected,actor,skill);
   }
 
   /**
@@ -704,9 +661,9 @@ export default class RollBuilderFFG extends FormApplicationV2 {
           proficiencyDice: pool.proficiency,
           challengeDice: pool.challenge,
           boostDice: pool.boost,
-          setbackDice: pool.setback,
+          setbackDice: setbackAfterRemovals(pool),
         },
-        iterations: game.settings.get("starwarsffg", "rollSimulation"),
+        iterations: SIMULATION_ITERATIONS,
         runSimulate: false,
         modifiers: {
           automaticSuccesses: pool.success,
@@ -727,10 +684,8 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       }
 
       $("#success_chance").text(
-        `${(simResults.successProbability * 100).toLocaleString(undefined, {maximumFractionDigits: 0})}%`
+        `${(simResults.successProbability * 100).toLocaleString(game.i18n.lang, {maximumFractionDigits: 0})}%`
       ).removeClass("likely unlikely").addClass(newClass);
-    } catch (error) {
-      CONFIG.logger.debug("Unable to calculate roll probability", error);
-    }
+    } catch { /* The probability estimate is optional; keep the editable roll usable if simulation is unavailable. */ }
   }
 }

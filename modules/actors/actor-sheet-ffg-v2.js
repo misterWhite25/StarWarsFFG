@@ -1,3 +1,15 @@
+import {activateVehicleDefenseImage} from '../helpers/vehicle-defense-image.mjs';
+import {activateVehicleMinionGroup} from '../helpers/vehicle-minion-ui.mjs';
+import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
+import {activateAutoCrew} from '../helpers/auto-crew-ui.mjs';
+import {actorSheetType} from '../helpers/actor-types.mjs';
+import DiceHelpers from "../helpers/dice-helpers.js";
+import {renderActorCampField} from '../helpers/actor-camp-sheet.mjs';
+import {prepareGroundMovement} from "../helpers/ground-movement-sheet.mjs";
+import {renderReviewedTalentControls} from "../helpers/reviewed-talent-ui.js";
+import {renderCharacterCredits} from "../helpers/character-credit-balance.mjs";
+import {prepareCombatSheet,fitCombatSheet,resizeActorSheet} from "../helpers/combat-sheet.mjs";
+import {prepareVehiclePlanButton,configureVehiclePlan} from "../helpers/vehicle-plan-action.mjs";
 import {prepareLegacySheetContext, revealSheetFrame} from '../applications/legacy-sheet-layout.js';
 import {activateHomesteadFields} from '../helpers/homestead-fields.js';
 import {vehicleMaintenance,applyVehicleMaintenanceEdit} from '../helpers/vehicle-maintenance.js';
@@ -15,6 +27,11 @@ import { ActorSheetFFG } from "./actor-sheet-ffg.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
+
+const defaultActorSheetSize = () => ({
+  width: Math.min(1000, Math.floor(window.innerWidth * 0.9)),
+  height: Math.min(1150, Math.floor(window.innerHeight * 0.9))
+});
 
 /** ApplicationV2 and Handlebars host for the Star Wars FFG actor sheet. */
 export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
@@ -41,8 +58,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   constructor(options, ...args) {
     // Comfortable default dimensions, capped to fit smaller viewports.
-    const width = Math.min(1000, Math.floor(window.innerWidth * 0.9));
-    const height = Math.min(1150, Math.floor(window.innerHeight * 0.9));
+    const {width, height} = defaultActorSheetSize();
     super({
       ...options,
       position: { width, height, ...options?.position },
@@ -56,7 +72,27 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.pools = new Map();
   }
 
+  resetDefaultSize() {
+    if(this._ffgCombatMode){void fitCombatSheet(this);return;}
+    void resizeActorSheet(this,defaultActorSheetSize());
+  }
+
+  _configureRenderOptions(options) {
+    if(options.isFirstRender && ['vehicle','character','minion','rival','nemesis'].includes(this.actor.type)) {
+      // A fresh opening starts at the normal size. Explicit layouts, including
+      // the compact sheet alongside a ship plan, keep their requested dimensions.
+      options.position = {...defaultActorSheetSize(), ...options.position};
+      this.sheetWidth = options.position.width;
+      this.sheetHeight = options.position.height;
+    }
+    super._configureRenderOptions(options);
+  }
+
   async _onDrop(event) {
+    if(this.actor.flags?.starwarsffg?.npcVehicle?.version===1){
+      let data;try{data=JSON.parse(event.dataTransfer.getData('text/plain'));}catch { /* Non-JSON drops continue through the standard drop handlers. */ }
+      if(['Actor','Token'].includes(data?.type)){ui.notifications.warn('Ce véhicule PNJ utilise des postes simplifiés. Choisissez un véhicule indépendant pour affecter des personnages.');return;}
+    }
     if(await dropVehicleOwner(this,event))return;
     return super._onDrop(event);
   }
@@ -79,7 +115,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     this._triggeredTalentsWindow = undefined;
     const result = await super.close(options);
     // Keep the selected tab during edits, but start at the first tab on reopening.
-    if (!this.rendered) this._sheetTab = undefined;
+    if (!this.rendered) {this._sheetTab=undefined;this._ffgCombatMode=false;this._ffgCombatAllSkills=false;this._ffgCombatAllWeapons=false;this._ffgCombatAllTalents=false;}
     return result;
   }
 
@@ -97,6 +133,21 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     return `[${game.i18n.localize("DOCUMENT.Token")}] ${this.actor.name}`;
   }
 
+  *_headerControlButtons() {
+    // Run all native/module hooks before placing system controls last.
+    const controls = Array.from(super._headerControlButtons());
+    this._ffgSystemHeaderLabels = new Set(controls
+      .filter(control => control.action?.startsWith("ffg")).map(control => control.label));
+    yield* controls.filter(control => !control.action?.startsWith('ffg'));
+    yield* controls.filter(control => control.action?.startsWith('ffg'));
+  }
+
+  *_headerControlContextEntries() {
+    for (const entry of super._headerControlContextEntries()) {
+      yield {...entry, group: this._ffgSystemHeaderLabels.has(entry.label) ? 'starwarsffg-header' : (entry.group ?? 'standard-header')};
+    }
+  }
+
   _getHeaderControls() {
     const controls = super._getHeaderControls();
     controls.unshift({
@@ -106,15 +157,16 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       visible: this.isEditable,
       onClick: () => this.sheetoptions?.handler(),
     });
-    if (this.actor.type === "character") controls.splice(1, 0, {action: "ffgCalculationDetails", icon: "fas fa-calculator", label: "Détail des calculs", onClick: () => showCalculationDetails(this.actor)});
-    if(this.actor.type==='character') controls.push({action:'ffgCreationGuide',icon:'fas fa-graduation-cap',label:'Création et XP',onClick:async()=>{const {showCreationGuide}=await import('../helpers/creation-guide.js');return showCreationGuide(this.actor);}});
+    if (this.actor.type === "character") controls.splice(1, 0, {action: "ffgCalculationDetails", icon: "fas fa-calculator", label: game.i18n.localize("SWFFG.UI.Actor.CalculationDetails"), onClick: () => showCalculationDetails(this.actor)});
+    if(this.actor.type==='character') controls.push({action:'ffgCreationGuide',icon:'fas fa-graduation-cap',label:game.i18n.localize("SWFFG.UI.Actor.CreationAndXP"),onClick:async()=>{const {showCreationGuide}=await import('../helpers/creation-guide.js');return showCreationGuide(this.actor);}});
+    if(this.actor.type==='vehicle'&&!this.actor.isToken&&!this.actor.pack) controls.push({action:'ffgVehiclePlanSettings',icon:'fas fa-map',label:game.i18n.localize("SWFFG.UI.Actor.ConfigureInteriorPlan"),visible:this.isEditable,onClick:()=>configureVehiclePlan(this)});
     const detachIndex = controls.findIndex(control => control.action === "detach");
     if (detachIndex > 0) controls.unshift(controls.splice(detachIndex, 1)[0]);
     return controls;
   }
 
   get template() {
-    return `systems/starwarsffg/templates/actors/ffg-${this.actor.type}-sheet.html`;
+    return `systems/starwarsffg/templates/actors/ffg-${actorSheetType(this.actor.type)}-sheet.html`;
   }
 
   _configureRenderParts(options) {
@@ -124,15 +176,22 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   async _prepareContext(options={}) {
+    if(this.actor.type==='vehicle'&&this.actor.flags?.starwarsffg?.npcVehicle?.version===1&&!this.actor.pack){
+      const {consolidateNpcPassengers}=await import('../helpers/npc-vehicle.mjs');
+      await consolidateNpcPassengers(this.actor,{render:false});
+    }
     const context = await prepareLegacySheetContext(this, options, ActorSheetFFG.prototype.getData);
     if (this.actor.type === 'vehicle') {
       const editable = this.isEditable && this.actor.isOwner;
       context.vehicleConsumables = vehicleConsumables(this.actor);
       context.vehicleFuel = vehicleFuel(this.actor);
+      context.vehicleMinionGroup = vehicleMinionGroup(this.actor);
       context.vehicleMaintenance = vehicleMaintenance(this.actor);
       context.maintenanceInputId = this.id + '-maintenance';
       context.canEditConsumableStock = editable && game.user.isGM;
       context.canEditVehicle = editable;
+      context.canEditFleetAffiliations = game.user.isGM;
+      context.hideFleetAffiliations = !game.user.isGM;
       context.vehicleJourneys = prepareVehicleLogbook(this.actor);
       [context.vehicleOwners, context.vehicleMalfunctions] = await Promise.all([
         prepareVehicleOwners(this.actor), prepareVehicleMalfunctions(this.actor)
@@ -153,7 +212,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     state.ffgActiveTab = this._sheetTab;
     // Foundry's generic ".tab" selector only saves the first tab. The root
     // window-content and the equipment tab can both be scrolled independently.
-    const selectors = ['', '.sheet-body', '.sheet-tabs', '.header-description-block',
+    const selectors = ['', '.sheet-body', '.sheet-tabs', '.header-description-block', '.ffg-combat-layout',
       ...Array.from(priorElement.querySelectorAll('.tab[data-tab]'),
         tab => `.tab[data-tab="${CSS.escape(tab.dataset.tab)}"]`)];
     state.scrollPositions = selectors.flatMap(selector => {
@@ -185,6 +244,23 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
         tab.classList.toggle('active', tab.dataset.tab === active);
       }
     }
+    if(element){
+      // Build the final credits layout before insertion and scroll restoration.
+      renderCharacterCredits(this,element);
+      prepareCombatSheet(this,element,context);
+      renderActorCampField(this,element);
+      prepareGroundMovement(this,element);
+      activateInventoryImagePreview(this,element);
+      activateInventoryPossessions(this,element);
+      renderReviewedTalentControls(this,element);
+      // Insert complete skill rows so updates never expose empty dice previews.
+      await Promise.all([...element.querySelectorAll('.skill')].map(async row=>{
+        try{
+          await DiceHelpers.addSkillDicePool(context,row);
+          row.dataset.ffgSkillPreview='ready';
+        }catch(error){CONFIG.logger.error(error);}
+      }));
+    }
     return result;
   }
 
@@ -194,11 +270,12 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     {
       const sidebar = element.querySelector('.sheet-tabs');
       if (sidebar) {
+        prepareVehiclePlanButton(this, sidebar);
         sidebar.querySelectorAll('.ffg-summary-button').forEach(button => button.remove());
         const summaryButtons = [];
-        if (isCharacter || npcWithTalents) summaryButtons.push(['Récapitulatif des talents', 'fa-list-check', showTalentSummary]);
-        if (isCharacter || npcWithTalents) summaryButtons.push(['Déclencher un talent', 'fa-bolt', async sheet => {try {await (await import('../helpers/triggered-talents.js')).showTriggeredTalents(sheet);} catch(error) {ui.notifications.error(error.message);}}]);
-        if (isCharacter) summaryButtons.push(['Récapitulatif de l’équipement', 'fa-suitcase', showEquipmentSummary]);
+        if (isCharacter || npcWithTalents) summaryButtons.push([game.i18n.localize("SWFFG.UI.Actor.TalentSummary"), 'fa-list-check', showTalentSummary]);
+        if (isCharacter || npcWithTalents) summaryButtons.push([game.i18n.localize("SWFFG.UI.Actor.TriggerTalent"), 'fa-bolt', async sheet => {try {await (await import('../helpers/triggered-talents.js')).showTriggeredTalents(sheet);} catch(error) {ui.notifications.error(error.message);}}]);
+        if (isCharacter) summaryButtons.push([game.i18n.localize("SWFFG.UI.Actor.EquipmentSummary"), 'fa-suitcase', showEquipmentSummary]);
         for (const [label, icon, show] of summaryButtons) {
           const button = document.createElement('button');
           button.type = 'button';
@@ -223,7 +300,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _renderFrame(options) {
     const frame=await super._renderFrame(options);
     frame.classList.add('ffg-sheet-pending');
-    frame.classList.add(this.actor.type,this.isEditable?'editable':'locked');frame.querySelector('.window-content')?.classList.add(this.actor.type);
+    frame.classList.add(this.actor.type,actorSheetType(this.actor.type),this.isEditable?'editable':'locked');frame.querySelector('.window-content')?.classList.add(this.actor.type,actorSheetType(this.actor.type));
     return frame;
   }
 
@@ -237,23 +314,26 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _onRender(context, options) {
     await super._onRender(context, options);
     activateSheetPortrait(this);
+    activateVehicleDefenseImage(this);
     activateHomesteadFields(this);
-    activateInventoryImagePreview(this);
-    activateInventoryPossessions(this);
+
+
+    activateAutoCrew(this);
+    activateVehicleMinionGroup(this);
     activateVehicleOwners(this);
     activateVehicleLogbook(this);
 
     const {renderDodgeButton}=await import('../helpers/dodge-reaction.js');
     renderDodgeButton(this);
     annotateTalentMechanisms(this);
-    const {renderReviewedTalentControls}=await import('../helpers/reviewed-talent-ui.js');renderReviewedTalentControls(this);
-    const actorClasses = ["character", "nemesis", "rival", "minion", "vehicle", "homestead", "editable", "locked"];
+
+    const actorClasses = ["character", "nemesis", "rival", "minion", "vehicle", "homestead", "groupinventory", "editable", "locked"];
     this.element.classList.remove(...actorClasses);
-    this.element.classList.add(this.actor.type, this.isEditable ? "editable" : "locked");
+    this.element.classList.add(this.actor.type, actorSheetType(this.actor.type), this.isEditable ? "editable" : "locked");
     // Legacy styles expect the actor type on the content inside the sheet host.
     const content = this.element.querySelector(".window-content");
     content.classList.remove(...actorClasses);
-    content.classList.add(this.actor.type);
+    content.classList.add(this.actor.type,actorSheetType(this.actor.type));
     const isCharacter = this.actor.type === 'character';
     const npcWithTalents = ['minion', 'rival', 'nemesis'].includes(this.actor.type) && hasSummaryTalents(this.actor);
     if (isCharacter || npcWithTalents) void showTalentSummary(this, true);
@@ -263,7 +343,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       if (this.actor.flags?.starwarsffg?.automaticStats?.enabled) {
         for (const path of ["wounds.max", "strain.max", "soak.value", "defence.melee", "defence.ranged", "encumbrance.max"]) {
           const input = this.element.querySelector(`[name="data.stats.${path}"], [name="system.stats.${path}"]`);
-          if (input) {input.disabled = true; input.title = "Calcul automatique : voir Détail des calculs";}
+          if (input) {input.disabled = true; input.title = game.i18n.localize("SWFFG.UI.Actor.AutomaticCalculationHint");}
         }
       }
     }

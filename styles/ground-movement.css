@@ -1,0 +1,97 @@
+.ffg-movement-confirm p{margin:0;text-align:justify}
+.ffg-movement-buttons{display:flex;gap:6px;flex-wrap:wrap}
+.ffg-movement-buttons button{flex:1 1 auto;width:auto;font:12px/1.3 Arial,sans-serif;min-height:29px;padding:4px 8px}
+.ffg-movement-dice{display:flex;gap:3px}
+.ffg-movement-dice img{width:22px;height:22px;border:0;object-fit:contain}
+.ffg-movement-check{display:flex;gap:7px;align-items:center;font-size:12px}
+.ffg-movement-check input{flex:0 0 auto;width:16px;height:16px;margin:0}
+.ffg-ground-scene{margin-top:12px}
+.ffg-ground-scene .hint{font-size:12px;font-style:italic;text-align:justify}
+.ffg-ground-scene .form-group{gap:8px}
+.ffg-movement-mode-switch{display:flex;gap:5px}
+.ffg-movement-mode-switch button{flex:1;width:auto;font:12px/1.3 Arial,sans-serif;min-height:30px}
+.ffg-movement-mode-switch button[aria-pressed=true]{background:#355561;color:#fff;border-color:#608693;opacity:1}
+.application.starwarsffg.sheet.actor.v2 .ffg-sheet-movement{width:100%;min-width:0;grid-column:1/-1;flex:0 0 auto;margin:7px 0;border:1px solid #a8b9bf;border-radius:5px;background:light-dark(#f5f5f166,#172d384d);font:12px/1.35 Arial,sans-serif;overflow:hidden}
+.application.starwarsffg.sheet.actor.v2 .ffg-sheet-movement[hidden]{display:none!important}
+.ffg-sheet-movement>summary{display:flex;gap:8px;align-items:center;cursor:pointer;padding:7px 9px;list-style:none;background:light-dark(#dce6e8,#233e4b)}
+.ffg-sheet-movement>summary::-webkit-details-marker{display:none}
+.ffg-sheet-movement>summary::before{content:'›';font-size:17px;line-height:1;transform:rotate(0deg)}
+.ffg-sheet-movement[open]>summary::before{transform:rotate(90deg)}
+.ffg-sheet-movement-title{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.ffg-sheet-movement-mode{font-size:10px;opacity:.8}
+.ffg-sheet-movement-budget{margin-left:auto;text-align:center;font-variant-numeric:tabular-nums;font-size:11px;white-space:nowrap}
+.ffg-sheet-movement-body{display:flex;flex-direction:column;gap:7px;padding:9px}
+.ffg-sheet-movement-body p{margin:0;text-align:justify}
+.ffg-sheet-movement-body button,.ffg-sheet-movement-body select{font:12px/1.3 Arial,sans-serif;min-height:27px;height:auto}
+.ffg-sheet-movement-body .ffg-movement-note{font:italic 10px/1.4 Arial,sans-serif;opacity:.8;text-align:justify}
+.ffg-sheet-movement-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;font-size:11px}
+.ffg-sheet-movement-field select{width:100%;min-width:0}
+.ffg-sheet-target-row{display:flex;align-items:flex-end;gap:6px}
+.ffg-sheet-target-row button{width:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;padding:4px 8px}
+.ffg-sheet-range-info{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;padding:5px 7px;border-radius:4px;background:light-dark(#dde8e9,#233e4b)}
+.ffg-sheet-range-info strong{font:600 12px/1.3 Arial,sans-serif}
+.ffg-sheet-range-info small{font-size:10px}
+.ffg-sheet-range-info .ffg-movement-dice{margin-left:auto}
+.ffg-sheet-range-info .ffg-movement-dice img{width:16px;height:16px}
+.ffg-sheet-route{display:flex;flex-wrap:wrap;gap:5px}
+.ffg-sheet-route select{flex:1;min-width:90px}
+.ffg-sheet-route button{width:auto;flex:0 1 auto;padding:4px 7px}
+.ffg-sheet-range-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;font-size:10px}
+.ffg-sheet-range-legend span{padding-left:6px;border-left:3px solid var(--ffg-ring-color)}
+.ffg-sheet-movement-notes{font:10px/1.4 Arial,sans-serif;border-top:1px solid #98acb14d;padding-top:5px}
+.ffg-sheet-movement-notes>summary{cursor:pointer;font-style:italic;opacity:.8}
+.ffg-sheet-movement-notes p{margin:5px 0}
+.ffg-sheet-movement-notes button{width:auto;margin-top:4px}
+
+/* Select directly on the board without a native select popup or a minimized sheet. */
+.ffg-sheet-target-row .ffg-sheet-target-pick{width:100%;min-width:0;justify-content:flex-start;text-align:left;}
+.ffg-sheet-target-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ffg-sheet-target-row .ffg-sheet-target-clear{width:28px;min-width:28px;justify-content:center;padding:4px;}
+
+/* Compact movement controls remain available in full and combat sheets. */
+.application.starwarsffg.sheet.actor.v2 .ffg-sheet-movement{position:sticky;top:0;z-index:15;margin:0 0 6px;background:light-dark(#eef1ef,#203440);overflow:visible;}
+.ffg-sheet-movement>summary{gap:6px;padding:4px 7px;min-height:32px;flex-wrap:wrap;border-radius:4px;}
+.ffg-sheet-movement>summary::before{font-size:14px;}
+.ffg-sheet-movement-title{font-size:11px;gap:4px;}
+.ffg-sheet-movement-budget{font-size:10px;}
+.ffg-sheet-movement>summary>.ffg-movement-buttons{flex:0 0 auto;gap:4px;}
+.ffg-sheet-movement>summary>.ffg-movement-buttons button{font:11px/1.2 Arial,sans-serif;min-height:23px;height:23px;padding:3px 7px;margin:0;white-space:nowrap;}
+.ffg-sheet-movement>.ffg-sheet-movement-body{padding:6px 8px;gap:5px;max-height:35vh;overflow:auto;border-top:1px solid #98acb14d;}
+
+/* Maneuvers belong beside Defense in the character statistics. */
+.application.starwarsffg.sheet.actor.v2 .ffg-sheet-movement.ffg-maneuver-card{position:relative;top:auto;z-index:5;flex:1 1 0;min-width:110px;width:auto;margin:0;border:1px solid var(--ffg-stat-border,#c4cfd1);border-top:2px solid #658b8a;background:var(--ffg-stat-bg,light-dark(#f5f4f0,#203440));border-radius:5px;align-self:stretch;grid-column:auto;}
+.ffg-maneuver-card>summary{display:flex;flex-direction:column;gap:3px;padding:5px 5px 4px;cursor:pointer;min-height:76px;background:transparent;}
+.ffg-maneuver-card>summary::before{display:none;}
+.ffg-maneuver-card .ffg-sheet-movement-title{font:600 10px/1.2 Arial,sans-serif;text-transform:uppercase;color:var(--ffg-stat-accent,#527779);}
+.ffg-maneuver-card .ffg-sheet-movement-mode{display:none;}
+.ffg-maneuver-card .ffg-sheet-movement-budget{font:600 18px/1.2 Arial,sans-serif;text-align:center;margin:0;color:var(--ffg-stat-value,inherit);}
+.ffg-maneuver-card>summary>.ffg-movement-buttons{display:flex;gap:3px;width:100%;justify-content:center;}
+.ffg-maneuver-card>summary>.ffg-movement-buttons button{flex:1 1 0;font:10px/1.2 Arial,sans-serif;height:21px;min-height:21px;padding:2px 3px;}
+.ffg-maneuver-card>.ffg-sheet-movement-body{position:absolute;right:0;top:100%;width:280px;max-width:80vw;background:light-dark(#f1f1eb,#203440);border:1px solid #98acb1;border-radius:5px;box-shadow:0 3px 9px #0003;}
+.application.starwarsffg.sheet.actor.v2:has(.ffg-combat-layout) .ffg-combat-vitals.ffg-maneuver-stats{grid-template-columns:repeat(2,minmax(0,1fr)) 118px;}
+.application.starwarsffg.sheet.actor.v2:has(.ffg-combat-layout) .ffg-maneuver-card{grid-column:3;grid-row:1/span 2;min-width:0;}
+.application.starwarsffg.sheet.actor.v2:has(.ffg-combat-layout) .ffg-maneuver-card>summary{min-height:60px;padding:3px;gap:2px;}
+.application.starwarsffg.sheet.actor.v2:has(.ffg-combat-layout) .ffg-maneuver-card .ffg-sheet-movement-budget{font-size:16px;}
+
+/* Match the Defense card height and its divided footer. */
+.application.starwarsffg.sheet.actor.v2:not(:has(.ffg-combat-layout)) .ffg-maneuver-card{height:88px;min-height:88px;align-self:center;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto;align-items:center;justify-items:center;height:100%;min-height:0;padding:0;gap:0;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card .ffg-sheet-movement-title{padding:6px 4px 2px;color:var(--ffg-stat-muted,#527779);}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card .ffg-sheet-movement-budget{color:var(--ffg-stat-ink,inherit);}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons{display:flex;align-self:end;gap:0;width:100%;border-top:1px solid var(--ffg-stat-border,#c4cfd1);background:var(--ffg-stat-footer,transparent);border-radius:0 0 4px 4px;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button{height:23px;min-height:23px;margin:0;padding:3px 2px;border:0;border-radius:0;background:transparent;color:var(--ffg-stat-ink,inherit);box-shadow:none;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button+button{border-left:1px solid var(--ffg-stat-border,#c4cfd1);}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button:hover:not(:disabled){background:light-dark(#415a6814,#ffffff12);}
+.application.starwarsffg.sheet.actor.v2:has(.ffg-combat-layout) .ffg-maneuver-card>summary{min-height:60px;padding:0;gap:0;}
+.application.starwarsffg.sheet.actor.v2:has(.ffg-combat-layout) .ffg-maneuver-card .ffg-sheet-movement-title{padding:3px 3px 1px;}
+
+/* Colored maneuver actions, keeping the divided statistic footer. */
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button{background:#3f7155;color:#fff;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button+button{background:#886521;border-left:1px solid #ffffff40;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button:hover:not(:disabled){background:#315940;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button+button:hover:not(:disabled){background:#6d5019;}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary>.ffg-movement-buttons button:disabled{opacity:.45;cursor:default;}
+
+.application.starwarsffg.sheet.actor.v2 .ffg-sheet-movement.ffg-maneuver-card{overflow:visible}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card>summary{border-radius:4px}
+.application.starwarsffg.sheet.actor.v2 .ffg-maneuver-card .ffg-sheet-movement-status{padding:2px 5px;font:600 11px/1.3 Arial,sans-serif;color:var(--ffg-stat-muted,inherit);text-align:center;overflow-wrap:anywhere}

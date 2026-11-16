@@ -26,7 +26,7 @@ export default class ImportHelpers {
           }
           await foundry.applications.apps.FilePicker.createDirectory(startingSource, `${currentSource}`, { bucket: null });
         } catch (err) {
-          CONFIG.logger.debug(`Error verifying path ${startingSource}, ${path}`, err);
+          
         }
       }
     } catch {
@@ -140,7 +140,7 @@ export default class ImportHelpers {
    * @returns {object} - Entity Update Object
    */
   static buildUpdateData = (newItem) => {
-    CONFIG.logger.debug(`Starting BuildUpdateData for item - ${newItem.name}`);
+    
     let updateData = {};
     if (newItem.img) {
       updateData.img = newItem.img;
@@ -167,7 +167,7 @@ export default class ImportHelpers {
         updateData[datakey] = newItem.data[key];
       }
     }
-    CONFIG.logger.debug(`Completed BuildUpdateData for item - ${newItem.name}`);
+    
     return updateData;
   };
 
@@ -246,7 +246,7 @@ export default class ImportHelpers {
       if (!CONFIG.temporary[packid]) {
         const pack = await game.packs.get(packid);
         if (pack.documentName === type && !pack.locked) {
-          CONFIG.logger.debug(`Caching pack content ${packid}`);
+          
           CONFIG.temporary[packid] = {};
 
           const content = await pack.getDocuments();
@@ -1278,18 +1278,7 @@ export default class ImportHelpers {
 
   static async appendKnownIssuesAndNotesToDesc(adversary)
   {
-    adversary.data.biography += `<p>&nbsp;</p>
-    <h1>Importer Notes</h1>
-    <p>This Adversary sheet was imported from OggDude's GMTools with DrMattsuu's NPC importer for SWFVTT, there are currently a number of known issues with this process.&nbsp;</p>
-    <ul>
-    <li>This sheet may be missing alot of data if you skipped the Importing Data step of StarWarsFFG's <a href="https://github.com/StarWarsFoundryVTT/StarWarsFFG/wiki/Getting-started#importing-data" target="_blank" rel="noopener">Getting Started Guide</a>. It is strongly recommended that you follow that guide before attempting to import NPCs/PCs into your game</li>
-    <li>Adversaries do not currently have any of the items created on the Custom Weapons, Custom Armor, or Custom Items tabs of GMTools, this is because those items do not exist in the compendium of imported items.</li>
-    <li>In order for Adversary's Soak values to be displayed properly it is strongly recommended that you disable "Enable Soak Auto Calculation" in the Sheet Options.</li>
-    <li>Adversaries with Force Powers are automatically granted every upgrade in the power-tree they are granted. This is because there's no good way to map the OggDude's exported Adversary force-power upgrades to the SWFVTT character ones.</li>
-    <li>Adversaries Misc. abilities are currently written in the Biography section of the character sheet. This is because the Abilities are not provided in a format that can be easily mapped to Character Abilities.</li>
-    <li>Talents that allow the character to exchange the characteristic used for a skill check (Lightsaber Mastery, for example) are not currently reflected on the character sheet and will need to be manually applied.</li>
-    </ul>
-    <p>&nbsp;</p>`;
+    adversary.data.biography += game.i18n.localize("SWFFG.UI.Import.GeneratedNotes");
 
     return adversary;
   }
@@ -1524,7 +1513,7 @@ export default class ImportHelpers {
 
     } catch (err) {
       CONFIG.logger.error(`Error while importing NPC`, err);
-      ui.notifications.error("An error occured while importing NPC!");
+      ui.notifications.error(game.i18n.localize("SWFFG.UI.Import.NPCFailed"));
     }
   }
 
@@ -2110,7 +2099,7 @@ export default class ImportHelpers {
       updateDialog(100);
     } catch (err) {
       CONFIG.logger.error(`Error while importing character`, err);
-      ui.notifications.error("An error occured while import character!");
+      ui.notifications.error(game.i18n.localize("SWFFG.UI.Import.CharacterFailed"));
     }
 
     CONFIG.temporary = {};
@@ -2360,7 +2349,7 @@ export default class ImportHelpers {
 
     if (!entry) {
       let compendiumItem;
-      CONFIG.logger.debug(`Importing ${type} ${dataType} ${data.name}`);
+      
       data._id = foundry.utils.randomID();
       data.id = foundry.utils.randomID();
       data = migrateDataToSystem(data);
@@ -2377,7 +2366,7 @@ export default class ImportHelpers {
         default:
           CONFIG.logger.error(`Unable to import item type ${type}, unhandled type.`);
       }
-      CONFIG.logger.debug(`New ${type} ${dataType} ${data.name} : ${JSON.stringify(compendiumItem)}`);
+      
       const crt = await pack.importDocument(compendiumItem);
       if (type === "Item") {
         // make sure Active Effects get created
@@ -2388,12 +2377,12 @@ export default class ImportHelpers {
       CONFIG.temporary[pack.collection][data.flags.starwarsffg.ffgimportid] = foundry.utils.deepClone(crt);
       return crt;
     } else {
-      CONFIG.logger.debug(`Found existing ${type} ${dataType} ${data.name}`);
+      
       let upd;
       if (removeFirst) {
         await pack.delete(entry._id);
         let compendiumItem;
-        CONFIG.logger.debug(`Importing ${type} ${dataType} ${data.name}`);
+        
         switch (type) {
           case "Item":
             compendiumItem = await new CONFIG.Item.documentClass(data, { temporary: true });
@@ -2409,10 +2398,10 @@ export default class ImportHelpers {
         }
 
         compendiumItem = migrateDataToSystem(compendiumItem);
-        CONFIG.logger.debug(`New ${type} ${dataType} ${data.name} : ${JSON.stringify(compendiumItem)}`);
+        
         upd = await pack.importDocument(compendiumItem);
       } else {
-        CONFIG.logger.debug(`Updating ${type} ${dataType} ${data.name}`);
+        
 
         let updateData = data;
         updateData["_id"] = entry._id;
@@ -2452,7 +2441,7 @@ export default class ImportHelpers {
 
         upd = foundry.utils.duplicate(entry);
         updateData = migrateDataToSystem(updateData);
-        CONFIG.logger.debug(`Updating ${type} ${dataType} ${data.name} : ${JSON.stringify(updateData)}`);
+        
         try {
           if (dataType === "vehicle") {
             // don't re-import items for existing vehicles, in order to avoid duplicating them
@@ -2476,7 +2465,7 @@ export default class ImportHelpers {
   }
 
   static async getCompendiumPack(type, name) {
-    CONFIG.logger.debug(`Checking for existing compendium pack ${name}`);
+    
     const searchName = "world." + name.toString().replaceAll(".", "").toLowerCase();
     const pack = game.packs.get(searchName);
     if (!pack) {
@@ -3009,7 +2998,7 @@ export default class ImportHelpers {
       // items are "created" when they are pulled from Compendiums, so don't duplicate Active Effects
       const inherentEffect = existingEffects.find(i => i.name === `(inherent)`);
       if (!inherentEffect) {
-        CONFIG.logger.debug(`Creating inherent Active Effect for item ${item.name}`);
+        
         const effects = {
           name: `(inherent)`,
           img: item.img,
@@ -3085,8 +3074,8 @@ export default class ImportHelpers {
           }
         }
 
-        CONFIG.logger.debug(`Creating Active Effect for ${item.name}/${item.type} on item creation`);
-        CONFIG.logger.debug(effects);
+        
+        
         await item.createEmbeddedDocuments("ActiveEffect", [effects]);
       }
     }
@@ -3098,10 +3087,9 @@ export default class ImportHelpers {
    * @type {*|{}}
   */
   static async applyActiveEffectOnUpdate(item, formData) {
-    CONFIG.logger.debug("Updating active effects on item import");
+    
     const existing = item.getEmbeddedCollection("ActiveEffect");
     const toDelete = [];
-    const toUpdate = [];
     const toCreate = [];
 
     // first update anything inherent to the item type (such as "brawn" on "species")
@@ -3211,7 +3199,7 @@ export default class ImportHelpers {
 
         if (match) {
           // existing entry
-          CONFIG.logger.debug(`>>>> Staged AE changes for update: ${JSON.stringify(changes)}`);
+          
           await match.update(activeEffectChangesUpdate(changes));
         } else if (k.startsWith("attr")) {
           // new entry
@@ -3220,7 +3208,7 @@ export default class ImportHelpers {
             icon: item.img,
             changes: changes,
           };
-          CONFIG.logger.debug(`>>>> Staged AE for creation: ${JSON.stringify(effect)}`);
+          
           toCreate.push(effect);
         }
       }
@@ -3272,7 +3260,7 @@ export default class ImportHelpers {
       await item.deleteEmbeddedDocuments("ActiveEffect", toDelete);
     }
 
-    CONFIG.logger.debug("applyActiveEffectOnUpdate", toCreate, toUpdate, toDelete);
+    
   }
 
   /**
@@ -3286,7 +3274,7 @@ export default class ImportHelpers {
     if (specialization.type !== "specialization") {
       return;
     }
-    CONFIG.logger.debug(`Transferring Active Effects from talents for specialization ${specialization.name}`);
+    
     const toCreate = [];
     // iterate over talents, find attributes on them, and create active effects
     for (const talentId of Object.keys(specialization.system.talents)) {
@@ -3323,7 +3311,7 @@ export default class ImportHelpers {
         }
       }
     }
-    CONFIG.logger.debug(toCreate);
+    
     if (toCreate.length) {
       await specialization.createEmbeddedDocuments("ActiveEffect", toCreate);
     }

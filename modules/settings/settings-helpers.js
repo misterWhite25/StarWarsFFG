@@ -1,6 +1,5 @@
 import {
   rulesetSettings,
-  uiSettings,
   combatSettings,
   actorSettings,
   xpSpendingSettings,
@@ -33,21 +32,44 @@ export default class SettingsHelpers {
       type: Boolean,
     });
 
+    const sessionDirectoryTabs = ["scenes", "actors", "npcs", "vehicles", "items", "journal", "tables", "macros", "compendium"];
+    const refreshDirectories = (tabs = sessionDirectoryTabs) => {
+      for (const tab of tabs) {
+        const directory = ui[tab];
+        // The docked directory also refreshes its open pop-out in AbstractSidebarTab.render.
+        if (directory?.rendered || directory?.popout?.rendered) directory.render();
+      }
+    };
+
+    // Keep the original NPC preference so existing pins remain available.
+    game.settings.register("starwarsffg", "npcSessionFavorites", {
+      scope: "user",
+      config: false,
+      type: Array,
+      default: [],
+      onChange: () => refreshDirectories(["npcs"]),
+    });
+    game.settings.register("starwarsffg", "npcFolderIcons", {
+      scope: "user",
+      config: false,
+      type: Object,
+      default: {},
+      onChange: () => refreshDirectories(),
+    });
+    game.settings.register("starwarsffg", "directorySessionFavorites", {
+      scope: "user",
+      config: false,
+      type: Object,
+      default: {},
+      onChange: () => refreshDirectories(),
+    });
+
     game.settings.registerMenu("starwarsffg", "rulesetSettings", {
       name: game.i18n.localize("SWFFG.Settings.ruleset.Name"),
       hint: game.i18n.localize("SWFFG.Settings.ruleset.Hint"),
       label: game.i18n.localize("SWFFG.Settings.ruleset.Label"),
       icon: "fa-solid fa-scroll",
       type: rulesetSettings,
-      restricted: true,
-    });
-
-    game.settings.registerMenu("starwarsffg", "uiSettings", {
-      name: game.i18n.localize("SWFFG.Settings.ui.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.ui.Hint"),
-      label: game.i18n.localize("SWFFG.Settings.ui.Label"),
-      icon: "fas fa-palette",
-      type: uiSettings,
       restricted: true,
     });
 
@@ -210,8 +232,11 @@ export default class SettingsHelpers {
           groupmanager.render();
         }
         let destinyLight = game.settings.get("starwarsffg", "dPoolLight");
-        document.getElementById("destinyLight").setAttribute("data-value", destinyLight);
-        document.getElementById("destinyLight").innerHTML = destinyLight + `<span>${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-light"))}</span>`;
+        const display = document.getElementById("destinyLight");
+        if (display) {
+          display.setAttribute("data-value", destinyLight);
+          display.innerHTML = destinyLight + `<span>${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-light"))}</span>`;
+        }
       },
     });
     game.settings.register("starwarsffg", "dPoolDark", {
@@ -226,8 +251,11 @@ export default class SettingsHelpers {
           groupmanager.render();
         }
         let destinyDark = game.settings.get("starwarsffg", "dPoolDark");
-        document.getElementById("destinyDark").setAttribute("data-value", destinyDark);
-        document.getElementById("destinyDark").innerHTML = destinyDark + `<span>${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-dark"))}</span>`;
+        const display = document.getElementById("destinyDark");
+        if (display) {
+          display.setAttribute("data-value", destinyDark);
+          display.innerHTML = destinyDark + `<span>${game.i18n.localize(game.settings.get("starwarsffg", "destiny-pool-dark"))}</span>`;
+        }
       },
     });
 
@@ -242,75 +270,9 @@ export default class SettingsHelpers {
       type: String,
       onChange: this.debouncedReload,
       choices: {
-        default: "Default (retired; expect issues)",
+        default: game.i18n.localize("SWFFG.UI.Settings.RetiredTheme"),
         mandar: "Mandar",
       },
-    });
-
-    // Register setting for token healthy
-    game.settings.register("starwarsffg", "ui-token-healthy", {
-      name: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Healthy.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Healthy.Hint"),
-      scope: "world",
-      config: false,
-      default: "#63b712",
-      type: String,
-    });
-    // Register setting for token wounded
-    game.settings.register("starwarsffg", "ui-token-wounded", {
-      name: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Wounded.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Wounded.Hint"),
-      scope: "world",
-      config: false,
-      default: "#c70039",
-      type: String,
-    });
-    // Register setting for token over-wounds
-    game.settings.register("starwarsffg", "ui-token-overwounded", {
-      name: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Overwounded.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Overwounded.Hint"),
-      scope: "world",
-      config: false,
-      default: "#e3963e",
-      type: String,
-    });
-    game.settings.register("starwarsffg", "ui-token-stamina-ok", {
-      name: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Stamina.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.Tokens.Bar.Stamina.Hint"),
-      scope: "world",
-      config: false,
-      default: "#59a1f6",
-      type: String,
-    });
-    // Register setting for token wounded
-    game.settings.register("starwarsffg", "ui-token-stamina-damaged", {
-      name: game.i18n.localize("SWFFG.Settings.Tokens.Bar.StaminaDamaged.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.Tokens.Bar.StaminaDamaged.Hint"),
-      scope: "world",
-      config: false,
-      default: "#092A7EFF",
-      type: String,
-    });
-    // Register setting for token over-wounds
-    game.settings.register("starwarsffg", "ui-token-stamina-over", {
-      name: game.i18n.localize("SWFFG.Settings.Tokens.Bar.StaminaOver.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.Tokens.Bar.StaminaOver.Hint"),
-      scope: "world",
-      config: false,
-      default: "#bd1ad0",
-      type: String,
-    });
-
-    game.settings.register("starwarsffg", "ui-pausedImage", {
-      module: "starwarsffg",
-      name: game.i18n.localize("SWFFG.SettingsPausedImage"),
-      hint: game.i18n.localize("SWFFG.SettingsPausedImageHint"),
-      scope: "world",
-      config: false,
-      default: "",
-      type: String,
-      valueType: "FilePicker",
-      onChange: this.debouncedReload,
     });
 
     game.settings.register("starwarsffg", "destiny-pool-light", {
@@ -371,15 +333,6 @@ export default class SettingsHelpers {
       onChange: this.debouncedReload,
     });
 
-    game.settings.register("starwarsffg", "RivalTokenPrepend", {
-      name: game.i18n.localize("SWFFG.Settings.actor.RivalTokenPrepend.Name"),
-      hint: game.i18n.localize("SWFFG.Settings.actor.RivalTokenPrepend.Hint"),
-      scope: "world",
-      config: false,
-      default: false,
-      type: Boolean,
-    });
-
     // Allow GM characters in Group manager
     game.settings.register("starwarsffg", "GMCharactersInGroupManager", {
       name: game.i18n.localize("SWFFG.Settings.groupManager.GMCharactersInGroupManager.Name"),
@@ -394,48 +347,6 @@ export default class SettingsHelpers {
 
   // Initialize System Settings after the Ready Hook
   static readyLevelSetting() {
-    // Allow Users to Roll Audio
-    game.settings.register("starwarsffg", "allowUsersAddRollAudio", {
-      name: game.i18n.localize("SWFFG.EnableRollAudio"),
-      hint: game.i18n.localize("SWFFG.EnableRollAudioHint"),
-      scope: "world",
-      default: false,
-      config: true,
-      type: Boolean,
-    });
-
-    // generate a list of playlists
-    const playlists = {};
-    playlists["None"] = "";
-    game.playlists.contents.forEach((playlist, index) => {
-      playlists[playlist.id] = `${index}-${playlist.name}`;
-    });
-
-    // Playlist users can user for audio
-    game.settings.register("starwarsffg", "allowUsersAddRollAudioPlaylist", {
-      name: game.i18n.localize("SWFFG.EnableRollAudioPlaylist"),
-      hint: game.i18n.localize("SWFFG.EnableRollAudioPlaylistHint"),
-      scope: "world",
-      default: "None",
-      config: true,
-      type: String,
-      choices: playlists,
-    });
-
-    // Automatically apply "remove setback" modifiers when rolling
-    game.settings.register("starwarsffg", "ApplyRemoveSetbackMods", {
-      name: game.i18n.localize(
-        "SWFFG.Settings.dice.ApplyRemoveSetbackMods.Name"
-      ),
-      hint: game.i18n.localize(
-        "SWFFG.Settings.dice.ApplyRemoveSetbackMods.Hint"
-      ),
-      scope: "world",
-      config: true,
-      default: false,
-      type: Boolean,
-    });
-
     // Name default healing item
     game.settings.register("starwarsffg", "medItemName", {
       name: game.i18n.localize("SWFFG.MedicalItemName"),
@@ -447,28 +358,7 @@ export default class SettingsHelpers {
       onChange: this.debouncedReload,
     });
 
-    game.settings.register("starwarsffg", "consumeHealingItem", {
-      name: game.i18n.localize("SWFFG.ConsumeHealingItem"),
-      hint: game.i18n.localize("SWFFG.ConsumeHealingItemHint"),
-      scope: "world",
-      config: true,
-      default: false,
-      type: Boolean,
-    });
 
-    let stimpackChoices = [
-      game.i18n.localize("SWFFG.MedicalItemNameUsePrompt"),
-      game.i18n.localize("SWFFG.MedicalItemNameUseRest"),
-      game.i18n.localize("SWFFG.MedicalItemNameUseReset"),
-    ];
-    game.settings.register("starwarsffg", "HealingItemAction", {
-      name: game.i18n.localize("SWFFG.MedicalItemSetting"),
-      scope: "world",
-      default: "0",
-      config: false,
-      type: String,
-      choices: stimpackChoices,
-    });
   }
 
   static debouncedReload = foundry.utils.debounce(() => window.location.reload(), 100);

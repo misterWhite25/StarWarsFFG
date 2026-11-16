@@ -1,4 +1,4 @@
-import {loadActorModule} from '../load-system-module.mjs';
+import {loadActorModule,loadSystemModule} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
@@ -30,12 +30,15 @@ test('skill and situational setback removals add together',async()=>{
  const context=vm.createContext({game:{actors:{get:()=>actor},i18n:{localize:s=>s}},CONFIG:{logger:{debug(){}},FFG:{skills:{Pilot:{label:'Pilot'}}}}});
  const core=new vm.SourceTextModule(await read('helpers/pilotage-core.js'),{context});await core.link(()=>{});await core.evaluate();
  const vitality=new vm.SourceTextModule(await read('helpers/pilotage-vitality.js'),{context});await vitality.link(()=>{});await vitality.evaluate();
- const pilotage=new vm.SourceTextModule(await read('helpers/pilotage-mj.js'),{context});await pilotage.link(spec=>spec.includes('vitality')?vitality:core);await pilotage.evaluate();
+ const pilotage=new vm.SourceTextModule(await read('helpers/pilotage-mj.js'),{context});await pilotage.link(spec=>spec.includes('pilotage-assets')||spec.includes('pilotage-tabs')?new vm.SyntheticModule([spec.includes('pilotage-assets')?'setupPilotageAssets':'setupPilotageTabs'],function(){this.setExport(spec.includes('pilotage-assets')?'setupPilotageAssets':'setupPilotageTabs',()=>{});},{context}):spec.includes('vitality')?vitality:core);await pilotage.evaluate();
  const gm=new vm.SourceTextModule(await read('helpers/gm-difficulty.js'),{context});await gm.link(()=>pilotage);await gm.evaluate();
- const pool=new vm.SourceTextModule(await read('dice/pool.js'),{context});await pool.link(()=>gm);await pool.evaluate();
+ const removal=new vm.SourceTextModule(await read('helpers/setback-removal.mjs'),{context});await removal.link(()=>{});await removal.evaluate();
+ const pool=new vm.SourceTextModule(await read('dice/pool.js'),{context});await pool.link(spec=>spec.includes('setback-removal')?removal:gm);await pool.evaluate();
  const selection=new vm.SourceTextModule(await read('helpers/weapon-selection.js'),{context});await selection.link(()=>{});await selection.evaluate();
+ const targetStart=await loadSystemModule('helpers/roll-target-start.mjs',context),groups=await loadSystemModule('helpers/vehicle-minion-group.mjs',context);
+ const crew=new vm.SyntheticModule(['resolveCrewActor','integratedCrewVehicle','integratedCrewGroupSignature'],function(){this.setExport('resolveCrewActor',id=>context.game.actors.get(id));this.setExport('integratedCrewVehicle',()=>null);this.setExport('integratedCrewGroupSignature',()=>null);},{context});
  const mod=new vm.SourceTextModule(await read('helpers/dice-helpers.js'),{context});
- await mod.link(spec=>spec.includes('weapon-selection')?selection:spec.endsWith('/pool.js')?pool:new vm.SyntheticModule(['default'],function(){this.setExport('default',class {});},{context}));await mod.evaluate();
+ await mod.link(spec=>spec.includes('integrated-crew')?crew:spec.includes('vehicle-minion-group')?groups:spec.includes('roll-target-start')?targetStart:spec.includes('ground-movement-state')?new vm.SyntheticModule(['groundAttackDifficulty','groundAttackRange'],function(){this.setExport('groundAttackDifficulty',()=>undefined);this.setExport('groundAttackRange',()=>null);},{context}):spec.includes('weapon-selection')?selection:spec.endsWith('/pool.js')?pool:new vm.SyntheticModule(['default'],function(){this.setExport('default',class {});},{context}));await mod.evaluate();
  const result=mod.namespace.get_dice_pool('actor','Pilot',new pool.namespace.DicePoolFFG({remsetback:2,difficulty:1,challenge:2}));
  assert.equal(result.remsetback,3);assert.equal(result.ability,1);assert.equal(result.proficiency,2);assert.equal(result.challenge,2);
 });

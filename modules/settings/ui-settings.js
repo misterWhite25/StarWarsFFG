@@ -1,10 +1,5 @@
 import { FormApplicationV2 } from "../applications/form-application-v2.js";
 class ffgSettings extends FormApplicationV2 {
-  activateListeners(html) {
-    super.activateListeners(html);
-    html.find("button.filepicker").click(this._onFilePicker.bind(this));
-  }
-
   getData(acceptableSettings) {
     const canConfigure = game.user.can("SETTINGS_MODIFY");
     let includeSettings = [];
@@ -14,11 +9,10 @@ class ffgSettings extends FormApplicationV2 {
         s.name = game.i18n.localize(s.name);
         s.hint = game.i18n.localize(s.hint);
         s.value = game.settings.get(s.namespace, s.key);
-        s.type = setting.type instanceof Function ? setting.type.name : "String";
+        s.type = typeof setting[1].type === "function" ? setting[1].type.name : "String";
         s.isCheckbox = setting[1].type === Boolean;
         s.isSelect = s.choices !== undefined;
         s.isRange = setting[1].type === Number && s.range;
-        s.isFilePicker = setting.valueType === "FilePicker";
         includeSettings.push(s);
       }
     }
@@ -36,22 +30,7 @@ class ffgSettings extends FormApplicationV2 {
     };
   }
 
-  _onFilePicker(event) {
-    event.preventDefault();
-
-    const fp = new foundry.applications.apps.FilePicker({
-      type: "image",
-      callback: (path) => {
-        $(event.currentTarget).prev().val(path);
-        //this._onSubmit(event);
-      },
-      top: this.position.top + 40,
-      left: this.position.left + 10,
-    });
-    return fp.browse();
-  }
-
-    /** @override */
+  /** @override */
   async _updateObject(event, formData) {
     for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
       let s = game.settings.settings.get(k);
@@ -75,38 +54,13 @@ export class rulesetSettings extends ffgSettings {
 
   getData(_options) {
     const includeSettingsNames = [
+        "starwarsffg.ui-uitheme",
+        "starwarsffg.displaySimulation",
         "starwarsffg.enableTonioCustomRules",
         "starwarsffg.dicetheme",
         "starwarsffg.vehicleRangeBand",
         "starwarsffg.skilltheme",
         "starwarsffg.enableForceDie",
-    ];
-    return super.getData(includeSettingsNames);
-  }
-}
-
-export class uiSettings extends ffgSettings {
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "ui-settings",
-      classes: ["starwarsffg", "ui-settings"],
-      title: `${game.i18n.localize("SWFFG.Settings.ui.Title")}`,
-      template: "systems/starwarsffg/templates/dialogs/ffg-ui-settings.html",
-    });
-  }
-
-  getData(_options) {
-    const includeSettingsNames = [
-      "starwarsffg.ui-uitheme",
-      "starwarsffg.ui-pausedImage",
-      "starwarsffg.ui-token-healthy",
-      "starwarsffg.ui-token-wounded",
-      "starwarsffg.ui-token-overwounded",
-      "starwarsffg.ui-token-stamina-ok",
-      "starwarsffg.ui-token-stamina-damaged",
-      "starwarsffg.ui-token-stamina-over",
-      "starwarsffg.displaySimulation",
-      "starwarsffg.rollSimulation",
     ];
     return super.getData(includeSettingsNames);
   }
@@ -126,9 +80,8 @@ export class combatSettings extends ffgSettings {
     const includeSettingsNames = [
       "starwarsffg.useGenericSlots",
       "starwarsffg.initiativeRule",
-      "starwarsffg.removeCombatantAction",
+
       "starwarsffg.useDefense",
-      "starwarsffg.additionalStatuses",
     ];
     return super.getData(includeSettingsNames);
   }
@@ -154,9 +107,6 @@ export class actorSettings extends ffgSettings {
       "starwarsffg.maxAttribute",
       "starwarsffg.maxSkill",
       "starwarsffg.medItemName",
-      "starwarsffg.HealingItemAction",
-      "starwarsffg.consumeHealingItem",
-      "starwarsffg.RivalTokenPrepend",
     ];
     return super.getData(includeSettingsNames);
   }

@@ -17,7 +17,7 @@ export class AbilityDie extends foundry.dice.terms.DiceTerm {
   /** @override */
   async evaluate({ minimize = false, maximize = false } = {}) {
     if (this._evaluated) {
-      throw new Error(`This ${this.constructor.name} has already been evaluated and is immutable`);
+      throw new Error(game.i18n.format('SWFFG.UI.Dice.DieAlreadyEvaluated',{type:this.constructor.name}));
     }
 
     // Roll the initial number of dice

@@ -29,7 +29,7 @@ globalThis.foundry = {
 
 const models = await import(new URL("../../modules/data-models/system-data-models.js", import.meta.url));
 
-const actorTypes = ["character", "minion", "vehicle", "homestead", "rival", "nemesis"];
+const actorTypes = ["character", "minion", "vehicle", "homestead", "rival", "nemesis", "groupinventory"];
 const itemTypes = [
   "ability", "armour", "career", "criticaldamage", "criticalinjury", "forcepower", "gear",
   "itemattachment", "itemmodifier", "talent", "shipattachment", "shipweapon", "homesteadupgrade",
@@ -108,4 +108,13 @@ test("gear keeps an independent persisted equipped state", () => {
   value.equipped = true;
   assert.deepEqual(field.initial(), {equipped: false});
   assert.deepEqual(models.getSystemDataDefaults("gear").equippable, {equipped: false});
+});
+
+test("group inventory uses the homestead schema and isolated storage defaults", () => {
+  const group=models.actorDataModels.groupinventory.defineSchema(),base=models.actorDataModels.homestead.defineSchema();
+  assert.deepEqual(Object.keys(group),Object.keys(base));
+  assert.equal(group.stats.required,false);assert.equal(group.skills,undefined);assert.equal(group.characteristics,undefined);
+  const one=models.getSystemDataDefaults('groupinventory'),two=models.getSystemDataDefaults('groupinventory');
+  assert.deepEqual(one,models.getSystemDataDefaults('homestead'));one.consumables.value=99;one.attributes.note='private';
+  assert.notEqual(two.consumables.value,99);assert.equal(two.attributes.note,undefined);
 });

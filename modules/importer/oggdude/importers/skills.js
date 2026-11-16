@@ -24,7 +24,7 @@ export default class Skills {
     if (createJournalCompendium) {
       pack = await ImportHelpers.getCompendiumPack("JournalEntry", `oggdude.SkillDescriptions`);
       $(".import-progress.skills").toggleClass("import-hidden");
-      CONFIG.logger.debug(`Starting Oggdude Skill Import`);
+      
     }
 
     await ImportHelpers.asyncForEach(items, async (item) => {
@@ -77,6 +77,6 @@ export default class Skills {
         CONFIG.logger.error(`Error importing record : `, err);
       }
     });
-    CONFIG.logger.debug(`Completed Oggdude Skill Import`);
+    
   }
 }

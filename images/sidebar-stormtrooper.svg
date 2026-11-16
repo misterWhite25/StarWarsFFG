@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Casque de stormtrooper</title>
+  <defs><mask id="face"><rect width="64" height="64" fill="white"/>
+    <path d="M8 23Q32 18 56 23V27Q32 23 8 27ZM12 29L28 28L23 36Q15 38 12 29ZM52 29L36 28L41 36Q49 38 52 29Z" fill="black"/>
+    <path d="M17 44L32 35L47 44L44 47L32 40L20 47Z" fill="black"/>
+    <path d="M27 45Q32 42 37 45L39 57H25Z" fill="black"/>
+    <g fill="black"><circle cx="16" cy="52" r="4.5"/><circle cx="48" cy="52" r="4.5"/>
+      <path d="M8 38L14 41L13 44L7 41ZM56 38L50 41L51 44L57 41Z"/>
+    </g>
+    <g fill="white"><circle cx="16" cy="52" r="1.7"/><circle cx="48" cy="52" r="1.7"/>
+      <rect x="29" y="47" width="1.5" height="8"/><rect x="33.5" y="47" width="1.5" height="8"/>
+    </g>
+  </mask></defs>
+  <path fill="black" mask="url(#face)" d="M8 25C8 11 18 4 32 4S56 11 56 25L59 31V41Q64 45 61 53Q58 62 47 60L38 57H26L17 60Q6 62 3 53Q0 45 5 41V31Z"/>
+</svg>

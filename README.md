@@ -1,61 +1,52 @@
 # Star Wars FFG - Tonio
 
-**Star Wars FFG - Tonio** est un système de jeu pour **Foundry VTT v14**, créé en septembre 2026 à partir du système original Star Wars FFG. Il constitue désormais une version totalement indépendante, développée et maintenue séparément du projet d’origine.
+**Star Wars FFG - Tonio** est une version indépendante du système Star Wars FFG pour **Foundry VTT v14**, développée depuis septembre 2026 à partir du projet original.
 
-Il permet de jouer aux jeux de rôle Star Wars de Fantasy Flight Games et comprend également les fonctionnalités héritées pour les jeux fondés sur Genesys.
+Elle permet de jouer aux jeux de rôle Star Wars de Fantasy Flight Games et conserve les fonctionnalités héritées pour les jeux fondés sur Genesys.
 
-## Un projet personnel et indépendant
+Le projet est développé et maintenu par **Tonio (misterWhite25)**, avec l’assistance d’OpenAI Codex. Ses évolutions et ses publications sont gérées séparément de celles du système d’origine.
 
-Ce dépôt est développé et maintenu uniquement par **Tonio (misterWhite25)**, avec l’assistance d’OpenAI Codex. Les orientations du projet, les modifications et les publications sont gérées par son mainteneur. Les contributions externes et les pull requests ne sont pas sollicitées.
+## Compendiums FR / EN
 
-Le projet a commencé par l’adaptation du système à Foundry VTT v14 et suit désormais sa propre évolution. Il ne fait pas partie du projet StarWarsFoundryVTT et n’a pas vocation à lui soumettre ses modifications.
+Des compendiums français et anglais accompagnent le projet : personnages et talents, espèces, équipement, adversaires, vaisseaux et speeders, planètes et illustrations.
 
-Les versions sont distribuées directement dans les [releases de ce dépôt](https://github.com/misterWhite25/StarWarsFFG/releases), sans publication au catalogue officiel de Foundry VTT.
+**Ils sont optimisés pour fonctionner avec Star Wars FFG - Tonio, mais peuvent aussi être utilisés indépendamment de cette version du système**, avec une version compatible de Star Wars FFG et les dépendances requises par chaque module.
 
-## Installation
+Les compendiums sont distribués séparément du système. Tu peux choisir ceux dont tu as besoin, en respectant leurs dépendances.
 
-1. Ouvrir Foundry VTT et accéder à **Game Systems**.
-2. Cliquer sur **Install System**.
-3. Coller le lien suivant dans **Manifest URL**, puis cliquer sur **Install** :
+## Installation et mises à jour
+
+Les téléchargements et les informations de compatibilité sont disponibles dans les [releases du dépôt](https://github.com/misterWhite25/StarWarsFFG/releases). Le projet est distribué directement ici, hors du catalogue officiel de Foundry VTT.
+
+**Pour installer le système :**
+
+1. Dans Foundry VTT, ouvre **Game Systems**, puis **Install System**.
+2. Colle l’adresse suivante dans **Manifest URL**.
+3. Clique sur **Install**.
 
 ```text
 https://github.com/misterWhite25/StarWarsFFG/releases/latest/download/system.json
 ```
 
-Pour une installation manuelle, télécharger **system.zip** dans les releases, puis extraire son contenu dans `Data/systems/starwarsffg`. Les archives GitHub « Source code » ne sont pas les paquets d’installation.
+**Pour le mettre à jour :** dans **Game Systems**, clique sur **Check Update**, puis sur **Update**.
 
-Le système conserve l’identifiant technique `starwarsffg` pour les mondes existants. Son nom affiché est **Star Wars FFG - Tonio**. Vérifier que le manifest de l’installation pointe vers **misterWhite25/StarWarsFFG**.
+**Pour les compendiums :** utilise les liens de téléchargement indiqués dans les releases. Foundry arrêté, décompresse chaque archive de module dans `Data/modules/`, puis active les modules et leurs dépendances dans ton monde. Pour une mise à jour manuelle, remplace le dossier du module concerné par celui de la nouvelle archive.
 
-## Mises à jour
+*Sauvegarde ton monde avant une mise à jour. Les documents déjà importés depuis un compendium restent des copies : ils ne sont pas remplacés par la mise à jour du module.*
 
-Après l’installation initiale, utiliser **Check Update**, puis **Update** dans **Game Systems** pour installer les nouvelles versions compatibles. Il n’est pas nécessaire de réinstaller le système à chaque publication.
+## Origine et remerciements
 
-Sauvegarder le monde avant une mise à jour : sa première ouverture peut migrer des données. Sauvegarder également les éventuelles modifications locales du système avant de les remplacer.
+Ce projet existe grâce au travail réalisé sur le [système original Star Wars FFG](https://github.com/StarWarsFoundryVTT/StarWarsFFG). **Un grand merci à wrycu, son créateur**, ainsi qu'aux différentes personnes qui ont contribué à son développement, à ses traductions, à sa documentation et à ses corrections. Leur travail constitue la base de cette version.
 
-Le manifest utilise le canal `releases/latest`, destiné aux releases stables. Les préversions s’installent avec le manifest de la release correspondante.
+Merci également aux auteurs, traducteurs, relecteurs et illustrateurs des livres et ressources utilisés pour les compendiums, notamment :
 
-## Compendium FR / EN
+- **Star Wars - The Complete Species Guide** : **Yaccarus** et **mrdollar11**, auteurs principaux, **the_dearth** pour la mise en page, ainsi que les contributeurs et artistes crédités dans le guide.
+- **Star Wars - Les Droïdes** : **Cédric Dagobert, alias Kephren**, pour son travail de compilation, d’adaptation et de mise en page ; **Ruby** pour le travail initial, les sources et les modèles partagés ; ainsi que les auteurs et artistes des ressources recensées dans l’ouvrage.
 
-Le compendium **Star Wars FFG — Compendium FR / EN** est un module séparé ; il n’est pas inclus dans `system.zip`. Ses archives sont distribuées séparément via les releases du même dépôt.
-
-Il s’installe dans **Add-on Modules**, avec Babele et les dépendances indiquées dans son manifest. Consulter les fichiers joints et les notes de la release pour connaître la version disponible et ses instructions d’installation.
-
-Les versions du système et du compendium sont indépendantes. Les modules se mettent à jour dans **Add-on Modules**. Les documents déjà importés dans un monde restent des copies et ne sont pas remplacés par une mise à jour du compendium.
-
-## Compatibilité
-
-Cette version cible **Foundry VTT v14**. Le manifest déclare la version 14 comme version minimale, vérifiée et maximale.
-
-Les fonctionnalités et la compatibilité de ce projet évoluent indépendamment de celles du système d’origine. Consulter les notes de chaque release avant une mise à jour.
-
-## Origine et crédits
-
-Ce projet repose sur le travail des développeurs et contributeurs du [système original Star Wars FFG](https://github.com/StarWarsFoundryVTT/StarWarsFFG). Leurs contributions constituent la base de cette version indépendante.
+Merci aux membres de [ce serveur Discord](https://discord.gg/hqayGybCc) et de [cet autre serveur Discord](https://discord.gg/JEShuu32b) pour leurs échanges, leurs retours et leurs contributions. **Un merci particulier à Ruby et à Tom.** Tom m’a fourni son module de carte spatiale, qui m’a donné de nombreuses idées pour développer les outils cartographiques du projet.
 
 ## Licence et mentions
 
-Les conditions de licence héritées du projet original sont conservées ; consulter [LICENSE.txt](LICENSE.txt).
+Les conditions de licence du système original sont conservées : voir [LICENSE.txt](https://github.com/misterWhite25/StarWarsFFG/blob/main/LICENSE.txt).
 
-Ce système est une réalisation non officielle de fans, sans affiliation à Fantasy Flight Games ni à ses partenaires. Il ne remplace pas les livres de règles nécessaires pour jouer.
-
-Star Wars, ses logos, personnages, noms et autres éléments associés appartiennent à leurs détenteurs respectifs.
+*Projet non officiel réalisé par un fan, sans affiliation à Fantasy Flight Games ni aux détenteurs des droits de Star Wars. Les livres de règles restent nécessaires pour jouer. Les textes, illustrations, marques et autres contenus issus des sources utilisées restent la propriété de leurs auteurs et ayants droit respectifs.*

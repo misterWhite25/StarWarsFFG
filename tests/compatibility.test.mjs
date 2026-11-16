@@ -55,6 +55,12 @@ async function loadSystem(defaultMode = "blind") {
   const rollModule = new vm.SourceTextModule(await readFile(new URL('../modules/dice/roll.js', import.meta.url), 'utf8'), { context });
   await rollModule.link(async (specifier) => {
     if (specifier === '../helpers/chat.js') return chat;
+    if (specifier === '../helpers/space-roll-presentation.mjs') {
+      const presentation = new vm.SourceTextModule(await readFile(new URL('../modules/helpers/space-roll-presentation.mjs', import.meta.url), 'utf8'), { context });
+      await presentation.link(() => { throw new Error('Unexpected roll presentation import'); });
+      await presentation.evaluate();
+      return presentation;
+    }
     const stub = new vm.SyntheticModule(['default', 'ForceDie', 'migrateDataToSystem', 'ItemFFG'], function () {
       this.setExport('default', class {});
       this.setExport('ForceDie', class {});

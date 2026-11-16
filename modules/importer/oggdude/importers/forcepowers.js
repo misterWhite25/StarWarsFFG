@@ -29,7 +29,7 @@ export default class ForcePowers {
 
       if (files?.length) {
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.ForcePowers`);
-        CONFIG.logger.debug(`Starting Oggdude Force Powers Import`);
+        
         $(".import-progress.forcepower").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(files, async (file) => {
@@ -172,7 +172,7 @@ export default class ForcePowers {
                 data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
               }
             } catch {
-              CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+              
             }
             if (item?.Type) {
               // the "type" can be useful as a tag as well

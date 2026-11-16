@@ -1,0 +1,17 @@
+<div>
+<div class="form-group">
+  <label for="ffg-gm-enabled">{{localize "SWFFG.GMToolbar.Enable"}}</label>
+  <div class="form-fields"><input id="ffg-gm-enabled" type="checkbox" name="enabled" {{checked enabled}}></div>
+</div>
+<p class="hint">{{localize "SWFFG.GMToolbar.PageHint"}}</p>
+{{#each shortcuts}}
+<div class="form-group stacked">
+  <label for="ffg-gm-shortcut-{{index}}">{{label}}</label>
+  <select id="ffg-gm-shortcut-{{index}}" name="shortcut{{index}}">
+    {{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+  </select>
+</div>
+{{/each}}
+<p class="hint">{{localize "SWFFG.GMToolbar.FavoritesHint"}}</p>
+<footer class="form-footer"><button type="submit"><i class="fa-solid fa-save" aria-hidden="true"></i> {{localize "SWFFG.GMToolbar.Save"}}</button></footer>
+</div>

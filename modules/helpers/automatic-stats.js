@@ -1,31 +1,39 @@
+/** A pure calculation can return locale keys; its UI callers supply the current translator. */
+export function calculationText(id, values, i18n) {
+  const key = id.startsWith('SWFFG.') ? id : 'SWFFG.UI.Calculation.Data.' + id;
+  return i18n ? (values ? i18n.format(key, values) : i18n.localize(key)) : (values ? key + " " + JSON.stringify(values) : key);
+}
+
 const fields = {
-  wounds: ['wounds.max', 'Seuil de blessures'], strain: ['strain.max', 'Seuil de stress'],
-  soak: ['soak.value', 'Encaissement'], melee: ['defence.melee', 'Défense au corps à corps'],
-  ranged: ['defence.ranged', 'Défense à distance'], encumbrance: ['encumbrance.max', 'Seuil d’encombrement'],
+  wounds: ['wounds.max', 'SWFFG.UI.Calculation.Data.Wounds'], strain: ['strain.max', 'SWFFG.UI.Calculation.Data.Strain'],
+  soak: ['soak.value', 'SWFFG.UI.Calculation.Data.Soak'], melee: ['defence.melee', 'SWFFG.UI.Calculation.Data.Melee'],
+  ranged: ['defence.ranged', 'SWFFG.UI.Calculation.Data.Ranged'], encumbrance: ['encumbrance.max', 'SWFFG.UI.Calculation.Data.Encumbrance'],
 };
 const number = value => value !== '' && value != null && Number.isFinite(Number(value)) ? Number(value) : null;
 const read = (object, path) => path.split('.').reduce((o, k) => o?.[k], object);
 
 /** Pure, repeatable calculation: never alters documents or their effects. */
-export function calculateStats(actor, config = actor.flags?.starwarsffg?.automaticStats ?? {}) {
+export function calculateStats(actor, config = actor.flags?.starwarsffg?.automaticStats ?? {}, i18n) {
+  const text=(id,values)=>calculationText(id,values,i18n);
   const items = Array.from(actor.items ?? []).filter(item=>!(item?.flags?.starwarsffg?.inventoryLocation==='possession'));
   const species = items.filter(i => i.type === 'species');
   const errors = [], warnings = [];
-  if (species.length !== 1) errors.push('Une seule espèce renseignée est nécessaire.');
+  if (species.length !== 1) errors.push(text("SpeciesRequired"));
   const attributes = species[0]?.system?.attributes ?? {};
   const birthBrawn = number(config.creationBrawn), birthWill = number(config.creationWillpower);
-  if (birthBrawn === null || birthBrawn < 1) errors.push('Renseigner la Vigueur à la création.');
-  if (birthWill === null || birthWill < 1) errors.push('Renseigner la Volonté à la création.');
+  if (birthBrawn === null || birthBrawn < 1) errors.push(text("CreationBrawnRequired"));
+  if (birthWill === null || birthWill < 1) errors.push(text("CreationWillpowerRequired"));
   const speciesWounds = number(attributes.Wounds?.value), speciesStrain = number(attributes.Strain?.value);
-  if (speciesWounds === null || speciesStrain === null) errors.push('Les seuils de base de l’espèce sont incomplets.');
+  if (speciesWounds === null || speciesStrain === null) errors.push(text("SpeciesThresholdsMissing"));
   const brawn = number(actor.system?.characteristics?.Brawn?.value);
-  if (brawn === null) errors.push('La Vigueur actuelle est manquante.');
+  if (brawn === null) errors.push(text("CurrentBrawnMissing"));
   const bases = {wounds: (speciesWounds ?? 0) + (birthBrawn ?? 0), strain: (speciesStrain ?? 0) + (birthWill ?? 0),
     soak: brawn ?? 0, melee: 0, ranged: 0, encumbrance: 5 + (brawn ?? 0)};
-  const names = {wounds: `${species[0]?.name ?? 'Espèce'} + Vigueur à la création`,
-    strain: `${species[0]?.name ?? 'Espèce'} + Volonté à la création`, soak: 'Vigueur actuelle',
-    melee: 'Base', ranged: 'Base', encumbrance: '5 + Vigueur actuelle'};
-  const rows = Object.entries(fields).map(([id, [path, label]]) => ({id, path, label,
+  const speciesName=species[0]?.name ?? text('Species');
+  const names = {wounds: text('SpeciesAndBrawn',{species:speciesName}),
+    strain: text('SpeciesAndWillpower',{species:speciesName}), soak: text('CurrentBrawn'),
+    melee: text('Base'), ranged: text('Base'), encumbrance: text('EncumbranceBase')};
+  const rows = Object.entries(fields).map(([id, [path, label]]) => ({id, path, label:text(label),
     current: read(actor.system?.stats, path), total: bases[id], sources: [{name: names[id], operation: 'base', value: bases[id]}]}));
   const armour = items.filter(i => i.type === 'armour' && i.system?.equippable?.equipped && Number(i.system.quantity?.value ?? 1) > 0);
   for (const [id, stat] of [['soak', 'soak'], ['melee', 'defence'], ['ranged', 'defence']]) {
@@ -38,7 +46,7 @@ export function calculateStats(actor, config = actor.flags?.starwarsffg?.automat
   for(const item of armour){
     const effect=item.system.reviewedJuryRigged?.effect;
     const id=effect==='defence-melee'?'melee':effect==='defence-ranged'?'ranged':null;
-    if(id){const row=rows.find(r=>r.id===id);row.total+=1;row.sources.push({name:item.name+' - Bidouillage',operation:'+',value:1});}
+    if(id){const row=rows.find(r=>r.id===id);row.total+=1;row.sources.push({name:text('JuryRigged',{item:item.name}),operation:'+',value:1});}
   }
   const changes = [];
   for (const effect of actor.allApplicableEffects()) {
@@ -51,19 +59,19 @@ export function calculateStats(actor, config = actor.flags?.starwarsffg?.automat
     for (const change of sourceChanges) {
       const row = rows.find(r => change.key === `system.stats.${r.path}`);
       if (!row) continue;
-      if (change.phase && !['initial','final'].includes(change.phase)) { errors.push(`Phase d’effet non prise en charge : ${effect.name}`); continue; }
+      if (change.phase && !['initial','final'].includes(change.phase)) { errors.push(text('UnsupportedPhase',{name:effect.name})); continue; }
       if (parent?.type === 'armour' && parent.system?.attributes?.[effect.name]?.modtype === 'Armor Stat') continue;
       if (effect.name === '(inherent)' && ['species', 'armour'].includes(parent?.type)) continue;
       if (parent?.system?.attributes?.[effect.name]?.modtype === 'Characteristic' &&
           parent.system.attributes[effect.name].mod === 'Brawn' && ['soak', 'encumbrance'].includes(row.id)) continue;
       if (parent && effect.name.startsWith('attr') && !parent.system?.attributes?.[effect.name]) {
-        warnings.push(`${parent.name} : effet ancien sans modificateur correspondant (${row.label}). Conservé jusqu’à vérification.`);
+        warnings.push(text('LegacyEffect',{name:parent.name,stat:row.label}));
       }
-      if (parent?.type === 'weapon' && ['wounds', 'strain'].includes(row.id)) warnings.push(`${parent.name} modifie ${row.label.toLowerCase()} : vérifier ce bonus.`);
+      if (parent?.type === 'weapon' && ['wounds', 'strain'].includes(row.id)) warnings.push(text('WeaponBonus',{name:parent.name,stat:row.label.toLowerCase()}));
       const type = change.type ?? ({2: 'add', 1: 'multiply', 3: 'downgrade', 4: 'upgrade', 5: 'override'})[change.mode];
       const value = number(change.value);
       if (value === null || !['add', 'multiply', 'downgrade', 'upgrade', 'override'].includes(type)) {
-        errors.push(`${parent?.name ?? effect.name} : effet non numérique ou personnalisé sur ${row.label.toLowerCase()}, à configurer.`); continue;
+        errors.push(text('CustomEffect',{name:parent?.name ?? effect.name,stat:row.label.toLowerCase()})); continue;
       }
       const priority = number(change.priority) ?? ({multiply: 10, add: 20, downgrade: 30, upgrade: 40, override: 50})[type];
       changes.push({row, value, type, priority, phase: change.phase === 'final' ? 1 : 0, name: parent ? `${parent.name} - ${effect.name}` : effect.name});
@@ -77,14 +85,14 @@ export function calculateStats(actor, config = actor.flags?.starwarsffg?.automat
   for (const item of items.filter(i => i.type === 'talent')) {
     const attrs = Object.entries(item.system?.attributes ?? {}).filter(([,a]) => ['Wounds','Strain','Soak','Defence.Melee','Defence.Ranged','EncumbranceMax'].includes(a.mod));
     for (const [key] of attrs) if (!Array.from(item.effects ?? []).some(e => e.name === key))
-      warnings.push(`${item.name} : modificateur sans effet associé ; non compté. Vérifier sa configuration.`);
+      warnings.push(text('UnlinkedModifier',{name:item.name}));
   }
   for (const row of rows) {
     const adjustment = number(config.adjustments?.[row.id]) ?? 0;
-    if (adjustment) {row.total += adjustment; row.sources.push({name: 'Ajustement MJ', operation: '+', value: adjustment});}
+    if (adjustment) {row.total += adjustment; row.sources.push({name: text("GMAdjustment"), operation: '+', value: adjustment});}
     const limit = ['melee','ranged'].includes(row.id) ? 4 : Infinity;
     const bounded = Math.max(0, Math.min(limit, row.total));
-    if (bounded !== row.total) row.sources.push({name: 'Limite', operation: '=', value: bounded});
+    if (bounded !== row.total) row.sources.push({name: text("Limit"), operation: '=', value: bounded});
     row.total = bounded;
   }
   return {rows, errors: [...new Set(errors)], warnings: [...new Set(warnings)]};
@@ -93,7 +101,7 @@ export function calculateStats(actor, config = actor.flags?.starwarsffg?.automat
 export default class AutomaticStats {
   static apply(actor) {
     if (actor.type !== 'character' || !actor.flags?.starwarsffg?.automaticStats?.enabled) return;
-    const result = calculateStats(actor);
+    const result = calculateStats(actor, undefined, globalThis.game?.i18n);
     actor.automaticStatsReport = result;
     if (result.errors.length) return;
     for (const row of result.rows) {

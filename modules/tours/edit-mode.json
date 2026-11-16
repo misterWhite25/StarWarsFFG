@@ -1,6 +1,6 @@
 {
-  "title": "Edit Mode",
-  "description": "Understand how to manually adjust stats",
+  "title": "SWFFG.Guide.EditMode.Title",
+  "description": "SWFFG.Guide.EditMode.Description",
   "display": true,
   "closeWindows": false,
   "steps": [

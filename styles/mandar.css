@@ -1447,7 +1447,7 @@ img {
 
 .starwarsffg .dice-pool-dialog .pool-value input {
   border: 0;
-  font-size: 25px;
+  font-size: 22px;
   text-align: center;
   background: none;
   width: 100%;
@@ -2151,7 +2151,7 @@ img {
 .starwarsffg .characteristic .characteristic-value input {
   height: 40px;
   border: 0;
-  font-size: 30px;
+  font-size: 27px;
   text-align: center;
 }
 
@@ -3224,7 +3224,7 @@ img {
   height: 40px;
   width: 40px;
   border: 0;
-  font-size: 30px;
+  font-size: 27px;
   text-align: center;
 }
 
@@ -3876,48 +3876,14 @@ img {
   line-height: 24px;
 }
 
-.starwarsffg.data-import .skilllist table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
 
-.starwarsffg.data-import .skilllist th, .starwarsffg.data-import .skilllist td {
-  padding: 0.3125rem;
-  text-align: center;
-  width: 7.8125rem;
-}
 
-.starwarsffg.data-import .skilllist tbody {
-  display: block;
-  overflow: auto;
-  height: 4.5rem;
-  width: 100%;
-}
 
-.starwarsffg.data-import .skilllist thead tr {
-  display: block;
-}
 
-.starwarsffg.data-import .skilllist .skilltheme {
-  text-align: left;
-}
 
-.starwarsffg.data-import .skilllist .fa-download {
-  cursor: pointer;
-}
 
-.starwarsffg.data-import .skilllist .skillactive {
-  text-align: center;
-}
 
-.starwarsffg.data-import .skilllist .skillactive .fa-check-circle {
-  color: green;
-}
 
-.starwarsffg.data-import .skilllist .skillactive .fa-times-circle {
-  color: red;
-}
 
 .starwarsffg .debug label {
   display: block;

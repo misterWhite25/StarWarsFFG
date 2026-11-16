@@ -578,7 +578,7 @@ img {
 .starwarsffg .characteristic-item .characteristic .characteristic-value input {
   height: 40px;
   border: 0;
-  font-size: 30px;
+  font-size: 27px;
   text-align: center;
 }
 .starwarsffg .characteristic-item .characteristic .characteristic-value input:focus {
@@ -988,7 +988,7 @@ img {
 }
 .starwarsffg .dice-pool-dialog .pool-value input {
   border: 0;
-  font-size: 25px;
+  font-size: 22px;
   text-align: center;
   background: none;
   width: 100%;
@@ -2000,7 +2000,7 @@ img {
   height: 40px;
   width: 40px;
   border: 0;
-  font-size: 30px;
+  font-size: 27px;
   text-align: center;
 }
 .starwarsffg.sheet.actor .vehicle .defense-block .defense-value input:focus {
@@ -2469,40 +2469,6 @@ img {
 .starwarsffg.data-import .import-progress .import-progress-bar span {
   line-height: 24px;
 }
-.starwarsffg.data-import .skilllist table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-.starwarsffg.data-import .skilllist th, .starwarsffg.data-import .skilllist td {
-  padding: 0.3125rem;
-  text-align: center;
-  width: 7.8125rem;
-}
-.starwarsffg.data-import .skilllist tbody {
-  display: block;
-  overflow: auto;
-  height: 4.5rem;
-  width: 100%;
-}
-.starwarsffg.data-import .skilllist thead tr {
-  display: block;
-}
-.starwarsffg.data-import .skilllist .skilltheme {
-  text-align: left;
-}
-.starwarsffg.data-import .skilllist .fa-download {
-  cursor: pointer;
-}
-.starwarsffg.data-import .skilllist .skillactive {
-  text-align: center;
-}
-.starwarsffg.data-import .skilllist .skillactive .fa-check-circle {
-  color: green;
-}
-.starwarsffg.data-import .skilllist .skillactive .fa-times-circle {
-  color: red;
-}
 .starwarsffg .debug label {
   display: block;
   padding-left: 15px;
@@ -2542,7 +2508,7 @@ img {
 .starwarsffg .item-sheet-species .characteristic .characteristic-value input {
   height: 40px;
   border: 0;
-  font-size: 30px;
+  font-size: 27px;
   text-align: center;
 }
 .starwarsffg .item-sheet-species .characteristic .characteristic-value input:focus {
@@ -2878,7 +2844,7 @@ img {
   box-sizing: content-box;
   color: #fff;
   font-family: "warnock-pro", "sans-serif";
-  font-size: 30px;
+  font-size: 27px;
   height: auto;
   line-height: 1.2;
   margin: 8px 8px 6px 0;
@@ -3019,7 +2985,7 @@ img {
 .starwarsffg.roll-builder-dialog .pool-dice-pool td:nth-child(2) { width: 54px; }
 .starwarsffg.roll-builder-dialog .pool-dice-pool img { display: block; width: 24px; height: 24px; margin: auto; }
 .starwarsffg.roll-builder-dialog .pool-value { width: 38px; height: 28px; margin: auto; }
-.starwarsffg.roll-builder-dialog .pool-value input { display: block; height: 26px; min-height: 0; padding: 0; margin: 0; font-size: 20px; line-height: 26px; }
+.starwarsffg.roll-builder-dialog .pool-value input { display: block; height: 26px; min-height: 0; padding: 0; margin: 0; font-size: 18px; line-height: 26px; }
 .starwarsffg.roll-builder-dialog .pool-text label { margin-left: 5px; }
 .starwarsffg.roll-builder-dialog .roll-button { flex: 0 0 auto; margin-top: 6px; padding-top: 4px; border-top: 1px solid #9996; }
 .starwarsffg.roll-builder-dialog .roll-button button { min-height: 30px; margin: 0; }

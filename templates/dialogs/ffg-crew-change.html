@@ -12,10 +12,12 @@
       {{/each}}
     </optgroup>
     {{/if}}
-    <optgroup label="{{localize 'SWFFG.Crew.Role.Custom'}}">
+    {{#if roles}}
+    <optgroup label="{{localize 'SWFFG.Crew.Role.Existing'}}">
       {{# each roles as |role| }}
         <option value="{{ role.role_name }}"{{#iff ../rolesInUse 'contains' role.role_name }} selected{{/iff}}>{{ role.role_name }}</option>
       {{/each }}
     </optgroup>
+    {{/if}}
   </multi-select>
 </p>

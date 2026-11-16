@@ -1,3 +1,7 @@
+import {resolveCrewActor,integratedCrewVehicle,integratedCrewGroupSignature} from './integrated-crew.mjs';
+import {requireLivingVehicleGroup} from './vehicle-minion-group.mjs';
+import {resetNewRollTarget} from './roll-target-start.mjs';
+import {groundAttackDifficulty,groundAttackRange} from "./ground-movement-state.mjs";
 import { supportsWeaponSelection, missingAccurateBoost, prepareRememberedWeapon } from "./weapon-selection.js";
 import RollBuilderFFG from "../dice/roll-builder.js";
 import ModifierHelpers from "../helpers/modifiers.js";
@@ -81,7 +85,7 @@ export default class DiceHelpers {
     if (item && item.type === "weapon") {
       const ammoEnabled = item.getFlag("starwarsffg", "config.enableAmmo");
       if (ammoEnabled && item.system.ammo.value <= 0) {
-        return ui.notifications.warn("Not enough ammo!");
+        return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Dice.NotEnoughAmmo"));
       }
     }
 
@@ -107,7 +111,7 @@ export default class DiceHelpers {
       despair: skill.despair ?? 0,
       upgrades: skill.upgrades ?? 0,
       remsetback: skill.remsetback ?? 0,
-      difficulty: 2 + status.difficulty, // default to average difficulty
+      difficulty: (groundAttackDifficulty(obj.actor,itemData) ?? 2) + status.difficulty, // Range assistance is optional.
     });
 
     dicePool.upgrade(Math.min(characteristic.value, skill.rank) + dicePool.upgrades);
@@ -147,13 +151,18 @@ export default class DiceHelpers {
   }
 
   static async displayRollDialog(data, dicePool, description, skillName, item, flavorText, sound, weaponContext = null, rollChoices = {}) {
+    dicePool = await resetNewRollTarget(dicePool, {skillName, item, weaponContext, nonAttack:rollChoices.nonAttack});
     const prepared = await prepareRememberedWeapon(weaponContext, item, dicePool);
+    const actor=weaponContext?.actor??data?.document??resolveCrewActor(data?.actor?._id??data?.actor?.id);
+    if(integratedCrewVehicle(actor)){data.document=actor;data.documentUuid=actor.uuid;data.integratedCrewGroup??=integratedCrewGroupSignature(actor);}
     const builder = new RollBuilderFFG(data, prepared.pool, description, skillName, prepared.item, flavorText, sound);
     builder.weaponContext = weaponContext;
+    builder.roll.nonAttack = Boolean(rollChoices.nonAttack);
     builder.roll.crew = rollChoices.crew ?? prepared.item?.crew;
     builder.roll.autoFire = Boolean(rollChoices.autoFire);
     builder.roll.shotMode = rollChoices.shotMode;
-    builder.roll.shotRange = rollChoices.shotRange;
+    const groundRange=prepared.item?.type==='weapon'?groundAttackRange(weaponContext?.actor??data?.actor):null;
+    builder.roll.shotRange = rollChoices.shotRange ?? (groundRange ? (groundRange.band===0?'engaged':groundRange.band===1?'short':'beyond') : undefined);
     if(['personal','vehicle'].includes(rollChoices.combatMode)) {
       builder.roll.combatMode=rollChoices.combatMode;
       builder._combatModeExplicit=true;
@@ -205,16 +214,19 @@ export default class DiceHelpers {
     }
   }
 
-  static async rollItem(itemId, actorId, flavorText, sound) {
-    const actor = game.actors.get(actorId);
+  static async rollItem(itemId, actorId, flavorText, sound, context = {}) {
+    const actor = context.actor ?? resolveCrewActor(actorId);
+    const integratedVehicle=integratedCrewVehicle(actor);if(integratedVehicle)requireLivingVehicleGroup(integratedVehicle);
     const item = actor?.items?.get(itemId);
     if (!item) return null;
     // Existing hotbar macros must obey the same carried-inventory boundary as the selector.
     if (item.flags?.starwarsffg?.inventoryLocation === 'possession') {
-      ui.notifications.warn(`${item.name} : équipement en Possession, non transporté. Reprenez-le dans l’inventaire avant de l’utiliser.`);
+      ui.notifications.warn(game.i18n.format("SWFFG.UI.Dice.PossessionNotCarried",{name:item.name}));
       return null;
     }
     const actorSheet = await actor.sheet.getData();
+    actorSheet.document=actor;actorSheet.documentUuid=actor.uuid;
+    if(context.tokenUuid)actorSheet.pilotageTokenUuid=context.tokenUuid;
     const itemData = item.system;
     await item.setFlag("starwarsffg", "uuid", item.uuid);
 
@@ -241,7 +253,7 @@ export default class DiceHelpers {
       despair: skill?.despair ? skill.despair : 0,
       upgrades: skill?.upgrades ? skill.upgrades : 0,
       remsetback: skill?.remsetback ? skill.remsetback : 0,
-      difficulty: 2 + status.difficulty, // default to average difficulty
+      difficulty: (groundAttackDifficulty(actor,selected) ?? 2) + status.difficulty, // Range assistance is optional.
     });
 
     dicePool.upgrade(Math.min(characteristic.value, skill.rank) + dicePool.upgrades);
@@ -251,12 +263,12 @@ export default class DiceHelpers {
       return dicePool;
     };
     const dicePool = await makePool(item);
-    this.displayRollDialog(actorSheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, item, flavorText, sound, supportsWeaponSelection(itemData.skill.value, skill) ? {actor, skillKey:itemData.skill.value, makePool} : null);
+    return this.displayRollDialog(actorSheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, item, flavorText, sound, supportsWeaponSelection(itemData.skill.value, skill) ? {actor, skillKey:itemData.skill.value, makePool} : null);
   }
 
   /** Resolve a skill macro from stable document identifiers so its weapon selector uses current Actor data. */
   static async rollSkillByKey(actorId, skillKey, difficulty = 2, flavorText, sound) {
-    const actor = game.actors.get(actorId);
+    const actor = resolveCrewActor(actorId);
     const skill = actor?.system?.skills?.[skillKey];
     const characteristic = actor?.system?.characteristics?.[skill?.characteristic];
     if (!actor || !skill || !characteristic) return null;
@@ -268,6 +280,7 @@ export default class DiceHelpers {
   static async rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound, context = {}) {
     const sheetActor = sheet?.actor?.system ? sheet.actor : game.actors.get(sheet?.actor?._id ?? sheet?.actor?.id ?? sheet?.data?._id);
     const actor = context.actor ?? sheetActor ?? game.actors.find(candidate => Object.values(candidate.system?.skills ?? {}).includes(skill));
+    const integratedVehicle=integratedCrewVehicle(actor);if(integratedVehicle)requireLivingVehicleGroup(integratedVehicle);
     const skillKey = context.skillKey ?? Object.entries(actor?.system?.skills ?? {}).find(([key, value]) => value === skill || key === skill?.value || (value?.label === skill?.label && value?.characteristic === skill?.characteristic))?.[0];
     const makePool = async (itemData = {}) => {
     const status = this.getWeaponStatus(itemData);
@@ -278,7 +291,7 @@ export default class DiceHelpers {
       boost: skill.boost,
       setback: (skill.setback ?? 0) + status.setback + defenseDice,
       force: skill.force,
-      difficulty: difficulty + status.difficulty,
+      difficulty: (groundAttackDifficulty(actor,itemData) ?? difficulty) + status.difficulty,
       advantage: skill.advantage,
       dark: skill.dark,
       light: skill.light,
@@ -298,7 +311,7 @@ export default class DiceHelpers {
 
     const dicePool = await makePool({});
     const weaponContext = !context.nonAttack && actor && supportsWeaponSelection(skillKey, skill) ? {actor, skillKey, makePool} : null;
-    return this.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, {}, flavorText, sound, weaponContext);
+    return this.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, {}, flavorText, sound, weaponContext, {nonAttack:context.nonAttack});
   }
 
   static getWeaponStatus(item) {
@@ -362,10 +375,13 @@ export default class DiceHelpers {
  * @returns {DicePoolFFG}
  */
 export function get_dice_pool(actor_id, skill_name, incoming_roll) {
-  const actor = game.actors.get(actor_id);
-  const parsed_skill_name = convert_skill_name(skill_name);
-  const skill = actor.system.skills[parsed_skill_name];
-  const characteristic = actor.system.characteristics[skill.characteristic];
+  const actor = resolveCrewActor(actor_id);
+  const skills = actor?.system?.skills ?? {};
+  // Actor keys also include custom campaign skills absent from CONFIG.FFG.skills.
+  const parsed_skill_name = Object.hasOwn(skills, skill_name) ? skill_name : convert_skill_name(skill_name);
+  const skill = skills[parsed_skill_name];
+  const characteristic = actor?.system?.characteristics?.[skill?.characteristic];
+  if (!skill || !characteristic) throw new Error("La compétence ou sa caractéristique est indisponible sur cette fiche.");
 
   const dicePool = new DicePoolFFG({
     ability: Math.max(characteristic.value, skill.rank) + incoming_roll.ability - (Math.min(characteristic.value, skill.rank) + incoming_roll.proficiency),
@@ -395,21 +411,21 @@ export function get_dice_pool(actor_id, skill_name, incoming_roll) {
  * @returns {null|string}
  */
 function convert_skill_name(pool_skill_name) {
-  CONFIG.logger.debug(`Converting ${pool_skill_name} to skill name`);
+  
   const skills = CONFIG.FFG.skills;
   for (const skill of Object.keys(skills)) {
     if (game.i18n.localize(skills[skill].label) === pool_skill_name) {
-      CONFIG.logger.debug(`Found mapping to ${skill}`);
+      
       return skill;
     }
   }
   // it would appear that sometimes it's value instead of label
   for (const skill of Object.keys(skills)) {
     if (skills[skill].value === pool_skill_name) {
-      CONFIG.logger.debug(`Found mapping to ${skill}`);
+      
       return skill;
     }
   }
-  CONFIG.logger.debug('WARNING: Found no mapping!');
+  
   return null;
 }

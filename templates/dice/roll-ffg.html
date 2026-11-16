@@ -1,4 +1,4 @@
-<div class="starwarsffg dice-roll" data-action="expandRoll">
+<div class="starwarsffg dice-roll{{#if spaceCard}} ffg-space-roll{{/if}}" data-action="expandRoll">
   {{#if system.additionalFlavorText}}
   <div class="dice-additional-flavor">
     {{system.additionalFlavorText}}
@@ -10,6 +10,9 @@
     <div class="dice-formula">{{formula}}</div>
     {{/if}}
     {{#if hasFFG}} 
+      {{#if spaceCard}}
+        {{> "systems/starwarsffg/templates/chat/roll-space-card.html"}}
+      {{else}}
       {{#if system.crew.crew_card}}
         {{> "systems/starwarsffg/templates/chat/roll-vehicle-card.html"}}
       {{/if}} 
@@ -19,6 +22,7 @@
         {{else if (or (eq system.type "weapon") (eq system.type "shipweapon"))}}
           {{> "systems/starwarsffg/templates/chat/roll-weapon-card.html"}}
         {{/if}}
+      {{/if}}
       {{/if}}
       <div class="ffgDiceArray">
         <ol class="dice-rolls">
@@ -39,6 +43,7 @@
     {{/if}}
     {{#if publicRoll}}
       {{#if hasFFG}}
+      {{#unless spaceCard}}
       <ul>
         {{#if hasSuccess}}
           {{#if ffg.success}}
@@ -53,6 +58,7 @@
           {{/if}}
         {{/each}}
       </ul>
+      {{/unless}}
       {{/if}}
     {{/if}}
   </div>

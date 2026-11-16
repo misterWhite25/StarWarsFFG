@@ -1,14 +1,15 @@
+import {isHomesteadType} from './actor-types.mjs';
 export function homesteadFieldUpdate(name,value){
   if(name==='name'){
-    const text=String(value).trim();if(!text)throw Error('Le nom ne peut pas être vide.');return {name:text};
+    const text=String(value).trim();if(!text)throw Error(game.i18n.localize("SWFFG.UI.Equipment.EmptyName"));return {name:text};
   }
   if(name==='data.stats.consumables.duration')return {'system.stats.consumables.duration':String(value)};
   if(!['data.stats.cost.value','data.stats.consumables.value'].includes(name))return null;
-  if(value===''||!Number.isFinite(Number(value))||Number(value)<0)throw Error('Saisir une valeur positive ou nulle.');
+  if(value===''||!Number.isFinite(Number(value))||Number(value)<0)throw Error(game.i18n.localize("SWFFG.UI.Equipment.NonnegativeValue"));
   return {[name.replace(/^data\./,'system.')]:Number(value)};
 }
 export function activateHomesteadFields(sheet){
-  if(sheet.actor.type!=='homestead')return;
+  if(!isHomesteadType(sheet.actor.type))return;
   for(const input of sheet.element.querySelectorAll('input[name="name"],input[name="data.stats.cost.value"],input[name="data.stats.consumables.value"],input[name="data.stats.consumables.duration"]')){
     input.addEventListener('change',async event=>{
       event.stopImmediatePropagation();

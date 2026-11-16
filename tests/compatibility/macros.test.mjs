@@ -1,3 +1,5 @@
+import {systemI18n} from '../system-i18n.mjs';
+const frI18n=await systemI18n('fr');
 import assert from "node:assert/strict";
 import test from "node:test";
 import {createFFGMacro} from "../../modules/helpers/macros.js";
@@ -11,7 +13,7 @@ test("generated weapon and skill macros execute with current document data and r
   }, sheet: {async getData() {await Promise.resolve(); return {actor: "prepared"};}}};
   const owned = {id: "weapon-id", name: "Blaster", type: "weapon", actor};
   const standalone = {id: "world-weapon", name: "World weapon", type: "weapon"};
-  const world = {macros, actors: {get: id => id === actor.id ? actor : null},
+  const world = {i18n:frI18n,macros, actors: {get: id => id === actor.id ? actor : null},
     user: {assignHotbarMacro: async (macro, slot) => assignments.push({macro, slot})},
     ffg: {DiceHelpers: {rollItem: async (...args) => calls.push(args),
       rollSkillByKey: async (...args) => calls.push(args)}},

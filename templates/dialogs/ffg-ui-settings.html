@@ -1,29 +1,21 @@
 {{#*inline "settingPartial"}}
-<div class="form-group">
-  <label>{{this.name}}</label>
+<div class="form-group {{#if this.isCheckbox}}ffg-setting-checkbox{{/if}}">
+  <label for="ffg-setting-{{this.namespace}}-{{this.key}}">{{this.name}}</label>
   <div class="form-fields">
     {{#if this.isCheckbox}}
-    <input type="checkbox" name="{{this.namespace}}.{{this.key}}" data-dtype="Boolean" {{checked this.value}} />
+    <input type="checkbox" id="ffg-setting-{{this.namespace}}-{{this.key}}" name="{{this.namespace}}.{{this.key}}" data-dtype="Boolean" {{checked this.value}} />
 
     {{else if this.isSelect}}
-    <select name="{{ this.namespace }}.{{ this.key }}">
-      {{ selectOptions this.choices selected=this.value localize=true }}
-    </select>
-
-    {{else if this.choices}}
-    <select name="{{ this.namespace }}.{{ this.key }}">
+    <select id="ffg-setting-{{this.namespace}}-{{this.key}}" name="{{ this.namespace }}.{{ this.key }}">
       {{ selectOptions this.choices selected=this.value localize=true }}
     </select>
 
     {{else if this.isRange}}
-    <input type="range" name="{{this.namespace}}.{{this.key}}" data-dtype="Number" value="{{ this.value }}" min="{{ this.range.min }}" max="{{ this.range.max }}" step="{{ this.range.step }}" />
+    <input type="range" id="ffg-setting-{{this.namespace}}-{{this.key}}" name="{{this.namespace}}.{{this.key}}" data-dtype="Number" value="{{ this.value }}" min="{{ this.range.min }}" max="{{ this.range.max }}" step="{{ this.range.step }}" />
     <span class="range-value">{{this.value}}</span>
 
-    {{else if this.isFilePicker}}
-    <input type="text" name="{{this.namespace}}.{{this.key}}" value="{{this.value}}" data-dtype="{{this.type}}" /><button type="button" class="filepicker">...</button>
-
     {{else}}
-    <input type="text" name="{{this.namespace}}.{{this.key}}" value="{{this.value}}" data-dtype="{{this.type}}" />
+    <input type="text" id="ffg-setting-{{this.namespace}}-{{this.key}}" name="{{this.namespace}}.{{this.key}}" value="{{this.value}}" data-dtype="{{this.type}}" />
     {{/if}}
   </div>
 
@@ -33,7 +25,7 @@
 
 <form class="flexcol" autocomplete="off">
   <section id="config-tabs" class="content">
-    <div class="settings-list">
+    <div class="settings-list ffg-system-settings-list">
       <h2 class="module-header">{{ localize data.system.title }}</h2>
       {{#each data.system.menus}} {{> menuPartial}} {{/each}} {{#each data.system.settings}} {{> settingPartial}} {{else}}
       <p class="notes">{{localize 'SETTINGS.None'}}</p>

@@ -1,0 +1,68 @@
+.ffg-ship-glyph {
+  display:inline-block;
+  width:28px;
+  height:28px;
+  flex:none;
+  background:currentColor;
+  mask:var(--ffg-ship-icon) center / contain no-repeat;
+}
+#scene-controls button.ffg-ship-silhouette::before {
+  content:"";
+  display:block;
+  width:24px;
+  height:24px;
+  background:currentColor;
+  mask:var(--ffg-ship-icon) center / contain no-repeat;
+}
+.ffg-ship-icon-picker { margin:10px 0; }
+.ffg-ship-icon-picker > summary {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  font-size:13px;
+  padding:6px 8px;
+  border:1px solid var(--color-border-light-primary,#8886);
+  border-radius:4px;
+}
+.ffg-ship-icon-picker > summary::after {
+  content:"\f078";
+  font-family:var(--font-awesome);
+  font-weight:900;
+  font-size:10px;
+  margin-inline-start:auto;
+}
+.ffg-ship-icon-picker[open] > summary::after { content:"\f077"; }
+.ffg-ship-icon-picker > summary .ffg-ship-glyph {width:22px;height:22px;}
+.ffg-ship-icon-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(92px,1fr));
+  gap:6px;
+  padding-block:8px;
+}
+.ffg-ship-icon-grid button {
+  height:auto;
+  min-height:72px;
+  padding:8px 4px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  white-space:normal;
+  line-height:1.2;
+  font-size:11px;
+}
+.ffg-ship-icon-grid button[aria-pressed=true] {
+  outline:2px solid #57978f;
+  outline-offset:-2px;
+  background:#57978f20;
+}
+.ffg-ship-icon-picker :is(.ffg-ship-glyph,.fa-shuttle-space) { color:#39756e; }
+:is(body.theme-dark,.application.theme-dark) .ffg-ship-icon-picker :is(.ffg-ship-glyph,.fa-shuttle-space) { color:#82dacb; }
+
+
+.ffg-deck-settings-bar .ffg-deck-icon-button{display:flex;align-items:center;gap:5px;flex:none;width:auto;height:28px;margin:0;padding:0 7px;font-size:12px}
+.ffg-deck-settings-bar .ffg-deck-icon-button .ffg-ship-glyph{width:20px;height:20px;color:#39756e}
+:is(body.theme-dark,.ffg-deck-window.theme-dark) .ffg-deck-settings-bar .ffg-deck-icon-button .ffg-ship-glyph{color:#82dacb}
+.ffg-ship-icon-dialog .ffg-ship-icon-grid{grid-template-columns:repeat(4,minmax(0,1fr))}

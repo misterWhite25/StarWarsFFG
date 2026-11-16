@@ -11,7 +11,7 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 50
     },
-    "repairTime": "1 heure",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.OneHour",
     "repairTest": "-",
     "unresolved": false
   },
@@ -31,8 +31,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 100
     },
-    "repairTime": "1 heure",
-    "repairTest": "Voir règles",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.OneHour",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.SeeRules",
     "unresolved": false
   },
   "91c17ccc05c525da": {
@@ -46,8 +46,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 150
     },
-    "repairTime": "2 heures",
-    "repairTest": "Mécanique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsTwo",
     "unresolved": false
   },
   "dd5ca66937c61335": {
@@ -79,8 +79,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 500
     },
-    "repairTime": "1 heure",
-    "repairTest": "Mécanique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.OneHour",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsTwo",
     "unresolved": false
   },
   "5be0d6faeb5f7207": {
@@ -93,8 +93,8 @@ export const MALFUNCTION_RULES = {
     "repair": {
       "kind": "manual"
     },
-    "repairTime": "Voir règles",
-    "repairTest": "Voir règles",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.SeeRules",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.SeeRules",
     "unresolved": false
   },
   "b9edc515deb0aa87": {
@@ -108,8 +108,8 @@ export const MALFUNCTION_RULES = {
     "repair": {
       "kind": "manual"
     },
-    "repairTime": "Selon l'équipement",
-    "repairTest": "Mécanique ou Informatique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.DependsOnEquipment",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsOrComputersTwo",
     "unresolved": false
   },
   "d1c395b188a31c64": {
@@ -123,8 +123,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 200
     },
-    "repairTime": "3 rounds",
-    "repairTest": "Mécanique (1)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThreeRounds",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsOne",
     "unresolved": false
   },
   "c4e42e7bb873a17d": {
@@ -138,8 +138,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 200
     },
-    "repairTime": "10 minutes",
-    "repairTest": "Mécanique (1)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TenMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsOne",
     "unresolved": false
   },
   "6f1231955e7f62fd": {
@@ -158,8 +158,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 500
     },
-    "repairTime": "2 heures",
-    "repairTest": "Voir règles",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.SeeRules",
     "unresolved": false
   },
   "1d7378c939358974": {
@@ -173,8 +173,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 200
     },
-    "repairTime": "30 minutes",
-    "repairTest": "Mécanique (1)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThirtyMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsOne",
     "unresolved": false
   },
   "ed49c86878498b18": {
@@ -193,8 +193,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1000
     },
-    "repairTime": "3 heures",
-    "repairTest": "Voir règles",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThreeHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.SeeRules",
     "unresolved": false
   },
   "1cfbbf2bb3708304": {
@@ -209,8 +209,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1200
     },
-    "repairTime": "2 heures",
-    "repairTest": "Mécanique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsTwo",
     "unresolved": false
   },
   "d746231b618373cd": {
@@ -224,8 +224,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 800
     },
-    "repairTime": "30 minutes",
-    "repairTest": "Mécanique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThirtyMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsThree",
     "unresolved": false
   },
   "23a68db8a3da12ed": {
@@ -241,8 +241,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 700
     },
-    "repairTime": "20 minutes",
-    "repairTest": "Mécanique (1)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwentyMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsOne",
     "unresolved": false
   },
   "2045aec82b9712c5": {
@@ -257,8 +257,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1200
     },
-    "repairTime": "10 minutes\n\n(6 rounds)",
-    "repairTest": "Informatique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TenMinutesSixRounds",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersTwo",
     "unresolved": false
   },
   "5005050363ceefc4": {
@@ -274,8 +274,8 @@ export const MALFUNCTION_RULES = {
       "value": 5,
       "base": "weapon"
     },
-    "repairTime": "1 heure",
-    "repairTest": "Ingénierie (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.OneHour",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.EngineeringTwo",
     "unresolved": false
   },
   "6c6423d33cbf3137": {
@@ -289,8 +289,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 600
     },
-    "repairTime": "1 heure",
-    "repairTest": "Informatique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.OneHour",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersTwo",
     "unresolved": false
   },
   "ba06ac2547db5322": {
@@ -304,8 +304,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 900
     },
-    "repairTime": "2 heures",
-    "repairTest": "Informatique (1)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersOne",
     "unresolved": false
   },
   "b0f041d10ba02a4a": {
@@ -324,8 +324,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1200
     },
-    "repairTime": "2 heures",
-    "repairTest": "Mécanique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsTwo",
     "unresolved": false
   },
   "c112f8fe5e4cf7e4": {
@@ -344,8 +344,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1400
     },
-    "repairTime": "30 minutes",
-    "repairTest": "Mécanique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThirtyMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsThree",
     "unresolved": false
   },
   "7628d9bf9d3b44c4": {
@@ -359,8 +359,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1500
     },
-    "repairTime": "30 minutes",
-    "repairTest": "Informatique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThirtyMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersThree",
     "unresolved": false
   },
   "aaa9da7fdc5009ac": {
@@ -374,8 +374,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1000
     },
-    "repairTime": "1 heure",
-    "repairTest": "Informatique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.OneHour",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersTwo",
     "unresolved": false
   },
   "e6ef80a2e1afc846": {
@@ -395,8 +395,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1400
     },
-    "repairTime": "3 heures",
-    "repairTest": "Informatique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThreeHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersThree",
     "unresolved": false
   },
   "24247144063ed23c": {
@@ -417,8 +417,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1500
     },
-    "repairTime": "2 heure",
-    "repairTest": "Informatique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersThree",
     "unresolved": false
   },
   "1f684f52701a98b3": {
@@ -438,8 +438,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 2000
     },
-    "repairTime": "4 heures",
-    "repairTest": "Mécanique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.FourHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsThree",
     "unresolved": false
   },
   "0e2d18ce3aaa9e49": {
@@ -455,8 +455,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 500
     },
-    "repairTime": "1 heure",
-    "repairTest": "Mécanique (1)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.OneHour",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsOne",
     "unresolved": false
   },
   "6c98c2e3b99d10ea": {
@@ -470,8 +470,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 600
     },
-    "repairTime": "2 heures",
-    "repairTest": "Informatique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersThree",
     "unresolved": false
   },
   "ca5461f36e617824": {
@@ -486,8 +486,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 1600
     },
-    "repairTime": "20 minutes",
-    "repairTest": "Informatique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwentyMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersThree",
     "unresolved": false
   },
   "a68d9b20057858db": {
@@ -504,8 +504,8 @@ export const MALFUNCTION_RULES = {
       "value": 20,
       "base": "weapon"
     },
-    "repairTime": "2 heure",
-    "repairTest": "Ingénierie (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.EngineeringTwo",
     "unresolved": false
   },
   "349522ddb8fb0a08": {
@@ -520,8 +520,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 0
     },
-    "repairTime": "3 rounds",
-    "repairTest": "Informatique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThreeRounds",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.ComputersTwo",
     "unresolved": false
   },
   "ce3fd1de27a2e727": {
@@ -536,8 +536,8 @@ export const MALFUNCTION_RULES = {
       "value": 8,
       "base": "ship"
     },
-    "repairTime": "5 heures",
-    "repairTest": "Mécanique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.FiveHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsThree",
     "unresolved": false
   },
   "d784ed68120b43ab": {
@@ -553,8 +553,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 200
     },
-    "repairTime": "10 minutes",
-    "repairTest": "Mécanique (2)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TenMinutes",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsTwo",
     "unresolved": false
   },
   "7499fe2d7f00a209": {
@@ -570,8 +570,8 @@ export const MALFUNCTION_RULES = {
       "kind": "fixed",
       "value": 500
     },
-    "repairTime": "3 minutes\n\n(6 rounds)",
-    "repairTest": "Mécanique (3)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.ThreeMinutesSixRounds",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsThree",
     "unresolved": false
   },
   "0aa7510057b401e3": {
@@ -587,8 +587,40 @@ export const MALFUNCTION_RULES = {
       "value": 50,
       "base": "ship"
     },
-    "repairTime": "10 heures",
-    "repairTest": "Mécanique (4)",
+    "repairTime": "SWFFG.UI.Vehicle.RepairRules.TenHours",
+    "repairTest": "SWFFG.UI.Vehicle.RepairRules.MechanicsFour",
     "unresolved": false
   }
 };
+
+// Old saved malfunction snapshots retain the original French display metadata.
+const legacyRepairLabels = {
+  "1 heure": "SWFFG.UI.Vehicle.RepairRules.OneHour",
+  "2 heures": "SWFFG.UI.Vehicle.RepairRules.TwoHours",
+  "3 heures": "SWFFG.UI.Vehicle.RepairRules.ThreeHours",
+  "4 heures": "SWFFG.UI.Vehicle.RepairRules.FourHours",
+  "5 heures": "SWFFG.UI.Vehicle.RepairRules.FiveHours",
+  "10 heures": "SWFFG.UI.Vehicle.RepairRules.TenHours",
+  "3 rounds": "SWFFG.UI.Vehicle.RepairRules.ThreeRounds",
+  "10 minutes": "SWFFG.UI.Vehicle.RepairRules.TenMinutes",
+  "20 minutes": "SWFFG.UI.Vehicle.RepairRules.TwentyMinutes",
+  "30 minutes": "SWFFG.UI.Vehicle.RepairRules.ThirtyMinutes",
+  "10 minutes\n\n(6 rounds)": "SWFFG.UI.Vehicle.RepairRules.TenMinutesSixRounds",
+  "3 minutes\n\n(6 rounds)": "SWFFG.UI.Vehicle.RepairRules.ThreeMinutesSixRounds",
+  "Voir règles": "SWFFG.UI.Vehicle.RepairRules.SeeRules",
+  "Selon l'équipement": "SWFFG.UI.Vehicle.RepairRules.DependsOnEquipment",
+  "Mécanique ou Informatique (2)": "SWFFG.UI.Vehicle.RepairRules.MechanicsOrComputersTwo",
+  "Mécanique (1)": "SWFFG.UI.Vehicle.RepairRules.MechanicsOne",
+  "Mécanique (2)": "SWFFG.UI.Vehicle.RepairRules.MechanicsTwo",
+  "Mécanique (3)": "SWFFG.UI.Vehicle.RepairRules.MechanicsThree",
+  "Mécanique (4)": "SWFFG.UI.Vehicle.RepairRules.MechanicsFour",
+  "Informatique (1)": "SWFFG.UI.Vehicle.RepairRules.ComputersOne",
+  "Informatique (2)": "SWFFG.UI.Vehicle.RepairRules.ComputersTwo",
+  "Informatique (3)": "SWFFG.UI.Vehicle.RepairRules.ComputersThree",
+  "Ingénierie (2)": "SWFFG.UI.Vehicle.RepairRules.EngineeringTwo",
+  "2 heure": "SWFFG.UI.Vehicle.RepairRules.TwoHours"
+};
+export function malfunctionRepairText(value) {
+  const text=String(value??''), key=Object.hasOwn(legacyRepairLabels,text)?legacyRepairLabels[text]:text;
+  return key.startsWith('SWFFG.UI.Vehicle.RepairRules.')?game.i18n.localize(key):text;
+}

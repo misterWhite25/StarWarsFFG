@@ -26,13 +26,16 @@
     "modules/dice-pool-ffg.js",
     "modules/swffg-main.js",
     "lib/slimselect/slimselect.js",
-    "lib/datatables/datatables.min.js"
+    "lib/datatables/datatables.min.js",
+    "modules/helpers/banner-gallery.mjs"
   ],
   "styles": [
     "styles/starwarsffg.css",
     "lib/pure/grids-min.css",
     "lib/slimselect/slimselect.css",
-    "lib/datatables/datatables.min.css"
+    "lib/datatables/datatables.min.css",
+    "styles/banner-gallery.css",
+    "styles/pilotage-tabs.css"
   ],
   "scripts": [
     "lib/jszip/jszip.min.js",
@@ -80,8 +83,8 @@
     }
   ],
   "grid": {
-    "distance": 5,
-    "units": "ft"
+    "distance": 1.524,
+    "units": "m"
   },
   "primaryTokenAttribute": "wounds",
   "secondaryTokenAttribute": "strain",
@@ -117,6 +120,11 @@
         ]
       },
       "nemesis": {
+        "htmlFields": [
+          "biography"
+        ]
+      },
+      "groupinventory": {
         "htmlFields": [
           "biography"
         ]
@@ -224,5 +232,14 @@
       }
     }
   },
-  "type": "system"
+  "type": "system",
+  "media": [
+    {
+      "type": "setup",
+      "url": "systems/starwarsffg/images/steelers/system-banner-20261109.webp",
+      "thumbnail": "systems/starwarsffg/images/steelers/system-banner-20261109-thumbnail.svg",
+      "caption": "Star Wars FFG - Steelers System"
+    }
+  ],
+  "background": "systems/starwarsffg/images/steelers/system-banner-20261109-thumbnail.svg"
 }

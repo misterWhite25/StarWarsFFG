@@ -12,7 +12,7 @@ export default class PopoutModifiers extends FormApplicationV2 {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: "popout-modifiers",
       classes: ["starwarsffg", "sheet"],
-      title: "Pop-out Modifiers",
+      title: game.i18n.localize("SWFFG.UI.Root.ModifierEditor"),
       template: "systems/starwarsffg/templates/items/dialogs/ffg-popout-modifiers.html",
       closeOnSubmit: false,
       submitOnClose: true,
@@ -76,7 +76,7 @@ export default class PopoutModifiers extends FormApplicationV2 {
     const formAttrs = foundry.utils.expandObject(formData)?.data?.attributes || {};
     const attributes = Object.values(formAttrs).reduce((obj, v) => {
       let k = v["key"].trim();
-      if (/[\s.]/.test(k)) return ui.notifications.error("Attribute keys may not contain spaces or periods");
+      if (/[\s.]/.test(k)) return ui.notifications.error(game.i18n.localize("SWFFG.UI.Root.InvalidAttributeKey"));
       delete v["key"];
       obj[k] = v;
       return obj;

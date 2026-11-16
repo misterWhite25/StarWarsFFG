@@ -1,3 +1,4 @@
+import {sheetUiBoundaries} from '../sheet-ui-boundaries.mjs';
 import {loadSystemModule} from '../load-system-module.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs';import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../../',import.meta.url));
@@ -8,6 +9,7 @@ async function load(kind){const frame={classList:classes(),querySelector:()=>({c
  const directory = kind === 'actor' ? 'actors' : 'items';
  const entry = directory + '/' + kind + '-sheet-ffg';
  const m = await loadSystemModule(entry + '-v2.js', context, {
+   ...sheetUiBoundaries,
    [entry + '.js']: {[name + 'SheetFFG']: Legacy}
  });
  return {Class:m.namespace[name+'SheetFFGV2'],frame};}

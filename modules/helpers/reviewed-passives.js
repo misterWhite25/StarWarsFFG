@@ -12,7 +12,7 @@ export function reviewedPassiveSources(item){
  return reviewedPassives.flatMap(rule=>{const owned=nodes.filter(t=>rule.names.includes(norm(t.name))),rank=owned.reduce((n,t)=>n+Math.max(0,Number(t.rank)||0),0);return rank?[{rule,rank,nodes:owned}]:[];});
 }
 export function reviewedPassiveEffects(actor,EffectClass){
- return Array.from(actor.items??[]).flatMap(item=>reviewedPassiveSources(item).map(({rule,rank})=>new EffectClass({name:'Reviewed: '+rule.id,type:'base',transfer:true,disabled:false,flags:{starwarsffg:{reviewedPassive:rule.id}},system:{changes:rule.paths.map(key=>({key,value:rank,type:'add',phase:'initial',priority:20}))}},{parent:item})));
+ return Array.from(actor.items??[]).flatMap(item=>reviewedPassiveSources(item).map(({rule,rank,nodes})=>new EffectClass({name:game.i18n.format("SWFFG.UI.Talent.ReviewedPassiveName", {name:nodes[0]?.name??rule.id}),type:'base',transfer:true,disabled:false,flags:{starwarsffg:{reviewedPassive:rule.id}},system:{changes:rule.paths.map(key=>({key,value:rank,type:'add',phase:'initial',priority:20}))}},{parent:item})));
 }
 export function withoutReviewedChanges(effect){
  const item=effect.parent;if(!item||effect.flags?.starwarsffg?.reviewedPassive)return null;

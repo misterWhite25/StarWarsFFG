@@ -1,8 +1,9 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFile} from 'node:fs/promises';
 const source=await readFile(new URL('../../modules/helpers/skill-information-ui.js',import.meta.url),'utf8');
 async function load(modules){
  const seen={descriptions:0,tables:0,dialogs:[]};
- const context=vm.createContext({game:{modules},window:{innerWidth:1500,innerHeight:900},document:{createElement:()=>({innerHTML:''})},requestAnimationFrame:fn=>fn(),foundry:{applications:{api:{DialogV2:class {
+ const context=vm.createContext({game:{modules,i18n:await systemI18n('fr')},window:{innerWidth:1500,innerHeight:900},document:{createElement:()=>({innerHTML:''})},requestAnimationFrame:fn=>fn(),foundry:{applications:{api:{DialogV2:class {
   constructor(options){seen.dialogs.push(options);this.element={getBoundingClientRect:()=>({height:300}),querySelectorAll:()=>[]};}async render(){}setPosition(){}
  }}}}});
  const module=new vm.SourceTextModule(source,{context});

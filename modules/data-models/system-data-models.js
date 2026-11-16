@@ -2439,11 +2439,13 @@ function buildModels(documentName) {
 }
 
 export const actorDataModels = buildModels("Actor");
+actorDataModels.groupinventory=class GroupInventoryData extends actorDataModels.homestead {};
 export const itemDataModels = buildModels("Item");
 
 /** Return a fresh system-data object for importers which create plain document data. */
 export function getSystemDataDefaults(type) {
-  const defaults = LEGACY_DEFAULTS.Actor[type] ?? LEGACY_DEFAULTS.Item[type];
+  const actorType=type==='groupinventory'?'homestead':type;
+  const defaults = LEGACY_DEFAULTS.Actor[actorType] ?? LEGACY_DEFAULTS.Item[type];
   if (!defaults) throw new Error(`Unknown Star Wars FFG document type: ${type}`);
   return clone(defaults);
 }

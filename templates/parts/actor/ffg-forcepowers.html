@@ -30,9 +30,9 @@
         </ul>
       </div>
       <div class="item-controls">
-        <a class="item-control item-fp" title="Roll Power"><i class="fas fa-dice-d20"></i></a>
-        <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
-        <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
+        <a class="item-control item-fp" title="{{localize 'SWFFG.UI.Actor.RollPower'}}"><i class="fas fa-dice-d20"></i></a>
+        <a class="item-control item-edit" title="{{localize 'SWFFG.UI.Item.Edit'}}"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" title="{{localize 'SWFFG.UI.Item.Delete'}}"><i class="fas fa-trash"></i></a>
       </div>
     </li>
     {{/iff}} {{/each}}
@@ -40,7 +40,7 @@
 </ul>
 {{else}}
 <div class="force-conflict">
-  <span>Conflict: Unit has Force Powers but the Force Dice Pool is disabled</span>
+  <span>{{localize 'SWFFG.UI.Actor.ForcePoolConflict'}}</span>
   <div>
     <input type="button" class="enable-dice-pool" value="Enable Dice Pool"/>
     <input type="button" class="remove-force-powers" value="Remove Force Powers"/>

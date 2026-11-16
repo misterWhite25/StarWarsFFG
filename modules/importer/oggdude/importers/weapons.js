@@ -24,7 +24,7 @@ export default class Weapons {
           weapon: await ImportHelpers.getCompendiumPack("Item", `oggdude.Weapons`),
           shipweapon: await ImportHelpers.getCompendiumPack("Item", `oggdude.VehicleWeapons`),
         };
-        CONFIG.logger.debug(`Starting Oggdude Weapons Import`);
+        
         $(".import-progress.weapon").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(items, async (item) => {
@@ -115,7 +115,7 @@ export default class Weapons {
                 data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
               }
             } catch {
-              CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+              
             }
             if (item?.Type) {
               // the "type" can be useful as a tag as well

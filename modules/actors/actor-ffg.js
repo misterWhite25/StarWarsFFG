@@ -1,3 +1,9 @@
+import {prepareVehicleCreation,chooseVehicleMode} from '../helpers/npc-vehicle-ui.mjs';
+import {npcVehicle} from '../helpers/npc-vehicle.mjs';
+import {prepareIntegratedCrewCopy} from '../helpers/integrated-crew-model.mjs';
+import {vehicleMinionGroup,convertVehicleMinionStress} from '../helpers/vehicle-minion-group.mjs';
+import {vehicleFuel,CONSUMABLE_SCOPE} from '../helpers/vehicle-consumables.js';
+import {isHomesteadType} from '../helpers/actor-types.mjs';
 import {vehicleMalfunctionEffects,clampMalfunctionStats} from '../helpers/vehicle-malfunction-engine.js';
 import {applyReviewedActorData} from "../helpers/reviewed-talent-state.js";
 import { reviewedPassiveEffects, withoutReviewedChanges } from "../helpers/reviewed-passives.js";
@@ -14,8 +20,9 @@ export class ActorFFG extends Actor {
 
   static getDefaultArtwork(actorData){
     const artwork=super.getDefaultArtwork(actorData);
-    if(actorData.type!=='homestead')return artwork;
-    return {...artwork,img:'icons/svg/city.svg',texture:{...artwork.texture,src:'icons/svg/city.svg'}};
+    if(!isHomesteadType(actorData.type))return artwork;
+    const image=actorData.type==='groupinventory'?'icons/svg/chest.svg':'icons/svg/city.svg';
+    return {...artwork,img:image,texture:{...artwork.texture,src:image}};
   }
 
 
@@ -23,9 +30,20 @@ export class ActorFFG extends Actor {
   verifyEditModeIsNotEnabled(sendWarn = true){
     const result = !this.getFlag("starwarsffg", "config.enableEditMode");
     if(sendWarn && !result) {
-      ui.notifications.warn("Can't do this while EditMode is enabled");
+      ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.EditModeBlocked"));
     }
       return result;
+  }
+
+  static async createDialog(data={},createOptions={},dialogOptions={},renderOptions={}){
+    if(!createOptions.pack&&!createOptions.parent){
+      createOptions={...createOptions,ffgVehicleCreationUI:true};
+      if(data.type==='vehicle'){
+        const choice=await chooseVehicleMode(data.name);if(!choice)return null;
+        createOptions.ffgVehicleChoice=choice;
+      }
+    }
+    return super.createDialog(data,createOptions,dialogOptions,renderOptions);
   }
 
   static async create(data, options) {
@@ -68,7 +86,6 @@ export class ActorFFG extends Actor {
           bar2: {
             attribute: "stats.strain",
           },
-          prependAdjective: game.settings.get("starwarsffg", "RivalTokenPrepend"),
         };
         break;
       case "nemesis":
@@ -100,6 +117,13 @@ export class ActorFFG extends Actor {
 
   /** @override **/
   async _preCreate(data, operation, user) {
+    if(!await prepareVehicleCreation(this,operation,user))return false;
+    if(this.type==='vehicle'&&!this.pack&&!this.parent&&!npcVehicle(this))this.updateSource(prepareIntegratedCrewCopy(this.toObject(),this.id));
+    // New world vehicles start full. Editing an existing ship or creating a token never refuels it.
+    if(this.type==='vehicle'&&!this.pack&&!this.parent){
+      const {max}=vehicleFuel(this);
+      if(Number.isFinite(max)&&max>=0)this.updateSource({['flags.'+CONSUMABLE_SCOPE+'.voyageResources.resources.fuel']:max});
+    }
     const defaultImages = {
       character: "systems/starwarsffg/images/defaults/actors/character.png",
       minion: "systems/starwarsffg/images/defaults/actors/minion.png",
@@ -107,6 +131,7 @@ export class ActorFFG extends Actor {
       rival: "systems/starwarsffg/images/defaults/actors/rival.png",
       vehicle: "systems/starwarsffg/images/defaults/actors/vehicle.png",
       homestead: "icons/svg/city.svg",
+      groupinventory: "icons/svg/chest.svg",
     }
     if (game.user.id === user.id && (!data?.img || data?.img === "icons/svg/mystery-man.svg")) {
       if (Object.keys(defaultImages).includes(data.type)) {
@@ -147,12 +172,13 @@ export class ActorFFG extends Actor {
       }
     };
     pruneInvalid(changes.system?.stats);
-    CONFIG.logger.debug(`Performing pre-update on ${this.name}`);
+    convertVehicleMinionStress(this, changes);
+    
     if (["character", "rival", "nemesis"].includes(this.type) && !this.flags?.starwarsffg?.automaticStats?.enabled) {
       const originalBrawn = this._source.system.characteristics.Brawn.value;
       const updatedBrawn = changes?.system?.characteristics?.Brawn?.value;
       if (originalBrawn != null && updatedBrawn != null && Number.isFinite(Number(updatedBrawn)) && originalBrawn !== updatedBrawn) {
-        CONFIG.logger.debug(`Detected modified Brawn (${originalBrawn} -> ${updatedBrawn}, updating derived values`);
+        
         // get the wounds without brawn modifying it, then add the new brawn value in
         const originalWounds = this._source.system.stats?.wounds.max;
         const originalWoundsWithoutBrawn = originalWounds - originalBrawn;
@@ -163,7 +189,7 @@ export class ActorFFG extends Actor {
         if (changes.system.characteristics?.Brawn?.value) {
           changes.system.stats.Brawn = changes.system.characteristics.Brawn;
         }
-        CONFIG.logger.debug(`The character sheet showed ${originalWounds} wounds, while that value without Brawn was ${originalWoundsWithoutBrawn}. Updating to be ${updatedWounds}`);
+        
         changes.system.stats = foundry.utils.mergeObject(
           changes.system.stats,
           {
@@ -176,7 +202,7 @@ export class ActorFFG extends Actor {
         const originalSoak = this._source.system.stats?.soak.value;
         const originalSoakWithoutBrawn = originalSoak - originalBrawn;
         const updatedSoak = originalSoakWithoutBrawn + Number(updatedBrawn);
-        CONFIG.logger.debug(`The character sheet showed ${originalSoak} soak, while that value without Brawn was ${originalSoakWithoutBrawn}. Updating to be ${updatedSoak}`);
+        
         changes.system.stats = foundry.utils.mergeObject(
           changes.system.stats,
           {
@@ -189,7 +215,7 @@ export class ActorFFG extends Actor {
         const originalEncumbrance = this._source.system.stats?.encumbrance.max;
         const originalEncumbranceWithoutBrawn = originalEncumbrance - originalBrawn;
         const updatedEncumbrance = originalEncumbranceWithoutBrawn + parseInt(updatedBrawn);
-        CONFIG.logger.debug(`The character sheet showed ${originalEncumbrance} encumbrance max, while that value without Brawn was ${originalEncumbranceWithoutBrawn}. Updating to be ${updatedEncumbrance}`);
+        
         changes.system.stats = foundry.utils.mergeObject(
           changes.system.stats,
           {
@@ -202,7 +228,7 @@ export class ActorFFG extends Actor {
       const originalWillpower = this._source.system.characteristics.Willpower.value;
       const updatedWillpower = changes.system?.characteristics?.Willpower?.value;
       if (originalWillpower != null && updatedWillpower != null && Number.isFinite(Number(updatedWillpower)) && originalWillpower !== updatedWillpower) {
-        CONFIG.logger.debug(`Detected modified Willpower (${originalWillpower} -> ${updatedWillpower}, updating derived values`);
+        
         if (!Object.keys(changes.system).includes("stats")) {
           changes.system.stats = {};
         }
@@ -214,7 +240,7 @@ export class ActorFFG extends Actor {
           const originalStrain = this._source.system.stats?.strain.max;
           const originalStrainWithoutWillpower = originalStrain - originalWillpower;
           const updatedStrain = originalStrainWithoutWillpower + Number(updatedWillpower);
-          CONFIG.logger.debug(`The character sheet showed ${originalStrain} strain, while that value without Willpower was ${originalStrainWithoutWillpower}. Updating to be ${updatedStrain}`);
+          
           changes.system.stats = foundry.utils.mergeObject(
             changes.system.stats,
             {
@@ -265,8 +291,8 @@ export class ActorFFG extends Actor {
     } else if (["rival", "minion"].includes(actor.type)) {
       data.stats.woundsOverThreshold = data.stats.wounds.value - data.stats.wounds.max;
     } else if (["vehicle"].includes(actor.type)) {
-      data.stats.hullOverThreshold = data.stats.hullTrauma.value - data.stats.hullTrauma.max;
-      data.stats.systemStrainOverThreshold = data.stats.systemStrain.value - data.stats.systemStrain.max;
+      data.stats.hullOverThreshold = data.stats.hullTrauma.value - vehicleMinionGroup(actor).totalHull;
+      data.stats.systemStrainOverThreshold = vehicleMinionGroup(actor).enabled ? 0 : data.stats.systemStrain.value - data.stats.systemStrain.max;
     }
 
     this._prepareSharedData(actor);
@@ -296,7 +322,7 @@ export class ActorFFG extends Actor {
     //data.biography = PopoutEditor.replaceRollTags(data.biography, actorData);
 
     // localize characteristic names
-    if (actorData.type !== "vehicle" && actorData.type !== "homestead") {
+    if (actorData.type !== "vehicle" && !isHomesteadType(actorData.type)) {
       for (let characteristic of Object.keys(data.characteristics)) {
         const strId = `SWFFG.Characteristic${this._capitalize(characteristic)}`;
         const localizedField = game.i18n.localize(strId);

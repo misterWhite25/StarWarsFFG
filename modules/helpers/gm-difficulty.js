@@ -6,11 +6,12 @@ export function normalizeDifficulty(value = {}) {
   for (const key of NEGATIVE_DICE) result[key] = Number.isFinite(Number(value[key])) ? Math.max(0, Math.floor(Number(value[key]))) : 0;
   return result;
 }
-export function gmDifficulty() {
+export function gmDifficulty(pool) {
+  if (pool?._ignoreGMDifficulty) return normalizeDifficulty();
   try { return normalizeDifficulty(globalThis.game?.settings?.get("starwarsffg", GM_DIFFICULTY_SETTING)); }
   catch { return normalizeDifficulty(); }
 }
-export function effectivePool(pool, config = gmDifficulty()) {
+export function effectivePool(pool, config = gmDifficulty(pool)) {
   const result = Object.assign(Object.create(Object.getPrototypeOf(pool)), pool);
   if(pool._pilotageResolved) return result;
   if(config.enabled) {
@@ -22,11 +23,11 @@ export function effectivePool(pool, config = gmDifficulty()) {
   final._pilotageResolved=true;
   return final;
 }
-const summary = config => `${config.difficulty} violets · ${config.challenge} rouges · ${config.setback} noirs`;
+const summary = config => game.i18n.format("SWFFG.UI.Interface.GMDiceSummary",{difficulty:config.difficulty,challenge:config.challenge,setback:config.setback});
 function refresh() {
   const config = gmDifficulty();
   for (const button of document.querySelectorAll('.ffg-gm-difficulty')) {
-    const label = config.enabled ? `Pilotage MJ · difficulté active : ${summary(config)}` : 'Pilotage MJ · difficulté commune désactivée';
+    const label = config.enabled ? game.i18n.format("SWFFG.UI.Interface.GMActiveDifficulty",{summary:summary(config)}) : game.i18n.localize("SWFFG.UI.Interface.GMInactiveDifficulty");
     button.setAttribute('aria-label', label);
     button.setAttribute('data-tooltip', label);
     button.classList.toggle('active', config.enabled);
@@ -44,7 +45,6 @@ export function changeGMDifficulty(config, downgrade = false) {
 export async function showGMDifficulty() {
   return showPilotageMJ(gmDifficulty(), {
     saveDifficulty: config => game.settings.set('starwarsffg', GM_DIFFICULTY_SETTING, normalizeDifficulty(config)),
-    changeDifficulty: changeGMDifficulty
   });
 }
 export function registerGMDifficulty() {

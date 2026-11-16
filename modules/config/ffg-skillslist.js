@@ -1490,8 +1490,8 @@ export const defaultSkillList = [
         "careerskill": false,
         "type": "General",
         "max": 5,
-        "label": "Medicine",
-        "abrev": "Medic",
+        "label": "SWFFG.SkillsNameMedicine",
+        "abrev": "SWFFG.UI.Root.MedicineAbbreviation",
         "custom": true,
       },
       "Melee": {

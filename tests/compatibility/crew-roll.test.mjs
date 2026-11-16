@@ -6,6 +6,7 @@ import vm from 'node:vm';
 function loadCrew(context) {
   context.structuredClone = structuredClone;
   return loadSystemModule('helpers/crew.js', context, {
+    'data-models/system-data-models.js':{getSystemDataDefaults:()=>({})},
     'helpers/dice-helpers.js': {default: {}, get_dice_pool: (_id, skill, pool) => Object.assign(pool, {skill})},
     'dice/pool.js': {DicePoolFFG: class {
       constructor(data) { Object.assign(this, data); }
@@ -68,7 +69,8 @@ test('an old crew can fire its available station without first saving a reassign
 test('removing a crew member while an assignment is pending preserves both edits', async () => {
   const context = vm.createContext({foundry:{applications:{api:{}}},CONFIG:{logger:{debug(){}}}});
   const member = {id:'g', name:'Gunner', link:'Gunner'};
-  context.game = {actors:{get:()=>member}, settings:{get:()=>[]}};
+  const actors=[member];actors.get=id=>actors.find(actor=>actor.id===id);
+  context.game = {actors, settings:{get:()=>[]}};
   context.foundry.applications.ux = {TextEditor:{enrichHTML:async text=>text}};
   const {deregister_crew, updateRoles} = (await loadCrew(context)).namespace;
   const roster = [{actor_id:'p',role:'Pilot'}];
@@ -84,15 +86,19 @@ test('the crew sheet rolls the assigned weapon with its malfunction setback and 
   const malfunction = {id:'fault',mechanics:{target:'weapon',targetId:'laser',setback:2}};
   const ship = {type:'vehicle',name:'Transport',img:'ship.webp',items:[gun],
     getFlag:(_s,key)=>key==='crew'?[member]:key==='vehicleMalfunctions'?[malfunction]:undefined};
-  const calls = [], warnings = [], crewSheet = {};
-  const context = vm.createContext({structuredClone, game:{actors:{get:()=>({sheet:crewSheet})},
-    settings:{get:()=>[]},i18n:{localize:key=>key}},foundry:{appv1:{sheets:{ActorSheet:class{}}},applications:{api:{}}},
+  const calls = [], warnings = [], poolActors = [], crewData = {};
+  const crewSheet = {getData:async()=>crewData};
+  const crewActor = {documentName:'Actor',id:'a',uuid:'Actor.a',sheet:crewSheet};
+  const actors = [ship,crewActor];actors.get=id=>actors.find(actor=>actor.id===id);
+  const context = vm.createContext({structuredClone, Hooks:{on(){},off(){},once(){}}, game:{actors,user:{isGM:true},
+    settings:{get:()=>[]},i18n:{localize:key=>key}},foundry:{appv1:{sheets:{ActorSheet:class{}}},applications:{api:{ApplicationV2:class{},HandlebarsApplicationMixin:Base=>Base}}},
     ui:{notifications:{warn:key=>warnings.push(key)}}});
   const unused = {default: class {}};
   const mod = await loadSystemModule('actors/actor-sheet-ffg.js', context, {
+    'data-models/system-data-models.js':{getSystemDataDefaults:()=>({})},
     'applications/legacy-dialog-v2.js':{LegacyDialogV2:class{}}, 'popout-editor.js':unused,
     'helpers/dice-helpers.js':{default:{getModifiers:async p=>p,displayRollDialog:(...args)=>calls.push(args)},
-      get_dice_pool:(_id,_skill,p)=>p},
+      get_dice_pool:(actor,_skill,p)=>{poolActors.push(actor);return p;}},
     'dice/pool.js':{DicePoolFFG:class{constructor(data){Object.assign(this,data);}}},
     'actors/actor-ffg-options.js':unused, 'importer/import-helpers.js':unused, 'helpers/modifiers.js':unused,
     'helpers/actor-helpers.js':{...unused,xpLogEarn(){},xpLogSpend(){}}, 'helpers/embeddeditem-helpers.js':unused,
@@ -101,7 +107,10 @@ test('the crew sheet rolls the assigned weapon with its malfunction setback and 
   const roll = mod.namespace.ActorSheetFFG.prototype.vehicleCrewGunneryRoll.bind({actor:ship},gun,'Gunnery',member);
   await roll();
   assert.equal(calls.length,1);
-  assert.equal(calls[0][0],crewSheet);
+  assert.equal(calls[0][0],crewData);
+  assert.equal(crewData.document,crewActor);
+  assert.equal(crewData.documentUuid,'Actor.a');
+  assert.equal(poolActors[0],crewActor);
   assert.equal(calls[0][1].setback,2);
   assert.equal(calls[0][4],gun);
   assert.equal(calls[0][8].crew.role,'Gunner');
@@ -110,4 +119,29 @@ test('the crew sheet rolls the assigned weapon with its malfunction setback and 
   await roll();
   assert.equal(calls.length,1);
   assert.equal(warnings.length,1);
+
+  // A PNJ gunner is a skill account on the ship, with no world Actor or sheet document.
+  malfunction.mechanics.weaponOff = false;
+  actors.splice(1);
+  ship.id='ship';ship.uuid='Actor.ship';
+  ship.flags={starwarsffg:{npcVehicle:{version:1,type:'rival',stations:{a:{
+    id:'a',name:'Artilleur',kind:'gunner',station:'laser',skills:{Gunnery:{ability:3,rank:2}}
+  }}}}};
+  const original=JSON.stringify(member);
+  await roll();
+  assert.equal(calls.length,2);
+  const data=calls[1][0];
+  assert.equal(data.document._npcStation.id,'a');
+  assert.equal(data.documentUuid,'Actor.ship.NpcStation.a');
+  assert.equal(poolActors[1],data.document);
+  assert.equal(data.document.system.skills.Gunnery.rank,2);
+  assert.equal(calls[1][4],gun);
+  assert.equal(calls[1][1].setback,2);
+  assert.equal(JSON.stringify(member),original);
+  assert.equal(warnings.length,1);
+  assert.equal(actors.length,1);
+  context.game.user.isGM=false;
+  await roll();
+  assert.equal(calls.length,2);
+  assert.equal(warnings.at(-1),'SWFFG.WeaponCrew.NoCrew');
 });

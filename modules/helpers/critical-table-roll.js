@@ -77,8 +77,7 @@ export function decorateCriticalTable(table, element) {
   const grid = element.querySelector('table[data-results]');
   const heading = grid?.querySelector('thead th.details');
   if (!heading) return;
-  const en = (table.getFlag?.('starwarsffg', 'language') ?? table.flags?.['swffg-reference-tables-fr']?.language) === 'en';
-  const labels = en ? ['-','Easy','Average','Hard','Daunting'] : ['-','Facile','Moyenne','Difficile','Intimidante'];
+  const labels = ['-','SWFFG.DifficultyEasy','SWFFG.DifficultyAverage','SWFFG.DifficultyHard','SWFFG.DifficultyDaunting'].map((key,index)=>index?game.i18n.localize(key):key);
   function makeCell(tag, text) {
     const cell = element.ownerDocument.createElement(tag);
     cell.className = 'ffg-critical-severity';
@@ -87,7 +86,7 @@ export function decorateCriticalTable(table, element) {
     return cell;
   }
   if (!heading.parentElement.querySelector('.ffg-critical-severity')) {
-    const cell = makeCell('th', en ? 'Severity' : 'Gravité');
+    const cell = makeCell('th', game.i18n.localize('SWFFG.Severity'));
     cell.scope = 'col';
     heading.before(cell);
   }
@@ -109,7 +108,7 @@ export function decorateCriticalTable(table, element) {
       for (let i = 0; i < level; i++) {
         const die = element.ownerDocument.createElement('img');
         die.src = 'systems/starwarsffg/images/dice/starwars/purple.png';
-        die.alt = die.title = en ? 'Difficulty' : 'Difficulté';
+        die.alt = die.title = game.i18n.localize('SWFFG.DiceDifficulty');
         die.style.cssText = 'display:inline-block;width:20px;height:20px;max-width:none;border:0;margin:0 1px;vertical-align:middle;box-shadow:none';
         dice.append(die);
       }

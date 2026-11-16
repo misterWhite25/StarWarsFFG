@@ -1,5 +1,5 @@
 <div class="dialog-content skill-create-dialog">
-  <input type="text" name="name" placeholder="Skill Name" />
+  <input type="text" name="name" placeholder="{{localize 'SWFFG.UI.Actor.SkillName'}}" />
   <select name="characteristic">
     {{#each content.options as |characteristics id|}}
     <option value="{{id}}">{{localize characteristics.label}}</option>

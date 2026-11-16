@@ -13,18 +13,18 @@ export function suggestTables(skill, context = {}) {
   const result = new Map();
   const add = (id, reason) => result.set(id, {id, reason});
   if (kind === 'medicine') {
-    add('6-11', 'Difficulté du test de Médecine');
-    if (context.criticalTreatment) add('6-10', 'Soin d’une blessure critique indiqué');
+    add('6-11', game.i18n.localize("SWFFG.UI.Interface.MedicineDifficultyReason"));
+    if (context.criticalTreatment) add('6-10', game.i18n.localize("SWFFG.UI.Interface.CriticalTreatmentReason"));
   }
   // Ne pas présenter les tables de combat personnel pour une arme de véhicule.
   if (context.scale === 'personal' && ['ranged', 'melee', 'gunnery'].includes(kind)) {
     if (['ranged', 'gunnery'].includes(kind)) {
-      add('6-1', 'Attaque à distance'); add('6-4', 'Vérifier les modificateurs de distance');
+      add('6-1', game.i18n.localize("SWFFG.UI.Interface.RangedAttackReason")); add('6-4', game.i18n.localize("SWFFG.UI.Interface.RangeModifierReason"));
     }
-    add('6-2', 'Dépenses positives'); add('6-3', 'Dépenses négatives');
-    if (context.concealment) add('6-7', 'Camouflage signalé par le MJ');
-    if (context.improvised) add('6-5', 'Arme improvisée sélectionnée');
-    if (context.silhouetteDifference) add('6-6', 'Différence de gabarit signalée');
+    add('6-2', game.i18n.localize("SWFFG.UI.Interface.PositiveSpendingReason")); add('6-3', game.i18n.localize("SWFFG.UI.Interface.NegativeSpendingReason"));
+    if (context.concealment) add('6-7', game.i18n.localize("SWFFG.UI.Interface.ConcealmentReason"));
+    if (context.improvised) add('6-5', game.i18n.localize("SWFFG.UI.Interface.ImprovisedWeaponReason"));
+    if (context.silhouetteDifference) add('6-6', game.i18n.localize("SWFFG.UI.Interface.SilhouetteDifferenceReason"));
   }
   return [...result.values()];
 }

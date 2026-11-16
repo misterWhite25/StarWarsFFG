@@ -186,7 +186,7 @@ const delay = (delayInMs) => {
  */
 async function createActor() {
   const tempActorData = {
-    name: "Tutorial Character",
+    name: game.i18n.localize("SWFFG.Guide.ExampleActor"),
     type: "character",
   };
   const tempActor = await Actor.create(tempActorData);

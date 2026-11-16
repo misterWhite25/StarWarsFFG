@@ -1,6 +1,7 @@
+import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFile} from 'node:fs/promises';
 async function load(journals=[],packs=[]){
- const game={user:{id:'player'},actors:{get:()=>null},i18n:{localize:key=>({'SWFFG.SkillsNameMedicine':'Médecine','SWFFG.SkillsNameComputers':'Informatique'}[key]??key)},journal:journals,packs};
+ const game={user:{id:'player'},actors:{get:()=>null},i18n:await systemI18n('fr'),journal:journals,packs};
  const context=vm.createContext({game});
  const source=await readFile(new URL('../../modules/helpers/skill-information.js',import.meta.url),'utf8');
  const module=new vm.SourceTextModule(source,{context});

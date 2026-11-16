@@ -45,9 +45,9 @@
               {{#if (eq entry.action "undid")}}
                   <div class="xp undid">
               {{/if}}
-                {{ entry.date }}: {{ entry.action }} <b>{{ entry.description }}</b> for {{ entry.xp.cost }} xp ({{ entry.xp.available }} available, {{ entry.xp.total }} total)
+                {{ entry.date }}: {{#if (eq entry.action 'purchased')}}{{localize 'SWFFG.UI.Actor.XpPurchased'}}{{else if (eq entry.action 'granted')}}{{localize 'SWFFG.UI.Actor.XpGranted'}}{{else if (eq entry.action 'refunded')}}{{localize 'SWFFG.UI.Actor.XpRefunded'}}{{else if (eq entry.action 'adjusted')}}{{localize 'SWFFG.UI.Actor.XpAdjusted'}}{{else if (eq entry.action 'undid')}}{{localize 'SWFFG.UI.Actor.XpUndid'}}{{else}}{{entry.action}}{{/if}} <b>{{ entry.description }}</b> {{localize 'SWFFG.UI.Actor.XpLogAmounts' cost=entry.xp.cost available=entry.xp.available total=entry.xp.total}}
                 {{#if (eq entry.id undefined) }}{{ else }}{{#if (or (eq entry.action "purchased") (eq entry.action "adjusted")) }}
-                  <a class="xp refund" title="Refund Purchase" data-id="{{ entry.id }}">
+                  <a class="xp refund" title="{{localize 'SWFFG.Actors.Sheets.Refund.Confirm'}}" data-id="{{ entry.id }}">
                     <i class="fa-solid fa-rotate-left"></i>
                   </a>
                 {{/if}}{{/if}}
@@ -56,7 +56,7 @@
           {{/if}}
           {{#if (eq type "Dropdown")}}
             <select style="text-align: center;" name="{{name}}">
-              {{#if (eq name "data.characteristic.value")}}<option value="">None</option>{{/if}}
+              {{#if (eq name "data.characteristic.value")}}<option value="">{{localize 'SWFFG.CareerSkills.None'}}</option>{{/if}}
               {{#selectFfg value}} {{#each options as |t|}}
               <option value="{{#if (eq t.value undefined) }}{{t._id}}{{else}}{{t.value}}{{/if}}">{{localize t.label}}{{t.name}}</option>
               {{/each}} {{/selectFfg}}

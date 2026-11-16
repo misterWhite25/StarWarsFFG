@@ -28,7 +28,7 @@ export default class ItemAttachments {
         "mount": await ImportHelpers.getCompendiumPack("Item", "oggdude.VehicleAttachments"),
       };
       let pack;
-      CONFIG.logger.debug(`Starting Oggdude Item Attachments Import`);
+      
       $(".import-progress.itemattachment").toggleClass("import-hidden");
 
       await ImportHelpers.asyncForEach(items, async (item) => {
@@ -99,7 +99,7 @@ export default class ItemAttachments {
               data.data.metadata.tags.push(item.CategoryLimit.Category.toLowerCase());
             }
           } catch {
-            CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+            
           }
           if (item?.Type) {
             // the "type" can be useful as a tag as well

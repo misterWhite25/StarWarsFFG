@@ -23,7 +23,7 @@ export default class Specializations {
 
       if (files.length) {
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Specializations`);
-        CONFIG.logger.debug(`Starting Oggdude Specialization Import`);
+        
         $(".import-progress.specialization").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(files, async (file) => {
@@ -134,7 +134,7 @@ export default class Specializations {
                 data.system.metadata.tags.push(item.Categories.Category.toLowerCase());
               }
             } catch {
-              CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+              
             }
             if (item?.Type) {
               // the "type" can be useful as a tag as well

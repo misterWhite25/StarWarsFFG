@@ -89,7 +89,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     }
 
     data.classType = this.constructor.name;
-    CONFIG.logger.debug(`Getting Item Data ${this.object.name}`);
+    
 
     data.dtypes = ["String", "Number", "Boolean"];
     if (data?.data?.attributes) {
@@ -222,7 +222,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         }
 
         if (!this.item.flags?.starwarsffg?.loaded) {
-          CONFIG.logger.debug(`Running Item initial load`);
+          
           if (!Object.keys(this.item.flags).includes('starwarsffg')) {
               // the object is not properly set up yet; bail to let it finish
               return;
@@ -450,7 +450,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
    * @private
    */
   _getSummarizedQualities(data) {
-    CONFIG.logger.debug("Summarizing qualities");
+    
     // enrich attachment data
     data.data.doNotSubmit = {
       qualities: [],
@@ -483,9 +483,9 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         data.data.doNotSubmit.qualities[modIndex].summarizedRanks.mods += rank;
       }
     }
-    CONFIG.logger.debug(data.data.doNotSubmit.qualities);
+    
 
-    CONFIG.logger.debug("Pulling qualities from attachments");
+    
     if (Object.keys(data.data).includes("itemattachment")) {
       for (const attachment of data.data.itemattachment ?? []) {
         if (!attachment?.system) continue;
@@ -524,7 +524,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         }
       }
     }
-    CONFIG.logger.debug(data.data.doNotSubmit.qualities);
+    
     return data;
   }
 
@@ -648,17 +648,17 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       html.find(".expand-desc").click(async (ev) => {
         ev.stopPropagation();
         if (!$(ev.target).hasClass("fa-trash") && !$(ev.target).hasClass("fas") && !$(ev.target).hasClass("rollable")) {
-          CONFIG.logger.debug("Caught attachment or mod description click");
+          
           // expand or shrink the description
           const li = $(ev.currentTarget);
           let desc = li.data("desc");
           const rarity = li.data("rarity");
           const price = li.data("price");
           if (price) {
-            desc = `<span class="statt" title="Price"><i class="fa-solid fa-dollar-sign"></i>${price}</span>${desc}`
+            desc = `<span class="statt" title="${game.i18n.localize('SWFFG.ItemsPrice')}"><i class="fa-solid fa-dollar-sign"></i>${price}</span>${desc}`
           }
           if (rarity) {
-            desc = `<span class="stat stat-right" title="Rarity"><i class="fa-solid fa-magnifying-glass"></i>${rarity}</span>${desc}`
+            desc = `<span class="stat stat-right" title="${game.i18n.localize('SWFFG.ItemsRarity')}"><i class="fa-solid fa-magnifying-glass"></i>${rarity}</span>${desc}`
           }
 
           // if the item has embedded mods, pull the data and add it to the description
@@ -669,15 +669,15 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             modNames = modNames.split("~");
             modDescs = modDescs.split("~");
             modActives = modActives.split("~");
-            CONFIG.logger.debug(modNames);
-            CONFIG.logger.debug(modDescs);
-            CONFIG.logger.debug(modActives);
+            
+            
+            
             let newDesc = `<hr><b>Mods</b>:<br>`;
             for (let i = 0; i < modNames.length - 1; i++) {
               if (modActives[i] === "true") {
-                modNames[i] = `<i class="fa-solid fa-user-check" title="Installed"></i>&nbsp;${modNames[i]}`;
+                modNames[i] = `<i class="fa-solid fa-user-check" title="${game.i18n.localize("SWFFG.UI.Item.Installed")}"></i>&nbsp;${modNames[i]}`;
               } else {
-                modNames[i] = `<i class="fa-duotone fa-solid fa-user-xmark" title="Not Installed"></i>&nbsp;${modNames[i]}`;
+                modNames[i] = `<i class="fa-duotone fa-solid fa-user-xmark" title="${game.i18n.localize("SWFFG.UI.Item.NotInstalled")}"></i>&nbsp;${modNames[i]}`;
               }
               newDesc += `<u>${modNames[i]}</u>:&nbsp;${modDescs[i]}<br>`;
             }
@@ -688,7 +688,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         } else {
           if (!$(ev.target).hasClass("fa-trash")) {
             // edit the item
-            CONFIG.logger.debug("Caught mod or attachment edit request");
+            
             // pull the item which the edit is on
             const li = $(ev.currentTarget);
             const clickedId = li.data('item-id');
@@ -700,7 +700,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
               // this is most likely a unique mod - we have to look it up by name :|
               clickedObject = parentObject.system[clickedType].find(i => i.name === li.data('upgrade-name'));
             }
-            CONFIG.logger.debug(clickedObject);
+            
             const typeChoices = {};
             for (const key of Object.keys(CONFIG.FFG.itemmodifier_types)) {
               const entry = CONFIG.FFG.itemmodifier_types[key];
@@ -781,7 +781,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
         dragDrop.bind($(`form.editable.item-sheet-${this.object.type}`)[0]);
       } catch (err) {
-        CONFIG.logger.debug(err);
+        
       }
     } else if (this.object.type === "career") {
       try {
@@ -794,7 +794,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
         dragDrop.bind($(`form.editable.item-sheet-${this.object.type}`)[0]);
       } catch (err) {
-        CONFIG.logger.debug(err);
+        
       }
       // handle click events for specialization and signature ability on careers
       html.find(".item-delete").on("click", async (event) => {
@@ -860,7 +860,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           new Item(item).sheet.render(true);
         });
       } catch (err) {
-        CONFIG.logger.debug(err);
+        
       }
     }
 
@@ -945,7 +945,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     });
 
     html.find(".item-delete").on("click", async (event) => {
-      CONFIG.logger.debug("Caught mod or attachment delete request");
+      
       event.preventDefault();
       event.stopPropagation();
 
@@ -959,22 +959,22 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
       const toDeleteEffects = [];
       const removedItem = this.object.system[itemType][itemIndex];
-      CONFIG.logger.debug(`caught removing of ${removedItem.name}`);
-      CONFIG.logger.debug("starting effects");
-      CONFIG.logger.debug(existingEffects);
+      
+      
+      
       // check for attachment
       if (itemType === "itemattachment") {
         // iterate over embedded modifiers
-        CONFIG.logger.debug(`inspecting removed attachment modifiers`);
+        
         if (Object.keys(removedItem.system).includes("itemmodifier")) {
           for (const modifier of removedItem.system.itemmodifier) {
-            CONFIG.logger.debug(`now on ${modifier.name}`);
+            
             if (Object.keys(modifier.system).includes("attributes")) {
               for (const modAttrName of Object.keys(modifier.system.attributes)) {
-                CONFIG.logger.debug(`located attr ${modAttrName} on ${modifier.name}`);
+                
                 const match = existingEffects.find(i => i.name === modAttrName);
                 if (match) {
-                  CONFIG.logger.debug(`found matching active effect: ${match.id}`);
+                  
                   toDeleteEffects.push(match.id);
                 }
               }
@@ -986,17 +986,17 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       // iterate over direct modifiers
       if (Object.keys(removedItem.system).includes("attributes")) {
         for (const modAttrName of Object.keys(removedItem.system.attributes)) {
-          CONFIG.logger.debug(`located attr ${modAttrName} on ${removedItem.name}`);
+          
           const match = existingEffects.find(i => i.name === modAttrName);
           if (match) {
-            CONFIG.logger.debug(`found matching active effect: ${match.id}`);
+            
             toDeleteEffects.push(match.id);
           }
         }
       }
 
-      CONFIG.logger.debug("final delete list:");
-      CONFIG.logger.debug(toDeleteEffects);
+      
+      
       await this.object.deleteEmbeddedDocuments("ActiveEffect", toDeleteEffects);
 
       const items = this.object.system[itemType];
@@ -1207,7 +1207,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       };
 
       let tempItem = await new Item(temp, { temporary: true });
-      CONFIG.logger.debug("Adding mod with the following data", tempItem);
+      
 
       this.object.system[itemType].push(tempItem.toJSON());
       await this.object.update(
@@ -1274,7 +1274,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     if (!CharacteristicIncrease.matches({type: "talent", name})) return null;
     const talent = await this._findTalentDocument(itemId, name);
     if (!talent || !CharacteristicIncrease.matches(talent)) {
-      ui.notifications.warn(`Le talent « ${name} » est introuvable dans les objets et compendiums.`);
+      ui.notifications.warn(game.i18n.format("SWFFG.UI.Item.TalentNotFound", {name}));
       return false;
     }
     const configured = await CharacteristicIncrease.choose(talent.toObject(), owner);
@@ -1346,7 +1346,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
               } catch (error) {
                 if (created.length) await owner.deleteEmbeddedDocuments("Item", created.map(item => item.id));
                 input.checked = false;
-                ui.notifications.error(`L’achat de « ${talent} » n’a pas pu être terminé.`);
+                ui.notifications.error(game.i18n.format("SWFFG.UI.Item.PurchaseFailed", {name: talent}));
                 throw error;
               }
             },
@@ -1836,10 +1836,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
   importItemFromCollection(collection, entryId) {
     const pack = game.packs.get(collection);
     if (pack.documentName !== "Item") return;
-    return pack.getDocument(entryId).then((ent) => {
-      CONFIG.logger.debug(`Importing Item ${ent.name} from ${collection}`);
-      return ent;
-    });
+    return pack.getDocument(entryId);
   }
 
   async _onDropTalentToSpecialization(event) {
@@ -1864,7 +1861,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       // we need to remove if this is the last instance of the talent in the specialization
       const isPreviousItemFromPack = $(li).find(`input[name='data.talents.${talentId}.pack']`).val() === "" ? false : true;
       if (!isPreviousItemFromPack) {
-        CONFIG.logger.debug("Non-compendium pack talent update");
+        
 
         const talentList = [];
         for (const talent of Object.keys(specialization.system.talents)) {
@@ -1963,7 +1960,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
   }
 
   _updateSpecializationTalentReference(specializationTalentItem, talentItem) {
-    CONFIG.logger.debug(`Updating Specializations Talent during sheet render`);
+    
     specializationTalentItem.name = talentItem.name;
     specializationTalentItem.description = talentItem.system.description;
     specializationTalentItem.activation = talentItem.system.activation.value;
@@ -2028,7 +2025,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             itemObject = await ItemHelpers.uniqueAttrs(itemObject, this.object);
             items.push(itemObject);
           } else {
-            ui.notifications.warn(`Item does not have enough available hardpoints (${this.object.system.hardpoints.adjusted} left)`);
+            ui.notifications.warn(game.i18n.format("SWFFG.UI.Item.NotEnoughHardpoints", {remaining: this.object.system.hardpoints.adjusted}));
           }
           break;
         }
@@ -2069,23 +2066,19 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       (droppedType === "ability" && myType === "species") || (droppedType === "talent" && myType === "species") ||
       (droppedType === "talent" && myType === "specialization")
     ) {
-      CONFIG.logger.debug(`Processing transferring AEs for drag-and-drop of ${droppedType} -> ${myType}`);
+      
       for (const activeEffect of droppedItem.effects) {
         // it appears that Foundry will use the source data over anything else if it's present, so update the source
         //  data to match our updated information (if it exists)
         try {
           activeEffect._source.name = activeEffect.name;
-        } catch {
-          CONFIG.logger.debug("No source data found for AE (this is sometimes expected)");
-        }
+        } catch { /* Older or immutable effect sources may reject this compatibility sync; keep importing the effect document itself. */ }
         toCreate.push(activeEffect);
       }
-      CONFIG.logger.debug(toCreate);
+      
       const createdEffects = await this.object.createEmbeddedDocuments("ActiveEffect", toCreate);
       await ItemHelpers.syncAEStatus(this.object, createdEffects);
       if (this.object.actor && this.object.system.equippable) await this.object._syncEquippedEffects();
-    } else {
-      CONFIG.logger.debug(`Rejected transferring AEs for drag-and-drop of ${droppedType} -> ${myType}`);
     }
   }
 

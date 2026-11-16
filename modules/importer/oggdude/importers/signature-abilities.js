@@ -27,7 +27,7 @@ export default class SignatureAbilities {
 
       $(".import-progress.signatureability").toggleClass("import-hidden");
       let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.SignatureAbilities`);
-      CONFIG.logger.debug(`Starting Oggdude Signature Ability (${files.length}) Import`);
+      
 
       await ImportHelpers.asyncForEach(files, async (file) => {
         try {
@@ -146,7 +146,7 @@ export default class SignatureAbilities {
               data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
             }
           } catch {
-            CONFIG.logger.debug(`No categories found for item ${item.Key}`);
+            
           }
           if (item?.Type) {
             // the "type" can be useful as a tag as well
@@ -171,7 +171,7 @@ export default class SignatureAbilities {
             for (const careerKey of Object.values(item.Careers)) {
               let careerItem = await ImportHelpers.findCompendiumEntityByImportId("Item", careerKey, "world.oggdudecareers", "career");
               if (!careerItem) {
-                CONFIG.logger.debug(`Could not find career item for signature ability ${sigAbility.name} in career ${careerKey}`);
+                
                 continue;
               }
               const updateData = {
@@ -185,7 +185,7 @@ export default class SignatureAbilities {
                   },
                 },
               }
-              CONFIG.logger.debug("Updating career item with signature ability", updateData, "(returned item: ", sigAbility, ")");
+              
               await careerItem.update(updateData);
             }
           }
@@ -198,7 +198,7 @@ export default class SignatureAbilities {
         }
       });
 
-      CONFIG.logger.debug(`Completed Oggdude Signature Ability (${files.length}) Import`);
+      
     }
   }
 }

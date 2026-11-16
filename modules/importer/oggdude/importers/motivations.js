@@ -24,7 +24,7 @@ export default class Motivations {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Motivations`);
-        CONFIG.logger.debug(`Starting Oggdude Motivations Import`);
+        
         $(".import-progress.motivation").toggleClass("import-hidden");
 
         await ImportHelpers.asyncForEach(items, async (item) => {
@@ -67,6 +67,6 @@ export default class Motivations {
     } catch (err) {
       CONFIG.logger.error(`Error importing Motivations record : `, err);
     }
-    CONFIG.logger.debug(`Completed Oggdude Motivations Import`);
+    
   }
 }

@@ -4,7 +4,7 @@ const get=(o,p)=>p.split('.').reduce((v,k)=>v?.[k],o);
 function set(o,p,v){const bits=p.split('.');const last=bits.pop();let at=o;for(const b of bits)at=at[b]??={};at[last]=v;}
 async function load(name,extra={}){const game={i18n:{lang:'fr',localize:s=>s},user:{id:'gm',isGM:true,targets:new Set()},actors:{contents:[]},combat:null,...extra.game};const context=vm.createContext({game,console,structuredClone,ChatMessage:{create:async d=>d,getSpeaker:()=>({})},...extra,foundry:{utils:{getProperty:get,deepClone:structuredClone,randomID:()=>Math.random().toString(),...extra.foundry?.utils}}});
  const cache=new Map();async function module(name){if(cache.has(name))return cache.get(name);const m=new vm.SourceTextModule(await fs.readFile(new URL(name,root),'utf8'),{context});cache.set(name,m);await m.link(async spec=>{
- if(spec.endsWith('reviewed-talent-state.js')||spec.endsWith('legacy-text-format.js'))return module(spec.replace('./',''));
+ if(spec.endsWith('vehicle-minion-group.mjs')||spec.endsWith('reviewed-talent-state.js')||spec.endsWith('legacy-text-format.js'))return module(spec.replace('./',''));
  const names=spec.includes('token-target')?['chooseTokenTarget','watchTokenTarget','preferredTokenTarget']:spec.includes('weapon-selection')?['damageModeFromSnapshot','weaponQualityName','combatModeForRoll']:spec.includes('custom-rules')?['tonioRulesEnabled','weaponSuccessDamage']:[];
  return new vm.SyntheticModule(names,function(){for(const n of names)this.setExport(n,(...args)=>n==='weaponSuccessDamage'?Math.max(0,Number(args[0])):n==='weaponQualityName'?args[0]:false);},{context});});await m.evaluate();return m;}
  return {api:(await module(name)).namespace,context,game};}
