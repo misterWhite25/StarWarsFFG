@@ -1,3 +1,4 @@
+import {loadSystemModule} from '../load-system-module.mjs';
 import {systemI18n} from '../system-i18n.mjs';
 globalThis.game={i18n:await systemI18n('fr')};
 import {setbackAfterRemovals} from '../../modules/helpers/setback-removal.mjs';
@@ -33,14 +34,14 @@ async function fixture({failure='posting',rollbackFailure=false,forward=false,ex
  'combat-actions':{pendingAid:()=>[],consumeAid:async()=>calls.push('aid-spent'),restoreAid:async()=>calls.push('aid-restored')},
  'roll-talents':{selectedRollTalents:()=>[],rollTalentPool:p=>p,commitRollTalents:async()=>({selections:[],changes:[]}),rollbackRollTalents:async()=>calls.push('talents-restored'),renderPreciseAimButton:noop,renderRollTalents:async()=>{},talentWeaponSnapshot:i=>i,talentWeaponPreview:noop},
  'form-application':{FormApplicationV2:class {activateListeners(){}}},
- 'monte-carlo':{MonteCarlo:class {}}
  };
  const context=vm.createContext({Hooks:{on:()=>1,off:noop},document:{createElement:()=>({})},CONFIG:{logger:{debug:noop,warn:noop}},
  foundry:{utils:{deepClone:structuredClone,fromUuid:async()=>item},applications:{ux:{TextEditor:{enrichHTML:async x=>x}}}},fromUuid:async uuid=>uuid===item.uuid?item:actor,
  ChatMessage:{getSpeaker:()=>({actor:'a'}),create:async data=>{forwarded=JSON.parse(JSON.stringify(data));calls.push('forwarded');}},ui:{notifications:{error:error=>notices.push(error)}},
  game:{user:{id:'gm',isGM:true},playlists:{contents:[]},users:{contents:[]},actors:{get:()=>actor},settings:{get:()=>false},i18n:await systemI18n('fr'),ffg:{RollFFG:class {constructor(_expression,item){postedItem=item;}async toMessage(data){postedData=data;calls.push('post');if(failure==='posting'){if(externalAmmoChange)item.system.ammo.value=1;throw Error('posting failed');}}}}}});
+ const probability=await loadSystemModule('helpers/probability-estimator.mjs',context),preview=await loadSystemModule('helpers/probability-preview.mjs',context);
  const module=new vm.SourceTextModule(await readFile(new URL('../../modules/dice/roll-builder.js',import.meta.url),'utf8'),{context});
- await module.link(spec=>{const names=Object.keys(exports).find(key=>spec.includes(key)),values=exports[names];assert.ok(values,spec);return new vm.SyntheticModule(Object.keys(values),function(){for(const [key,value]of Object.entries(values))this.setExport(key,value);},{context});});await module.evaluate();
+ await module.link(spec=>{if(spec.includes('probability-estimator'))return probability;if(spec.includes('probability-preview'))return preview;const names=Object.keys(exports).find(key=>spec.includes(key)),values=exports[names];assert.ok(values,spec);return new vm.SyntheticModule(Object.keys(values),function(){for(const [key,value]of Object.entries(values))this.setExport(key,value);},{context});});await module.evaluate();
  context.$=value=>typeof value==='string'?[{}]:{html:()=>''};
  const app=new module.namespace.default({document:actor},{boost:0,renderDiceExpression:()=> '1dp',renderAdvancedPreview:noop},'Test','SWFFG.SkillsNameRangedLight',item);
  app.roll.shotMode=mode;app.roll.shotRange=range;app._activateShotMode=noop;

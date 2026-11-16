@@ -1,3 +1,4 @@
+import {compendiumIndexLoader} from '../helpers/compendium-index-loader.mjs';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export const SWFFG_COMPENDIUM_BROWSER_TABS = [
@@ -62,6 +63,7 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
     this._renderedCount = 0;
     this._loading = true;
     this._searchDebounce = null;
+    this._indexVersion=0;this._browserClosed=false;
   }
 
   get currentTabDef() {
@@ -94,6 +96,7 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
 
   _onRender(context, options) {
     super._onRender(context, options);
+    if(options.isFirstRender)this._browserClosed=false;
     if (options.isFirstRender || options.changedTab) {
       this._loadTab();
     }
@@ -118,20 +121,25 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
   }
 
   async _loadTab() {
+    const version=++this._indexVersion,tab=this.currentTabDef;
+    const current=()=>version===this._indexVersion&&!this._browserClosed;
     try {
-      this._fullIndex = await CompendiumBrowser._fetchIndex(this.currentTabDef);
+      const index=await CompendiumBrowser._fetchIndex(tab);
+      if(!current())return;
+      this._fullIndex=index;
       this._collectAvailableTags();
       this._applyFilters();
     } catch (err) {
+      if(!current())return;
       CONFIG.logger.error(`CompendiumBrowser: failed to load index`, err);
       ui.notifications.error(game.i18n.localize("SWFFG.CompendiumBrowser.Errors.LoadFailed"));
       this._fullIndex = [];
       this._filtered = [];
       this._availableTags = [];
     } finally {
-      this._loading = false;
+      if(current())this._loading = false;
     }
-    await this.render({ parts: ["sidebar", "results"] });
+    if(current())await this.render({ parts: ["sidebar", "results"] });
   }
 
   async _refresh() {
@@ -155,9 +163,7 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
     const packs = game.packs.filter((p) => p.metadata.type === typeName && p.visible);
     const indexFields = ["img", "type", "system.metadata.tags", "system.metadata.sources"];
     const results = [];
-    for (const pack of packs) {
-      try {
-        const index = await pack.getIndex({ fields: indexFields });
+    for (const {pack,index} of await compendiumIndexLoader.load(packs,indexFields)) {
         for (const entry of index) {
           if (!types.has(entry.type)) continue;
           let tags = foundry.utils.getProperty(entry, "system.metadata.tags");
@@ -174,7 +180,6 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
             packLabel: pack.metadata.label,
           });
         }
-      } catch { /* An unreadable pack must not hide the results already indexed from other packs. */ }
     }
     results.sort((a, b) => a.name.localeCompare(b.name, game.i18n.lang));
     return results;
@@ -226,6 +231,7 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
   }
 
   _resetForNewTab() {
+    this._indexVersion++;clearTimeout(this._searchDebounce);
     this._loading = true;
     this._search = "";
     this._selectedTags = new Set();
@@ -266,6 +272,11 @@ export default class CompendiumBrowser extends HandlebarsApplicationMixin(Applic
     if (!uuid) return;
     const doc = await fromUuid(uuid);
     if (doc) doc.sheet.render(true);
+  }
+
+  async close(options) {
+    this._browserClosed=true;this._indexVersion++;clearTimeout(this._searchDebounce);
+    return super.close(options);
   }
 
   _onDragStart(event) {

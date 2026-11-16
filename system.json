@@ -25,7 +25,6 @@
   "esmodules": [
     "modules/dice-pool-ffg.js",
     "modules/swffg-main.js",
-    "lib/slimselect/slimselect.js",
     "lib/datatables/datatables.min.js",
     "modules/helpers/banner-gallery.mjs"
   ],

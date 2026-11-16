@@ -1,6 +1,7 @@
+import {lazyApplication} from './helpers/lazy-application.mjs';
 import {registerVehicleMinionTokens} from './helpers/vehicle-minion-tokens.mjs';
 import {registerVehicleTokenArtwork} from './helpers/vehicle-token-artwork.mjs';
-import './helpers/fleet-ui.mjs';
+import './helpers/vehicle-factions.mjs';
 import {isHomesteadType} from './helpers/actor-types.mjs';
 import './helpers/player-character-dock.mjs';
 import "./helpers/npc-command.mjs";
@@ -77,7 +78,6 @@ import {register_crew} from "./helpers/crew.js";
 
 // Import Dice Types
 import { createFFGMacro, updateMacro } from "./helpers/macros.js";
-import DataImporter from "./importer/data-importer.js";
 import CompendiumBrowser from "./compendium/compendium-browser.js";
 import FlagMigrationHelpers from "./helpers/flag-migration-helpers.js";
 import RollBuilderFFG from "./dice/roll-builder.js";
@@ -86,7 +86,6 @@ import {register_dice_enricher, register_oggdude_tag_enricher, register_roll_tag
 import { itemPillHover } from "./helpers/item-pill-hover.js";
 import {drawAdversaryCount, drawMinionCount, registerTokenControls} from "./helpers/token.js";
 import {handleUpdate} from "./swffg-migration.js";
-import SWAImporter from "./importer/swa-importer.js";
 import {CharacterCreator} from "./helpers/character-creator.js";
 import {xpLogUndo} from "./helpers/actor-helpers.js";
 import {register_system_tours} from "./helpers/tours.js";
@@ -992,6 +991,8 @@ Hooks.on("renderActorDirectory", (app, html) => {
   }
 });
 
+const openDataImporter=lazyApplication(()=>import('./importer/data-importer.js'));
+const openSWAImporter=lazyApplication(()=>import('./importer/swa-importer.js'));
 Hooks.on("renderCompendiumDirectory", (app, html, _data) => {
   if (game.user.isGM) {
     let div;
@@ -1005,11 +1006,11 @@ Hooks.on("renderCompendiumDirectory", (app, html, _data) => {
     // add event handlers with addEventListener()
     div.querySelector(".og-character")?.addEventListener("click", (event) => {
       event.preventDefault();
-      new DataImporter().render(true);
+      void openDataImporter(event);
     });
     div.querySelector(".swa-character")?.addEventListener("click", (event) => {
       event.preventDefault();
-      new SWAImporter().render(true);
+      void openSWAImporter(event);
     });
   }
 

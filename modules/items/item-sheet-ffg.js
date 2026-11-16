@@ -1,3 +1,5 @@
+import {enrichedSheetText,enrichTreeDescriptions} from '../helpers/sheet-text-cache.mjs';
+import {summarizeItemQualities,careerSkillChoices} from '../helpers/item-view-data.mjs';
 import CharacteristicIncrease from "../helpers/characteristic-increase.js";
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import { deleteDataField } from "../compatibility/data-operators.js";
@@ -101,11 +103,11 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     }
 
     if (data?.data?.description) {
-      data.data.enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(data.data.description);
+      data.data.enrichedDescription = await enrichedSheetText(this.item,data.data.description);
     }
 
     if (data?.data?.longDesc !== undefined) {
-      data.data.enrichedLongDesc = await foundry.applications.ux.TextEditor.enrichHTML(data.data.longDesc);
+      data.data.enrichedLongDesc = await enrichedSheetText(this.item,data.data.longDesc);
       data.data.hasLongDesc = true;
     } else {
       data.data.hasLongDesc = false;
@@ -177,8 +179,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           data.isEditing = false;
           data.isReadOnly = true;
         }
+        await enrichTreeDescriptions(this.item,Array.from({length:16},(_,x)=>data.data.upgrades[`upgrade${x}`]));
         for (let x = 0; x < 16; x++) {
-          data.data.upgrades[`upgrade${x}`].enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(data.data.upgrades[`upgrade${x}`].description);
           let upgradeSize = ItemSheetFFG.SIZE_TO_INT[data.data.upgrades[`upgrade${x}`].size];
           data.data.upgrades[`upgrade${x}`].sizeInt = upgradeSize;
 
@@ -229,8 +231,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           }
           this.item.flags.starwarsffg.loaded = true;
         }
+        await enrichTreeDescriptions(this.item,Array.from({length:20},(_,x)=>data.data.talents[`talent${x}`]));
         for (let x = 0; x < 20; x++) {
-          data.data.talents[`talent${x}`].enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(data.data.talents[`talent${x}`].description);
           const treeTalent = data.data.talents[`talent${x}`];
           treeTalent.bookActivation = bookPresentation.bookActivation(treeTalent,game.i18n.lang);
           treeTalent.displayName = treePresentation.talentTitle(treeTalent.name);
@@ -345,8 +347,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
           data.data.isEditing = false;
           data.data.isReadOnly = true;
         }
+        await enrichTreeDescriptions(this.item,Array.from({length:8},(_,x)=>data.data.upgrades[`upgrade${x}`]));
         for (let x = 0; x < 8; x++) {
-          data.data.upgrades[`upgrade${x}`].enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(data.data.upgrades[`upgrade${x}`].description);
           let upgradeSize = ItemSheetFFG.SIZE_TO_INT[data.data.upgrades[`upgrade${x}`].size];
           data.data.upgrades[`upgrade${x}`].sizeInt = upgradeSize;
 
@@ -397,28 +399,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
     data.FFG = CONFIG.FFG;
 
-    // prepare skills for career skill usage
-    if (this?.actor?.system?.skills) {
-      data.careerSkills = foundry.utils.mergeObject(
-        {
-          "(none)": {
-            value: "(none)",
-            label: "SWFFG.CareerSkills.None",
-          }
-        },
-        foundry.utils.deepClone(this.actor.system.skills)
-      );
-    } else {
-      data.careerSkills = foundry.utils.mergeObject(
-        {
-          "(none)": {
-            value: "(none)",
-            label: "SWFFG.CareerSkills.None",
-          }
-        },
-        foundry.utils.deepClone(CONFIG.FFG.skills)
-      );
-    }
+    // Select menus only need labels and values, not the full modifier histories.
+    data.careerSkills = careerSkillChoices(this.actor?.system?.skills ?? CONFIG.FFG.skills);
 
     data.data.renderedDesc = await PopoutEditor.renderDiceImages(data.item.system.description, this.actor ?? {});
     data.renderedDesc = data.data.renderedDesc;
@@ -450,85 +432,18 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
    * @private
    */
   _getSummarizedQualities(data) {
-    
-    // enrich attachment data
-    data.data.doNotSubmit = {
-      qualities: [],
-    };
-
-    if (Object.keys(data.data).includes("itemmodifier")) {
-      for (const mod of data.data.itemmodifier ?? []) {
-        if (!mod?.system) continue;
-        const modName = mod.name;
-        const rank = mod.system.rank;
-        const description = mod.system.description;
-        const modId = mod._id;
-        let modIndex = data.data.doNotSubmit.qualities.findIndex(i => i.name === modName);
-        if (modIndex < 0) {
-          modIndex = data.data.doNotSubmit.qualities.length;
-          data.data.doNotSubmit.qualities.push({
-            name: modName,
-            img: mod.img,
-            description: description,
-            itemIndex: modIndex,
-            totalRanks: 0,
-            modId: modId,
-            includeControls: true,
-            summarizedRanks: {
-              mods: 0,
-            }
-          });
-        }
-        data.data.doNotSubmit.qualities[modIndex].totalRanks += rank;
-        data.data.doNotSubmit.qualities[modIndex].summarizedRanks.mods += rank;
-      }
-    }
-    
-
-    
-    if (Object.keys(data.data).includes("itemattachment")) {
-      for (const attachment of data.data.itemattachment ?? []) {
-        if (!attachment?.system) continue;
-        const source = attachment.name;
-        if (Object.keys(attachment.system).includes("itemmodifier")) {
-          for (const mod of attachment.system.itemmodifier ?? []) {
-            if (!mod?.system?.active) {
-              // this modifier isn't active, skip processing
-              continue;
-            }
-            const modName = mod.name;
-            const rank = mod.system.rank;
-            const description = mod.system.description;
-            let modIndex = data.data.doNotSubmit.qualities.findIndex(i => i.name === modName);
-            if (modIndex < 0) {
-              modIndex = data.data.doNotSubmit.qualities.length;
-              data.data.doNotSubmit.qualities.push({
-                name: modName,
-                description: description,
-                itemIndex: modIndex,
-                totalRanks: 0,
-                includeControls: false,
-                summarizedRanks: {
-                  [source]: 0,
-                }
-              });
-            }
-            // validate this source is present in the data
-            if (!Object.keys(data.data.doNotSubmit.qualities[modIndex].summarizedRanks).includes(source)) {
-              data.data.doNotSubmit.qualities[modIndex].summarizedRanks[source] = 0;
-            }
-            // update the ranks
-            data.data.doNotSubmit.qualities[modIndex].totalRanks += rank;
-            data.data.doNotSubmit.qualities[modIndex].summarizedRanks[source] += rank;
-          }
-        }
-      }
-    }
-    
+    data.data.doNotSubmit = {qualities:summarizeItemQualities(data.data)};
     return data;
   }
 
   /* -------------------------------------------- */
+
+  /** Bind drops to this sheet, including when another sheet has the same type. */
+  _bindItemDropTarget(html,dropSelector,drop){
+    const root=html[0];if(!root)return;
+    new foundry.applications.ux.DragDrop({dragSelector:'.item',dropSelector,
+      permissions:{dragstart:this._canDragStart.bind(this),drop:this._canDragDrop.bind(this)},callbacks:{drop:drop.bind(this)}}).bind(root);
+  }
 
   /** @override */
   activateListeners(html) {
@@ -606,8 +521,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       }
     }
 
-    // TODO: This is not needed in Foundry 0.6.0
-    // Activate tabs
+    // Bind the legacy tab layout inside the current sheet.
     const htmlElement = html.get(0);
     const sheetTabs = new foundry.applications.ux.Tabs({
       navSelector: ".sheet-tabs",
@@ -771,31 +685,9 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     if (this.object.type === "specialization") {
       html.find(".talent-action").on("click", this._onClickTalentControl.bind(this));
       html.find(".talent-actions .fa-cog").on("click", ModifierHelpers.popoutModiferWindow.bind(this));
-      try {
-        const dragDrop = new foundry.applications.ux.DragDrop({
-          dragSelector: ".item",
-          dropSelector: ".specialization-talent",
-          permissions: { dragstart: this._canDragStart.bind(this), drop: this._canDragDrop.bind(this) },
-          callbacks: { drop: this._onDropTalentToSpecialization.bind(this) },
-        });
-
-        dragDrop.bind($(`form.editable.item-sheet-${this.object.type}`)[0]);
-      } catch (err) {
-        
-      }
+      this._bindItemDropTarget(html,'.specialization-talent',this._onDropTalentToSpecialization);
     } else if (this.object.type === "career") {
-      try {
-        const dragDrop = new foundry.applications.ux.DragDrop({
-          dragSelector: ".item",
-          dropSelector: ".tab.career",
-          permissions: { dragstart: this._canDragStart.bind(this), drop: this._canDragDrop.bind(this) },
-          callbacks: { drop: this._onDragItemCareer.bind(this) },
-        });
-
-        dragDrop.bind($(`form.editable.item-sheet-${this.object.type}`)[0]);
-      } catch (err) {
-        
-      }
+      this._bindItemDropTarget(html,'.tab.career',this._onDragItemCareer);
       // handle click events for specialization and signature ability on careers
       html.find(".item-delete").on("click", async (event) => {
         event.stopPropagation();
@@ -830,38 +722,27 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         new Item(item).sheet.render(true);
       });
     } else if (this.object.type === "species") {
-      try {
-        const dragDrop = new foundry.applications.ux.DragDrop({
-          dragSelector: ".item",
-          dropSelector: ".tab.talents",
-          permissions: { dragstart: this._canDragStart.bind(this), drop: this._canDragDrop.bind(this) },
-          callbacks: { drop: this.onDropItemToSpecies.bind(this) },
-        });
+      this._bindItemDropTarget(html,'.tab.talents',this.onDropItemToSpecies);
 
-        dragDrop.bind($(`form.editable.item-sheet-${this.object.type}`)[0]);
-
-        // handle click events for talents on species
-        html.find(".item-delete").on("click", async (event) => {
-          event.stopPropagation();
-          const itemId = $(event.target).data("talent-id");
-          const itemType = $(event.target).data("item-type");
-          if (itemType === "talent") {
-            const updateData = this.object.system.talents;
-            delete updateData[itemId];
-            updateData[itemId] = deleteDataField();
-            await this.object.update({system: {talents: updateData}})
-          }
-        });
-         // handle click events for specialization and signature ability on careers
-        html.find(".item-pill2").on("click", async (event) => {
-          event.stopPropagation();
-          const itemId = $(event.target).data("talent-id");
-          let item = await fromUuid(this.object.system.talents[itemId].source);
-          new Item(item).sheet.render(true);
-        });
-      } catch (err) {
-        
-      }
+      // handle click events for talents on species
+      html.find(".item-delete").on("click", async (event) => {
+        event.stopPropagation();
+        const itemId = $(event.target).data("talent-id");
+        const itemType = $(event.target).data("item-type");
+        if (itemType === "talent") {
+          const updateData = this.object.system.talents;
+          delete updateData[itemId];
+          updateData[itemId] = deleteDataField();
+          await this.object.update({system: {talents: updateData}})
+        }
+      });
+       // handle click events for specialization and signature ability on careers
+      html.find(".item-pill2").on("click", async (event) => {
+        event.stopPropagation();
+        const itemId = $(event.target).data("talent-id");
+        let item = await fromUuid(this.object.system.talents[itemId].source);
+        new Item(item).sheet.render(true);
+      });
     }
 
     // hidden here instead of css to prevent non-editable display of edit button
@@ -1858,37 +1739,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
 
     if (itemObject.type === "talent") {
       itemObject = await ItemHelpers.uniqueAttrs(itemObject, specialization);
-      // we need to remove if this is the last instance of the talent in the specialization
-      const isPreviousItemFromPack = $(li).find(`input[name='data.talents.${talentId}.pack']`).val() === "" ? false : true;
-      if (!isPreviousItemFromPack) {
-        
-
-        const talentList = [];
-        for (const talent of Object.keys(specialization.system.talents)) {
-          if (talent.itemId === itemObject.id) {
-            talentList.push(talent);
-          }
-        }
-
-        // check if this is the last talent of the specializtion
-        if (talentList.length === 1) {
-          let tree = itemObject.system.trees;
-
-          const index = tree.findIndex((tal) => {
-            return tal === specialization.id;
-          });
-
-          // remove the specialization reference from the talent
-          tree.splice(index, 1);
-
-          let formData;
-          foundry.utils.setProperty(formData, `data.trees`, tree);
-          itemObject.update(formData);
-
-          //itemObject.update({ [`data.trees`]: tree });
-        }
-      }
-
       $(li).find(`input[name='data.talents.${talentId}.name']`).val(itemObject.name);
       $(li).find(`input[name='data.talents.${talentId}.activation']`).val(itemObject.system.activation.value);
       $(li).find(`input[name='data.talents.${talentId}.activationLabel']`).val(itemObject.system.activation.label);
@@ -1913,12 +1763,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         let tree = itemObject.system.trees;
         tree.push(specialization.id);
 
-        if (!data.pack) {
-          let formData = {};
-          foundry.utils.setProperty(formData, `data.trees`, tree);
-          //itemObject.update(formData);
-          //itemObject.update({ [`data.trees`]: tree });
-        }
       }
 
       const updateData = {

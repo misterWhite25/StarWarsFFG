@@ -1,3 +1,4 @@
+import {captureCombatRefresh,refreshCombatStats} from '../helpers/combat-sheet-refresh.mjs';
 import {activateVehicleDefenseImage} from '../helpers/vehicle-defense-image.mjs';
 import {activateVehicleMinionGroup} from '../helpers/vehicle-minion-ui.mjs';
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
@@ -114,6 +115,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this._triggeredTalentsWindow?.close();
     this._triggeredTalentsWindow = undefined;
     const result = await super.close(options);
+    if(!this.rendered)this._ffgCombatRefresh=null;
     // Keep the selected tab during edits, but start at the first tab on reopening.
     if (!this.rendered) {this._sheetTab=undefined;this._ffgCombatMode=false;this._ffgCombatAllSkills=false;this._ffgCombatAllWeapons=false;this._ffgCombatAllTalents=false;}
     return result;
@@ -190,8 +192,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       context.maintenanceInputId = this.id + '-maintenance';
       context.canEditConsumableStock = editable && game.user.isGM;
       context.canEditVehicle = editable;
-      context.canEditFleetAffiliations = game.user.isGM;
-      context.hideFleetAffiliations = !game.user.isGM;
+      context.hideVehicleFactions = !game.user.isGM;
       context.vehicleJourneys = prepareVehicleLogbook(this.actor);
       [context.vehicleOwners, context.vehicleMalfunctions] = await Promise.all([
         prepareVehicleOwners(this.actor), prepareVehicleMalfunctions(this.actor)
@@ -352,6 +353,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       const {renderSkillModifierSummary}=await import('../helpers/skill-modifier-summary.js');
       renderSkillModifierSummary(this);
     }
+    captureCombatRefresh(this);
 
   }
 
@@ -360,8 +362,11 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   render(force={}, options={}) {
-    if (typeof force === "boolean") return super.render({ ...options, force });
-    return super.render(force ?? {});
+    const settings=typeof force==='boolean'?{...options,force}:force??{};
+    const partial=refreshCombatStats(this,settings,DiceHelpers);
+    if(partial)return partial.catch(error=>{CONFIG.logger.error(error);this._ffgCombatRefresh=null;return super.render(settings);});
+    this._ffgCombatRefresh=null;
+    return super.render(settings);
   }
 
   async _onSubmit(event) {

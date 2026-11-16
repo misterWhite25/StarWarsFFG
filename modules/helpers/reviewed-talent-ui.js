@@ -1,3 +1,4 @@
+import {pilotItemAffectsVehicles,pilotVehicleRefresher} from './pilot-vehicle-refresh.mjs';
 import {choiceKinds,ownedTalentSources,talentChoiceKind,validateTalentChoice,juryCapacity,juryEffectChoices,validateJuryAssignment,activeJuryAssignments} from './reviewed-talent-state.js';
 const busy=new Set();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -56,11 +57,11 @@ export function installReviewedTalentHooks(){
   const expireStim=async combat=>{if(!game.user?.isGM)return;for(const actor of game.actors?.contents??[]){const bonuses=actor.getFlag?.('starwarsffg','stimBonuses')??[];if(bonuses.some(b=>!b.expired&&b.encounterId===combat.id))await actor.update({'flags.starwarsffg.stimBonuses':bonuses.map(b=>b.encounterId===combat.id?{...b,expired:true}:b)});}};
   Hooks.on('deleteCombat',combat=>expireStim(combat));
   Hooks.on('updateCombat',(combat,changes)=>{if(Object.hasOwn(changes,'round')&&Number(changes.round)===0)void expireStim(combat);});
-  const refreshVehicles=actor=>{if(!actor)return;for(const v of game.actors?.contents??[])if(v.type==='vehicle'&&(v.flags?.starwarsffg?.crew??[]).some(c=>c.role==='Pilot'&&c.actor_id===actor.id)){v.reset?.();v.prepareData?.();v.sheet?.render(false);}};
+  const refreshVehicles=pilotVehicleRefresher();
   Hooks.on('createItem',item=>refreshVehicles(ownerOf(item)));
   Hooks.on('deleteItem',item=>refreshVehicles(ownerOf(item)));
   Hooks.on('updateItem',async(item,changes)=>{
-    refreshVehicles(ownerOf(item));
+    if(pilotItemAffectsVehicles(changes))refreshVehicles(ownerOf(item));
     const actor=ownerOf(item);if(!actor?.isOwner)return;
     const flat=foundry.utils.flattenObject(changes);
     const choices=item.flags?.starwarsffg?.reviewedTalentChoices??{};

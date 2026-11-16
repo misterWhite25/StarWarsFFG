@@ -115,7 +115,7 @@
       (object tab="description" label="SWFFG.VehicleOwners.Tab" icon="fa-light fa-book-open-cover" cls=classType)
       (object tab="damage" label="SWFFG.VehicleCriticalDamageAndMalfunctions" icon="fas fa-exclamation-triangle" cls=classType)
       (object tab="logbook" label="SWFFG.VehicleLogbook.Title" icon="fas fa-book" cls=classType)
-      (object tab="factions" label="SWFFG.Fleet.FactionsTab" icon="fa-solid fa-flag" cls=classType isHidden=hideFleetAffiliations isHiddenV2=hideFleetAffiliations)
+      (object tab="factions" label="SWFFG.VehicleFactions.Title" icon="fa-solid fa-flag" cls=classType isHidden=hideVehicleFactions isHiddenV2=hideVehicleFactions)
       (object tab="tags" label="SWFFG.TabTags" icon="fa-sharp fa-regular fa-tags" cls=classType)
   )}}
   {{!-- Sheet Body --}}
@@ -135,7 +135,7 @@
     {{!-- Interior plan and passengers --}}
     {{#if canEditFleetAffiliations}}
     <div class="tab factions" data-group="primary" data-tab="factions">
-      <section class="fleet-sheet-factions" data-vehicle-factions></section>
+      <section class="vehicle-sheet-factions" data-vehicle-factions></section>
     </div>
     {{/if}}
 

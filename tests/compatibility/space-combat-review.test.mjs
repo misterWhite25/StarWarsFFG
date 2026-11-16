@@ -72,16 +72,24 @@ test('maneuver cost reads match the mutable turn model without cloning ship hist
 });
 
 class PlotNode {
-  constructor(tag='node'){this.tag=tag;this.children=[];this.attributes={};this.listeners=new Map();this.dataset={};this.style={};this.isConnected=true;this.renders=0;this.captured=new Set();this.classList={toggle(){}};}
-  append(...children){this.children.push(...children);}
-  setAttribute(key,value){this.attributes[key]=String(value);}
-  replaceChildren(...children){this.children=children;this.renders++;}
+  constructor(tag='node'){this.tag=tag;this.localName=tag;this.children=[];this.attributes={};this.listeners=new Map();this.dataset={};this.style={};this.isConnected=true;this.renders=0;this.captured=new Set();this.classList={toggle(){}};}
+  append(...children){for(const node of children){if(node.parent)node.remove();node.parent=this;this.children.push(node);}}
+  setAttribute(key,value){this.attributes[key]=String(value);if(key==='viewBox')this.renders++;}
+  getAttribute(key){return this.attributes[key]??null;}
+  getAttributeNames(){return Object.keys(this.attributes);}
+  removeAttribute(key){delete this.attributes[key];}
+  set textContent(value){this._text=value;this.children=[];}
+  get textContent(){return this._text??'';}
+  insertBefore(node,before){const index=before?this.children.indexOf(before):-1;if(node.parent)node.remove();node.parent=this;if(index<0)this.children.push(node);else this.children.splice(index,0,node);}
+  replaceChild(node,previous){const index=this.children.indexOf(previous);node.parent=this;this.children[index]=node;previous.parent=null;}
+  remove(){if(this.parent){const index=this.parent.children.indexOf(this);if(index>=0)this.parent.children.splice(index,1);this.parent=null;}}
+  replaceChildren(...children){this.children=[];this.append(...children);}
   getBoundingClientRect(){return {left:0,top:0,width:800,height:500};}
   addEventListener(type,callback,{signal}={}){if(!this.listeners.has(type))this.listeners.set(type,[]);this.listeners.get(type).push({callback,signal});}
   dispatch(type,values={}){const event={target:this,button:0,pointerId:1,clientX:400,clientY:250,preventDefault(){},stopPropagation(){},...values};for(const listener of this.listeners.get(type)??[])if(!listener.signal?.aborted)listener.callback(event);}
   contains(){return false;}
   closest(){return null;}
-  querySelector(){return null;}
+  querySelector(selector){for(const child of this.children){if(child.localName===selector)return child;const found=child.querySelector(selector);if(found)return found;}return null;}
   querySelectorAll(){return [];}
   setPointerCapture(id){this.captured.add(id);}
   hasPointerCapture(id){return this.captured.has(id);}

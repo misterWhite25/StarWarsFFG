@@ -1,3 +1,5 @@
+import {renderScheduler} from '../helpers/render-scheduler.mjs';
+import {actorAffectsSpaceCombat,combatAffectsSpaceCombat} from './refresh-policy.mjs';
 import { board, command, registerBoard, shipAppearance } from "./board.mjs";
 import { previewFlight, tokenDiameter,movementRadius } from "./flight.mjs";
 import { drawPlot } from "./plot.mjs";
@@ -149,8 +151,9 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
     const newCard = root.querySelector(".sc-combat-card");
     const sameShip = oldCard?.dataset.shipId === newCard?.dataset.shipId;
     const cardScroll = sameShip ? oldCard?.scrollTop ?? 0 : 0;
-    this.disposePlot?.();
-    this.disposePlot = null;
+    const oldPlot=this.widgets?.querySelector('.sc-plot'),newPlot=root.querySelector('.sc-plot');
+    if(oldPlot&&newPlot)newPlot.replaceWith(oldPlot);
+    else {this.disposePlot?.();this.disposePlot=null;}
     content.replaceChildren(root);
     if (newCard) {
       newCard.scrollTop = cardScroll;
@@ -273,7 +276,7 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
 
   view(camera) {
     this.camera = camera;
-    this.paint();
+    if(this.disposePlot?.view)this.disposePlot.view(camera);else this.paint();
   }
 
   fit() {
@@ -337,6 +340,9 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
 
   async close(options = {}) {
     if (!options.fromSession) return sharing.close();
+    this._refreshClosing=true;
+    try {
+    refresh.cancel();
     await leaveCombatScene();
     this.choosingDirection=false;
     this.rangeShipId=null;
@@ -346,6 +352,7 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
     const result = await super.close({...options,animate:false});
     syncControl();
     return result;
+    } finally {this._refreshClosing=false;}
   }
 }
 
@@ -371,7 +378,7 @@ async function show() {
     throw error;
   }
 }
-const refresh = () => { if (app?.rendered) app.render().catch(report); };
+const refresh = renderScheduler({isOpen:()=>!!app&&!app._refreshClosing&&(app.rendered||app.state===foundry.applications.api.ApplicationV2.RENDER_STATES.RENDERING),render:()=>app.render(),onError:report});
 const sharing = registerSharing({
   show, hide: () => app?.rendered && app.close({fromSession:true}), refresh, report
 });
@@ -413,10 +420,10 @@ Hooks.on("canvasReady",recoverSceneView);
 Hooks.on("canvasReady",()=>{
   if(app?.rendered&&hasCombatSceneReturn()&&!canvas.scene?.getFlag("starwarsffg","spaceCombatScene"))app.close().catch(report);
 });
-Hooks.on("ffgSpaceCombatControlsReady",()=>{if(app?.rendered)app.render().catch(report);});
-for (const hook of ["createActor","deleteActor","updateActor"]) Hooks.on(hook,refresh);
-for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant","renderCombatTracker"])Hooks.on(hook,refresh);
+Hooks.on("ffgSpaceCombatControlsReady",refresh);
+for(const hook of ["createActor","deleteActor","updateActor"])Hooks.on(hook,actor=>{if(actorAffectsSpaceCombat(board(),actor))refresh();});
+for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant"])Hooks.on(hook,document=>{if(combatAffectsSpaceCombat(board(),document))refresh();});
 Hooks.on("updateUser",(_user,changes)=>{if(changes.role!==undefined||changes.character!==undefined)refresh();});
 for(const hook of ["createItem","updateItem","deleteItem"])Hooks.on(hook,item=>{
-  if(item.parent?.type==="vehicle")refresh();
+  if(actorAffectsSpaceCombat(board(),item.parent))refresh();
 });

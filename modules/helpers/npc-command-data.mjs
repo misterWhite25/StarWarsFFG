@@ -1,7 +1,21 @@
+const catalogueCache=new WeakMap();
+export function invalidateNpcCatalogue(actor) {if(actor)catalogueCache.delete(actor);}
+function cachedCatalogue(actor) {
+  const cached=catalogueCache.get(actor);
+  return cached?.items===actor.items&&cached?.talents===actor.talentList?cached:null;
+}
+if(typeof Hooks!=='undefined') {
+  Hooks.on('updateActor',invalidateNpcCatalogue);
+  Hooks.on('updateToken',token=>invalidateNpcCatalogue(token.actor));
+  for(const hook of ['createItem','updateItem','deleteItem','createActiveEffect','updateActiveEffect','deleteActiveEffect'])Hooks.on(hook,document=>{
+    const parent=document.parent;invalidateNpcCatalogue(parent?.documentName==='Actor'?parent:parent?.parent);
+  });
+}
 export const normalizeNpc=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export function npcCatalogue(actor) {
+  const cached=cachedCatalogue(actor);if(cached)return cached.catalogue;
   const result=[],seen=new Set(),items=Array.from(actor.items??[]),itemIds=new Set(items.map(item=>item.id)),talentNames=new Set();
-  const add=(key,name,type,system,source,itemId=null)=>{if(seen.has(key)||!name)return;seen.add(key);if(itemId&&!itemIds.has(itemId))itemId=null;result.push({key,name,type,system:system??{},source,itemId});if(type==='talent')talentNames.add(normalizeNpc(name));};
+  const add=(key,name,type,system,source,itemId=null)=>{if(seen.has(key)||!name)return;seen.add(key);const ownedId=itemId&&itemIds.has(itemId)?itemId:null;result.push({key,name,type,system:system??{},source,itemId:ownedId});if(type==='talent')talentNames.add(normalizeNpc(name));};
   const nested=(system,parent,path,depth=0)=>{
     if(depth>8)return;
     for(const field of ['adjusteditemmodifier','itemmodifier','itemattachment'])for(const [index,node] of Object.entries(system?.[field]??{})){
@@ -26,6 +40,7 @@ export function npcCatalogue(actor) {
     if(talentNames.has(normalizeNpc(talent.name)))continue;
     add('derived:'+index,talent.name,'talent',talent,'Talents acquis',talent.itemId??null);
   }
+  if(actor.documentName==='Actor')catalogueCache.set(actor,{items:actor.items,talents:actor.talentList,catalogue:result,ranks:new Map()});
   return result;
 }
 export function npcAbilityKind(entry) {
@@ -37,22 +52,18 @@ export function npcAbilityKind(entry) {
   if(value.includes('action'))return 'action';
   return 'manual';
 }
-export function matchingNpcAction(actor,choice) {
-  if(!actor||!choice)return null;
-  if(choice.kind==='skill')return actor.system.skills?.[choice.id]?{...choice}:null;
-  const item=(actor.items??[]).find(item=>item.type===choice.type&&normalizeNpc(item.name)===normalizeNpc(choice.name));
-  return item?{...choice,id:item.id}:null;
-}
-
 // Read acquired talents, without counting the derived talent list a second time.
 export function npcAdversaryRank(actor,configuredName='Adversary') {
+  const catalogue=npcCatalogue(actor),cached=cachedCatalogue(actor),key=normalizeNpc(configuredName);
+  if(cached?.ranks.has(key))return cached.ranks.get(key);
   const names=new Set(['adversary','adversaire','adversite',normalizeNpc(configuredName)].filter(Boolean));
-  return npcCatalogue(actor).reduce((total,entry)=>{
+  const total=catalogue.reduce((total,entry)=>{
     if(entry.type!=='talent'||entry.system.active===false||!names.has(normalizeNpc(entry.name)))return total;
     const raw=entry.system.ranks?.current??entry.system.rank??1;
     const rank=Number(raw?.value??raw);
     return total+(Number.isFinite(rank)?Math.max(0,Math.floor(rank)):0);
   },0);
+  cached?.ranks.set(key,total);return total;
 }
 
 // This only trims the GM's quick commands; the full skill and its ranks remain intact.

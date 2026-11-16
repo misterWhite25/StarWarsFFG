@@ -1,3 +1,4 @@
+import {fieldsAffect,ownedVehicleFields,identityFields} from './actor-change-fields.mjs';
 import {setCombatSheetMode,fitCombatSheet} from './combat-sheet.mjs';
 
 const characterTypes=new Set(['character','minion','rival','nemesis']);
@@ -68,5 +69,7 @@ function refreshLinks(){
  clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{for(const sheet of foundry.applications.instances.values())if(sheet.rendered&&sheet.actor&&characterTypes.has(sheet.actor.type))renderOwnedVehicleLinks(sheet);},40);
 }
 Hooks.on('renderActorSheetFFGV2',renderOwnedVehicleLinks);
-for(const hook of ['createActor','updateActor','deleteActor','updateUser'])Hooks.on(hook,refreshLinks);
+for(const hook of ['createActor','deleteActor'])Hooks.on(hook,actor=>{if(actor.type==='vehicle')refreshLinks();});
+Hooks.on('updateActor',(actor,changes)=>{if(fieldsAffect(changes,actor.type==='vehicle'?ownedVehicleFields:identityFields))refreshLinks();});
+Hooks.on('updateUser',user=>{if(user.id===game.user.id)refreshLinks();});
 Hooks.once('init',()=>{const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('../../styles/character-vehicles.css',import.meta.url).href;document.head.append(link);});
