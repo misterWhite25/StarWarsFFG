@@ -1,3 +1,4 @@
+import {fieldsAffect,passengerFields,identityFields} from './actor-change-fields.mjs';
 import DiceHelpers,{get_dice_pool} from './dice-helpers.js';
 import {DicePoolFFG} from '../dice/pool.js';
 import {canonicalCrewSkill} from './crew-role-definitions.mjs';
@@ -25,11 +26,12 @@ function normalizeDeckSource(data) {
   return !!plan?.enabled && !String(plan.image ?? '').trim();
 }
 Hooks.on('preCreateActor',actor=>{
-  if(actor.type==='vehicle' && normalizeDeckSource(actor.toObject()))actor.updateSource({[path+'.enabled']:false});
+  if(actor.type==='vehicle' && normalizeDeckSource(actor))actor.updateSource({[path+'.enabled']:false});
 });
 Hooks.on('preUpdateActor',(actor,changes)=>{
-  if(actor.type!=='vehicle')return;
-  const next=foundry.utils.mergeObject(actor.toObject(),foundry.utils.expandObject(changes),{inplace:false,applyOperators:true});
+  if(actor.type!=='vehicle'||!fieldsAffect(changes,[path]))return;
+  const current={flags:{[scope]:{[flag]:deck(actor)}}};
+  const next=foundry.utils.mergeObject(current,foundry.utils.expandObject(changes),{inplace:false,applyOperators:true});
   if(normalizeDeckSource(next)) {
     foundry.utils.setProperty(changes,path+'.enabled',false);
     foundry.utils.setProperty(changes,path+'.epoch',foundry.utils.randomID());
@@ -550,7 +552,7 @@ function schedule(){
 Hooks.once("ready",()=>{
   for(const ship of game.actors)if(isWorldShip(ship)) {
     syncShip(ship);
-    if(game.users.activeGM?.id===game.user.id && normalizeDeckSource(ship.toObject())) {
+    if(game.users.activeGM?.id===game.user.id && normalizeDeckSource(ship)) {
       ship.update({[path+'.enabled']:false,[path+'.epoch']:foundry.utils.randomID()}).catch(warn);
     }
   }
@@ -558,14 +560,14 @@ Hooks.once("ready",()=>{
 });
 Hooks.on("renderSceneControls",schedule);
 Hooks.on("updateActor",(actor,changes)=>{
-  for(const app of foundry.applications.instances.values()){
+  if(fieldsAffect(changes,passengerFields))for(const app of foundry.applications.instances.values()){
     const vehicle=app.actor;
     if(app.rendered&&vehicle?.type==='vehicle'&&Object.values(deck(vehicle).passengers??{}).some(member=>member.actorId===actor.id))drawPassengers(app,vehicle);
   }
-  if(isWorldShip(actor)){syncShip(actor);schedule();}
+  if(isWorldShip(actor)){if(fieldsAffect(changes,[path]))syncShip(actor);if(fieldsAffect(changes,[path,...identityFields]))schedule();}
   for(const [id,app] of windows){
     if(!app.ship || app._changingMode || app.shared&&!mapEnabled(app.ship))continue;
-    if(id===actor.id || (changes.name||changes.img||changes.prototypeToken)&&roster(app.ship).has("a"+actor.id))app.render().catch(warn);
+    if(id===actor.id&&fieldsAffect(changes,[path,"flags.starwarsffg.crew",...identityFields]) || fieldsAffect(changes,[...identityFields,"prototypeToken"])&&roster(app.ship).has("a"+actor.id))app.render().catch(warn);
   }
 });
 Hooks.on("createActor",actor=>{if(isWorldShip(actor)){syncShip(actor);schedule();}});

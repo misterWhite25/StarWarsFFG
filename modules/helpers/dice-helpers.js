@@ -1,3 +1,4 @@
+import {rollContext} from './roll-context.mjs';
 import {resolveCrewActor,integratedCrewVehicle,integratedCrewGroupSignature} from './integrated-crew.mjs';
 import {requireLivingVehicleGroup} from './vehicle-minion-group.mjs';
 import {resetNewRollTarget} from './roll-target-start.mjs';
@@ -10,7 +11,7 @@ import { DicePoolFFG } from "../dice/pool.js";
 
 export default class DiceHelpers {
   static async rollSkill(obj, event, type, flavorText, sound) {
-    const data = await obj.getData();
+    const data = obj.actor ? rollContext(obj.actor,{token:obj.token}) : await obj.getData();
     const row = event.target.parentElement.parentElement;
     let skillName = row.parentElement.dataset["ability"];
     if (skillName === undefined) {
@@ -224,11 +225,9 @@ export default class DiceHelpers {
       ui.notifications.warn(game.i18n.format("SWFFG.UI.Dice.PossessionNotCarried",{name:item.name}));
       return null;
     }
-    const actorSheet = await actor.sheet.getData();
-    actorSheet.document=actor;actorSheet.documentUuid=actor.uuid;
-    if(context.tokenUuid)actorSheet.pilotageTokenUuid=context.tokenUuid;
+    const actorSheet = rollContext(actor,{tokenUuid:context.tokenUuid});
     const itemData = item.system;
-    await item.setFlag("starwarsffg", "uuid", item.uuid);
+    if(item.flags?.starwarsffg?.uuid!==item.uuid)await item.setFlag("starwarsffg", "uuid", item.uuid);
 
 
 
@@ -272,13 +271,13 @@ export default class DiceHelpers {
     const skill = actor?.system?.skills?.[skillKey];
     const characteristic = actor?.system?.characteristics?.[skill?.characteristic];
     if (!actor || !skill || !characteristic) return null;
-    const sheet = await actor.sheet.getData();
+    const sheet = rollContext(actor);
     return this.rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound, {actor, skillKey});
   }
 
   // Takes a skill object, characteristic object, difficulty number and ActorSheetFFG.getData() object and creates the appropriate roll dialog.
   static async rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound, context = {}) {
-    const sheetActor = sheet?.actor?.system ? sheet.actor : game.actors.get(sheet?.actor?._id ?? sheet?.actor?.id ?? sheet?.data?._id);
+    const sheetActor = sheet?.document ?? (sheet?.actor?.system ? sheet.actor : game.actors.get(sheet?.actor?._id ?? sheet?.actor?.id ?? sheet?.data?._id));
     const actor = context.actor ?? sheetActor ?? game.actors.find(candidate => Object.values(candidate.system?.skills ?? {}).includes(skill));
     const integratedVehicle=integratedCrewVehicle(actor);if(integratedVehicle)requireLivingVehicleGroup(integratedVehicle);
     const skillKey = context.skillKey ?? Object.entries(actor?.system?.skills ?? {}).find(([key, value]) => value === skill || key === skill?.value || (value?.label === skill?.label && value?.characteristic === skill?.characteristic))?.[0];

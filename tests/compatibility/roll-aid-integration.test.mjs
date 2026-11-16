@@ -35,14 +35,15 @@ test('real roll builder adds aid once, consumes on posting and restores it on fa
  // This noncombat Pilot check has no target UI. Keep its boundary explicit.
  const targets=new vm.SyntheticModule(['activateRollTargets','closeRollTargets'],function(){this.setExport('activateRollTargets',()=>{});this.setExport('closeRollTargets',()=>{});},{context});await targets.link(()=>{});await targets.evaluate();
  const form=new vm.SyntheticModule(['FormApplicationV2'],function(){this.setExport('FormApplicationV2',class {activateListeners(){}});},{context});await form.link(()=>{});await form.evaluate();
- const simulation=new vm.SyntheticModule(['MonteCarlo'],function(){this.setExport('MonteCarlo',class {});},{context});await simulation.link(()=>{});await simulation.evaluate();
+ const probability=await loadSystemModule('helpers/probability-estimator.mjs',context);
+ const preview=await loadSystemModule('helpers/probability-preview.mjs',context);
  const dependencies={
   '../helpers/integrated-crew.mjs':integrated,'../helpers/vehicle-minion-group.mjs':vehicleGroups,'../helpers/target-adversary.mjs':adversary,
   '../helpers/roll-target-selection.mjs':targets,'../helpers/setback-removal.mjs':setbacks,
   '../helpers/pilotage-mj.js':pilotage,'../helpers/skill-information-ui.js':information,
   '../helpers/roll-talents.js':talents,'../helpers/gm-difficulty.js':gm,
   '../helpers/weapon-selection.js':selection,'../helpers/combat-actions.js':helper,
-  '../applications/form-application-v2.js':form,'../../lib/@swrpg-online/monte-carlo/dist/index.esm.js':simulation
+  '../applications/form-application-v2.js':form,'../helpers/probability-estimator.mjs':probability,'../helpers/probability-preview.mjs':preview
  };
  await builder.link(spec=>{assert.ok(dependencies[spec],'Unexpected roll-builder import: '+spec);return dependencies[spec];});await builder.evaluate();
  const app=new builder.namespace.default({document:actor,actor:{_id:'pc'}},{boost:0,renderDiceExpression:()=> '1db'},'test','SWFFG.SkillsNameAthletics');

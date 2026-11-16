@@ -86,8 +86,8 @@ test('the crew sheet rolls the assigned weapon with its malfunction setback and 
   const malfunction = {id:'fault',mechanics:{target:'weapon',targetId:'laser',setback:2}};
   const ship = {type:'vehicle',name:'Transport',img:'ship.webp',items:[gun],
     getFlag:(_s,key)=>key==='crew'?[member]:key==='vehicleMalfunctions'?[malfunction]:undefined};
-  const calls = [], warnings = [], poolActors = [], crewData = {};
-  const crewSheet = {getData:async()=>crewData};
+  const calls = [], warnings = [], poolActors = [];
+  const crewSheet = {getData:async()=>assert.fail('A gunnery roll must not prepare a crew sheet')};
   const crewActor = {documentName:'Actor',id:'a',uuid:'Actor.a',sheet:crewSheet};
   const actors = [ship,crewActor];actors.get=id=>actors.find(actor=>actor.id===id);
   const context = vm.createContext({structuredClone, Hooks:{on(){},off(){},once(){}}, game:{actors,user:{isGM:true},
@@ -107,9 +107,9 @@ test('the crew sheet rolls the assigned weapon with its malfunction setback and 
   const roll = mod.namespace.ActorSheetFFG.prototype.vehicleCrewGunneryRoll.bind({actor:ship},gun,'Gunnery',member);
   await roll();
   assert.equal(calls.length,1);
-  assert.equal(calls[0][0],crewData);
-  assert.equal(crewData.document,crewActor);
-  assert.equal(crewData.documentUuid,'Actor.a');
+  assert.equal(calls[0][0].document,crewActor);
+  assert.equal(calls[0][0].documentUuid,'Actor.a');
+  assert.equal(calls[0][0].actor._id,'a');
   assert.equal(poolActors[0],crewActor);
   assert.equal(calls[0][1].setback,2);
   assert.equal(calls[0][4],gun);

@@ -1,4 +1,5 @@
 import {systemI18n} from '../system-i18n.mjs';
+import {loadSystemModule} from '../load-system-module.mjs';
 const frI18n=await systemI18n('fr');
 globalThis.game={i18n:frI18n};
 import test from 'node:test';
@@ -28,17 +29,17 @@ test('summary hides imported bibliography and retains the real description',()=>
  assert.equal(equipmentDescription('<p><h3>Sources:</h3>Livre<br></p>'),'');
 });
 
-test('summary reads quality names, ranks and descriptions from the current item sheet context',async()=>{
+test('summary reads quality names, ranks and descriptions directly from current item data without preparing its sheet',async()=>{
  const vm=await import('node:vm'),{readFile}=await import('node:fs/promises');
- class Element {constructor(tag){this.tag=tag;this.children=[];this.style={};}append(child){this.children.push(child);}}
+ class Element {constructor(tag){this.tag=tag;this.children=[];this.style={};this.dataset={};}append(child){this.children.push(child);}}
  let reads=0;
- const weapon={name:'Blaster',type:'weapon',system:{equippable:{equipped:true}},sheet:{getData:async()=>{reads++;return {data:{doNotSubmit:{qualities:[{name:'Précision',totalRanks:2,description:'<p>Bonus de Précision.</p>'}]}}};}}};
+ const weapon={name:'Blaster',type:'weapon',system:{equippable:{equipped:true},itemmodifier:[{name:'Précision',system:{rank:2,description:'<p>Bonus de Précision.</p>'}}]},sheet:{getData:async()=>{reads++;return {data:{doNotSubmit:{qualities:[{name:'Précision',totalRanks:2,description:'<p>Bonus de Précision.</p>'}]}}};}}};
  const context=vm.createContext({document:{createElement:tag=>new Element(tag)},window:{innerWidth:1280,innerHeight:900},game:{i18n:frI18n},foundry:{applications:{ux:{TextEditor:{enrichHTML:async html=>html}},api:{DialogV2:class{constructor(options){this.options=options;}async render(){this.rendered=true;}}}}}});
- const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/equipment-summary.js',import.meta.url),'utf8'),{context});await module.link(()=>{});await module.evaluate();
+ const module=await loadSystemModule('helpers/equipment-summary.js',context);
  const sheet={actor:{name:'Pilote',isOwner:true,items:[weapon],system:{}},element:{getBoundingClientRect:()=>({right:600,left:100,top:20})}};
  await module.namespace.showEquipmentSummary(sheet);
  const descendants=element=>[element,...element.children.flatMap(descendants)];
- assert.equal(reads,1);let nodes=descendants(sheet._equipmentSummary.options.content);
+ assert.equal(reads,0);let nodes=descendants(sheet._equipmentSummary.summaryContent);
  assert(nodes.some(node=>node.textContent==='Précision - 2'));assert(nodes.some(node=>node.innerHTML==='<p>Bonus de Précision.</p>'));
  const quality=nodes.find(node=>node.tag==='details');
  assert(quality);assert(!quality.open);
@@ -47,7 +48,8 @@ test('summary reads quality names, ranks and descriptions from the current item 
  assert.equal(quality.children[1].innerHTML,'<p>Bonus de Précision.</p>');
  assert.equal(quality.children[1].className,'ffg-equipment-description');
  weapon.sheet.getData=async()=>{reads++;return {data:{doNotSubmit:{qualities:[{name:'Précision',totalRanks:3,description:'<p>Bonus changé.</p>'}]}}};};
- await module.namespace.showEquipmentSummary(sheet,true);nodes=descendants(sheet._equipmentSummary.options.content);
- assert.equal(reads,2);assert(nodes.some(node=>node.textContent==='Précision - 3'));assert(nodes.some(node=>node.innerHTML==='<p>Bonus changé.</p>'));
+ weapon.system.itemmodifier[0].system={rank:3,description:'<p>Bonus changé.</p>'};
+ await module.namespace.showEquipmentSummary(sheet,true);nodes=descendants(sheet._equipmentSummary.summaryContent);
+ assert.equal(reads,0);assert(nodes.some(node=>node.textContent==='Précision - 3'));assert(nodes.some(node=>node.innerHTML==='<p>Bonus changé.</p>'));
  assert.equal(weapon.system.doNotSubmit,undefined);
 });

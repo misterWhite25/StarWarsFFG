@@ -10,9 +10,8 @@ import { brawlAttackProfile, isBrawlSkill, weaponStunProfile, resolveShot, match
 import { pendingAid, consumeAid, restoreAid } from "../helpers/combat-actions.js";
 import { renderPreciseAimButton, selectedRollTalents, rollTalentPool, commitRollTalents, rollbackRollTalents, renderRollTalents, talentWeaponSnapshot, talentWeaponPreview } from "../helpers/roll-talents.js";
 import { FormApplicationV2 } from "../applications/form-application-v2.js";
-import { MonteCarlo } from "../../lib/@swrpg-online/monte-carlo/dist/index.esm.js";
-
-const SIMULATION_ITERATIONS = 10000;
+import {SIMULATION_ITERATIONS,probabilityOptions,simulationVisible} from '../helpers/probability-estimator.mjs';
+import {ProbabilityPreview} from '../helpers/probability-preview.mjs';
 
 export default class RollBuilderFFG extends FormApplicationV2 {
   constructor(rollData, rollDicePool, rollDescription, rollSkillName, rollItem, rollAdditionalFlavor, rollSound) {
@@ -39,6 +38,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     if(this._postingRoll){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Dice.WaitBeforeClose"));return this;}
     if(this._frenziedBusy){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Dice.FinishFrenziedAttack"));return this;}
     this._reviewedClosed=true;
+    this._probabilityPreview?.cancel();
     closeRollTargets(this);
     if(this._frenziedPaid){const {cancelFrenziedAttack}=await import("../helpers/roll-talents.js");await cancelFrenziedAttack(this);}
     Hooks.off("ffgPilotageChanged",this._pilotageHook);
@@ -111,11 +111,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       dark: game.settings.get("starwarsffg", "destiny-pool-dark"),
     };
 
-    let display = false;
-    const displaySimulation = game.settings.get("starwarsffg", "displaySimulation");
-    if (displaySimulation === "GM" && game.user.isGM || displaySimulation === "All") {
-      display = true;
-    }
+    const display=simulationVisible(game.settings.get("starwarsffg","displaySimulation"),game.user.isGM);
 
     return {
       isGM: game.user.isGM,
@@ -526,7 +522,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     const cancelled=Math.max(0,Math.min(total,total-remaining+configuredRemoval));
     // Rendering only: the original pool and the dice expression stay unchanged.
     pool.renderPreview(poolDiv,{total,cancelled});
-    this._updateSimulationPreview();
+    this._updateSimulationPreview(pool);
   }
 
   _initializeInputs(html) {
@@ -651,41 +647,13 @@ export default class RollBuilderFFG extends FormApplicationV2 {
    * Add the results of the dice simulation
    * @private
    */
-  _updateSimulationPreview() {
-    try {
-      const pool = this._previewPool();
-      const simPool = new MonteCarlo({
-        dicePool: {
-          abilityDice: pool.ability,
-          difficultyDice: pool.difficulty,
-          proficiencyDice: pool.proficiency,
-          challengeDice: pool.challenge,
-          boostDice: pool.boost,
-          setbackDice: setbackAfterRemovals(pool),
-        },
-        iterations: SIMULATION_ITERATIONS,
-        runSimulate: false,
-        modifiers: {
-          automaticSuccesses: pool.success,
-          automaticFailures: pool.failure,
-          automaticAdvantages: pool.advantage,
-          automaticThreats: pool.threat,
-          automaticTriumphs: pool.triumph,
-          automaticDespairs: pool.despair,
-        },
-      });
-      const simResults = simPool.simulate();
-
-      let newClass = "";
-      if (simResults.successProbability < .25) {
-        newClass = "unlikely";
-      } else if (simResults.successProbability > .75) {
-        newClass = "likely";
-      }
-
-      $("#success_chance").text(
-        `${(simResults.successProbability * 100).toLocaleString(game.i18n.lang, {maximumFractionDigits: 0})}%`
-      ).removeClass("likely unlikely").addClass(newClass);
-    } catch { /* The probability estimate is optional; keep the editable roll usable if simulation is unavailable. */ }
+  _updateSimulationPreview(pool) {
+    const target=this.element?.querySelector('#success_chance');
+    const show=simulationVisible(game.settings.get('starwarsffg','displaySimulation'),game.user.isGM);
+    this._probabilityPreview??=new ProbabilityPreview();
+    if(!show||!target){this._probabilityPreview.cancel();return;}
+    this._probabilityPreview.update(probabilityOptions(pool??this._previewPool()),{target,show,
+      isCurrent:()=>!this._reviewedClosed&&this.element?.contains(target)&&simulationVisible(game.settings.get('starwarsffg','displaySimulation'),game.user.isGM),
+      format:value=>(value*100).toLocaleString(game.i18n.lang,{maximumFractionDigits:0})+'%'});
   }
 }

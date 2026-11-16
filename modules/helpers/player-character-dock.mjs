@@ -1,3 +1,4 @@
+import {fieldsAffect,identityFields} from './actor-change-fields.mjs';
 import {playerCharacters,collapsedCharacters} from './player-character-data.mjs';
 
 const scope='starwarsffg',setting='enablePlayerCharacterPortraits',flag='collapsedCharacterPortraits',id='ffg-player-characters';
@@ -70,5 +71,6 @@ Hooks.once('init',()=>{
 });
 Hooks.once('ready',requestRender);
 Hooks.on('renderChatInput',requestRender);
-for(const hook of ['createActor','updateActor','deleteActor'])Hooks.on(hook,requestRender);
+for(const hook of ['createActor','deleteActor'])Hooks.on(hook,actor=>{if(['character','minion','rival','nemesis'].includes(actor.type))requestRender();});
+Hooks.on('updateActor',(_actor,changes)=>{if(fieldsAffect(changes,identityFields))requestRender();});
 Hooks.on('updateUser',user=>{if(user.id===game.user.id)requestRender();});

@@ -269,11 +269,6 @@ export const systemGuideTours = [
         "content": "SWFFG.Guide.flottes.postes.Content"
       },
       {
-        "id": "composition",
-        "title": "SWFFG.Guide.flottes.composition.Title",
-        "content": "SWFFG.Guide.flottes.composition.Content"
-      },
-      {
         "id": "sbires",
         "title": "SWFFG.Guide.flottes.sbires.Title",
         "content": "SWFFG.Guide.flottes.sbires.Content"

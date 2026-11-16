@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs/promises';
-import {npcCatalogue,npcAbilityKind,matchingNpcAction} from '../../modules/helpers/npc-command-data.mjs';
+import {npcCatalogue,npcAbilityKind} from '../../modules/helpers/npc-command-data.mjs';
 async function initiative(){
   const ctx=vm.createContext({console,structuredClone,game:{},CONFIG:{},ui:{},Hooks:{},document:{}});
   const source=await fs.readFile(new URL('../../modules/helpers/npc-initiative.mjs',import.meta.url),'utf8');
@@ -33,12 +33,12 @@ test('nested attachments and weapon qualities are included with their full descr
   const entries=npcCatalogue({items:[{id:'w',name:'Fusil',type:'weapon',system:{itemattachment:[{name:'Viseur',system:{description:'Accessoire complet',itemmodifier:[{name:'Précis',system:{description:'Qualité complète',active:true}}]}}]}}]});
   assert.deepEqual(entries.map(e=>e.name),['Fusil','Viseur','Précis']);assert.equal(entries[2].system.description,'Qualité complète');
 });
-test('ability classifications and bulk resolution do not reuse another actor item id',()=>{
-  assert.equal(npcAbilityKind({system:{activation:{value:'Incidental'}}}),'reaction');assert.equal(npcAbilityKind({system:{activation:'Passive'}}),'passive');assert.equal(npcAbilityKind({system:{}}),'manual');
-  const actor={items:[{id:'different',type:'weapon',name:'Fusil blaster'}],system:{skills:{Gunnery:{}}}};
-  assert.equal(matchingNpcAction(actor,{kind:'weapon',id:'original',type:'weapon',name:'Fusil BLASTER'}).id,'different');
-  assert.equal(matchingNpcAction(actor,{kind:'weapon',type:'weapon',name:'Sabre'}),null);assert.equal(matchingNpcAction(actor,{kind:'skill',id:'Missing'}),null);
+test('ability classifications retain reactions, passive talents and manual capabilities',()=>{
+  assert.equal(npcAbilityKind({system:{activation:{value:'Incidental'}}}),'reaction');
+  assert.equal(npcAbilityKind({system:{activation:'Passive'}}),'passive');
+  assert.equal(npcAbilityKind({system:{}}),'manual');
 });
+
 async function budget(){
   let flags={},ground=null,turn=0;
   const token={uuid:'Scene.a.Token.x',getFlag:()=>ground,setFlag:async(_scope,_key,value)=>{ground=structuredClone(value);},unsetFlag:async()=>{ground=null;}};

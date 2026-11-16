@@ -1,3 +1,4 @@
+import {reconcileSvg,reconcileSvgChildren} from './svg-reconcile.mjs';
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 import { previewFlight, rangeBetween, tokenDiameter,movementRadius } from "./flight.mjs";
 import {footprintCells,nearestHex} from "./hex.mjs";
@@ -200,8 +201,7 @@ function paintStatus(group,status,radius,bottom,color) {
   group.append(damage);
 }
 
-function paintShip(root, ship, frame, selected, targeted, plotId, selectable,range,hasWeapons) {
-  const status=tokenStatus(ship);
+function paintShip(root, ship, frame, selected, targeted, plotId, selectable,range,hasWeapons,status=tokenStatus(ship),minions=vehicleMinionGroup(game.actors.get(ship.actorId))) {
   const center = nearestHex(ship), cells = footprintCells(ship);
   const diameter = (ship.silhouette < 5 ? 0.86 : tokenDiameter(ship.silhouette)) * frame.scale;
   const radius = diameter / 2;
@@ -242,20 +242,20 @@ function paintShip(root, ship, frame, selected, targeted, plotId, selectable,ran
   artwork.append(facing);
   const bottom = Math.max(...cells.map(cell=>(center.y-cell.y+1/Math.sqrt(3))*frame.scale));
   group.append(artwork, label(0, bottom + 15, ship.name, "sc-ship-name", color));
-  const minions=vehicleMinionGroup(game.actors.get(ship.actorId));
   if(minions.enabled){const text=minions.alive+' / '+minions.count,width=Math.max(34,text.length*7+10),badge=element('g',{class:'sc-token-minion-count','data-group-alive':minions.alive,'data-group-count':minions.count,transform:'translate('+(-radius+10)+' '+(-radius+10)+')','pointer-events':'none'});badge.append(element('title',{},minions.alive+' appareils survivants sur '+minions.count),element('rect',{x:-width/2,y:-9,width,height:18,rx:5,fill:'#182c3b',stroke:'#bdcad8','stroke-width':1}),element('text',{x:0,y:4,fill:'#fff5d7','text-anchor':'middle','font-size':11,'font-weight':700},text));group.append(badge);}
   if(range)paintRangeTarget(group,range,radius,hasWeapons);
   paintStatus(group,status,radius,bottom,color);
   root.append(group);
 }
 
-export function drawPlot(svg, { ships = [], selected, targetId, camera = {},
-  canReposition = false, canNavigate = true, canSelect = ()=>true, choosingDirection=false,rangeShipId=null,onToggleRanges,
-  onDirection,onCancelDirection,onBringToFront, onSelect, onMove, onCamera, onDropActor }) {
-  plots.get(svg)?.dispose();
+export function drawPlot(svg, options={}) {
+  const existing=plots.get(svg);
+  if(existing){existing.update(options);return existing.dispose;}
+  let {ships=[],selected,targetId,camera={},canReposition=false,canNavigate=true,canSelect=()=>true,choosingDirection=false,rangeShipId=null,onToggleRanges,
+    onDirection,onCancelDirection,onBringToFront,onSelect,onMove,onCamera,onDropActor}=options;
   const id = "swffg-plot-" + ++nextId;
   const events = new AbortController();
-  const selectedId = selected?.id ?? selected;
+  let selectedId = selected?.id ?? selected;
   let view = { x: camera.x ?? 0, y: camera.y ?? 0, width: camera.width > 0 ? camera.width : 24 };
   let gesture = null;
   let hoverDestination=null;
@@ -275,42 +275,75 @@ export function drawPlot(svg, { ships = [], selected, targetId, camera = {},
   function scheduleRender() {
     if(renderFrame===null)renderFrame=requestAnimationFrame(()=>{renderFrame=null;render();});
   }
+  const gridLayer=element('g',{class:'sc-grid-layer'}),worldLayer=element('g',{class:'sc-world-layer'}),legendLayer=element('g',{class:'sc-legend-layer'});
+  const rangeLayer=element('g',{class:'sc-range-layer'}),movementLayer=element('g',{class:'sc-movement-layer'}),courseLayer=element('g',{class:'sc-course-layer'}),shipLayer=element('g',{class:'sc-ships-layer'}),buttonLayer=element('g',{class:'sc-buttons-layer'}),frontLayer=element('g',{class:'sc-front-layer'});
+  worldLayer.append(rangeLayer,movementLayer,courseLayer,shipLayer,buttonLayer,frontLayer);
+  svg.replaceChildren(element('title',{},'Carte tactique des combats spatiaux'),gridLayer,worldLayer,legendLayer);
+  const retainedShips=new Map();
+  let modelsChanged=true,lastScale,lastPreview,lastHover,lastFront,lastLegendWidth,prepared=[],ranges,rangeSource,targetRanges=new Map();
+  function updateMovement(from,f){
+    const layer=element('g');
+    if(from&&choosingDirection){
+      const radius=movementRadius(from),zone=element('g',{class:'sc-movement-zone','data-movement-radius':radius,'pointer-events':'none'});
+      zone.append(element('circle',{cx:f.x(from.x),cy:f.y(from.y),r:radius*f.scale,fill:'#72ebe0','fill-opacity':.08,stroke:'#72ebe0','stroke-width':2,'stroke-dasharray':'7 4'}),
+        label(f.x(from.x),f.y(from.y)-radius*f.scale-10,'Voler / Conduire · '+format.format(radius)+' u par manœuvre','sc-movement-label','#affff1'));
+      if(hoverDestination)zone.append(element('polygon',{class:'sc-movement-hover',points:hexPoints(f.x(hoverDestination.x),f.y(hoverDestination.y),f.scale*.96),fill:'#72ebe0','fill-opacity':.3,stroke:'#d7fff6','stroke-width':2}));
+      layer.append(zone);
+    }
+    reconcileSvgChildren(movementLayer,layer);
+  }
   function render() {
     if(renderFrame!==null){cancelAnimationFrame(renderFrame);renderFrame=null;}
-    const f = frame();
-    const focus=svg.contains(document.activeElement)?{ship:document.activeElement?.dataset?.ship,range:document.activeElement?.dataset?.rangeShip,front:document.activeElement?.dataset?.frontShip}:null;
-    const content = document.createDocumentFragment();
-    content.append(element("title", {}, "Carte tactique des combats spatiaux"));
-    paintGrid(content, f, id);
-    const fleet = gesture?.preview ? ships.map(s => s.id === gesture.ship.id ? { ...s, ...gesture.preview } : s) : ships;
-    const from = fleet.find(s => s.id === selectedId);
-    const target = fleet.find(s => s.id === targetId);
-    const rangeSource=fleet.find(ship=>ship.id===rangeShipId&&canSelect(ship));
-    const ranges=rangeSource&&shipRanges(rangeSource,fleet);
-    const targetRanges=new Map((ranges?.targets??[]).map(range=>[range.shipId,range]));
-    if(ranges)paintRanges(content,rangeSource,ranges,f);
-    if(from&&choosingDirection) {
-      const radius=movementRadius(from);
-      const zone=element("g",{class:"sc-movement-zone","data-movement-radius":radius,"pointer-events":"none"});
-      zone.append(element("circle",{cx:f.x(from.x),cy:f.y(from.y),r:radius*f.scale,fill:"#72ebe0","fill-opacity":.08,
-        stroke:"#72ebe0","stroke-width":2,"stroke-dasharray":"7 4"}),
-        label(f.x(from.x),f.y(from.y)-radius*f.scale-10,"Voler / Conduire · "+format.format(radius)+" u par manœuvre","sc-movement-label","#affff1"));
-      if(hoverDestination)zone.append(element("polygon",{class:"sc-movement-hover",points:hexPoints(f.x(hoverDestination.x),f.y(hoverDestination.y),f.scale*.96),
-        fill:"#72ebe0","fill-opacity":.3,stroke:"#d7fff6","stroke-width":2}));
-      content.append(zone);
+    const screen=frame(),f={...screen,x:x=>x*screen.scale,y:y=>-y*screen.scale};
+    const changedScale=lastScale!==f.scale,preview=gesture?.preview,key=preview?gesture.ship.id+':'+preview.x+':'+preview.y:null;
+    const changedModels=modelsChanged||key!==lastPreview;
+    svg.setAttribute('viewBox',`0 0 ${screen.width} ${screen.height}`);
+    worldLayer.setAttribute('transform',`translate(${screen.ox} ${screen.oy})`);
+    if(changedScale){const grid=element('g');paintGrid(grid,screen,id);reconcileSvgChildren(gridLayer,grid);}
+    else {
+      const pattern=gridLayer.querySelector('pattern');
+      pattern.setAttribute('x',(screen.ox-screen.scale/4)%screen.scale);
+      pattern.setAttribute('y',screen.oy%(Math.sqrt(3)*screen.scale));
     }
-    if (from) paintCourse(content, from, f);
-    if (from && target && from.id !== target.id) paintRuler(content, from, target, f);
-    for(const ship of orderedShips(fleet))paintShip(content,ship,f,selectedId,ship.id===targetId,id,canSelect(ship),targetRanges.get(ship.id),ranges?.maximum>=0);
-    for(const ship of fleet)if(canSelect(ship)&&onToggleRanges)paintRangeButton(content,ship,f,ship.id===rangeShipId);
-    const frontShip=fleet.find(ship=>ship.id===frontShipId);
-    if(frontShip&&canSelect(frontShip)&&onBringToFront)paintFrontButton(content,frontShip,f);
-    if(ranges)paintRangeKey(content,rangeSource,ranges,f);
-    svg.setAttribute("viewBox", `0 0 ${f.width} ${f.height}`);
-    svg.replaceChildren(content);
-    if(focus?.front)[...svg.querySelectorAll("[data-front-ship]")].find(node=>node.dataset.frontShip===focus.front)?.focus({preventScroll:true});
-    else if(focus?.range)[...svg.querySelectorAll("[data-range-ship]")].find(node=>node.dataset.rangeShip===focus.range)?.focus({preventScroll:true});
-    else if(focus?.ship)[...svg.querySelectorAll("[data-ship]")].find(node=>node.dataset.ship===focus.ship)?.focus({preventScroll:true});
+    const focus=svg.contains(document.activeElement)?document.activeElement:null;
+    if(changedModels){
+      const fleet=preview?ships.map(ship=>ship.id===gesture.ship.id?{...ship,...preview}:ship):ships;
+      rangeSource=fleet.find(ship=>ship.id===rangeShipId&&canSelect(ship));
+      ranges=rangeSource?shipRanges(rangeSource,fleet):null;
+      targetRanges=new Map((ranges?.targets??[]).map(range=>[range.shipId,range]));
+      prepared=orderedShips(fleet).map(ship=>{
+        const status=tokenStatus(ship),minions=vehicleMinionGroup(game.actors.get(ship.actorId)),selectable=canSelect(ship),range=targetRanges.get(ship.id);
+        return {ship,status,minions,selectable,range,key:JSON.stringify([ship.name,ship.image,ship.x,ship.y,ship.heading,ship.silhouette,ship.id===selectedId,ship.id===targetId,status,minions.enabled,minions.alive,minions.count,selectable,range,ranges?.maximum>=0])};
+      });
+    }
+    const from=prepared.find(entry=>entry.ship.id===selectedId)?.ship,target=prepared.find(entry=>entry.ship.id===targetId)?.ship;
+    const hover=hoverDestination?hoverDestination.x+':'+hoverDestination.y:null;
+    if(changedModels||changedScale){
+      const overlay=element('g');if(ranges)paintRanges(overlay,rangeSource,ranges,f);reconcileSvgChildren(rangeLayer,overlay);
+      const course=element('g');if(from)paintCourse(course,from,f);if(from&&target&&from.id!==target.id)paintRuler(course,from,target,f);reconcileSvgChildren(courseLayer,course);
+      const present=new Set();
+      for(const [index,entry]of prepared.entries()){
+        const {ship,status,minions,selectable,range}=entry;present.add(ship.id);
+        let retained=retainedShips.get(ship.id);
+        if(!retained||retained.key!==entry.key||changedScale){
+          const holder=element('g');paintShip(holder,ship,f,selectedId,ship.id===targetId,id,selectable,range,ranges?.maximum>=0,status,minions);
+          const next=holder.children[0];
+          if(retained)reconcileSvg(retained.node,next);else retained={node:next};
+          retained.key=entry.key;retainedShips.set(ship.id,retained);
+        }
+        if(shipLayer.children[index]!==retained.node)shipLayer.insertBefore(retained.node,shipLayer.children[index]??null);
+      }
+      for(const [shipId,entry]of retainedShips)if(!present.has(shipId)){entry.node.remove();retainedShips.delete(shipId);}
+      const buttons=element('g');for(const {ship,selectable}of prepared)if(selectable&&onToggleRanges)paintRangeButton(buttons,ship,f,ship.id===rangeShipId);reconcileSvgChildren(buttonLayer,buttons);
+    }
+    if(changedModels||changedScale||hover!==lastHover)updateMovement(from,f);
+    if(changedModels||changedScale||frontShipId!==lastFront){
+      const front=element('g'),ship=prepared.find(entry=>entry.ship.id===frontShipId&&entry.selectable)?.ship;
+      if(ship&&onBringToFront)paintFrontButton(front,ship,f);reconcileSvgChildren(frontLayer,front);
+    }
+    if(changedModels||screen.width!==lastLegendWidth){const legend=element('g');if(ranges)paintRangeKey(legend,rangeSource,ranges,screen);reconcileSvgChildren(legendLayer,legend);}
+    modelsChanged=false;lastScale=f.scale;lastPreview=key;lastHover=hover;lastFront=frontShipId;lastLegendWidth=screen.width;
+    if(focus?.isConnected&&document.activeElement!==focus)focus.focus({preventScroll:true});
   }
   const listen = (type, listener, options) => svg.addEventListener(type, listener, { ...options, signal: events.signal });
   const finishCamera = () => onCamera?.({ ...view });
@@ -328,7 +361,7 @@ export function drawPlot(svg, { ships = [], selected, targetId, camera = {},
     zoom(Math.exp(Math.max(-2, Math.min(2, event.deltaY * units * 0.0015))), pointAt(event.clientX, event.clientY));
   }, { passive: false });
   const hideFrontButton=()=>{
-    frontShipId=null;
+    frontShipId=null;lastFront=null;
     svg.querySelector("[data-front-ship]")?.remove();
   };
   listen("contextmenu",event=>{
@@ -371,7 +404,7 @@ export function drawPlot(svg, { ships = [], selected, targetId, camera = {},
       if(event.target.closest?.("[data-front-ship],[data-range-ship]"))return;
       const ship=ships.find(ship=>ship.id===selectedId);
       let destination=null;
-      try{destination=movementDestination(ship,pointAt(event.clientX,event.clientY));}catch{}
+      try{destination=movementDestination(ship,pointAt(event.clientX,event.clientY));}catch{ /* An unreachable destination has no movement highlight. */ }
       if((hoverDestination?.x??null)===(destination?.x??null)&&(hoverDestination?.y??null)===(destination?.y??null))return;
       hoverDestination=destination;
       scheduleRender();return;
@@ -472,7 +505,13 @@ export function drawPlot(svg, { ships = [], selected, targetId, camera = {},
     resizer?.unobserve(svg);
     plots.delete(svg);
   };
-  plots.set(svg, { render:scheduleRender, dispose });
+  dispose.view=camera=>{view={...view,...camera};scheduleRender();};
+  const update=options=>{
+    ({ships=[],selected,targetId,camera={},canReposition=false,canNavigate=true,canSelect=()=>true,choosingDirection=false,rangeShipId=null,onToggleRanges,onDirection,onCancelDirection,onBringToFront,onSelect,onMove,onCamera,onDropActor}=options);
+    selectedId=selected?.id??selected;view={x:camera.x??view.x,y:camera.y??view.y,width:camera.width>0?camera.width:view.width};
+    modelsChanged=true;svg.classList.toggle('sc-choosing-direction',choosingDirection);render();
+  };
+  plots.set(svg, { render:scheduleRender, dispose,update });
   if (typeof ResizeObserver !== "undefined") {
     resizer ??= new ResizeObserver(entries => {
       for (const { target } of entries) {

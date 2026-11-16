@@ -1,3 +1,4 @@
+import {renderSummary,summaryDialog} from './summary-render.mjs';
 import {normalizeBoldTags} from './legacy-text-format.js';
 import {talentChoiceStatus,talentChoiceDescription,talentChoiceKind} from './reviewed-talent-state.js';
 const append = (parent, tag, text) => {
@@ -83,6 +84,7 @@ export async function showTalentSummary(sheet, refresh = false, anchor = sheet.e
     sheet._talentSummary.bringToFront();
     return;
   }
+  return renderSummary(sheet,'_talentSummary',refresh,async current=>{
   const actor = sheet.actor;
   const expandedPassives = new Set(refresh ? Array.from(sheet._talentSummary?.element?.querySelectorAll('details.ffg-passive-talent[open]') ?? [], node => node.dataset.talentKey) : []);
   const content = document.createElement('div');
@@ -92,6 +94,7 @@ export async function showTalentSummary(sheet, refresh = false, anchor = sheet.e
   const talents = summaryTalents(actor);
   if (!talents.length) append(body, 'p', game.i18n.localize("SWFFG.UI.Talent.NoneAcquired"));
   for (const talent of talents) {
+    if(!current())return;
     const section = append(body, talent.active ? 'section' : 'details');
     if (!talent.active) {
       section.className = 'ffg-passive-talent';
@@ -115,16 +118,16 @@ export async function showTalentSummary(sheet, refresh = false, anchor = sheet.e
     description.querySelectorAll('.ffg-talent-source, .ffg-talent-review-status').forEach(node=>node.remove());
     description.querySelectorAll('p').forEach(node=>node.style.textAlign='justify');
   }
+  if(!current())return;
   if (refresh) {
-    sheet._talentSummary.options.content = content;
-    await sheet._talentSummary.render({force:true});
+    await sheet._talentSummary.setContent(content);
     return;
   }
   const width = Math.min(360, window.innerWidth - 24);
   const bounds = anchor.getBoundingClientRect();
   const right = bounds.right + 8;
   const left = right + width <= window.innerWidth ? right : Math.max(0, bounds.left - width - 8);
-  sheet._talentSummary = new foundry.applications.api.DialogV2({
+  sheet._talentSummary = summaryDialog({
     classes: ['starwarsffg', 'themed'],
     window: {title: game.i18n.localize('SWFFG.TabTalents')+' - '+actor.name, resizable:true},
     position: {width, left, top: Math.max(0, Math.min(bounds.top, window.innerHeight - 200))},
@@ -132,6 +135,7 @@ export async function showTalentSummary(sheet, refresh = false, anchor = sheet.e
     buttons: [{action:'close', label:game.i18n.localize('SWFFG.ButtonClose')}]
   });
   await sheet._talentSummary.render({force:true});
+  });
 }
 
 /** Visible next to each talent; text-only DOM additions never alter descriptions. */

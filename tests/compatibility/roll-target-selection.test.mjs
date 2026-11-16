@@ -241,8 +241,7 @@ test('Adversary follows targeting and talent edits, and stays frozen during publ
   await f.view.sync();
   assert.equal(f.builder.roll.targetAdversary.rank, 2);
   talent.system.ranks.current = 3;
-  const update = f.hooks.find(([name]) => name === 'updateItem')[1];
-  update({parent:f.first.actor});
+  for(const [,update]of f.hooks.filter(([name])=>name==='updateItem'))update({parent:f.first.actor});
   await f.view.promise;
   assert.equal(f.builder.roll.targetAdversary.rank, 3);
   f.user.targets.clear();

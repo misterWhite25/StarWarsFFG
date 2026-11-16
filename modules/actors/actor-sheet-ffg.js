@@ -1,3 +1,7 @@
+import {actorSheetData,actorSheetContext} from '../helpers/actor-sheet-data.mjs';
+import {enrichedSheetText} from '../helpers/sheet-text-cache.mjs';
+import {rollContext} from '../helpers/roll-context.mjs';
+import {actorItemDescriptions} from '../helpers/item-view-data.mjs';
 import {resolveCrewActor} from '../helpers/integrated-crew.mjs';
 import {isHomesteadType,actorSheetType} from '../helpers/actor-types.mjs';
 import {crewRoleDefinitions,crewRoleDefinition,crewRolesForSkill} from "../helpers/crew-role-definitions.mjs";
@@ -237,11 +241,11 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
   /** @override */
   async getData(options) {
-    const data = await super.getData();
+    const data = actorSheetContext(this);
     data.classType = this.constructor.name;
 
-    // Compatibility for Foundry 0.8.x with backwards compatibility (hopefully) for 0.7.x
-    const actorData = this.actor.toObject(false);
+    // Editable actor fields and read-only inventory records avoid copying embedded trees.
+    const actorData = actorSheetData(this.actor);
     // Edit only a display copy of the base data. Never suspend effects on a client.
     if (this._manualEditMode) {
       for (const key of ["characteristics", "skills", "stats"]) {
@@ -259,9 +263,9 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
     data.token = this.token;
     data.items = this.actor.items;
-    await Promise.all(data.items.map(async item => {
-      item.system.renderedDesc = await PopoutEditor.renderDiceImages(item.system.description, this.actor);
-    }));
+    data.itemDescriptions = this.actor.type === 'character' && !this._ffgCombatMode
+      ? await actorItemDescriptions(data.items, this.actor, (description, actor) => PopoutEditor.renderDiceImages(description, actor))
+      : {};
 
     if (options?.action === "update" && this.object.compendium) {
       data.item = foundry.utils.mergeObject(data.actor, options.data);
@@ -307,9 +311,9 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         if (data.data.stats.credits?.value > 999) {
           data.data.stats.credits.value = data.data.stats.credits.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
-        data.data.enrichedBio = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.biography, {secrets: !data.limited});
-        data.data.general.enrichedNotes = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.general?.notes) || "";
-        data.data.general.enrichedFeatures = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.general?.features) || "";
+        data.data.enrichedBio = this._ffgCombatMode&&!data.limited?'':await enrichedSheetText(this.actor,this.actor.system.biography,{secrets:!data.limited});
+        data.data.general.enrichedNotes = this._ffgCombatMode&&!data.limited?'':await enrichedSheetText(this.actor,this.actor.system.general?.notes) || "";
+        data.data.general.enrichedFeatures = this._ffgCombatMode&&!data.limited?'':await enrichedSheetText(this.actor,this.actor.system.general?.features) || "";
         data.maxAttribute = game.settings.get("starwarsffg", "maxAttribute");
         data.obligationItems = {
           obligations: data.items.filter(i => i.system?.type === "obligation"),
@@ -318,7 +322,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         };
         break;
       case "vehicle": {
-        data.data.enrichedBio = await foundry.applications.ux.TextEditor.enrichHTML(this.actor.system.biography);
+        data.data.enrichedBio = this._ffgCombatMode?'':await enrichedSheetText(this.actor,this.actor.system.biography);
         // add the crew to the items of the vehicle
         data.crew = [];
         // look up the flag data
@@ -621,11 +625,11 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
     html.find(".xp.purchase").click(async (ev) => {
       const purchaseId = $(ev.currentTarget).children("a").data("id");
-      await this._refundPurchase(purchaseId, "purchase")
+      await this._refundPurchase(purchaseId)
     });
     html.find(".xp.adjusted").click(async (ev) => {
       const purchaseId = $(ev.currentTarget).children("a").data("id");
-      await this._refundPurchase(purchaseId, "adjustment")
+      await this._refundPurchase(purchaseId)
     });
 
     // Send Item Details to chat.
@@ -653,7 +657,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         }
         const forcedice = this.actor.system.stats.forcePool.max - this.actor.system.stats.forcePool.value;
         if (forcedice > 0) {
-          let sheet = await this.getData();
+          const sheet = rollContext(this.actor,{token:this.token});
           const dicePool = new DicePoolFFG({
             force: forcedice,
           });
@@ -1003,7 +1007,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       }
       const forcedice = this.actor.system.stats.forcePool.max - this.actor.system.stats.forcePool.value;
       if (forcedice > 0) {
-        let sheet = await this.getData();
+        const sheet = rollContext(this.actor,{token:this.token});
         const dicePool = new DicePoolFFG({
           force: forcedice,
         });
@@ -1320,7 +1324,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
       let data = event.currentTarget.dataset;
       if (data) {
-        let sheet = await this.getData();
+        const sheet = rollContext(this.actor,{token:this.token});
         let skill = sheet.data.skills[data["skill"]];
         let characteristic = sheet.data.characteristics[skill.characteristic];
         let difficulty = data["difficulty"];
@@ -1501,9 +1505,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     const crewSheet = crewActor?.sheet;
     if (!crewSheet) return ui.notifications.warn(game.i18n.localize("SWFFG.Crew.Actor.Removed"));
     if (crewActor._integratedCrew && !game.user.isGM) return ui.notifications.warn(game.i18n.localize("SWFFG.WeaponCrew.NoCrew"));
-    const crewData = await crewSheet.getData();
-    crewData.document = crewActor;
-    crewData.documentUuid = crewActor.uuid;
+    const crewData = rollContext(crewActor);
     const crew = {name: this.actor.name, img: this.actor.img, crew_card: true, role: current.role};
     // create the starting pool
     let pool = new DicePoolFFG(starting_pool);
@@ -1884,10 +1886,9 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
    * Locates and deletes the Active Effect for a purchased upgrade (e.g., a skill rank)
    * Using this function deletes the AE and generates a lot event for the refund. It does not notify the GM
    * @param purchaseId - ID of the Active Effect created for the purchase. Tracked in the log, if you need to find it
-   * @param mode - the mode of operation: a purchase or an adjustment
    * @returns {Promise<void>}
    */
-  async _refundPurchase(purchaseId, mode) {
+  async _refundPurchase(purchaseId) {
     
     const purchasedEffect = this.object.getEmbeddedCollection("ActiveEffect").find(ae => ae.name.includes(purchaseId));
     if (purchasedEffect) {

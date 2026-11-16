@@ -82,8 +82,7 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
       headerCloseButton.parentNode.insertBefore(debugSpan, headerCloseButton);
     }
 
-    // Use a short timeout to ensure all async DOM updates are complete before positioning
-    setTimeout(this.setPosition.bind(this), 50);
+    // ApplicationV2 positions the completed render; no delayed work may outlive closing.
   }
 
   _importLog = [];

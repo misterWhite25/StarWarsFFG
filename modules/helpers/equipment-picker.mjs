@@ -1,3 +1,4 @@
+import {DocumentAsyncCache} from './document-async-cache.mjs';
 import {medicalItemType} from './medical-item-type.mjs';
 import {possessionData} from './inventory-location.js';
 
@@ -23,15 +24,27 @@ const allowed=sheet=>sheet.rendered&&sheet.isEditable&&sheet.actor.isOwner&&shee
 export function equipmentPack(){const pack=game.packs.get(packId);return game.modules.get(moduleId)?.active&&pack?.documentName==='Item'&&pack.testUserPermission(game.user,'OBSERVER')?pack:null;}
 function guard(sheet){if(!allowed(sheet))throw Error(game.i18n.localize("SWFFG.UI.Equipment.SheetCannotReceiveEquipment"));}
 function matchesType(type,filter,stored){return types.has(type)&&(!stored||storedTypes.has(type))&&(filter==='all'||type===filter);}
+const catalogues=new DocumentAsyncCache(4);
+export function invalidateEquipmentEntries(pack){catalogues.invalidate(pack);}
+if(globalThis.Hooks){
+ for(const event of ['createItem','updateItem','deleteItem'])Hooks.on(event,item=>{if(item.pack){const pack=game.packs.get(item.pack);if(pack)invalidateEquipmentEntries(pack);}});
+ for(const event of ['updateCompendium','deleteCompendium','updateUser'])Hooks.on(event,()=>invalidateEquipmentEntries());
+}
 export async function equipmentEntries(){
  const pack=equipmentPack();if(!pack)throw Error(game.i18n.localize("SWFFG.UI.Equipment.EquipmentPackUnavailable"));
- const index=await pack.getIndex({fields:['type','img']});let bilingual=[];
- try{const response=await fetch('modules/'+moduleId+'/catalogue-index.json',{cache:'no-cache'});if(response.ok)bilingual=await response.json();}catch { /* Translations are optional; retain pack names when the bilingual index cannot be read. */ }
- const names=new Map(bilingual.filter(row=>row.uuid?.startsWith('Compendium.'+packId+'.Item.')).map(row=>[row.uuid.split('.').at(-1),row.names]));
- return Array.from(index).filter(row=>types.has(row.type)).map(row=>{
-  const translations=names.get(row._id),name=translations?.[game.i18n.lang==='fr'?'fr':'en']||row.name;
-  return {id:row._id,type:row.type,img:row.img,name,search:normalize([row.name,translations?.fr,translations?.en,label(row.type)].filter(Boolean).join(' '))};
- }).sort((a,b)=>a.name.localeCompare(b.name,game.i18n.lang,{numeric:true,sensitivity:'base'}));
+ const language=game.i18n.lang;
+ return catalogues.get(pack,language,async()=>{
+  const [index,bilingual]=await Promise.all([
+   pack.getIndex({fields:['type','img']}),
+   fetch('modules/'+moduleId+'/catalogue-index.json',{cache:'no-cache'}).then(response=>response.ok?response.json():null).catch(()=>null)
+  ]);
+  const names=new Map((bilingual??[]).filter(row=>row.uuid?.startsWith('Compendium.'+packId+'.Item.')).map(row=>[row.uuid.split('.').at(-1),row.names]));
+  if(bilingual===null)catalogues.invalidate(pack);
+  return Array.from(index).filter(row=>types.has(row.type)).map(row=>{
+   const translations=names.get(row._id),name=translations?.[language==='fr'?'fr':'en']||row.name;
+   return {id:row._id,type:row.type,img:row.img,name,search:normalize([row.name,translations?.fr,translations?.en,label(row.type)].filter(Boolean).join(' '))};
+  }).sort((a,b)=>a.name.localeCompare(b.name,language,{numeric:true,sensitivity:'base'}));
+ });
 }
 export function addEquipmentFromPack(sheet,id,{type='all',stored=false,quantity=1}={}){
  const key=sheet.actor.uuid,previous=queues.get(key)??Promise.resolve();

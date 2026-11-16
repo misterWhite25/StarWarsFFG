@@ -230,7 +230,7 @@ export function registerBoard(refresh, report,services={}) {
   Hooks.on("userConnected",migrate);
   const sync=()=>serialize(syncInitiative).catch(report);
   Hooks.once("ready",sync);
-  for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant","renderCombatTracker"])Hooks.on(hook,sync);
+  for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant"])Hooks.on(hook,sync);
   Hooks.on("createChatMessage",(message,_options,author)=>{
     if(game.users.activeGM?.id!==game.user.id||message.author?.id!==author)return;
     const roll=message.rolls?.find(roll=>roll.data?.flags?.starwarsffg?.spaceCombatRoll);
