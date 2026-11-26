@@ -15,6 +15,7 @@ export default class TemplateHelpers {
       "systems/starwarsffg/templates/parts/actor/ffg-vehicle-cargo.html",
       "systems/starwarsffg/templates/parts/actor/ffg-vehicle-crew.html",
       "systems/starwarsffg/templates/parts/actor/ffg-homestead-upgrades.html",
+      "systems/starwarsffg/templates/parts/actor/ffg-plan-gallery.html",
       "systems/starwarsffg/templates/parts/actor/ffg-homestead-storage.html",
       "systems/starwarsffg/templates/parts/actor/ffg-talents.html",
       "systems/starwarsffg/templates/parts/actor/ffg-abilities.html",

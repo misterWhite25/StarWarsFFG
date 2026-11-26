@@ -15,16 +15,25 @@ for(const lang of ['en','fr']) {
     const node=()=>({attributes:{},append(){},setAttribute(name,value){this.attributes[name]=value;},addEventListener(){}});
     const context=vm.createContext({game:{i18n},document:{createElement:node},foundry:{applications:{sheets:{ActorSheetV2:Base},api:{HandlebarsApplicationMixin:C=>C}}}});
     const {ActorSheetFFGV2}= (await loadSystemModule('actors/actor-sheet-ffg-v2.js',context,{...sheetUiBoundaries,'actors/actor-sheet-ffg.js':{ActorSheetFFG:class{}}})).namespace;
-    const sheet=Object.create(ActorSheetFFGV2.prototype);sheet.actor={type:'character',flags:{}};sheet.options={};
+    const sheet=Object.create(ActorSheetFFGV2.prototype);sheet.actor={type:'character',flags:{},testUserPermission:(_user, level)=>level==='OBSERVER'};sheet.options={};
     const controls=sheet._getHeaderControls();
     assert.equal(controls.find(control=>control.action==='ffgCalculationDetails').label,lang==='en'?'Calculation details':'Détail des calculs');
     assert.equal(controls.find(control=>control.action==='ffgCreationGuide').label,lang==='en'?'Creation and XP':'Création et XP');
+    const creation = controls.findIndex(control=>control.action==='ffgCreationGuide');
+    assert.equal(controls[creation+1].action,'ffgExportPdf');
+    assert.equal(controls[creation+1].label,i18n.localize('SWFFG.UI.Pdf.Export'));
+    sheet.actor.limited=true;
+    assert.ok(!sheet._getHeaderControls().some(control=>control.action==='ffgExportPdf'));
+    sheet.actor.limited=false;
     sheet.actor.type='vehicle';
+    sheet.actor.system={stats:{silhouette:{value:3}}};
+    assert.ok(!sheet._getHeaderControls().some(control=>control.action==='ffgVehiclePlanSettings'));
+    sheet.actor.system.stats.silhouette.value=4;
     assert.equal(sheet._getHeaderControls().find(control=>control.action==='ffgVehiclePlanSettings').label,lang==='en'?'Configure interior plan':'Configurer le plan intérieur');
     sheet.actor.type='character';
     const sidebar={querySelectorAll:()=>[],append:button=>buttons.push(button)};
     sheet._prepareSidebar({querySelector:()=>sidebar});
-    assert.deepEqual(buttons.map(button=>button.title),lang==='en'?['Talent summary','Trigger a talent','Equipment summary']:['Récapitulatif des talents','Déclencher un talent','Récapitulatif de l’équipement']);
+    assert.deepEqual(buttons.map(button=>button.title),lang==='en'?['Talent summary','Trigger a talent']:['Récapitulatif des talents','Déclencher un talent']);
     assert.ok(buttons.every(button=>button.type==='button'&&button.attributes['aria-label']===button.title));
   });
 

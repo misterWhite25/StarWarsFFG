@@ -245,6 +245,7 @@ export class ItemFFG extends ItemBaseFFG {
 
   /** Keep copied and updated equipment effects aligned with the saved equip state. */
   async _syncEquippedEffects() {
+    if (this.type === "gear") return;
     // Vehicle components are installed directly; their sheet has no equip toggle.
     const equipped = this.actor?.type === "vehicle" || !!this.system.equippable.equipped;
     const effects = this.getEmbeddedCollection("ActiveEffect");

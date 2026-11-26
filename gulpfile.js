@@ -1,17 +1,10 @@
 const gulp = require('gulp');
 const prefix = require('gulp-autoprefixer');
-const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass')(require('sass'));
 
 /* ----------------------------------------- */
 /*  Compile Sass
 /* ----------------------------------------- */
-
-// Small error handler helper function.
-function handleError(err) {
-  console.log(err.toString());
-  this.emit('end');
-}
 
 const SYSTEM_SCSS = ["scss/**/*.scss"];
 function compileScss() {
@@ -19,11 +12,8 @@ function compileScss() {
   let options = {
     outputStyle: 'expanded'
   };
-  return gulp.src(SYSTEM_SCSS)
-    .pipe(
-      sass(options)
-        .on('error', handleError)
-    )
+  return gulp.src("scss/starwarsffg.scss")
+    .pipe(sass(options))
     .pipe(prefix({
       cascade: false
     }))

@@ -1,8 +1,10 @@
+import {updateWizardPreview} from "./wizard-preview.mjs";
+import {forcePowerPurchaseOptions} from "./force-power-purchases.mjs";
 import { LegacyDialogV2 } from "../applications/legacy-dialog-v2.js";
 import EffectHelpers from "./effects.js";
 import {xpLogEarn, xpLogSpend} from "./actor-helpers.js";
 import DiceHelpers from "./dice-helpers.js";
-import {sortDataBy, addIfNotExist} from "../actors/actor-sheet-ffg.js";
+import {sortDataBy} from "../actors/actor-sheet-ffg.js";
 
 const wizardTableLanguage = () => ({
   emptyTable: game.i18n.localize("SWFFG.UI.Actor.WizardTable.emptyTable"),
@@ -207,14 +209,33 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       ui.notifications.error(game.i18n.localize("SWFFG.CharacterCreator.Checks.GM"));
       return this.close();
     }
-    // configure socket events
-    game.socket.on("system.starwarsffg", async (...args) => {
-      if (args[0]?.eventType === "pcWizard" && args[0]?.event === "createCharacterResponse") {
-        await this.showCharacterStatus(args[0].actorId);
-      } else if (args[0]?.eventType === "pcWizard" && args[0]?.event === "createFinalActorResponse") {
-        await this.createActor(args[0].actorId);
+    this._wizardSocketHandler = async (message, senderId) => {
+      if (message?.eventType !== "pcWizard" || senderId !== game.users.activeGM?.id ||
+          message.recipient !== game.user.id || message.wizardId !== this._wizardSession) return;
+      if (message.event === "createCharacterResponse" && this._previewRequest && message.requestId === this._previewRequest) {
+        this._previewRequest = null;
+        await this.showCharacterStatus(message.actorId);
+      } else if (message.event === "createFinalActorResponse" && this._finalRequest && message.requestId === this._finalRequest) {
+        this._finalRequest = null;
+        await this.createActor(message.actorId);
       }
-    });
+    };
+    game.socket.on("system.starwarsffg", this._wizardSocketHandler);
+  }
+
+  async close(options) {
+    const result = await super.close(options);
+    if (!this.rendered && this._wizardSocketHandler) {
+      game.socket.off("system.starwarsffg", this._wizardSocketHandler);
+      this._wizardSocketHandler = null;
+      if (this._wizardSession) {
+        if (game.user.isGM) await updateWizardPreview(game.user, this._wizardSession, true);
+        else game.socket.emit("system.starwarsffg", {
+          eventType: "pcWizard", event: "deleteCharacter", wizardId: this._wizardSession,
+        });
+      }
+    }
+    return result;
   }
 
   _speciesWizardAPI() {
@@ -628,7 +649,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     let combinedPurchases = {};
     if (this.tempActor) {
       combinedPurchases = Object.fromEntries(
-        Object.keys(this.tempActor.system.skills).map(key => [key.replace(" ", " "), 0])
+        Object.keys(this.tempActor.system.skills).map(key => [key.replace(" ", "\u00a0"), 0])
       ); // default to 0 as 0 is not > undefined (for use in the template)
     }
     const careerPurchases = {};
@@ -673,14 +694,6 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
 
   /** @override */
   async _preparePartContext(partId, context, _options) {
-    // TODO: is this needed? valuable?
-    switch (partId) {
-      case 'rules':
-      case 'another_tab':
-        context.tab = context.tabs[partId];
-        break;
-      default:
-    }
     context.tab = context.tabs[partId];
     return context;
   }
@@ -1098,7 +1111,12 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     if (!selectedSpecialization) {
       return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardSpecializationNotFound"));
     }
-    this.data.selected.specialization = selectedSpecialization;
+    const previous = this.data.selected.specialization;
+    if (previous?.uuid === selectedSpecialization.uuid) return;
+    if (previous) {
+      this.data.purchases.xp.talents = this.data.purchases.xp.talents.filter(purchase => purchase.specName !== previous.name);
+    }
+    this.data.selected.specialization = selectedSpecialization.clone({}, {keepId: true});
     this.data.selected.specializationCareerSkillRanks = [];
     await this.showCharacterStatusShim();
   }
@@ -1109,27 +1127,33 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
    */
   async showCharacterStatusShim() {
     this._steelersSpeciesPreviewPending = true;
+    this._wizardSession ??= foundry.utils.randomID();
     if (game.user.isGM) {
-      // temporary: delete previous copies of the actor
-      const existingActor = game.actors.getName(`temp actor - ${game.user.name}`);
-      if (existingActor) {
-        await existingActor.delete();
-      }
-      // temporary: create a new actor to add stuff to
-      const tempActor = await Actor.create(
-        {
-          name: `temp actor - ${game.user.name}`,
-          type: "character",
-          displaySheet: false,
-        },
-      );
+      const tempActor = await updateWizardPreview(game.user, this._wizardSession);
       await this.showCharacterStatus(tempActor.id);
     } else {
+      this._previewRequest = foundry.utils.randomID();
       game.socket.emit("system.starwarsffg", {
         eventType: "pcWizard",
         event: "createCharacterRequest",
+        wizardId: this._wizardSession,
+        requestId: this._previewRequest,
       });
     }
+  }
+
+  _creationItems() {
+    const {selected, purchases} = this.data;
+    return [
+      ...Object.values(selected.background),
+      ...selected.obligations,
+      selected.species,
+      selected.career,
+      selected.specialization,
+      ...purchases.xp.specializations.map(purchase => purchase.item),
+      ...purchases.xp.forcePowers.map(purchase => purchase.item),
+      ...selected.motivations.map(choice => choice.item),
+    ].filter(item => item?.uuid);
   }
 
   async showCharacterStatus(actorId) {
@@ -1165,42 +1189,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       await tempActor.update({[updateKey]: newValue})
     }
 
-    // add items to the actor
-    const items = [];
-    // the various item types are in slightly different formats, so let's add them explicitly
-    // backgrounds
-    for (const backKey of Object.keys(this.data.selected.background)) {
-      if (this.data.selected.background[backKey]?.uuid) {
-        items.push(this.data.selected.background[backKey]);
-      }
-    }
-    // obligations
-    for (const item of this.data.selected.obligations) {
-      if (item?.uuid) {
-        items.push(item);
-      }
-    }
-    // species
-    if (this.data.selected.species?.uuid) {
-      items.push(this.data.selected.species);
-    }
-    // career (skill ranks are later)
-    if (this.data.selected.career?.uuid) {
-      items.push(this.data.selected.career);
-    }
-    // specialization (skill ranks are later)
-    if (this.data.selected.specialization?.uuid) {
-      items.push(this.data.selected.specialization);
-    }
-    // motivations
-    for (const item of this.data.selected.motivations) {
-      if (item?.uuid) {
-        items.push(item);
-      }
-    }
-    
-    
-    await tempActor.createEmbeddedDocuments("Item", items);
+    await tempActor.createEmbeddedDocuments("Item", this._creationItems());
 
     // apply career skill ranks from career and specialization
     const careerItem = tempActor.items.find(i => i.type === "career");
@@ -1277,7 +1266,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       const purchaseIndex = this.data.purchases.xp.characteristics.findIndex(function(purchase) {
         return purchase.key === characteristic && purchase.value === curValue;
       });
-      this.data.purchases.xp.characteristics.splice(purchaseIndex, 1);
+      if (purchaseIndex >= 0) this.data.purchases.xp.characteristics.splice(purchaseIndex, 1);
     }
     // rebuild the actor to apply the changes
     await this.showCharacterStatusShim();
@@ -1285,7 +1274,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
 
   async handleSkillModify(event) {
     const target = $(event.currentTarget);
-    const skill = target.data("target").replace(" ", " ");
+    const skill = target.data("target").replace("\u00a0", " ");
     const direction = target.data("direction");
     const curValue = target.data("value");
     const skillMode = target.data("mode");
@@ -1297,7 +1286,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         const purchaseIndex = this.data.selected.careerCareerSkillRanks.findIndex(function (purchase) {
           return purchase === skill;
         });
-        this.data.selected.careerCareerSkillRanks.splice(purchaseIndex, 1);
+        if (purchaseIndex >= 0) this.data.selected.careerCareerSkillRanks.splice(purchaseIndex, 1);
       }
     } else if (skillMode === "specialization") {
       if (direction === "increase") {
@@ -1306,7 +1295,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         const purchaseIndex = this.data.selected.specializationCareerSkillRanks.findIndex(function (purchase) {
           return purchase === skill;
         });
-        this.data.selected.specializationCareerSkillRanks.splice(purchaseIndex, 1);
+        if (purchaseIndex >= 0) this.data.selected.specializationCareerSkillRanks.splice(purchaseIndex, 1);
       }
     } else {
       if (direction === "increase") {
@@ -1326,7 +1315,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         const purchaseIndex = this.data.purchases.xp.skills.findIndex(function (purchase) {
           return purchase.key === skill && purchase.value === curValue;
         });
-        this.data.purchases.xp.skills.splice(purchaseIndex, 1);
+        if (purchaseIndex >= 0) this.data.purchases.xp.skills.splice(purchaseIndex, 1);
       }
     }
     // rebuild the actor to apply the changes
@@ -1352,7 +1341,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
         if (!pack) {
           continue;
         }
-        const items = await pack.getDocuments();
+        const items = await pack.getDocuments({type__in:["specialization"]});
         for (const item of items) {
           if (!inCareerNames.includes(item.name) && item.system.universal) {
             universal.push({
@@ -1371,7 +1360,8 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       }
       outCareer = sortDataBy(outCareer, "name");
       universal = sortDataBy(universal, "name");
-      const baseCost = (this.data.purchases.xp.specializations.length + 1) * 10;
+      const ownedCount = this.data.purchases.xp.specializations.length + (this.data.selected.specialization ? 1 : 0);
+      const baseCost = (ownedCount + 1) * 10;
       const increasedCost = baseCost + 10;
       if (baseCost > availableXP) {
         return ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
@@ -1388,44 +1378,13 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async handleForcePowerPurchase(_event) {
-    const groups = [];
+    const choices = await forcePowerPurchaseOptions();
     const template = "systems/starwarsffg/templates/dialogs/ffg-confirm-purchase.html";
-    const sources = game.settings.get("starwarsffg", "forcePowerCompendiums").split(",");
-      let selectableItems = [];
-      const worldItems = game.items.filter(i => i.type === "forcepower");
-      for (const worldItem of worldItems) {
-        selectableItems.push({
-          name: worldItem.name,
-          id: worldItem.id,
-          source: worldItem.uuid,
-          cost: worldItem.system.base_cost,
-          requiredForceRating: parseInt(worldItem.system.required_force_rating),
-        });
-        addIfNotExist(groups, parseInt(worldItem.system.required_force_rating));
-      }
-      for (const source of sources) {
-        const pack = game.packs.get(source);
-        if (!pack) {
-          continue;
-        }
-        const items = await pack.getDocuments();
-        for (const item of items) {
-          selectableItems.push({
-            name: item.name,
-            id: item.id,
-            source: item.uuid,
-            cost: item.system.base_cost,
-            requiredForceRating: parseInt(item.system.required_force_rating),
-          });
-          addIfNotExist(groups, parseInt(item.system.required_force_rating));
-        }
-      }
-      selectableItems = sortDataBy(selectableItems, "name");
-      const itemType = game.i18n.localize("TYPES.Item.forcepower");
-      groups.sort();
-      const content = await foundry.applications.handlebars.renderTemplate(template, { selectableItems, itemType: itemType, itemCategory: "forcepower", groups: groups });
-      // actually show the purchase menu
-      await this.showPurchaseConfirmation("forcePowers", content)
+    const itemType = game.i18n.localize("TYPES.Item.forcepower");
+    const content = await foundry.applications.handlebars.renderTemplate(template, {
+      ...choices, itemType, itemCategory:"forcepower"
+    });
+    await this.showPurchaseConfirmation("forcePowers", content);
   }
 
   async handleRemoveSpecialization(event) {
@@ -1487,7 +1446,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const wasLearned = parentForcePower.system.upgrades[upgrade]?.islearned || false
     const cost = target.data("cost");
 
-    parentForcePower.system.upgrades[upgrade].islearned = !wasLearned;
+    parentForcePower.updateSource({[`system.upgrades.${upgrade}.islearned`]: !wasLearned});
 
     if (!wasLearned) {
       this.data.purchases.xp.talents.push({
@@ -1497,9 +1456,9 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       });
     } else {
       const purchaseIndex = this.data.purchases.xp.talents.findIndex(function(purchase) {
-        return purchase.key === upgrade && purchase.specName === parentForcePower;
+        return purchase.key === upgrade && purchase.specName === forcePowerName;
       });
-      this.data.purchases.xp.talents.splice(purchaseIndex, 1);
+      if (purchaseIndex >= 0) this.data.purchases.xp.talents.splice(purchaseIndex, 1);
     }
 
     // rebuild the actor to apply the changes
@@ -1514,14 +1473,14 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     let wasLearned;
     if (specializationName === this.data.selected.specialization?.name) {
       wasLearned = this.data.selected.specialization?.system?.talents[talent]?.islearned || false;
-      this.data.selected.specialization.system.talents[talent].islearned = !wasLearned;
+      this.data.selected.specialization.updateSource({[`system.talents.${talent}.islearned`]: !wasLearned});
     } else {
       const parentSpec = this.data.purchases.xp.specializations.find(s => s.item.name === specializationName)?.item;
       if (!parentSpec) {
         return ui.notifications.warn(game.i18n.format("SWFFG.UI.Actor.WizardTalentSpecializationNotFound", {specialization: specializationName, talent}));
       }
       wasLearned = parentSpec.system.talents[talent]?.islearned || false;
-      parentSpec.system.talents[talent].islearned = !wasLearned;
+      parentSpec.updateSource({[`system.talents.${talent}.islearned`]: !wasLearned});
     }
 
     if (!wasLearned) {
@@ -1534,7 +1493,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       const purchaseIndex = this.data.purchases.xp.talents.findIndex(function(purchase) {
         return purchase.key === talent && purchase.specName === specializationName;
       });
-      this.data.purchases.xp.talents.splice(purchaseIndex, 1);
+      if (purchaseIndex >= 0) this.data.purchases.xp.talents.splice(purchaseIndex, 1);
     }
 
     // rebuild the actor to apply the changes
@@ -1552,19 +1511,20 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
             label: game.i18n.localize("SWFFG.Actors.Sheets.Purchase.ConfirmPurchase"),
             callback: async (purchaseWindow) => {
               
-              const cost = $("#ffgPurchase option:selected", purchaseWindow).data("cost");
-              const selectedUuid = $("#ffgPurchase option:selected", purchaseWindow).data("source");
-
-              
-
+              const option = $("#ffgPurchase option:selected", purchaseWindow);
+              const selectedUuid = option.data("source");
+              if (!selectedUuid) return;
               const selectedItem = await fromUuid(selectedUuid);
               if (!selectedItem) {
-                ui.notifications.warn(game.i18n.localize("SWFFG.UI.Actor.WizardPurchasedSpecializationNotFound"));
-                return;
+                return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Item.NotFound"));
+              }
+              const cost = Number(option.data("cost"));
+              if (!Number.isSafeInteger(cost) || cost < 0 || cost > this.calcXp().available) {
+                return ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
               }
               this.data.purchases.xp[itemType].push({
-                item: selectedItem,
-                cost: cost,
+                item: selectedItem.clone({}, {keepId: true}),
+                cost,
               });
               // rebuild the actor to apply the changes
               await this.showCharacterStatusShim();
@@ -1747,9 +1707,13 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       );
       await this.createActor(finalActor.id);
     } else {
+      this._wizardSession ??= foundry.utils.randomID();
+      this._finalRequest = foundry.utils.randomID();
       game.socket.emit("system.starwarsffg", {
         eventType: "pcWizard",
         event: "createFinalActorRequest",
+        wizardId: this._wizardSession,
+        requestId: this._finalRequest,
       });
     }
   }
@@ -1788,42 +1752,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       await newActor.update({[updateKey]: newValue})
     }
 
-    // add actor items to the actor
-    const items = [];
-    // the various item types are in slightly different formats, so let's add them explicitly
-    // backgrounds
-    for (const backKey of Object.keys(this.data.selected.background)) {
-      if (this.data.selected.background[backKey]?.uuid) {
-        items.push(this.data.selected.background[backKey]);
-      }
-    }
-    // obligations
-    for (const item of this.data.selected.obligations) {
-      if (item?.uuid) {
-        items.push(item);
-      }
-    }
-    // species
-    if (this.data.selected.species?.uuid) {
-      items.push(this.data.selected.species);
-    }
-    // career (skill ranks are later)
-    if (this.data.selected.career?.uuid) {
-      items.push(this.data.selected.career);
-    }
-    // specialization (skill ranks are later)
-    if (this.data.selected.specialization?.uuid) {
-      items.push(this.data.selected.specialization);
-    }
-    // motivations
-    for (const item of this.data.selected.motivations) {
-      if (item?.item?.uuid) {
-        items.push(item);
-      }
-    }
-
-    
-    await newActor.createEmbeddedDocuments("Item", items);
+    await newActor.createEmbeddedDocuments("Item", this._creationItems());
 
     // apply credit purchases
     const credits = await this.calcCredits();

@@ -96,6 +96,13 @@
           </fieldset>
 
           <div class="ship-weapon-panel">
+            <label class="ship-weapon-anti-fighter" title="{{localize 'SWFFG.ShipWeapon.AntiFighterHint'}}">
+              <input type="checkbox" name="flags.starwarsffg.antiFighter" {{checked item.flags.starwarsffg.antiFighter}} />
+              {{localize "SWFFG.ShipWeapon.AntiFighter"}}
+            </label>
+          </div>
+
+          <div class="ship-weapon-panel">
             <label style="display:flex;align-items:center;gap:6px;">
               <input type="checkbox" name="flags.starwarsffg.config.enableAmmo" {{checked item.flags.starwarsffg.config.enableAmmo}} />
               {{localize "SWFFG.Ammo"}}

@@ -1,3 +1,4 @@
+import {forcePowerPurchaseOptions} from "../helpers/force-power-purchases.mjs";
 import {actorSheetData,actorSheetContext} from '../helpers/actor-sheet-data.mjs';
 import {enrichedSheetText} from '../helpers/sheet-text-cache.mjs';
 import {rollContext} from '../helpers/roll-context.mjs';
@@ -2272,7 +2273,6 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     const template = "systems/starwarsffg/templates/dialogs/ffg-confirm-purchase.html";
     let content;
     const availableXP = this.object.system.experience.available;
-    const totalXP = this.object.system.experience.total;
     let itemType;
     const groups = [];
     if (action === "specialization") {
@@ -2290,7 +2290,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         if (!pack) {
           continue;
         }
-        const items = await pack.getDocuments();
+        const items = await pack.getDocuments({type__in:["specialization"]});
         for (const item of items) {
           if (!inCareerNames.includes(item.name) && item.system.universal) {
             universal.push({
@@ -2323,8 +2323,13 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       groups.push("Out of Career");
       content = await foundry.applications.handlebars.renderTemplate(template, { inCareer, outCareer, universal, baseCost, increasedCost, itemType: itemType, itemCategory: "specialization", groups: groups });
     } else if (action === "signatureability") {
+      const career = this.object.items.find(item => item.type === "career");
+      if (!career) {
+        ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.CareerNotSet"));
+        return;
+      }
       const sources = game.settings.get("starwarsffg", "signatureAbilityCompendiums").split(",");
-      const rawSelectableItems =  this.object.items.find(i => i.type === "career").system.signatureabilities;
+      const rawSelectableItems = career.system.signatureabilities ?? {};
       const sigAbilityNames = Object.values(rawSelectableItems).map(i => i.name);
       let selectableItems = [];
       // pull items out of the world
@@ -2346,7 +2351,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         if (!pack) {
           continue;
         }
-        const items = await pack.getDocuments();
+        const items = await pack.getDocuments({type__in:["signatureability"]});
         for (const item of items) {
           if (sigAbilityNames.includes(item.name)) {
             selectableItems.push({
@@ -2364,14 +2369,9 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       }
       // filter purchasable signature abilities to those where the required specialization upgrades have been purchased
       // filter specializations to those within the career
-      const career = this.object.items.find(i => i.type === "career");
-      if (!career) {
-        ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.CareerNotSet"));
-        return;
-      }
-      const permittedSpecializations = Object.values(career.system.specializations).map(i => i.name);
+      const permittedSpecializations = Object.values(career.system.specializations ?? {}).map(i => i.name);
       const matchingSpecializations = this.object.items.filter(i => i.type === "specialization" && permittedSpecializations.includes(i.name));
-      if (!matchingSpecializations) {
+      if (!matchingSpecializations.length) {
         ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.Career.Specializations.NotSet"));
         return;
       }
@@ -2385,7 +2385,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           match = true;
           for (let i = 0; i < 4; i++) {
             // if the upgrade is required, and we don't have it learned, this is not a match
-            if (fullItem.system.uplink_nodes[`uplink${i}`] && !specialization.system.talents[`talent${i + 16}`].islearned) {
+            if (fullItem.system.uplink_nodes[`uplink${i}`] && !specialization.system.talents?.[`talent${i + 16}`]?.islearned) {
               match = false;
               break;
             }
@@ -2409,40 +2409,11 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       itemType = game.i18n.localize("TYPES.Item.signatureability");
       content = await foundry.applications.handlebars.renderTemplate(template, { selectableItems, itemType: itemType, itemCategory: "signatureability" });
     } else if (action === "forcepower") {
-      const sources = game.settings.get("starwarsffg", "forcePowerCompendiums").split(",");
-      let selectableItems = [];
-      const worldItems = game.items.filter(i => i.type === "forcepower");
-      for (const worldItem of worldItems) {
-        selectableItems.push({
-          name: worldItem.name,
-          id: worldItem.id,
-          source: worldItem.uuid,
-          cost: worldItem.system.base_cost,
-          requiredForceRating: parseInt(worldItem.system.required_force_rating),
-        });
-        addIfNotExist(groups, parseInt(worldItem.system.required_force_rating));
-      }
-      for (const source of sources) {
-        const pack = game.packs.get(source);
-        if (!pack) {
-          continue;
-        }
-        const items = await pack.getDocuments();
-        for (const item of items) {
-          selectableItems.push({
-            name: item.name,
-            id: item.id,
-            source: item.uuid,
-            cost: item.system.base_cost,
-            requiredForceRating: parseInt(item.system.required_force_rating),
-          });
-          addIfNotExist(groups, parseInt(item.system.required_force_rating));
-        }
-      }
-      selectableItems = sortDataBy(selectableItems, "name");
+      const choices = await forcePowerPurchaseOptions();
       itemType = game.i18n.localize("TYPES.Item.forcepower");
-      groups.sort();
-      content = await foundry.applications.handlebars.renderTemplate(template, { selectableItems, itemType: itemType, itemCategory: "forcepower", groups: groups });
+      content = await foundry.applications.handlebars.renderTemplate(template, {
+        ...choices, itemType, itemCategory:"forcepower"
+      });
     } else if (action === "talent") {
       const purchasedItems = this.object.talentList;
       const sources = game.settings.get("starwarsffg", "talentCompendiums").split(",");
@@ -2469,7 +2440,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
           continue;
         }
         let packItems = [];
-        const items = await pack.getDocuments();
+        const items = await pack.getDocuments({type__in:["talent"]});
         for (const item of items) {
           const purchasedItem = purchasedItems.find((pItem) => pItem.name === item.name)
           if(!purchasedItem || purchasedItem.isRanked) {
@@ -2509,17 +2480,20 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
             callback: async (that) => {
               if(!this.actor.verifyEditModeIsNotEnabled()) return;
 
-              const cost = $("#ffgPurchase option:selected", that).data("cost");
-              const selected_id = $("#ffgPurchase option:selected", that).data("id");
-              const selected_source = $("#ffgPurchase option:selected", that).data("source");
-              if (cost > availableXP) {
-                ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
-                return;
-              }
-              let purchasedItem = game.items.get(selected_id);
+              const option = $("#ffgPurchase option:selected", that);
+              const source = option.data("source");
+              if (!source) return;
+              const purchasedItem = await fromUuid(source);
               if (!purchasedItem) {
-                purchasedItem = await fromUuid(selected_source);
+                return ui.notifications.warn(game.i18n.localize("SWFFG.UI.Item.NotFound"));
               }
+              const cost = Number(option.data("cost"));
+              const experience = this.actor.system.experience;
+              if (!Number.isSafeInteger(cost) || cost < 0 || cost > experience.available) {
+                return ui.notifications.warn(game.i18n.localize("SWFFG.Actors.Sheets.Purchase.NotEnoughXP"));
+              }
+              const balance = experience.available - cost;
+              const totalXP = experience.total;
               if (purchasedItem.type === "forcepower") {
                 const currentForceRating = parseInt(this.actor.system.stats.forcePool.max);
                 const requiredForceRating = parseInt(purchasedItem.system.required_force_rating);
@@ -2528,19 +2502,16 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                   return;
                 }
               }
-              await this.object.createEmbeddedDocuments("Item", [purchasedItem]);
+              const created = await this.object.createEmbeddedDocuments("Item", [purchasedItem]);
+              if (!created.length) return;
               const AEState = await ActorHelpers.beginEditMode(this.actor, true);
-              const updatedAvailableXP = this.actor.system.experience.available;
-              // this does not use _spendXp as it's granting items, which AEs cannot reasonably do
-              await this.object.update({
-                system: {
-                  experience: {
-                    available: updatedAvailableXP - cost,
-                  },
-                },
-              });
-              await xpLogSpend(game.actors.get(this.object.id), `new ${action} ${purchasedItem.name}`, cost, availableXP - cost, totalXP, undefined);
-              await ActorHelpers.endEditMode(this.actor, AEState, true);
+              try {
+                const updatedAvailableXP = this.actor.system.experience.available;
+                await this.object.update({"system.experience.available": updatedAvailableXP - cost});
+                await xpLogSpend(this.actor, `new ${action} ${purchasedItem.name}`, cost, balance, totalXP);
+              } finally {
+                await ActorHelpers.endEditMode(this.actor, AEState, true);
+              }
             },
           },
           cancel: {
@@ -2865,20 +2836,4 @@ export function sortDataBy(data, byKey) {
     }
     return 0;
  });
-}
-
-/**
- * Add an element to an array only if it isn't already present in that array
- * @param array
- * @param element
- * @returns {*}
- */
-export function addIfNotExist(array, element) {
-  let index = array.indexOf(element);
-  // Check if the object with the specified property value exists in the array
-  if (index === -1) {
-    // If not found, push a new object with the desired properties
-    array.push(element);
-  }
-  return array;
 }

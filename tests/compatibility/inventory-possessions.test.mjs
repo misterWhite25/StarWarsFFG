@@ -22,6 +22,23 @@ const a={type:'character',flags:{starwarsffg:{automaticStats:{creationBrawn:3,cr
 let stats=calculateStats(a);assert.equal(stats.rows.find(r=>r.id==='soak').total,3);a.items[1].flags={};stats=calculateStats(a);assert.equal(stats.rows.find(r=>r.id==='soak').total,12);
 console.log('OK : copie sans mutation, trois types, quantités, mise en possession et reprise, exclusion des armes sélectionnables, équipement équipé, encombrement, effets transférés et armures dans les statistiques automatiques.');
 
+// Existing managed gear modifiers can be saved disabled, even on carried gear.
+const effectContext = vm.createContext({ActiveEffect: class { prepareDerivedData() {} }});
+const {namespace: {ActiveEffectFFG}} = await loadSystemModule('active-effects/active-effect-ffg.js', effectContext);
+const gear = {type: 'gear', actor: {}, system: {attributes: {charm: {value: 2}}}};
+const managed = Object.assign(new ActiveEffectFFG(), {parent: gear, name: 'charm', disabled: true});
+managed.prepareDerivedData();
+assert.equal(managed.disabled, false);
+gear.flags = {starwarsffg: {inventoryLocation: 'possession'}};
+managed.prepareDerivedData();
+assert.equal(managed.disabled, true);
+gear.flags = {};
+managed.prepareDerivedData();
+assert.equal(managed.disabled, false);
+const custom = Object.assign(new ActiveEffectFFG(), {parent: gear, name: 'Manual effect', disabled: true});
+custom.prepareDerivedData();
+assert.equal(custom.disabled, true);
+
 // Exercise the add command without writing to a Foundry world.
 let addHandler,choice,createdCalls=[],renders=0;
 const addControl={addEventListener:(_name,fn)=>addHandler=fn};

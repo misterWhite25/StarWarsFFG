@@ -1,5 +1,5 @@
 <section class="{{cssClass}} directory flexcol starwarsffg" id="{{cssId}}" data-tab="{{tabName}}">
-	<ol id="combat-tracker" class="directory-list">
+	<ol id="combat-tracker" class="combat-tracker directory-list">
 		{{#if (gt turnData.Friendly.length 0)}}
 		<div class="encounter-controls flexrow flex-center{{#if hasCombat}} combat{{/if}}">
 			<span class="actor-header">{{localize 'SWFFG.Combats.Actors.Friendly'}}</span>
@@ -74,7 +74,7 @@
 		{{/if}}
 		{{#each custom_turns}}
 			{{#if claimed}}
-				<li class="combatant actor directory-item flexrow {{css}}{{#if ../user.isGM}}{{/if}} slot-{{slotType}} claimed" data-combatant-id="{{id}}" data-alt-id="{{ combatantId }}" data-slot-index="{{@index}}" data-activation-id="{{activationId}}" data-disposition="{{slotType}}" data-initiative="{{initiative}}">
+				<li class="combatant actor directory-item flexrow {{css}} slot-{{slotType}} claimed" data-combatant-id="{{id}}" data-alt-id="{{ combatantId }}" data-slot-index="{{@index}}" data-disposition="{{slotType}}" data-initiative="{{initiative}}">
 					{{#if ../user.isGM}}
 						<img class="token-image" src="{{img}}" title="{{name}}"/>
 					{{else}}
@@ -114,28 +114,24 @@
 					</div>
 				</li>
 			{{else}}
-				<li class="combatant actor directory-item flexrow {{css}} slot-{{slotType}} slot-unused-{{unused}}" data-combatant-id="{{id}}" data-alt-id="{{ combatantId }}" data-activation-id="{{activationId}}" data-disposition="{{slotType}}" data-initiative="{{initiative}}" data-slot-index="{{@index}}">
+				<li class="combatant actor directory-item flexrow {{css}} slot-{{slotType}} slot-unused-false" data-combatant-id="{{id}}" data-alt-id="{{ combatantId }}" data-disposition="{{slotType}}" data-initiative="{{initiative}}" data-slot-index="{{@index}}">
 					<div class="token-name flexcol">
-						{{# if unused }}
-							<h4>{{ localize "SWFFG.Notifications.Combat.Claim.Unused" }} {{ slotType}} {{ localize "SWFFG.Notifications.Combat.Claim.Slot" }}</h4>
-						{{ else }}
 							{{#if (and canClaim active)}}
-								<h4><a data-claim-slot="{{@index}}">{{ localize "SWFFG.Notifications.Combat.Claim.Claim" }}</a></h4>
+								<h4><a data-action="claimSlot" data-claim-slot="{{@index}}">{{ localize "SWFFG.Notifications.Combat.Claim.Claim" }}</a></h4>
 							{{else}}
-								<h4>{{ slotType}} {{ localize "SWFFG.Notifications.Combat.Claim.Slot" }}</h4>
+								<h4>{{localize slotLabel}}</h4>
 							{{/if}}
-						{{/if}}
 					</div>
 
 					<div class="token-initiative">
 						{{#if hasRolled}}
               <span class="initiative">
-								{{{ initiativeImage.successes }}}
-                {{{ initiativeImage.advantages }}}
-                {{{ initiativeImage.triumphs }}}
+								{{#if numericInitiative}}{{initiative}}{{else}}
+                <span class="dietype {{../diceTheme}} success">{{successes}}</span><span class="dietype {{../diceTheme}} advantage">{{advantages}}</span>
+                {{/if}}
 							</span>
 						{{else if owner}}
-							<a class="combatant-control roll" data-tooltip="COMBAT.InitiativeRoll" data-control="rollInitiative"></a>
+							<a class="combatant-control roll" data-tooltip="COMBAT.InitiativeRoll" data-action="rollInitiative" data-combatant-id="{{combatantId}}"></a>
 						{{/if}}
 					</div>
 				</li>

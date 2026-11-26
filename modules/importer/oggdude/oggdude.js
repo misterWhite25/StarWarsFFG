@@ -38,8 +38,6 @@ export default class OggDude {
     Armor: Armor.getMetaData(),
     Backgrounds: Backgrounds.getMetaData(),
     Career: Career.getMetaData(),
-    // TODO: figure out how this works - uses multiple files/dirs
-    // this._enableImportSelection(zip.files, "Force Abilities");
     ForcePowers: ForcePowers.getMetaData(),
     Gear: Gear.getMetaData(),
     ItemAttachments: ItemAttachments.getMetaData(),

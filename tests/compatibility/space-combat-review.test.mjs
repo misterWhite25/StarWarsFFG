@@ -9,7 +9,8 @@ async function boardFixture({integrated=false}={}) {
   const crew={id:'crew'},actors=new Map([['vehicle',vehicle],['crew',crew]]);
   const users=new Map([['gm',user],['other',{id:'other',isGM:false}]]);users.activeGM=user;
   let state={round:1,ships:[{id:'ship',actorId:'vehicle',version:0,combat:{reservations:{reserved:{rollId:'roll',userId:'gm',actorId:'crew'}}}}]};
-  const context=vm.createContext({structuredClone,console,game:{actors,users,user,settings:{get:()=>state,set:async(_scope,_key,next)=>{state=next;}}},
+  let clones = 0;
+  const context=vm.createContext({structuredClone:value=>{clones++;return structuredClone(value);},console,game:{actors,users,user,settings:{get:()=>state,set:async(_scope,_key,next)=>{state=next;}}},
     Hooks:{once(){},on:(name,callback)=>hooks.set(name,callback)}});
   const board=(await loadSystemModule('space-combat/board.mjs',context,{
     'space-combat/encounter.mjs':{prepareSpaceEncounter:async()=>null},
@@ -26,8 +27,14 @@ async function boardFixture({integrated=false}={}) {
     await board.command('scene');
     return state.ships[0];
   }
-  return {publish};
+  return {publish, hooks, get clones() { return clones; }};
 }
+
+test('ground initiative updates do not copy the idle spatial board', async () => {
+  const fixture = await boardFixture();
+  await fixture.hooks.get('updateCombat')();
+  assert.equal(fixture.clones, 0);
+});
 
 test('spatial roll receipts finalize ordinary characters and integrated NPC vehicle speakers',async()=>{
   for(const integrated of [false,true]) {
@@ -69,6 +76,46 @@ test('maneuver cost reads match the mutable turn model without cloning ship hist
     assert.equal(JSON.stringify(ship),original);
   }
   assert.equal(clones,0);
+});
+
+test('GM and map barrages use the selected battery and send targeted fire to the roll builder', async () => {
+  const member = {actor_id: 'gunner'}, weapon = {id: 'battery'};
+  const ship = {id: 'ship', actorId: 'vehicle', version: 4};
+  const vehicle = {items: new Map([[weapon.id, weapon]])};
+  const choice = {crewId: member.actor_id, weaponId: weapon.id, barrageArc: 'fore', barrageCount: 2};
+  let selection, calls = [];
+  const context = vm.createContext({
+    Hooks: {on() {}}, game: {actors: new Map([[ship.actorId, vehicle]])},
+    document: {createElement: () => ({style: {}, append() {}})},
+    foundry: {applications: {api: {DialogV2: {wait: async () => selection}}}}
+  });
+  const {performBarrage} = (await loadSystemModule('space-combat/barrage-dialog.mjs', context, {
+    'space-combat/board.mjs': {board: () => ({ships: [ship]}), command: (...args) => calls.push(args)},
+    'space-combat/combat-rolls.mjs': {openCombatRoll: (...args) => calls.push(args)},
+    'helpers/crew.js': {crewStationWeapons() {}},
+    'space-combat/crew-access.mjs': {crewActor: () => ({name: 'Gunner'})}
+  })).namespace;
+  for (const id of ['blanketBarrage', 'concentratedBarrage', 'overwhelmingBarrage']) {
+    const target = id !== 'blanketBarrage';
+    selection = target ? {...choice, targetId: 'target', sector: 'aft'} : choice;
+    calls = [];
+    assert.equal(await performBarrage(ship, {id, target}, [member], 2), selection.targetId);
+    assert.equal(calls.length, 1);
+    if (target) {
+      const [current, crew, options] = calls[0];
+      assert.equal(current, ship);
+      assert.equal(crew, member);
+      assert.equal(options.weapon, weapon);
+      assert.deepEqual({...options.barrage}, {id, ...selection});
+      assert.equal(options.terrain, 2);
+    } else {
+      assert.deepEqual({...calls[0][1]}, {shipId: ship.id, version: ship.version, combatAction: id, terrain: 2, ...choice});
+    }
+  }
+  selection = null;
+  calls = [];
+  await performBarrage(ship, {id: 'blanketBarrage'}, [member]);
+  assert.equal(calls.length, 0);
 });
 
 class PlotNode {

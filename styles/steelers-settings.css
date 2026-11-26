@@ -7,11 +7,19 @@
   padding:0 8px;font-size:14px;font-weight:700;letter-spacing:.3px;
   color:var(--color-text-primary);
 }
-#settings-config :is(.ffg-original-settings,.ffg-steelers-settings)>.form-group {margin:0;padding:10px 0;}
-#settings-config :is(.ffg-original-settings,.ffg-steelers-settings)>.form-group~.form-group {border-top:1px solid #64747740;}
-#settings-config :is(.ffg-original-settings,.ffg-steelers-settings)>.form-group:last-child {padding-bottom:0;}
+#settings-config :is(.ffg-original-settings,.ffg-steelers-theme)>.form-group {margin:0;padding:10px 0;}
+#settings-config :is(.ffg-original-settings,.ffg-steelers-theme)>.form-group~.form-group {border-top:1px solid #64747740;}
+#settings-config :is(.ffg-original-settings,.ffg-steelers-theme)>.form-group:last-child {padding-bottom:0;}
 #settings-config :is(.ffg-original-settings,.ffg-steelers-settings) .hint {text-align:justify;}
-#settings-config :is(.ffg-original-settings,.ffg-steelers-settings):not(:has(>.form-group:not([hidden]))) {display:none;}
+#settings-config :is(.ffg-original-settings,.ffg-steelers-settings,.ffg-steelers-theme):not(:has(.form-group:not([hidden]))) {display:none;}
+
+#settings-config .ffg-steelers-theme {min-width:0;}
+#settings-config .ffg-steelers-theme+.ffg-steelers-theme {margin-top:14px;}
+#settings-config .ffg-steelers-theme>h3 {
+  margin:0;padding:5px 8px;border-radius:4px;
+  background:#526b7d2b;color:var(--color-text-primary);
+  font:600 14px/1.4 var(--font-sans, sans-serif);
+}
 
 /* Shared typography and aligned fields for the system's settings dialogs. */
 .application.starwarsffg .ffg-system-settings-list {font-family:var(--font-body,Arial,sans-serif);}

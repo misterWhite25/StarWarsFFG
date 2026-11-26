@@ -1,7 +1,7 @@
 import {planAutoCrew,AUTO_CREW_QUALITIES} from './auto-crew-model.mjs';
 import {vehicleGroupSkillRank} from './vehicle-minion-group.mjs';
 const scope='starwarsffg';
-const collections=()=>{const rows=[];rows.contents=rows;rows.get=id=>undefined;return rows;};
+const collections=()=>{const rows=[];rows.contents=rows;rows.get=()=>undefined;return rows;};
 const labels={pilot:'Pilote',copilot:'Copilote',gunner:'Artilleur',engineer:'Mécanicien',operator:'Technicien',commander:'Commandant',astromech:'Astromech',support:'Passagers'};
 export const NPC_INITIATIVE_SKILLS=['Cool','Vigilance'];
 const initiativeDefaults=()=>Object.fromEntries(NPC_INITIATIVE_SKILLS.map(key=>[key,{ability:2,rank:0}]));

@@ -90,12 +90,10 @@ export class itemEditor extends FormApplicationV2  {
     // allow drag-and-dropping mods if this is an attachment
     if (this.data.clickedObject.type === "itemattachment") {
       const dragDrop = new foundry.applications.ux.DragDrop({
-        dragSelector: ".item",
-        dropSelector: ".starwarsffg.flat_editor",
-        permissions: { dragstart: this._canDragStart.bind(this), drop: this._canDragDrop.bind(this) },
+        permissions: { drop: () => this.isEditable && this.data.sourceObject.isOwner },
         callbacks: { drop: this.onDropMod.bind(this) },
       });
-      dragDrop.bind($(`[data-appid="${this.appId}"]`)[0]);
+      dragDrop.bind(this.element);
     }
   }
 
@@ -115,21 +113,17 @@ export class itemEditor extends FormApplicationV2  {
       return false;
     }
 
-    const droppedObject = await fromUuid(data.uuid);
-
-    // if it's an attachment, locate the attachment to update
-    let updateData;
-    if (this.data.clickedObject.type === "itemattachment") {
-      updateData = this.data.sourceObject.system.itemattachment;
-      for (let attachment of updateData) {
-        if (attachment._id === this.data.clickedObject._id) {
-          // update the local object so we can see the update in the editor
-          this.data.clickedObject.system.itemmodifier.push(droppedObject.toObject());
-        }
-      }
-      await this.data.sourceObject.update({system: {itemattachment: updateData}});
-      this.render(true);
-    }
+    const modifier = await fromUuid(data.uuid);
+    if (modifier?.type !== "itemmodifier") return;
+    const source = this.data.sourceObject;
+    const attachments = foundry.utils.deepClone(source.system.itemattachment);
+    const attachment = attachments.find(item => item._id === this.data.clickedObject._id);
+    if (!attachment) return;
+    attachment.system.itemmodifier ??= [];
+    attachment.system.itemmodifier.push(await ItemHelpers.uniqueAttrs(modifier.toObject()));
+    await source.update({"system.itemattachment": attachments});
+    this.data.clickedObject = attachment;
+    await this.render(true);
   }
 
   /**
@@ -420,14 +414,7 @@ export class itemEditor extends FormApplicationV2  {
                   });
                 }
 
-                let disabled;
-                if (modifier.system.active === equipped) {
-                  // if they're both enabled or disabled, use the opposite value
-                  disabled = !modifier.system.active;
-                } else {
-                  // if either is not enabled, disable the active effect
-                  disabled = true;
-                }
+                const disabled = !(modifier.system.active && equipped);
 
                 if (match) {
                   // existing entry

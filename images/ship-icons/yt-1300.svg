@@ -1,1 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>YT-1300</title><defs><mask id="cut"><rect width="64" height="64" fill="white"/><g fill="black"><path d="M29 5h6v21h-6z"/><path d="M14 44h36v3H14z"/><circle cx="32" cy="36" r="5"/></g></mask></defs><g fill="white" mask="url(#cut)"><path d="M22 7h7v20h6V7h7l5 19a23 23 0 1 1-30 0z"/><path d="m47 27 8-5 6 7-10 8z"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 0 178 178">
+  <title>YT-1300</title>
+  <defs>
+    <mask id="hull-details" maskUnits="userSpaceOnUse" x="10" y="0" width="178" height="178">
+      <rect x="10" width="178" height="178" fill="#fff"/>
+      <g fill="none" stroke="#000" stroke-width="3.8" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M91 90V32h17v58 M146 64l-32 27 5 10 43-25"/>
+        <path d="m37 96 47 5m-47 15 48-6m30-9 49-5m-49 14 49 6"/>
+        <path d="m53 157 4-13 30-27m57 40-4-13-27-27"/>
+        <circle cx="100" cy="106" r="16.5"/>
+      </g>
+      <g fill="#000">
+        <circle cx="80" cy="30" r="4.8"/>
+        <circle cx="72" cy="45" r="4.8"/>
+        <circle cx="120" cy="30" r="4.8"/>
+        <circle cx="127" cy="45" r="4.8"/>
+        <circle cx="100" cy="101" r="5.7"/>
+        <circle cx="89" cy="131" r="5.4"/>
+        <circle cx="100" cy="133" r="5.4"/>
+        <circle cx="111" cy="131" r="5.4"/>
+        <circle cx="84" cy="142" r="5.4"/>
+        <circle cx="99" cy="145" r="5.4"/>
+        <circle cx="116" cy="142" r="5.4"/>
+        <path d="M150 50h2v7h-3zm4 0h2l1 7h-3z"/>
+      </g>
+    </mask>
+  </defs>
+  <path fill="#fff" mask="url(#hull-details)" d="M84 4h6l3 26h12l3-26h6l29 59h2l4-14h10l3 9v17l-7 5 6 14-9 4 8 2v13l-8 2 10 3c-4 30-31 56-62 56s-58-24-62-56l9-3-8-2v-13l8-2-9-4c3-13 9-23 18-31z"/>
+</svg>

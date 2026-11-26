@@ -1,0 +1,16 @@
+.ffg-skill-hotbar-dialog{max-width:calc(100vw - 24px);max-height:calc(100vh - 40px)}
+.ffg-skill-hotbar-dialog .window-content{overflow:auto}
+.ffg-skill-hotbar-setup{display:grid;gap:10px;font:13px/1.4 Arial,sans-serif;min-width:0}
+.ffg-skill-hotbar-setup>p{margin:0;text-align:justify}
+.ffg-skill-hotbar-options{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.ffg-skill-hotbar-options label{display:grid;gap:4px}
+.ffg-skill-hotbar-setup select{width:100%;min-width:0;text-overflow:ellipsis}
+.ffg-skill-hotbar-slots{display:grid;gap:4px}
+.ffg-skill-hotbar-slot{display:grid;grid-template-columns:20px 28px minmax(0,1fr) 48px;align-items:center;gap:6px}
+.ffg-shortcut-key{text-align:center;font-weight:700}
+.ffg-shortcut-icon{display:flex;justify-content:center;align-items:center;width:28px;height:28px}
+.ffg-shortcut-icon img{border:0;border-radius:3px;object-fit:cover}
+.ffg-shortcut-icon img[hidden]{display:none!important}
+.ffg-skill-hotbar-slot small{text-align:center;font-size:11px}
+.ffg-shortcut-warning{padding:8px 10px;border:1px solid #b58134;border-left-width:3px;border-radius:4px;font-style:italic;background:#b5813412}
+@media(max-width:420px){.ffg-skill-hotbar-slot{grid-template-columns:18px 26px minmax(0,1fr)}.ffg-skill-hotbar-slot small{display:none}}

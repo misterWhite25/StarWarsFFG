@@ -61,14 +61,11 @@ export default class ItemHelpers {
             foundry.utils.setProperty(updateData, `data.talents.${parent.talent}.isForceTalent`, formData.data.isForceTalent);
             foundry.utils.setProperty(updateData, `data.talents.${parent.talent}.isConflictTalent`, formData.data.isConflictTalent);
 
-            // Remove attributes which are no longer used
-            if (spec?.system?.talents?.[parent.talent]?.attributes) {
-              for (let k of Object.keys(spec.system.talents[parent.talent].attributes)) {
-                if (!formData.data.Object.hasOwn(attributes, k)) formData.data.attributes[k] = deleteDataField();
-              }
+            const linkedAttributes = {...attributes};
+            for (const key of Object.keys(spec.system.talents?.[parent.talent]?.attributes ?? {})) {
+              if (!Object.hasOwn(linkedAttributes, key)) linkedAttributes[key] = deleteDataField();
             }
-
-            foundry.utils.setProperty(updateData, `data.talents.${parent.talent}.attributes`, formData.data.attributes);
+            foundry.utils.setProperty(updateData, `data.talents.${parent.talent}.attributes`, linkedAttributes);
 
             if (parent.id.includes(".OwnedItem.")) {
               const ids = parent.id.split(".OwnedItem.");
@@ -316,83 +313,18 @@ export default class ItemHelpers {
     }
   }
 
-  /**
-   * Ensures unique attribute keys for a dropped item by checking and modifying its attributes, modifiers, and attachments
-   * to avoid key collisions within the parent item. Also updates any matching active effects to align with the new attribute keys.
-   *
-   * @param {Object} droppedItem - The item being added or moved, whose attributes need to be checked and adjusted if necessary
-   * @param {Object} parentItem - The target item that will contain the dropped item, used to determine existing keys for comparison
-   * @return {Object} - Returns the modified dropped item with updated attribute keys and effects
-   */
-  static async uniqueAttrs(droppedItem, parentItem) {
-    
-    // collect the existing attrs so we can determine if there's a collision
-    let existingAttrs = Object.keys(parentItem.system.attributes) || [];
-    if (Object.keys(parentItem.system).includes("itemmodifier")) {
-      for (const modifier of parentItem.system.itemmodifier) {
-        existingAttrs = [...existingAttrs, ...Object.keys(modifier.system.attributes)];
+  /** Assign fresh attribute keys to the copy and retain its Active Effect links. */
+  static async uniqueAttrs(droppedItem) {
+    for (const item of [droppedItem, ...Object.values(droppedItem.system.itemmodifier ?? {})]) {
+      const attributes = item.system.attributes ?? {};
+      for (const [key, value] of Object.entries(attributes)) {
+        const copyKey = `attr${foundry.utils.randomID()}`;
+        attributes[copyKey] = value;
+        delete attributes[key];
+        const effect = droppedItem.effects?.find(entry => entry.name === key);
+        if (effect) effect.name = copyKey;
       }
     }
-    if (Object.keys(parentItem.system).includes("itemattachment")) {
-      for (const attachment of parentItem.system.itemattachment) {
-        existingAttrs = [...existingAttrs, ...Object.keys(attachment.system.attributes)];
-        for (const modification of attachment.system.itemmodifier) {
-          existingAttrs = [...existingAttrs, ...Object.keys(modification.system.attributes)];
-        }
-      }
-    }
-    if (Object.keys(parentItem.system).includes("talents")) {
-      for (const talent of Object.keys(parentItem.system.talents)) {
-        if (!Object.keys(parentItem.system.talents[talent]).includes("attributes")) {
-          // some talent slots do not have the "attributes" key, so we can skip them
-          continue;
-        }
-        existingAttrs = [...existingAttrs, ...Object.keys(parentItem.system.talents[talent].attributes)];
-      }
-    }
-    
-
-    // now that we know the existing attrs, start looking for ones in the dropped item
-    if (Object.keys(droppedItem.system).includes("attributes")) {
-      for (const attr of Object.keys(droppedItem.system.attributes)) {
-        const matchingEffect = droppedItem.effects.find(effect => effect.name === attr);
-        const newKey = `attr${new Date().getTime()}`;
-        // copy the data to the new field
-        droppedItem.system.attributes[newKey] = droppedItem.system.attributes[attr];
-        // delete the old field
-        delete droppedItem.system.attributes[attr];
-        // update the active effect
-        if (matchingEffect) {
-          
-          matchingEffect.name = newKey;
-        }
-        // ensure further keys have a new entry
-          await new Promise(r => setTimeout(r, 1));
-      }
-    }
-
-    if (Object.keys(droppedItem.system).includes("itemmodifier")) {
-      for (const droppedModifier of droppedItem.system.itemmodifier) {
-        for (const attr of Object.keys(droppedModifier.system.attributes)) {
-          
-          const matchingEffect = droppedItem.effects.find(effect => effect.name === attr);
-          const newKey = `attr${new Date().getTime()}`;
-          
-          // copy the data to the new field
-          droppedModifier.system.attributes[newKey] = droppedModifier.system.attributes[attr];
-          // delete the old field
-          delete droppedModifier.system.attributes[attr];
-          // update the active effect
-          if (matchingEffect) {
-            matchingEffect.name = newKey;
-          }
-          // ensure further keys have a new entry
-          await new Promise(r => setTimeout(r, 1));
-        }
-      }
-    }
-
-    
     return droppedItem;
   }
 }

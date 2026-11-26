@@ -8,6 +8,7 @@ export default class ForcePowers {
       itemName: "forcepower",
       localizationName: "SWFFG.ForcePowers",
       fileNames: ["Force Powers"],
+      requiredFiles: ["Force Abilities.xml"],
       filesAreDir: true,
       phase: 3,
     };
@@ -15,15 +16,13 @@ export default class ForcePowers {
 
   static async Import(zip) {
     try {
-      const abilitiesFile = Object.values(zip.files).find(file => file.name.includes("/Force Abilities.xml"));
+      const abilitiesFile = Object.values(zip.files).find(file => !file.dir && file.name.split("/").pop() === "Force Abilities.xml");
       const abilityData = await zip.file(abilitiesFile.name).async("text");
       const abilityXml = ImportHelpers.stringToXml(abilityData);
       const base = JXON.xmlToJs(abilityXml);
-      const abilities = base?.ForceAbilities?.ForceAbility;
+      const abilities = ImportHelpers.xmlRecords(base?.ForceAbilities?.ForceAbility);
 
-      const files = Object.values(zip.files).filter((file) => {
-        return !file.dir && file.name.split(".").pop() === "xml" && file.name.includes("/Force Powers/");
-      });
+      const files = ImportHelpers.xmlFiles(zip, "Force Powers");
       let totalCount = files.length;
       let currentCount = 0;
 
@@ -162,22 +161,7 @@ export default class ForcePowers {
               }
             }
 
-            // populate tags
-            try {
-              if (Array.isArray(item.Categories.Category)) {
-                for (const tag of item.Categories.Category) {
-                  data.data.metadata.tags.push(tag.toLowerCase());
-                }
-              } else {
-                data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
-              }
-            } catch {
-              
-            }
-            if (item?.Type) {
-              // the "type" can be useful as a tag as well
-              data.data.metadata.tags.push(item.Type.toLowerCase());
-            }
+            data.data.metadata.tags.push(...ImportHelpers.importTags(item.Categories?.Category, item.Type));
 
             let imgPath = await ImportHelpers.getImageFilename(zip, "ForcePowers", "", data.flags.starwarsffg.ffgimportid);
             if (imgPath) {

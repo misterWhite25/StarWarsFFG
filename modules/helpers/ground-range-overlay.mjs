@@ -51,9 +51,9 @@ function draw(){
  canvas.interface.addChild(next);const old=graphic;graphic=next;old?.destroy({children:true});
 }
 export function refreshGroundRangeOverlay(){schedule();}
-function schedule(){if(!frame)frame=requestAnimationFrame(draw);}
+function schedule(){if(active && frame == null)frame=requestAnimationFrame(draw);}
 Hooks.on('refreshToken',token=>{if(token.document.uuid===active?.tokenUuid)schedule();});
-for(const hook of ['updateToken','canvasPan','updateScene','updateActor'])Hooks.on(hook,schedule);
+for(const hook of ['updateToken','canvasPan'])Hooks.on(hook,schedule);
 Hooks.on('deleteToken',token=>{if(token.uuid===active?.tokenUuid)clearGroundRangeOverlay();});
 Hooks.on('canvasTearDown',()=>{if(frame)cancelAnimationFrame(frame);frame=null;clearGroundRangeOverlay();});
 
@@ -79,4 +79,4 @@ Hooks.on('renderTokenHUD',(hud,element)=>{
 });
 Hooks.on('ffgGroundRangeOverlayChanged',refreshRangeHUD);
 
-for(const hook of ['updateSetting','updateScene','canvasReady','updateActor'])Hooks.on(hook,()=>{refreshRangeHUD();schedule();});
+for(const hook of ['updateSetting','updateScene','canvasReady','updateActor','ffgGroundRangesChanged'])Hooks.on(hook,()=>{refreshRangeHUD();schedule();});

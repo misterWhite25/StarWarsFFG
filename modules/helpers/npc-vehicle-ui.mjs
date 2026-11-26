@@ -62,7 +62,7 @@ export function activateNpcVehicle(sheet){
   const table=sheet.element.querySelector('.vehicle-crew-table');if(table){const badge=el('div','Véhicule PNJ · '+({minion:'Sbires',rival:'Rival',nemesis:'Némésis'}[vehicle.flags.starwarsffg.npcVehicle.type]));badge.className='ffg-auto-crew-toolbar';badge.style.cssText='font-size:12px;justify-content:flex-start';table.before(badge);}
   return true;
 }
-if(globalThis.Hooks)for(const hook of ['createItem','deleteItem','updateItem'])Hooks.on(hook,(item,_changes,_operation,userId)=>{
+if(globalThis.Hooks)for(const hook of ['createItem','deleteItem','updateItem'])Hooks.on(hook,item=>{
   if(!game.user.isGM||!npcVehicle(item.parent)||item.type!=='shipweapon')return;
   if(game.actors.get(item.parent.id)!==item.parent)return;
   void synchronizeNpcVehicle(item.parent).catch(error=>ui.notifications.warn(error.message));

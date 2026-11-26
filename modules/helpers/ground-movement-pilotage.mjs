@@ -1,4 +1,4 @@
-import {modes,movementMode,enabledMovementModes,setSceneMovementMode} from './ground-movement-state.mjs';
+import {modes,movementMode,enabledMovementModes,setSceneMovementMode,battlemapMovementLimited,setSceneMovementLimit} from './ground-movement-state.mjs';
 
 const panels=new Map();
 const el=(tag,css,text)=>{const node=document.createElement(tag);if(css)node.className=css;if(text!==undefined)node.textContent=text;return node;};
@@ -21,10 +21,19 @@ function buildPanel(panel,state){
   });
   state.choices.set(value,choice);switcher.append(choice);
  }
- state.ranges=el('button','pilotage-movement-ranges',game.i18n.localize('SWFFG.UI.Ground.DistancesAndRanges'));state.ranges.type='button';
- state.ranges.addEventListener('click',async()=>{const {showGroundRangeSettings}=await import('./ground-range-settings.mjs');await showGroundRangeSettings();});
  state.note=el('p','pilotage-note',game.i18n.localize('SWFFG.UI.Ground.OpenSceneToChooseMode'));
- panel.append(heading,switcher,state.ranges,state.note);
+ const limit=el('label','pilotage-movement-limit');limit.title=game.i18n.localize('SWFFG.UI.Ground.LimitMovementHint');
+ state.limit=el('input');state.limit.type='checkbox';state.limit.dataset.pilotageMovementLimit='';
+ state.limit.addEventListener('change',async event=>{
+  event.stopPropagation();
+  const scene=globalThis.canvas?.scene;
+  if(state.busy||!scene||canvas.loading){refreshPanel(panel,state);return;}
+  const limited=state.limit.checked;state.busy=true;state.limit.disabled=true;
+  try{await setSceneMovementLimit(scene,limited);}catch(error){ui.notifications.warn(error.message);}
+  finally{state.busy=false;if(panel.isConnected)refreshPanel(panel,state);}
+ });
+ limit.append(state.limit,el('span','',game.i18n.localize('SWFFG.UI.Ground.LimitMovement')));state.limitRow=limit;
+ panel.append(heading,switcher,state.limitRow,state.note);
 }
 
 function refreshPanel(panel,state){
@@ -38,14 +47,15 @@ function refreshPanel(panel,state){
   choice.setAttribute('aria-disabled',String(choice.disabled||state.busy));
   if(unavailable)choice.title=game.i18n.localize('SWFFG.UI.Ground.EnableModeInSettings');else choice.removeAttribute('title');
  }
- state.ranges.disabled=loading;state.note.hidden=!!scene;
+ state.limitRow.hidden=mode!=='battlemap';state.limit.checked=battlemapMovementLimited(scene);state.limit.disabled=!scene||loading||state.busy;
+ state.note.hidden=!!scene;
 }
 
 export function setupPilotageMovement(root){
  if(!game.user.isGM||root.querySelector('.pilotage-movement'))return;
- const columns=root.querySelector('.pilotage-columns'),difficulty=columns?.querySelector('.pilotage-difficulty-section'),views=root.querySelector('.pilotage-views-content');if(!difficulty||!views)return;
+ const views=root.querySelector('.pilotage-views-content');if(!views)return;
  const panel=el('section','pilotage-card pilotage-movement'),state={busy:false,loading:!!globalThis.canvas?.loading};panel.setAttribute('aria-label',game.i18n.localize('SWFFG.UI.Ground.MovementAndRanges'));
- const sidebar=el('div','pilotage-left-column');difficulty.before(sidebar);sidebar.append(difficulty);views.append(panel);
+ views.append(panel);
  panels.set(panel,state);refreshPanel(panel,state);
 }
 
@@ -58,4 +68,3 @@ Hooks.on('updateScene',scene=>{if(scene.id===globalThis.canvas?.scene?.id)refres
 for(const hook of ['createSetting','updateSetting'])Hooks.on(hook,setting=>{
  if(['enableNarrativeMovement','enableBattlemapMovement','groundMovementModesMigrated','groundMovementMode'].some(key=>setting.key==='starwarsffg.'+key))refreshPanels();
 });
-Hooks.on('closeDialogV2',app=>{for(const [panel]of panels)if(app.element?.contains(panel)||!panel.isConnected)panels.delete(panel);});

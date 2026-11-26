@@ -696,7 +696,10 @@ export class ActorFFG extends Actor {
       try {
         // Calculate encumbrance, only if encumbrance value exists
         if (item.system?.encumbrance?.adjusted !== undefined || item.system?.encumbrance?.value !== undefined) {
-          const encumbrance = Math.max(0, Number(item.system.encumbrance.adjusted ?? item.system.encumbrance.value) || 0);
+          const {value, adjusted} = item.system.encumbrance;
+          // Ship attachments store a default adjusted zero without recalculating it.
+          const weight = item.type === "shipattachment" ? value ?? adjusted : adjusted ?? value;
+          const encumbrance = Math.max(0, Number(weight) || 0);
           const count = Math.max(0, Number(item.system.quantity?.value ?? 1) || 0);
           // Only one copy is worn; other copies remain carried at full encumbrance.
           const wornReduction = item.type === "armour" && item.system.equippable?.equipped && count > 0

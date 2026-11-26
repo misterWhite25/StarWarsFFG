@@ -163,7 +163,7 @@ export function weaponStunProfile(item) {
   return {fixed:names.some(n=>['stun damage','degats etourdissants'].includes(n)),setting:names.some(n=>['stun setting','reglage etourdissant'].includes(n))};
 }
 export function resolveShot(item,{mode,targetRange}={}) {
-  const fr=globalThis.game?.i18n?.lang==='fr',profile=weaponStunProfile(item);
+  const profile=weaponStunProfile(item);
   if(profile.fixed)return {damageType:'strain',weaponMode:'fixed-stun',shortOnly:false};
   if(mode==='stun') {
     if(!profile.setting)throw Error(game.i18n.localize("SWFFG.UI.Dice.WeaponSelection.ThisWeaponNoLongerHasAStunSetting"));

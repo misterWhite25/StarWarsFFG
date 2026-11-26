@@ -1,7 +1,31 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
-test.beforeEach(async ({ page }) => {
+// Document and chat scenarios can run without a WebGL scene in software-rendered CI.
+async function configureClient(page, canvasNeeded = false) {
+  await page.addInitScript(enabled => {
+    localStorage.setItem('core.maxFPS', '10');
+    localStorage.setItem('core.noCanvas', JSON.stringify(!enabled));
+  }, canvasNeeded);
+  await page.addLocatorHandler(page.locator('.tour-center-step [data-action=exit], #tooltip.tour [data-action=exit]').first(),
+    button => button.click());
+}
+
+async function joinPlayer(page) {
+  await configureClient(page);
+  await page.goto(new URL('/join', process.env.FOUNDRY_URL).href);
+  await expect(page.locator('#main-header h1')).toHaveText(process.env.FOUNDRY_TEST_WORLD_TITLE);
+  await page.locator('#join-username').selectOption({label: 'Player2'});
+  await page.locator('#join-game-form button[name="join"]').click();
+  await page.waitForFunction(() => globalThis.game?.ready === true, null, {timeout: 60_000});
+  const save = page.getByRole('button', {name: 'Save Player Configuration', exact: true});
+  if (await save.isVisible()) await save.click();
+}
+
+test.use({actionTimeout: 20_000});
+test.describe.configure({timeout: 90_000});
+test.beforeEach(async ({ page }, testInfo) => {
+  await configureClient(page, testInfo.tags.includes('@canvas'));
   await page.addLocatorHandler(page.locator('#notifications .notification').filter({
     hasText: 'Your web browser does not have hardware acceleration enabled.',
   }), notice => notice.click());
@@ -87,7 +111,7 @@ test('runtime: character, minion, rival, nemesis and vehicle sheets persist edit
       }, type);
       ids.push(id);
     }
-    await page.reload();
+    await page.reload({waitUntil: 'domcontentloaded'});
     await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
     const saved = await page.evaluate(ids => ids.map(id => {
       const actor = game.actors.get(id);
@@ -141,14 +165,7 @@ test('runtime: player and GM see the correct roll content, including after reloa
   const playerPage = await playerContext.newPage();
   const ids = [];
   try {
-    await playerPage.goto(new URL('/join', process.env.FOUNDRY_URL).href);
-    await expect(playerPage.locator('#main-header h1')).toHaveText(process.env.FOUNDRY_TEST_WORLD_TITLE);
-    await playerPage.getByRole('textbox', { name: 'Select User', exact: true }).click();
-    await playerPage.getByRole('listitem').filter({ hasText: /^Player2$/ }).click();
-    await playerPage.getByRole('button', { name: 'Join Game Session', exact: true }).click();
-    await expect.poll(() => playerPage.evaluate(() => typeof game !== 'undefined' && !!game.ready).catch(() => false), { timeout: 60_000 }).toBe(true);
-    const playerConfiguration = playerPage.getByRole('button', { name: 'Save Player Configuration', exact: true });
-    if (await playerConfiguration.isVisible()) await playerConfiguration.click();
+    await joinPlayer(playerPage);
     expect(await playerPage.evaluate(() => ({ name: game.user.name, isGM: game.user.isGM })))
       .toEqual({ name: 'Player2', isGM: false });
     expect(await page.evaluate(() => game.user.isGM)).toBe(true);
@@ -164,7 +181,7 @@ test('runtime: player and GM see the correct roll content, including after reloa
       expect(playerContent, `${mode}: player visibility`).toBe(mode !== 'blind');
       expect(gmContent, `${mode}: GM visibility`).toBe(mode !== 'self');
     }
-    await playerPage.reload();
+    await playerPage.reload({waitUntil: 'domcontentloaded'});
     await expect.poll(() => playerPage.evaluate(() => typeof game !== 'undefined' && !!game.ready).catch(() => false), { timeout: 60_000 }).toBe(true);
     const visibility = await playerPage.evaluate(ids => ids.map(id => game.messages.get(id)?.isContentVisible), ids);
     expect(visibility).toEqual([true, true, false, true]);
@@ -201,7 +218,7 @@ test('runtime: Force bonuses and final-phase effects persist without double appl
         defense: actor.system.stats.defence.ranged };
     }, id);
     expect(await readStats()).toEqual({ max: 3, force: 2, defense: 2 });
-    await page.reload();
+    await page.reload({waitUntil: 'domcontentloaded'});
     await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
     expect(await readStats()).toEqual({ max: 3, force: 2, defense: 2 });
     await page.evaluate(async id => {
@@ -228,7 +245,7 @@ test('runtime: system status durations survive the v14 ActiveEffect data model',
     })).sort((a, b) => a.prepared.localeCompare(b.prepared)), id);
     const expected = [{ prepared: 'combat', saved: 'combat' }, { prepared: 'once', saved: 'once' }];
     expect(await readDurations()).toEqual(expected);
-    await page.reload();
+    await page.reload({waitUntil: 'domcontentloaded'});
     await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
     expect(await readDurations()).toEqual(expected);
     await page.evaluate(id => {
@@ -250,7 +267,7 @@ test('runtime: system status durations survive the v14 ActiveEffect data model',
   }
 });
 
-test('runtime: hidden initiative remains private and combat advances', async ({ page }) => {
+test('runtime: hidden initiative remains private and combat advances', {tag: '@canvas'}, async ({ page }) => {
   test.setTimeout(90_000);
   const created = await page.evaluate(async () => {
     const actor = await game.ffg.ActorFFG.create({ name: 'Runtime hidden combatant', type: 'character' });
@@ -311,12 +328,7 @@ test('runtime: destiny rolls and spending synchronize between player and GM', as
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] }, viewport: { width: 1440, height: 900 } });
   try {
     const player = await context.newPage();
-    await player.goto(new URL('/join', process.env.FOUNDRY_URL).href);
-    await expect(player.locator('#main-header h1')).toHaveText(process.env.FOUNDRY_TEST_WORLD_TITLE);
-    await player.getByRole('textbox', { name: 'Select User', exact: true }).click();
-    await player.getByRole('listitem').filter({ hasText: /^Player2$/ }).click();
-    await player.getByRole('button', { name: 'Join Game Session', exact: true }).click();
-    await expect.poll(() => player.evaluate(() => typeof game !== 'undefined' && !!game.ready).catch(() => false), { timeout: 60_000 }).toBe(true);
+    await joinPlayer(player);
     await page.evaluate(async () => {
       await game.settings.set('starwarsffg', 'dPoolLight', 2);
       await game.settings.set('starwarsffg', 'dPoolDark', 1);
@@ -335,6 +347,8 @@ test('runtime: destiny rolls and spending synchronize between player and GM', as
       !previousIds.includes(m.id) && m.content.includes('ffg-destiny-roll'))?.id, previous.messages);
     await expect.poll(readRequest).toBeTruthy();
     const requestId = await readRequest();
+    await player.reload({waitUntil: 'domcontentloaded'});
+    await player.waitForFunction(() => globalThis.game?.ready === true, null, {timeout: 60_000});
     await player.getByRole('tab', { name: 'Chat Messages', exact: true }).click();
     await player.locator(`[data-message-id="${requestId}"] .ffg-destiny-roll:not(#chat-notifications *)`).click({ timeout: 15_000 });
     await expect.poll(async () => {

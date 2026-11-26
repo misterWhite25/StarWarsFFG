@@ -74,11 +74,11 @@ export const tokenArtworkEntries=[
   ],
   [
     "assets/Star Wars/Compendium/NPCs/Vehicles/token_tie_striker.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-4d29d317b151f0dff498ae4f.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-4d29d317b151f0dff498ae4f.png"
   ],
   [
     "assets/Star Wars/Compendium/NPCs/Vehicles/turret.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b2d2c5e9dad5107ac6526e4a.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b2d2c5e9dad5107ac6526e4a.png"
   ],
   [
     "assets/Star Wars/PNJs/rheom-kranagh-proposition.png",
@@ -86,11 +86,11 @@ export const tokenArtworkEntries=[
   ],
   [
     "assets/Star Wars/Pictures & Tokens/Vaisseaux/Condor.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b958f1069a87540f9c72f1ee.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b958f1069a87540f9c72f1ee.webp"
   ],
   [
     "assets/Star Wars/Pictures & Tokens/Vaisseaux/Prophecy.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-54e571c805c996ca1a9c58f9.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-54e571c805c996ca1a9c58f9.webp"
   ],
   [
     "assets/Star%20Wars/Compendium/NPCs/Humano%C3%AFdes/TieAce.png",
@@ -154,39 +154,39 @@ export const tokenArtworkEntries=[
   ],
   [
     "assets/Star%20Wars/Compendium/NPCs/Vehicles/token_tie_striker.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-4d29d317b151f0dff498ae4f.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-4d29d317b151f0dff498ae4f.png"
   ],
   [
     "assets/Star%20Wars/Compendium/NPCs/Vehicles/turret.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b2d2c5e9dad5107ac6526e4a.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b2d2c5e9dad5107ac6526e4a.png"
   ],
   [
     "assets/Star%20Wars/Pictures%20%26%20Tokens/Vaisseaux/Condor.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b958f1069a87540f9c72f1ee.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b958f1069a87540f9c72f1ee.webp"
   ],
   [
     "assets/Star%20Wars/Pictures%20%26%20Tokens/Vaisseaux/Prophecy.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-54e571c805c996ca1a9c58f9.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-54e571c805c996ca1a9c58f9.webp"
   ],
   [
     "modules/star-wars-all-compendia/assets/images/packs/VehicleImages/AA3DRAY.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9accf8077912bc358550cee70268.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9accf8077912bc358550cee70268.svg"
   ],
   [
     "modules/star-wars-all-compendia/assets/images/packs/VehicleImages/AV21SPEEDER.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/30fa2c5b3dfc5d2c096a8c87d423.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/30fa2c5b3dfc5d2c096a8c87d423.svg"
   ],
   [
     "modules/star-wars-all-compendia/assets/images/packs/VehicleImages/CROCGOZ.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/45ac123a4da7e1c81ab121a91d4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/45ac123a4da7e1c81ab121a91d4a.svg"
   ],
   [
     "modules/star-wars-all-compendia/assets/images/packs/VehicleImages/GOZANTI.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c5b3626549c0276f3f363dc164c2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c5b3626549c0276f3f363dc164c2.svg"
   ],
   [
     "modules/star-wars-all-compendia/assets/images/packs/VehicleImages/TIELN.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/241427fbe237b1e4cd419a5ee2c0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/241427fbe237b1e4cd419a5ee2c0.svg"
   ],
   [
     "modules/swffg-compendium-bilingual-steelers-adversaries/assets/world-npcs-steelers/061ccf5bbc8bde2cd7ca-steelers.webp",
@@ -237,1495 +237,1495 @@ export const tokenArtworkEntries=[
     "modules/swffg-compendium-bilingual-steelers-adversaries/assets/tokens-20261114/12db904e14210f02d4ddd549a73d.webp"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/21538ef1bbd50664.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b8837571fcce70b53e55c0f7e388.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/21538ef1bbd50664.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b8837571fcce70b53e55c0f7e388.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/2511a8269d41ec62.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1091f8f25ee284bdef1b995d30bd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/2511a8269d41ec62.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1091f8f25ee284bdef1b995d30bd.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/2c7ba7e32b81ff57.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c9d1ca69db32f025ffed6994577f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/2c7ba7e32b81ff57.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c9d1ca69db32f025ffed6994577f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/36253f02dd9f5301.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cdbf9804ba432fcbade66191e182.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/36253f02dd9f5301.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cdbf9804ba432fcbade66191e182.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/3aae9600c36f3812.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1801e499af64409e806093f0cc2e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/3aae9600c36f3812.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1801e499af64409e806093f0cc2e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/47956b1a529af1ed.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c5f33ca82783aa46fb35c3569c68.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/47956b1a529af1ed.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c5f33ca82783aa46fb35c3569c68.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/68aba7c6e4a69248.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a8ec4188156dda38592637052198.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/68aba7c6e4a69248.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a8ec4188156dda38592637052198.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/6c8a9c5d92052e00.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/57f0098c964db40bdf982f582a81.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/6c8a9c5d92052e00.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/57f0098c964db40bdf982f582a81.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/72a45dd0cd768ffc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c61829efa8c0e68f1c5cd25ce9f6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/72a45dd0cd768ffc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c61829efa8c0e68f1c5cd25ce9f6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/7628302de7d62b4c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/dfe2a151470beb9d4725f6fa76da.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/7628302de7d62b4c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/dfe2a151470beb9d4725f6fa76da.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/8832fb7aa97f929d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6be09a830d703f3fb2a3d35d28a7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/8832fb7aa97f929d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6be09a830d703f3fb2a3d35d28a7.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/978ab80e34f86812.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0a5ce30878f4e745d26cef67f447.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/978ab80e34f86812.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0a5ce30878f4e745d26cef67f447.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/c17c0e333ec78182.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5019c3c9b4cb2830ab4d3711f4b3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/c17c0e333ec78182.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5019c3c9b4cb2830ab4d3711f4b3.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/c81f3edc6e27fcf6.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/24a891dbc82a4db7fac145edcbc5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/c81f3edc6e27fcf6.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/24a891dbc82a4db7fac145edcbc5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/dd3300666c1ccb38.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a95e25e133ef5aaaa9394c42bcfe.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/dd3300666c1ccb38.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a95e25e133ef5aaaa9394c42bcfe.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/f809f28a6733b1da.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/dbd6c3eedd3e3c2ab96d07eadb19.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/f809f28a6733b1da.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/dbd6c3eedd3e3c2ab96d07eadb19.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/battleships-stations/fcab866fe6cdd34f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fd443bdce37e68426ba79fff1999.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/battleships-stations/fcab866fe6cdd34f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fd443bdce37e68426ba79fff1999.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/15b319496370584d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7563d52cf88a33a3c51a4ed93b4e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/15b319496370584d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7563d52cf88a33a3c51a4ed93b4e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/15b4913803c60ece.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e24c68dad1c8ddf28e6f217288a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/15b4913803c60ece.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e24c68dad1c8ddf28e6f217288a5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/1cf1d0ac043cc5fc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ca04de1dc7e7aaf4bc6e80ef06fb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/1cf1d0ac043cc5fc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ca04de1dc7e7aaf4bc6e80ef06fb.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/1fcfb5e018394c6e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/71ffa704c0e83e823ce01efe3120.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/1fcfb5e018394c6e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/71ffa704c0e83e823ce01efe3120.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/22e887b24ed9cb80.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9559a1a353ec0fe28be31ade9e37.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/22e887b24ed9cb80.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9559a1a353ec0fe28be31ade9e37.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/2a3739d1eff10943.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1ac96ccfaf6f0e66570d81ffa153.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/2a3739d1eff10943.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1ac96ccfaf6f0e66570d81ffa153.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/3026e3a09cd366e8.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e841a89d2473d7a5c3b1fa62c25a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/3026e3a09cd366e8.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e841a89d2473d7a5c3b1fa62c25a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/302a1c46228a622a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a459e33f8bcd09b6414c31ebdec9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/302a1c46228a622a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a459e33f8bcd09b6414c31ebdec9.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/35a500add70363d6.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/45ac123a4da7e1c81ab121a91d4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/35a500add70363d6.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/45ac123a4da7e1c81ab121a91d4a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/3b1010d21c66ef51.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0df7521cfce55fc92e0ffed496a6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/3b1010d21c66ef51.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0df7521cfce55fc92e0ffed496a6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/4468bd168016ae0e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/36afcc07200588b0d74047d30b5b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/4468bd168016ae0e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/36afcc07200588b0d74047d30b5b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/44f74951be788084.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b49bdeab8decae5d0f9e396358eb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/44f74951be788084.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b49bdeab8decae5d0f9e396358eb.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/45e308017cf637ee.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6a4ba1f0c3ed83c2b4032a159f1b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/45e308017cf637ee.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6a4ba1f0c3ed83c2b4032a159f1b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/4e3086ea308c4f7d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/85fbb57c658d1b705a0856419874.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/4e3086ea308c4f7d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/85fbb57c658d1b705a0856419874.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/4e706231ed761d34.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/495049c1839a3a76cfb6c03f72b1.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/4e706231ed761d34.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/495049c1839a3a76cfb6c03f72b1.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/4ec96acfcd3bac97.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/137176d823002332bff2762c5bda.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/4ec96acfcd3bac97.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/137176d823002332bff2762c5bda.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/5c05e364d1cd2bb5.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fa48cfe8e933b012121704fb307a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/5c05e364d1cd2bb5.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fa48cfe8e933b012121704fb307a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/6236476b3991b815.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9912de15ea3767cef141b1469343.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/6236476b3991b815.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9912de15ea3767cef141b1469343.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/63c6d0e477da8fc3.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/79958524c0f0c6bd9d1eb835adcc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/63c6d0e477da8fc3.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/79958524c0f0c6bd9d1eb835adcc.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/7b3627710e0a2c20.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0f1b45aa3a5153ac99b428234901.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/7b3627710e0a2c20.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0f1b45aa3a5153ac99b428234901.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/801b7f0929c9db51.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0721dde6dc17459432ceb615960a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/801b7f0929c9db51.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0721dde6dc17459432ceb615960a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/908589a7b9262091.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cab88bff7191e4b320da6ad700b3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/908589a7b9262091.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cab88bff7191e4b320da6ad700b3.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/9384059ce036b9df.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/013feea8b95125d9523edbca5c8b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/9384059ce036b9df.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/013feea8b95125d9523edbca5c8b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/969d02db47f68249.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/166b226005e1e00e34235079a915.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/969d02db47f68249.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/166b226005e1e00e34235079a915.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/9c2c22b8702b7a7e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/070b7659f5ec0121d0e2f9a3406c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/9c2c22b8702b7a7e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/070b7659f5ec0121d0e2f9a3406c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/9f7d8326ffa6d77a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c7c6f91771351281adec0fad9840.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/9f7d8326ffa6d77a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c7c6f91771351281adec0fad9840.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/a0cdc5b6de6b0a72.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bb7108db9f5c02020c194b303855.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/a0cdc5b6de6b0a72.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bb7108db9f5c02020c194b303855.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/a8b53bac6008548b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/02e94301bde9db3d7e050097ef9d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/a8b53bac6008548b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/02e94301bde9db3d7e050097ef9d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/ad310e725e1a947f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fb697abce97fcb7face33731845b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/ad310e725e1a947f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fb697abce97fcb7face33731845b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/b1b8b98179fe4f7d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1fb1d56ec0dce46ad80d9584043d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/b1b8b98179fe4f7d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1fb1d56ec0dce46ad80d9584043d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/b838fc27a8815dc3.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b67a6e510c768f2a1ada175f7426.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/b838fc27a8815dc3.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b67a6e510c768f2a1ada175f7426.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/bb6dd77cf6efd8dc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2a07cf0e99f0456b0a46c67ebdbe.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/bb6dd77cf6efd8dc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2a07cf0e99f0456b0a46c67ebdbe.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/e6894d6523020b97.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cabffb0efeaee08ff13a787e2486.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/e6894d6523020b97.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cabffb0efeaee08ff13a787e2486.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/e9b615ef6cbb8f7f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0a22c83e1e4a8eac985de05e3c5e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/e9b615ef6cbb8f7f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0a22c83e1e4a8eac985de05e3c5e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/ec45e2ef9adba9be.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e7efb0392a24463cdfbd5aa8ea06.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/ec45e2ef9adba9be.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e7efb0392a24463cdfbd5aa8ea06.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/f209dfcce2b93e78.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6552c4ba768becf1038205e1f7f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/f209dfcce2b93e78.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6552c4ba768becf1038205e1f7f2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/cruisers-frigates/fe474d8d0e7a2210.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/056970d56099689d64d65b33c82f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/cruisers-frigates/fe474d8d0e7a2210.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/056970d56099689d64d65b33c82f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/0a74fbf3ce295b91.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c9817d31fbcbc6344f2fd96b7891.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/0a74fbf3ce295b91.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c9817d31fbcbc6344f2fd96b7891.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/0b0cb9a94b324209.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/49105a9d6f1677d4fe09bce8ff94.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/0b0cb9a94b324209.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/49105a9d6f1677d4fe09bce8ff94.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/0bae60e6d6430420.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/535a8c3b56a22739ae13b3a5fc0a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/0bae60e6d6430420.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/535a8c3b56a22739ae13b3a5fc0a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/0dcf2b61afbc37e5.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5b7214c7bd335824698f0955f4b7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/0dcf2b61afbc37e5.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5b7214c7bd335824698f0955f4b7.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/1143270443950879.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5349d8f90cefd00e4e94a891c2ac.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/1143270443950879.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5349d8f90cefd00e4e94a891c2ac.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/139920d52dff8af8.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/32387354c0901d8fcddcce51c8c2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/139920d52dff8af8.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/32387354c0901d8fcddcce51c8c2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/17d1e4c4f5f4c218.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/40ac8ffde6ac8b48f6a11f398a35.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/17d1e4c4f5f4c218.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/40ac8ffde6ac8b48f6a11f398a35.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/17ea592043463074.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ef1fcbc3de00232fcb06216be12e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/17ea592043463074.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ef1fcbc3de00232fcb06216be12e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/1dcd1c1f1645d70b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7bceea70c46ce48fb3172ada3fac.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/1dcd1c1f1645d70b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7bceea70c46ce48fb3172ada3fac.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/1e7bf02188be1008.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/84ad19d5746b1403969705296d2b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/1e7bf02188be1008.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/84ad19d5746b1403969705296d2b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/1e8536429347b2dc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/58160b5863301f580ff8deba5138.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/1e8536429347b2dc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/58160b5863301f580ff8deba5138.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/208b4446fd1364bf.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/43d29eede1accc8fdd4abe14aaeb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/208b4446fd1364bf.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/43d29eede1accc8fdd4abe14aaeb.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/227dc64d900c5a28.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/671f7a6d6c385991e93dc87be5dd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/227dc64d900c5a28.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/671f7a6d6c385991e93dc87be5dd.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/234ded5f7c713dbb.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f4d54a3bdd3336652a5f416c2c0c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/234ded5f7c713dbb.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f4d54a3bdd3336652a5f416c2c0c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/23814117faee635c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/de11dcea78a4c00d1e7f904d2cb6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/23814117faee635c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/de11dcea78a4c00d1e7f904d2cb6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/25eee7982224a67a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c43ae54aa1ed4717bef24e2aa476.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/25eee7982224a67a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c43ae54aa1ed4717bef24e2aa476.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/274aa496a67e58b7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8276dc64686bbd8ae46b6a6a7ede.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/274aa496a67e58b7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8276dc64686bbd8ae46b6a6a7ede.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/29ef9b9a8abf1402.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2682cc60c56a4f5f2e7a939b07b6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/29ef9b9a8abf1402.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2682cc60c56a4f5f2e7a939b07b6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/3671d8cdca84ea4e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c5b3626549c0276f3f363dc164c2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/3671d8cdca84ea4e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c5b3626549c0276f3f363dc164c2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/367c9d79a7b90f58.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/15f3fba434a56686412909722615.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/367c9d79a7b90f58.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/15f3fba434a56686412909722615.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/3d6d34674b3daa6a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d839f6aca7d448c37289f27c9dff.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/3d6d34674b3daa6a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d839f6aca7d448c37289f27c9dff.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/4180a8a1717c2d7e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7c870251cc5c34a00914b8037d35.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/4180a8a1717c2d7e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7c870251cc5c34a00914b8037d35.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/4291d435a824ae14.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/73f79bfef54eae643d3169e78fb2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/4291d435a824ae14.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/73f79bfef54eae643d3169e78fb2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/452d3b85d1fed972.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1b4b701e0c0403f8c35491184c8e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/452d3b85d1fed972.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1b4b701e0c0403f8c35491184c8e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/47ada4d70d1f708c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ce7b7f7a0a8500e6a4f4c7c1cb96.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/47ada4d70d1f708c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ce7b7f7a0a8500e6a4f4c7c1cb96.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/4e09fb72185c8ca7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/67bd09d50950f3a6391a24ff4054.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/4e09fb72185c8ca7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/67bd09d50950f3a6391a24ff4054.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/4e6e9773ae44c813.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6b1452032000cd0ef379bc07c4da.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/4e6e9773ae44c813.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6b1452032000cd0ef379bc07c4da.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/52ffe0ee3d7c6dad.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3a00a7fb05e8eaf15daf48cfa700.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/52ffe0ee3d7c6dad.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3a00a7fb05e8eaf15daf48cfa700.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/552ce6725b5d51b1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fbf5c14ef32d10cb6551968b296e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/552ce6725b5d51b1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fbf5c14ef32d10cb6551968b296e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/5599ff04578bdd8e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cd5616d94008c172ebcda6bf514a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/5599ff04578bdd8e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cd5616d94008c172ebcda6bf514a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/5c0cead0ea788ede.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ee7a9226f9f67c7bd49efdc2704e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/5c0cead0ea788ede.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ee7a9226f9f67c7bd49efdc2704e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/5eb97a65d59e6923.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/44419d64d9450c2540de13978c93.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/5eb97a65d59e6923.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/44419d64d9450c2540de13978c93.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/606674a6eca812c4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2415c00d4624318d724180f5fc03.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/606674a6eca812c4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2415c00d4624318d724180f5fc03.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/61a1ddff82f0e7a0.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/565cc7b61810a27eb6387a8c5154.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/61a1ddff82f0e7a0.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/565cc7b61810a27eb6387a8c5154.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/722313f9f3e27b65.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f031d22c4dc9d607ba32f5e22cbd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/722313f9f3e27b65.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f031d22c4dc9d607ba32f5e22cbd.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/742b71c93259566c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/85610f8bdb94c56900a69feb30e7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/742b71c93259566c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/85610f8bdb94c56900a69feb30e7.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/764e15c6d4ba6572.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cf65c91b25a72e06cd045dd24c63.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/764e15c6d4ba6572.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cf65c91b25a72e06cd045dd24c63.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/77d01200b7b920bc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/191a6dd9d7833d0ce0b566d170dd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/77d01200b7b920bc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/191a6dd9d7833d0ce0b566d170dd.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/7ac3496d77710e13.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f951c521a3bb4316b78fd8ab6cba.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/7ac3496d77710e13.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f951c521a3bb4316b78fd8ab6cba.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/7f1cabc9d59c9864.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3dc3ea69d3e7437dafa4d4e89529.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/7f1cabc9d59c9864.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3dc3ea69d3e7437dafa4d4e89529.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/7fc665562588b5e9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f5ab67bce788b47fc4d28f199f1e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/7fc665562588b5e9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f5ab67bce788b47fc4d28f199f1e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/8d86aab028663961.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c4f044ba0873a9349d020b8a559b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/8d86aab028663961.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c4f044ba0873a9349d020b8a559b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/921f8db11fa6c315.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5c0c15c8c9665ebdf5fe866cf9a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/921f8db11fa6c315.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5c0c15c8c9665ebdf5fe866cf9a5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/96bb69fb8b747b1b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3784187edc13a571af60644d2998.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/96bb69fb8b747b1b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3784187edc13a571af60644d2998.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/98358aa0321267b2.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cfa149a7ddce42beb157651924f0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/98358aa0321267b2.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cfa149a7ddce42beb157651924f0.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/9c0677a6425f7007.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c4b2c0c3380807154a40b470e35d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/9c0677a6425f7007.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c4b2c0c3380807154a40b470e35d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/a133be6d9f7a5479.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5c7841eda27b7a0336157f806017.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/a133be6d9f7a5479.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5c7841eda27b7a0336157f806017.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/a3c30e3e2d823636.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f7b537f7b878ec913c554efd932f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/a3c30e3e2d823636.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f7b537f7b878ec913c554efd932f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/a735ae6fb252259c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/102197e44c2308b152b70e2d5b30.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/a735ae6fb252259c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/102197e44c2308b152b70e2d5b30.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/a801b08614bb46aa.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f36edd036de6fed2ab2982c7a296.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/a801b08614bb46aa.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f36edd036de6fed2ab2982c7a296.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/a9974d033a685400.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/17002fa4e139152774c0cd1db00a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/a9974d033a685400.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/17002fa4e139152774c0cd1db00a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/acc642a8506ce48b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2c8dd2d61c2a5e54ba5e6166b517.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/acc642a8506ce48b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2c8dd2d61c2a5e54ba5e6166b517.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/af506df68a66c42a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/894c206e5acf19aa1092d1dedb59.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/af506df68a66c42a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/894c206e5acf19aa1092d1dedb59.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/b17d802be574a65a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cd3dd0301b919897b2bc9ca8db8f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/b17d802be574a65a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cd3dd0301b919897b2bc9ca8db8f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/b462567be043bec7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8023a4f2ceed321db776311f0217.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/b462567be043bec7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8023a4f2ceed321db776311f0217.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/b4e2105ef2d8ef85.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f7d05e6ea212e05c07719bf6d231.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/b4e2105ef2d8ef85.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f7d05e6ea212e05c07719bf6d231.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/b5c071e6c9c6e6cc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c3898691385503bed44289dc3018.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/b5c071e6c9c6e6cc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c3898691385503bed44289dc3018.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/c6753d288f13e6b9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/576ffb12713798b309730b5b7e4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/c6753d288f13e6b9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/576ffb12713798b309730b5b7e4a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/ca30c44bd75d739d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3698f1a1d871a199a7aa5c249ec4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/ca30c44bd75d739d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3698f1a1d871a199a7aa5c249ec4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/cbea4bbf0751a8a0.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9e080823f2c87e73b62d28215522.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/cbea4bbf0751a8a0.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9e080823f2c87e73b62d28215522.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/cc35e044924b8e09.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/941f2d8302a5d280360af7d6bc6d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/cc35e044924b8e09.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/941f2d8302a5d280360af7d6bc6d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/cf9ecaf4adf9c1f4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/12222a3b247e73ea158123b48e8b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/cf9ecaf4adf9c1f4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/12222a3b247e73ea158123b48e8b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/d05a6d132fc91981.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/82640bed702c711e23f176cc6161.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/d05a6d132fc91981.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/82640bed702c711e23f176cc6161.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/d27ef3bfd9350363.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bde7ae06d8f2bf23f63ad8ef175d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/d27ef3bfd9350363.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bde7ae06d8f2bf23f63ad8ef175d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/d4701e5f143d9042.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/afe7a359472e52b680db588d72f6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/d4701e5f143d9042.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/afe7a359472e52b680db588d72f6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/d950a40dc017c24d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d604bf80f6efe29f8475075b196e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/d950a40dc017c24d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d604bf80f6efe29f8475075b196e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/dc6ceff1ece996c6.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/33f41a41c43f54dccc367ba32181.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/dc6ceff1ece996c6.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/33f41a41c43f54dccc367ba32181.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/defa62427b5eba2c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ef6a0be1cc19c64c0a1abfae761a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/defa62427b5eba2c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ef6a0be1cc19c64c0a1abfae761a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/e25fc2f21c96d160.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4bf3dab986c3b5a7c2cee6ce66cb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/e25fc2f21c96d160.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4bf3dab986c3b5a7c2cee6ce66cb.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/e377c3a325bf3e5c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/add2078847d9f766c5f448192115.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/e377c3a325bf3e5c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/add2078847d9f766c5f448192115.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/e4a93d395aef1175.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/32cd8098173c9f7c57bf2c62854f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/e4a93d395aef1175.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/32cd8098173c9f7c57bf2c62854f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/e8533fe0f0d4f9d5.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cc6dea975b42ebfdc18d0d47778e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/e8533fe0f0d4f9d5.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cc6dea975b42ebfdc18d0d47778e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/e9c1b981b74a7a3d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e74abaa8b9ba0338c506b72c9f9b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/e9c1b981b74a7a3d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e74abaa8b9ba0338c506b72c9f9b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/ebba3fff97f98aad.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1e891dbcb8e895b17bf45e2da9f4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/ebba3fff97f98aad.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1e891dbcb8e895b17bf45e2da9f4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/f05dff8d5c0b9af7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/74b6f7228226f7d433bbcff483f8.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/f05dff8d5c0b9af7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/74b6f7228226f7d433bbcff483f8.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/f2bafdc38585a296.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f5473b633afdceba28d280cfec65.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/f2bafdc38585a296.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f5473b633afdceba28d280cfec65.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/f36f30ff42d5574e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5c69c22f80ef0af66f1848357290.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/f36f30ff42d5574e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5c69c22f80ef0af66f1848357290.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/f602bb959d0e199b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/334107de83c1a046edd20b01b714.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/f602bb959d0e199b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/334107de83c1a046edd20b01b714.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/f9d19251a859d4ea.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/eca4e77a766f6c0f939a4d6d6d6b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/f9d19251a859d4ea.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/eca4e77a766f6c0f939a4d6d6d6b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/faa81077d33bfddb.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9e1d1be70b762f0657f099822cfe.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/faa81077d33bfddb.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9e1d1be70b762f0657f099822cfe.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/fdd2cd11f82ae95b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fde23270d251d8431b33e1877594.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/fdd2cd11f82ae95b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fde23270d251d8431b33e1877594.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/fefbf6534885fdfc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e5e594ccd9a7281b3b1eec8092b5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/fefbf6534885fdfc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e5e594ccd9a7281b3b1eec8092b5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/freighters/ff0c2e363f14bc3f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6f4e212a43d7c2d2b156bce60af7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/freighters/ff0c2e363f14bc3f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6f4e212a43d7c2d2b156bce60af7.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/0a0090ff6acf23a6.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b3671c02672b11aac213713d1dad.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/0a0090ff6acf23a6.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b3671c02672b11aac213713d1dad.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/16f481f517ac38f4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7c501267fcff18c90b53babd0c55.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/16f481f517ac38f4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7c501267fcff18c90b53babd0c55.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/1b45596d21701762.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9a69833199fb6935d43e8ae06eaf.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/1b45596d21701762.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9a69833199fb6935d43e8ae06eaf.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/1c0c0cf25cbe96ab.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7a0e6baf009a9c98e865d8b21b05.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/1c0c0cf25cbe96ab.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7a0e6baf009a9c98e865d8b21b05.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/1c169e6f03049f2d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a2eced412390fa4cb287af96f5f9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/1c169e6f03049f2d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a2eced412390fa4cb287af96f5f9.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/1e78c877bc4145d9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/93b5106b5eb049ba17036056f130.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/1e78c877bc4145d9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/93b5106b5eb049ba17036056f130.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/253d562fd3fbbe37.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/62a2b403d0faf337774869580975.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/253d562fd3fbbe37.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/62a2b403d0faf337774869580975.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/2e6c7de0949e5f24.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5fdb896e96c9f41ceff4f1a06ce0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/2e6c7de0949e5f24.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5fdb896e96c9f41ceff4f1a06ce0.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/2f3fa149916a5a3e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fd8afc05acd105605ad122823873.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/2f3fa149916a5a3e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fd8afc05acd105605ad122823873.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/36b94dac508bbe1e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a2520b7eb07879258603fe3f6bed.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/36b94dac508bbe1e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a2520b7eb07879258603fe3f6bed.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/3d1ee265d3af56be.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f85464526404f676479fedc3dd2e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/3d1ee265d3af56be.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f85464526404f676479fedc3dd2e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/3e43c9d2db2ede57.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/305a841a634c7b33b44d11adaeee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/3e43c9d2db2ede57.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/305a841a634c7b33b44d11adaeee.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/3e64a3da9ae9d03f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/35b1467de52f18044c8f7cc41bcc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/3e64a3da9ae9d03f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/35b1467de52f18044c8f7cc41bcc.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/43f9f3198b0c8c28.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/776cbb6a662396c5c5e4a54d5f6a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/43f9f3198b0c8c28.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/776cbb6a662396c5c5e4a54d5f6a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/48bbec563835f09e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4f9e1064a1e38b9daea2f1edf789.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/48bbec563835f09e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4f9e1064a1e38b9daea2f1edf789.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/5377b5cc0371a9f1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/56da6b7aa147e64a5fd4911d90c0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/5377b5cc0371a9f1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/56da6b7aa147e64a5fd4911d90c0.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/624feb6c32f8e645.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b4df668d05fc888eca23fec8849c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/624feb6c32f8e645.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b4df668d05fc888eca23fec8849c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/6c74fa91ed1f1047.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/41d461e9f0935aedf331bf29cea6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/6c74fa91ed1f1047.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/41d461e9f0935aedf331bf29cea6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/71f07fba0b6e2950.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5fbef8f150c9b4e07e24f360daa0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/71f07fba0b6e2950.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5fbef8f150c9b4e07e24f360daa0.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/72385983b713d2d8.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0aa5a17d790302e6327114bf5b3c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/72385983b713d2d8.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0aa5a17d790302e6327114bf5b3c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/7b0ce17023fcaa6a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d1014b66dd49bda6b0e988bbc0b6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/7b0ce17023fcaa6a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d1014b66dd49bda6b0e988bbc0b6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/7b6f9371d9f7eaac.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6d523cf0f4d1189e6d5d04582e18.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/7b6f9371d9f7eaac.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6d523cf0f4d1189e6d5d04582e18.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/7d4a7acd120aa7f7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1985b37a239831612cb55786adfd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/7d4a7acd120aa7f7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1985b37a239831612cb55786adfd.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/7e808ad7f721b759.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ccf995777a4d7ad5fed3f2787a4f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/7e808ad7f721b759.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ccf995777a4d7ad5fed3f2787a4f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/926b7e5c044c4ea4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7be346ccc82990cc774532fa3ec1.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/926b7e5c044c4ea4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7be346ccc82990cc774532fa3ec1.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/a1e406b6c0208899.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6cb3b610e42b4ef2ac8d4f2f7e70.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/a1e406b6c0208899.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6cb3b610e42b4ef2ac8d4f2f7e70.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/a6d2f81f4d989a2b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/62a2b403d0faf337774869580975.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/a6d2f81f4d989a2b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/62a2b403d0faf337774869580975.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/a7aa2adb98e9963f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d42b13dfa56180dd62b253bffa0f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/a7aa2adb98e9963f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d42b13dfa56180dd62b253bffa0f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/a827c3a27d9f94e1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92d885e7c94ed6663890b7a6de55.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/a827c3a27d9f94e1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92d885e7c94ed6663890b7a6de55.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/aa0ec67ba209e68a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/581fcc74b9eb8e62b45d1ae04653.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/aa0ec67ba209e68a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/581fcc74b9eb8e62b45d1ae04653.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/aa8fbabfa6214765.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f40ce690e9f3d273052510fa19c3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/aa8fbabfa6214765.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f40ce690e9f3d273052510fa19c3.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/b3fd1f7da5acd1ca.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0fea15c0c00377837d12a7e8f0df.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/b3fd1f7da5acd1ca.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0fea15c0c00377837d12a7e8f0df.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/ba87be9715412a61.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/62a7ebc656badd0f8e251fb99409.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/ba87be9715412a61.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/62a7ebc656badd0f8e251fb99409.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/c15550e6a5847ec1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f605716e2a755b07f38175e5552a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/c15550e6a5847ec1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f605716e2a755b07f38175e5552a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/ca8b598466fb1996.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d5580d3bf1716e8cc1b204b76f19.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/ca8b598466fb1996.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d5580d3bf1716e8cc1b204b76f19.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/cc3e290124d5dbcc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fe2a3dd4110c1754ed84999870bd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/cc3e290124d5dbcc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fe2a3dd4110c1754ed84999870bd.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/cc777289146c792f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4d69508bee540e2bf720650e1e6a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/cc777289146c792f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4d69508bee540e2bf720650e1e6a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/cdcfe6dd3e61f3ea.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f46082359ea7ae28d72804ad704d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/cdcfe6dd3e61f3ea.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f46082359ea7ae28d72804ad704d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/ce0b00905abc780e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d08d2996e90cf8cd5fc3abc79dd2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/ce0b00905abc780e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d08d2996e90cf8cd5fc3abc79dd2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/d0e2c8003a4fd0a4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4bd19dec2732d4cdb56f40f1be86.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/d0e2c8003a4fd0a4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4bd19dec2732d4cdb56f40f1be86.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/d4c7110c48f777e4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b0fc0c35284c2c42bebfe278c309.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/d4c7110c48f777e4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b0fc0c35284c2c42bebfe278c309.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/d83f44b24a8d220d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e857b2cd07a364bc325478238364.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/d83f44b24a8d220d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e857b2cd07a364bc325478238364.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/dc73d81f9ea4d71c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f21986438218364cad86c70f6c23.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/dc73d81f9ea4d71c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f21986438218364cad86c70f6c23.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/deffec453bd112eb.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/79cd30cacd04d84c31f5b843d4ab.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/deffec453bd112eb.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/79cd30cacd04d84c31f5b843d4ab.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/e00893fac7c041b7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0cb635ffc150ca7324ac53144cd7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/e00893fac7c041b7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0cb635ffc150ca7324ac53144cd7.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/e335e577e9b6eb7f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a006511ca04c6a0e8d789846a499.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/e335e577e9b6eb7f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a006511ca04c6a0e8d789846a499.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/e3e9fb5b97442b9a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6277eb18343114aa93165b99373a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/e3e9fb5b97442b9a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6277eb18343114aa93165b99373a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/e60421a0ce5d9211.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3b9362a2b4d1a031adbcf2c156f3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/e60421a0ce5d9211.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3b9362a2b4d1a031adbcf2c156f3.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/ea74f69ab2d7c4df.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b68952af7b8667fe0a51ba8224b4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/ea74f69ab2d7c4df.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b68952af7b8667fe0a51ba8224b4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/ea903ef74ad006b4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bc7bfba4b3b514148d5ce7295a32.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/ea903ef74ad006b4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bc7bfba4b3b514148d5ce7295a32.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/f62cbc1f5afaefda.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92537e7d2d112e385c73f06f64cb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/f62cbc1f5afaefda.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92537e7d2d112e385c73f06f64cb.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/f6ccb0de480cca7c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6e656261ad7cc35b62ec99240c94.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/f6ccb0de480cca7c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6e656261ad7cc35b62ec99240c94.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/imported/ff78a6a8c6f4274a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3ea7cf7b3e72935fd7e3a2d3b650.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/imported/ff78a6a8c6f4274a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3ea7cf7b3e72935fd7e3a2d3b650.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/0b404bf996ca8f0a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9482051f69a1cb1f8dc9182810f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/0b404bf996ca8f0a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9482051f69a1cb1f8dc9182810f2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/13a561413bcfc459.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f9af85b439913781b02df101fb9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/13a561413bcfc459.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f9af85b439913781b02df101fb9.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/13d43dba4f38d837.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/46953bad9b2a15fabed1779c2c23.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/13d43dba4f38d837.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/46953bad9b2a15fabed1779c2c23.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/1ca6efcb0be66ac1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/68728b5c3e6afcea34a28d3414f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/1ca6efcb0be66ac1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/68728b5c3e6afcea34a28d3414f2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/1d1a060cb3ad9e90.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/af7c047b2b15c7aadd3e6bdf954e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/1d1a060cb3ad9e90.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/af7c047b2b15c7aadd3e6bdf954e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/1fc9ce7e4f501414.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/73bfe32897d1e208624b91d5cb1d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/1fc9ce7e4f501414.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/73bfe32897d1e208624b91d5cb1d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/1fcc23940343acfe.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b4ca7dd4e529101dfad276db6be5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/1fcc23940343acfe.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b4ca7dd4e529101dfad276db6be5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/20129cb07f51af8c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/44d5e8a409f5a4792db79b21225b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/20129cb07f51af8c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/44d5e8a409f5a4792db79b21225b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/2295e1160ec87be2.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92ba6ea389b3f46de8e47a366a12.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/2295e1160ec87be2.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92ba6ea389b3f46de8e47a366a12.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/2c041c88fb3bbdfa.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/468f1da08743d2c6b7d04af43a70.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/2c041c88fb3bbdfa.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/468f1da08743d2c6b7d04af43a70.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/2de123f0b7f0f3d2.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f73def1b8723fb86725cdbe380c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/2de123f0b7f0f3d2.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f73def1b8723fb86725cdbe380c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/34fe8e7b357df6a1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bcaaba89b417e2a7b5705a7c8ef9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/34fe8e7b357df6a1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bcaaba89b417e2a7b5705a7c8ef9.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/36a803c48966a47d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1c847faca5234107c8fd6e39ed52.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/36a803c48966a47d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1c847faca5234107c8fd6e39ed52.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/397132507f14aa83.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5cd8b441be50a4376b623e8cd642.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/397132507f14aa83.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5cd8b441be50a4376b623e8cd642.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/3aeb7ce858df2545.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a278b56e7517c441b377b9ee7e8e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/3aeb7ce858df2545.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a278b56e7517c441b377b9ee7e8e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/3f176e09d4649d54.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/caa9d63ed552e65d25320d054e0e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/3f176e09d4649d54.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/caa9d63ed552e65d25320d054e0e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/47353fabfbd1feac.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e9f3e1fe1f73d07ac2000166051e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/47353fabfbd1feac.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e9f3e1fe1f73d07ac2000166051e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/4842ebeea4e1805a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b3acaa9a76105d1e59e104fcebcb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/4842ebeea4e1805a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b3acaa9a76105d1e59e104fcebcb.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/4e16e341f72ff9c3.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/199d68febecb76a9c1c8a82dffa4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/4e16e341f72ff9c3.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/199d68febecb76a9c1c8a82dffa4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/5083d269f5114bf7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/306808919494f24ded5d928aa280.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/5083d269f5114bf7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/306808919494f24ded5d928aa280.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/50cb37473e59b4e4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/205cbb75b1635bd4aa99a5ed24c2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/50cb37473e59b4e4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/205cbb75b1635bd4aa99a5ed24c2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/5cd30dfcd7fe3575.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/994ffdf9b547d3a00f905712fec7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/5cd30dfcd7fe3575.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/994ffdf9b547d3a00f905712fec7.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/5cd96f3de07babcd.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2c53213356f69ac779f3c396ad4d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/5cd96f3de07babcd.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2c53213356f69ac779f3c396ad4d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/603abc0698dc7033.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/42b9b4720ac6c7f8c33ee9b10163.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/603abc0698dc7033.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/42b9b4720ac6c7f8c33ee9b10163.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/61207c8a67fb6aba.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/52d6e8e2fff696f802b2e46eecd7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/61207c8a67fb6aba.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/52d6e8e2fff696f802b2e46eecd7.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/68910e48bc00ba08.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f8ee95a3a297fdfae0d5bdc2768a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/68910e48bc00ba08.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f8ee95a3a297fdfae0d5bdc2768a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/6ae5e5a1073f4d15.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/af204fe7b1042e128fe4817e586f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/6ae5e5a1073f4d15.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/af204fe7b1042e128fe4817e586f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/6efbffdabf8330c3.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/80d57b0015086af8fc0794524a17.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/6efbffdabf8330c3.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/80d57b0015086af8fc0794524a17.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/6f2db7e1bbdcddfe.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1bcc2d54d2161b342523f4d80ca4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/6f2db7e1bbdcddfe.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1bcc2d54d2161b342523f4d80ca4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/6fcc33a0185d29b9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/670eda52607f00333cddbf561c25.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/6fcc33a0185d29b9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/670eda52607f00333cddbf561c25.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/71c27345b610f47d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c0f5982f54c07c74bcc1290873ab.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/71c27345b610f47d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c0f5982f54c07c74bcc1290873ab.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/72445d4756355dd3.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4f72d29cd72d1da76eb7a1993a9e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/72445d4756355dd3.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4f72d29cd72d1da76eb7a1993a9e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/74c434e2dc810740.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d2af729a3fbc1f1b5c81ac10b94a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/74c434e2dc810740.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d2af729a3fbc1f1b5c81ac10b94a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/77575fa78d147a8d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1768601f6b3e767e821d367d1963.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/77575fa78d147a8d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1768601f6b3e767e821d367d1963.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/7865546502dd6613.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/aebfa02778cd046584a8c5681971.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/7865546502dd6613.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/aebfa02778cd046584a8c5681971.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/7afe06e4da591338.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fee70648b22f99cefff1d50d3708.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/7afe06e4da591338.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fee70648b22f99cefff1d50d3708.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/7c121da20df97000.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/945b23120df746d68d4cdca801aa.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/7c121da20df97000.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/945b23120df746d68d4cdca801aa.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/7ce68683e9dd466d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9010984e70378fbe5d2003dae923.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/7ce68683e9dd466d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9010984e70378fbe5d2003dae923.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/8261f32655457bf4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1f6413fa6f56f176d6d2fc7cd81e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/8261f32655457bf4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1f6413fa6f56f176d6d2fc7cd81e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/86a92e2b47a75519.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7cb02e6e47abce6cb205262a8921.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/86a92e2b47a75519.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7cb02e6e47abce6cb205262a8921.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/8dd59e768788b872.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1c423b096c61eb5bd694e03197f5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/8dd59e768788b872.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1c423b096c61eb5bd694e03197f5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/8f9a5ac145f31781.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/78b968a60894c688d9b99f78cd1a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/8f9a5ac145f31781.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/78b968a60894c688d9b99f78cd1a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/910137be52693554.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8005b300df5f5c4479ca54eee0f6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/910137be52693554.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8005b300df5f5c4479ca54eee0f6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/92ee128369b001f7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0949130a43637becf08171b74f4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/92ee128369b001f7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0949130a43637becf08171b74f4a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/943d5acab2d0346f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0d2f9b751d03047c96c6befe136e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/943d5acab2d0346f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0d2f9b751d03047c96c6befe136e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/950a74edec7c3730.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0657619830932d788648cbff7c99.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/950a74edec7c3730.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0657619830932d788648cbff7c99.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/9b3d145595b3563b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/141590dde425094bf9bcde768564.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/9b3d145595b3563b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/141590dde425094bf9bcde768564.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/9dcc5f99cc3fb7af.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ac480c7b17f2534800d037f1ccf9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/9dcc5f99cc3fb7af.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ac480c7b17f2534800d037f1ccf9.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/9e39e727d8a75483.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/86c0e3da6358f5fcca531521f09d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/9e39e727d8a75483.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/86c0e3da6358f5fcca531521f09d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/a1f4a6aea8b4ea6c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c70ee0629cc4d6622957f2b47f96.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/a1f4a6aea8b4ea6c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c70ee0629cc4d6622957f2b47f96.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/a23840a6f06b9654.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6f807f89565e520c38d812298cb5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/a23840a6f06b9654.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6f807f89565e520c38d812298cb5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/a3e7bc20f0b5c9ef.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cfbdfcbdf12da9ce4153c3d88bca.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/a3e7bc20f0b5c9ef.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cfbdfcbdf12da9ce4153c3d88bca.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/a5e1f8ac5361f22b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bc00525c1fee4449a4c8b167219f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/a5e1f8ac5361f22b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bc00525c1fee4449a4c8b167219f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/a922dda209cf08cc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a72b85b7047c05eb2a187f034a65.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/a922dda209cf08cc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a72b85b7047c05eb2a187f034a65.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/b1b109666fcbf885.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9022a5070a4036e7c7370e94dee5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/b1b109666fcbf885.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9022a5070a4036e7c7370e94dee5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/b45ee1a104072601.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f0a07624cc8d3f0e43ffc58836e9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/b45ee1a104072601.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f0a07624cc8d3f0e43ffc58836e9.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/b58af6ef83d60027.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bbed623bc74b544d07dfe951b229.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/b58af6ef83d60027.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bbed623bc74b544d07dfe951b229.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/b97509e0832bb2be.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9accf8077912bc358550cee70268.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/b97509e0832bb2be.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9accf8077912bc358550cee70268.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/ba7951b4eeb47a24.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4aa02d50a52156e1af244e25fa47.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/ba7951b4eeb47a24.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4aa02d50a52156e1af244e25fa47.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/baf9913aae454da8.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f34a3e0c2b9e427c0d066269495.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/baf9913aae454da8.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f34a3e0c2b9e427c0d066269495.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/bf65e850b7bf4877.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/20faa3daf1b8beb2f7bd3c58ec5d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/bf65e850b7bf4877.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/20faa3daf1b8beb2f7bd3c58ec5d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/c9976072b8383c11.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f4c149f32a40837ba8721e8b7b0b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/c9976072b8383c11.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f4c149f32a40837ba8721e8b7b0b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/cbf587e2920042d3.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92d6bf568c821277cfedefde02a4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/cbf587e2920042d3.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92d6bf568c821277cfedefde02a4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/cca3de2c9ae27d46.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ac91ece8d942497edc9e9a8aa96e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/cca3de2c9ae27d46.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ac91ece8d942497edc9e9a8aa96e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/ce5164df220d01e7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1549b61321cb47497f36f681a26c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/ce5164df220d01e7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1549b61321cb47497f36f681a26c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/d00b47c6daa94dfe.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f28aa35b771ebe7bb20f5017a02e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/d00b47c6daa94dfe.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f28aa35b771ebe7bb20f5017a02e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/d23c5493a3fd55a7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c1cf8b02e8fabf32dc3855bbf7c6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/d23c5493a3fd55a7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c1cf8b02e8fabf32dc3855bbf7c6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/d39d82c7175bcf4b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d8fa049b91732e4e7b0633e6792b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/d39d82c7175bcf4b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d8fa049b91732e4e7b0633e6792b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/d7a2203284c60889.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6c2941342b7e711ca6c9a688c21a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/d7a2203284c60889.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6c2941342b7e711ca6c9a688c21a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/d9fdd6619e3c2b8d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ddef9310348409137c6053efc4ee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/d9fdd6619e3c2b8d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ddef9310348409137c6053efc4ee.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/db7a87b5ae224aae.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ad0d3dd608a3eaf30c1e30fd4a92.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/db7a87b5ae224aae.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ad0d3dd608a3eaf30c1e30fd4a92.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/dc6770074b1f1c83.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f3791927cbae990001de57e899de.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/dc6770074b1f1c83.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f3791927cbae990001de57e899de.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/dd21fc723509d1d6.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f9ebf7ab2c727105ba60e3fffe21.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/dd21fc723509d1d6.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f9ebf7ab2c727105ba60e3fffe21.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/dd7d93f24198ac35.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e9605e4070f3cfeb5ffa71c8fe61.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/dd7d93f24198ac35.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e9605e4070f3cfeb5ffa71c8fe61.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/de02424ad3ee03a0.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4409889ebc8c962b231968dc42c5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/de02424ad3ee03a0.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4409889ebc8c962b231968dc42c5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/de5ee18b3e447aef.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b9192325911c902a959951a54457.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/de5ee18b3e447aef.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b9192325911c902a959951a54457.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/dfe4df1364197ae0.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f96889830ec406e5a5042a02c23b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/dfe4df1364197ae0.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f96889830ec406e5a5042a02c23b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/e10ec79564338815.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3f06a3e97c06b8395617a0a32951.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/e10ec79564338815.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3f06a3e97c06b8395617a0a32951.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/e318ca7b4d31c29b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4e5be9defb0e32cd0edd510d4270.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/e318ca7b4d31c29b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4e5be9defb0e32cd0edd510d4270.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/edbcb77e82a7449e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e87f468b12589782c12f4494c263.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/edbcb77e82a7449e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e87f468b12589782c12f4494c263.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/efda32c07e002978.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/168d815cc24966b4f68831767b1a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/efda32c07e002978.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/168d815cc24966b4f68831767b1a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/f65f4b35aab0789e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/30fa2c5b3dfc5d2c096a8c87d423.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/f65f4b35aab0789e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/30fa2c5b3dfc5d2c096a8c87d423.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/f7f31f399d2791ea.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a2fada40304ed8897f9ecfdb917f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/f7f31f399d2791ea.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a2fada40304ed8897f9ecfdb917f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/f90c8956c934989d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e6c20b590d8aeb3f33895c669025.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/f90c8956c934989d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e6c20b590d8aeb3f33895c669025.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/fa12bd82fddff13a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1081ca4ee3c8c02294ddd2304839.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/fa12bd82fddff13a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1081ca4ee3c8c02294ddd2304839.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/speeders/fee46979dd3cfa7c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c4d755995ee101392de93c0be42c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/speeders/fee46979dd3cfa7c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c4d755995ee101392de93c0be42c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/05585197a8733a29.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1bb01f29c2527c12809d6afeb2ee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/05585197a8733a29.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1bb01f29c2527c12809d6afeb2ee.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/0a6287e3c83b7f18.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b997b6da870747457e0da67dc589.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/0a6287e3c83b7f18.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b997b6da870747457e0da67dc589.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/115ce98c63629922.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ee31c378b416ba7530b1faedab21.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/115ce98c63629922.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ee31c378b416ba7530b1faedab21.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/119f35838041335b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/45a1f1a61c4c6477cc13d5e2e328.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/119f35838041335b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/45a1f1a61c4c6477cc13d5e2e328.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/183109796751056f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/241427fbe237b1e4cd419a5ee2c0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/183109796751056f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/241427fbe237b1e4cd419a5ee2c0.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/1b9cd2359f6be951.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/774b06cbcce4fa8eec661b2ae1b9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/1b9cd2359f6be951.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/774b06cbcce4fa8eec661b2ae1b9.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/1d5053764d9e7757.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/56f6a446dd9a021796ec91de399d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/1d5053764d9e7757.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/56f6a446dd9a021796ec91de399d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/293919d4c3cb9313.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4cb93c15eb016c912bdb729d3d28.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/293919d4c3cb9313.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4cb93c15eb016c912bdb729d3d28.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/2b1c953897641909.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c57aecce563b69ca930d28e452ca.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/2b1c953897641909.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c57aecce563b69ca930d28e452ca.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/30188fbe9e3dac3b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3836e5a226a224a01ff1bd7b7d1a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/30188fbe9e3dac3b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3836e5a226a224a01ff1bd7b7d1a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/37a56d51275ea009.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ac228c06956054e966fba2df2488.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/37a56d51275ea009.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ac228c06956054e966fba2df2488.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/3845d7a99a3caaef.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cb84b99c71a07c8ab888f441f84e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/3845d7a99a3caaef.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cb84b99c71a07c8ab888f441f84e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/390e91cf367e94e9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c050151ee216170c0a351cf3ebc3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/390e91cf367e94e9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c050151ee216170c0a351cf3ebc3.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/3a9afbfa8eb5ec67.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bee507bb1f2219ba991c55a10022.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/3a9afbfa8eb5ec67.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bee507bb1f2219ba991c55a10022.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/3b408058748bdf0a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4a6d937f62a15c631b2c15336252.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/3b408058748bdf0a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4a6d937f62a15c631b2c15336252.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/3c3840505a0f609d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bf8ff75b1d5c0b3a4fe102c36a56.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/3c3840505a0f609d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bf8ff75b1d5c0b3a4fe102c36a56.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/40a50f07eb5acb95.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ef9c682e022748e9045580587741.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/40a50f07eb5acb95.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ef9c682e022748e9045580587741.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/40b75da86d9c93f1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/626805eec1bf4dfb59b9d30bb559.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/40b75da86d9c93f1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/626805eec1bf4dfb59b9d30bb559.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/42e661d31205eebc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d234ef8418329b647c14a74e5dbc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/42e661d31205eebc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d234ef8418329b647c14a74e5dbc.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/4b2c9968dfeb8a33.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/33585c7b96c2a03dfdc5ce21740d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/4b2c9968dfeb8a33.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/33585c7b96c2a03dfdc5ce21740d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/4e481d19a86a553c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3a8a14bc859e8ee12746d9d0bd0d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/4e481d19a86a553c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3a8a14bc859e8ee12746d9d0bd0d.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/521e3017352c5d8f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a04796011144f0d137a1480bd32c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/521e3017352c5d8f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a04796011144f0d137a1480bd32c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/56ce4ce40b28ae5f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7f190c1b5eec17e2f6d88610afe2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/56ce4ce40b28ae5f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7f190c1b5eec17e2f6d88610afe2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/56e919927efe0b85.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/eae189da75cc719d613dfd244607.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/56e919927efe0b85.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/eae189da75cc719d613dfd244607.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/56fa2e085a745bb7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b34a666a4f005f7775808fbc1e1f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/56fa2e085a745bb7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b34a666a4f005f7775808fbc1e1f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/5bff97f22fd06440.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e20adfd3e884c2abf2195014c564.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/5bff97f22fd06440.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e20adfd3e884c2abf2195014c564.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/5d4ce0fc24ac1237.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a9c2c7b9fc9b3c8062959f115205.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/5d4ce0fc24ac1237.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a9c2c7b9fc9b3c8062959f115205.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/67b8bb43da64d2f5.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ecf023010194e57777a04af245e0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/67b8bb43da64d2f5.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ecf023010194e57777a04af245e0.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/6a647f71e26a2f4d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f86ee6c79bd56c9b3e106622ec4e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/6a647f71e26a2f4d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f86ee6c79bd56c9b3e106622ec4e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/6abf27a5d16bdc48.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9f1f12d74d7345a6af6966ddea67.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/6abf27a5d16bdc48.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9f1f12d74d7345a6af6966ddea67.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/70ac47dee2957447.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f8a80da063f36ebb9a63c0ef2e4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/70ac47dee2957447.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f8a80da063f36ebb9a63c0ef2e4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/70c0d2f3f560585a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d0cb7a30015453014ae3b81ed168.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/70c0d2f3f560585a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d0cb7a30015453014ae3b81ed168.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/71bb19e6d1e2d77f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d5999b07ca10310d3fba9db00324.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/71bb19e6d1e2d77f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d5999b07ca10310d3fba9db00324.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/7440b673e57fc22e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e7bc610ba18ae3737790b877c4ad.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/7440b673e57fc22e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e7bc610ba18ae3737790b877c4ad.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/74e63b354eb482cc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/00ad4605f0f478ba01ce3b044177.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/74e63b354eb482cc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/00ad4605f0f478ba01ce3b044177.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/7553802347173daa.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/383a7c6e4d2add8f6cc855dd86f8.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/7553802347173daa.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/383a7c6e4d2add8f6cc855dd86f8.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/755884dbb3de903a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c51dc728c5ec3b930df497029423.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/755884dbb3de903a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c51dc728c5ec3b930df497029423.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/78fec3f0163dc26e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/01737fc4cc853f1922abed2be884.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/78fec3f0163dc26e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/01737fc4cc853f1922abed2be884.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/7a5743d30459224c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d75624ae2eb9444a89b8af35ae2f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/7a5743d30459224c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d75624ae2eb9444a89b8af35ae2f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/7c0891963951b32d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/913d1a12db9007041bf37e513b61.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/7c0891963951b32d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/913d1a12db9007041bf37e513b61.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/7c8ee47e375978c5.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8fee3300f01a8db5612d5d75efa3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/7c8ee47e375978c5.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8fee3300f01a8db5612d5d75efa3.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/7d8e31d328cfe06a.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/64224dc0f7bea3c8d1d359354c21.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/7d8e31d328cfe06a.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/64224dc0f7bea3c8d1d359354c21.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/8172f791182e465d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/08016b27b0c09b5f31ac2c2f6050.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/8172f791182e465d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/08016b27b0c09b5f31ac2c2f6050.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/817c861eff717d23.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0fec7b90c66240537d6297cb205c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/817c861eff717d23.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0fec7b90c66240537d6297cb205c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/836ddf241488dbf9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/139ca66f3532cf37b6558447dc0c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/836ddf241488dbf9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/139ca66f3532cf37b6558447dc0c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/8833a57e7128da03.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/87dbc2cc067bfe6d2ffc33f6b82f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/8833a57e7128da03.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/87dbc2cc067bfe6d2ffc33f6b82f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/9056aa6db38d39bd.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9a669603a9058a1db134e2c5a742.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/9056aa6db38d39bd.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9a669603a9058a1db134e2c5a742.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/90ee98c619b289e0.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/25d9534ff273d22c183a6ca2b636.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/90ee98c619b289e0.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/25d9534ff273d22c183a6ca2b636.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/934c8e09ef402a0e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a69d8c097a561823ef12ca666d10.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/934c8e09ef402a0e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a69d8c097a561823ef12ca666d10.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/954675a34ffe8c5f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/09cde71ada101861162cfb4a28fa.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/954675a34ffe8c5f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/09cde71ada101861162cfb4a28fa.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/97606f3d2259f8fc.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1a4414156df314dd7f039ba600d4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/97606f3d2259f8fc.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1a4414156df314dd7f039ba600d4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/9af0cf41aac89e3b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a5ae501ffeddbbe1c125b073d4f8.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/9af0cf41aac89e3b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a5ae501ffeddbbe1c125b073d4f8.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/a041be074be4b118.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c9bf82f7c74f996b3987dc7d98d3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/a041be074be4b118.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c9bf82f7c74f996b3987dc7d98d3.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/a13db5e60fc61926.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0c9a459cb38fe78f6c49068e2c6c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/a13db5e60fc61926.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0c9a459cb38fe78f6c49068e2c6c.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/a51e570fe64a34c9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/53d515fcfb43316fe4f1ccdb27a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/a51e570fe64a34c9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/53d515fcfb43316fe4f1ccdb27a5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/a9afeed591c3d5a6.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/70cf9febf74f14206749a79c1a50.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/a9afeed591c3d5a6.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/70cf9febf74f14206749a79c1a50.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/ab2f945cf826d09e.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/597ac1ce1161e8549daddd50f2bf.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/ab2f945cf826d09e.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/597ac1ce1161e8549daddd50f2bf.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/ab571de5ea42f4b6.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/74d37daa0f0dfc7992045541df41.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/ab571de5ea42f4b6.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/74d37daa0f0dfc7992045541df41.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/abfddb9274880ea9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3738b5a46b4cb1e57a1b3a3023e5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/abfddb9274880ea9.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3738b5a46b4cb1e57a1b3a3023e5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/ad6a8fac5726e452.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/40882b47b63328d77288988ac9f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/ad6a8fac5726e452.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/40882b47b63328d77288988ac9f2.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/b1bc6d754e65c326.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9d1f816a54ae8adc4747ffd2fbfd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/b1bc6d754e65c326.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9d1f816a54ae8adc4747ffd2fbfd.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/b71b5c5189d488d4.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2a19ac79e516f9f4b218c6e7c9e6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/b71b5c5189d488d4.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2a19ac79e516f9f4b218c6e7c9e6.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/b8988dbe5f591e7d.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/786bf3372fb3a085112f23ac224e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/b8988dbe5f591e7d.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/786bf3372fb3a085112f23ac224e.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/bcd025ef3ff2004c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e4ab0739339dd160455c8366d3fb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/bcd025ef3ff2004c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e4ab0739339dd160455c8366d3fb.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/bdf34a6590cfe092.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1b2aff77bdc3892486708b7277ad.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/bdf34a6590cfe092.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1b2aff77bdc3892486708b7277ad.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/c0111a384f3067c5.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e7ffa39044a8ccd5c501e6707384.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/c0111a384f3067c5.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e7ffa39044a8ccd5c501e6707384.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/c0a488a1551aa53f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/dd416da6edf2cdfdaa7629a9dbee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/c0a488a1551aa53f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/dd416da6edf2cdfdaa7629a9dbee.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/c2d34928fbd7f963.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/577bc93023807ac7c7f3991f6f4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/c2d34928fbd7f963.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/577bc93023807ac7c7f3991f6f4a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/c532f5f0aa742aa8.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d42ce11eeb95dbb00a210add1e8b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/c532f5f0aa742aa8.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d42ce11eeb95dbb00a210add1e8b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/c6311d601e450854.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ce26788c8d3758632dad9286432f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/c6311d601e450854.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ce26788c8d3758632dad9286432f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/c7ca12218a34590b.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/15c5d3d02319f19c011b9a6e12f5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/c7ca12218a34590b.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/15c5d3d02319f19c011b9a6e12f5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/cde6d74ac476b8b0.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f3c0baba4f1187c6a4472e4ef930.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/cde6d74ac476b8b0.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f3c0baba4f1187c6a4472e4ef930.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/cf04d196a9d40b30.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/573a9f54347954bd096e70411c55.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/cf04d196a9d40b30.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/573a9f54347954bd096e70411c55.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/cfb184c9fcbac921.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6b905246644a977e59b50449d406.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/cfb184c9fcbac921.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6b905246644a977e59b50449d406.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/d1af1589c4bff097.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/70ab76861a76dae54bcc2c390104.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/d1af1589c4bff097.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/70ab76861a76dae54bcc2c390104.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/d27b683cd3806fec.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f8d9812206cbe2db36d18f68fe14.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/d27b683cd3806fec.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f8d9812206cbe2db36d18f68fe14.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/d511d0b24a748a2f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/63a941468e7852d36fd9dfbd3bed.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/d511d0b24a748a2f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/63a941468e7852d36fd9dfbd3bed.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/d57e8a64479fc008.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d0d07c04d2c5a53c87bf9bd304ab.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/d57e8a64479fc008.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d0d07c04d2c5a53c87bf9bd304ab.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/d5f1969d25ee8728.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cfe5a5ebd6c69bc6b1b4fa30ed31.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/d5f1969d25ee8728.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cfe5a5ebd6c69bc6b1b4fa30ed31.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/d95b67b450ba923c.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5375f078f0702c7858414e607ca4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/d95b67b450ba923c.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5375f078f0702c7858414e607ca4.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/d98df856b7ae217f.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c6358f4940181ff3edda37e1398f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/d98df856b7ae217f.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c6358f4940181ff3edda37e1398f.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/dd1a067db967b691.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/259850357cf34d340ba18bbbc7fc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/dd1a067db967b691.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/259850357cf34d340ba18bbbc7fc.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/ecf9a29acf00e3e1.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/be02642095bb6b09ffe25d35057b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/ecf9a29acf00e3e1.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/be02642095bb6b09ffe25d35057b.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/ef10757f9e1ae7ef.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f872d9803a45b49e23df666f31f0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/ef10757f9e1ae7ef.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f872d9803a45b49e23df666f31f0.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/efbc7ed99c6b6f56.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f80c5f3103505b8fada2ab390039.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/efbc7ed99c6b6f56.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f80c5f3103505b8fada2ab390039.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/f1944bb5a4cd8d44.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cbc33d38472f2f2780df2d0c69c5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/f1944bb5a4cd8d44.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cbc33d38472f2f2780df2d0c69c5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/f411d01d0b5231a2.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/40a59c612dd9c79c97426fc515a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/f411d01d0b5231a2.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/40a59c612dd9c79c97426fc515a5.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/fb5b4e56709278a7.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5a19d67d0b72883ba3b398df263a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/fb5b4e56709278a7.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5a19d67d0b72883ba3b398df263a.svg"
   ],
   [
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/starfighters-shuttles/ff7bddc0167f0132.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c0249c28f572ccb68e0516fb04d7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/starfighters-shuttles/ff7bddc0167f0132.webp",
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c0249c28f572ccb68e0516fb04d7.svg"
   ],
   [
     "worlds/star-wars/assets/campagne-fred-20260912/prophecy.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-f0f93827cd8ef9615394b152.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-f0f93827cd8ef9615394b152.webp"
   ],
   [
     "worlds/star-wars/assets/campagne-fred-20260912/redsword.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-35374a463027bc5656c92612.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-35374a463027bc5656c92612.png"
   ]
 ];
 
 export const legacyTokenArtworkEntries=[
   [
     "systems/starwarsffg/images/actor-tokens/fa925965b85c89854ab9d0eb.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9559a1a353ec0fe28be31ade9e37.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9559a1a353ec0fe28be31ade9e37.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0d481f1df11954d051919985.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5cd8b441be50a4376b623e8cd642.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5cd8b441be50a4376b623e8cd642.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3caead3c6bd877f88fcf3967.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0a22c83e1e4a8eac985de05e3c5e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0a22c83e1e4a8eac985de05e3c5e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/23047f96f2404737874eb715.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bde7ae06d8f2bf23f63ad8ef175d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bde7ae06d8f2bf23f63ad8ef175d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/75f02a73200b500bf9fe65e5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/199d68febecb76a9c1c8a82dffa4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/199d68febecb76a9c1c8a82dffa4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1c1c41724afbfecdb8a4747d.svg",
@@ -1733,19 +1733,19 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a5a1205e876ab626ca35288d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7f190c1b5eec17e2f6d88610afe2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7f190c1b5eec17e2f6d88610afe2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e7fe4abfcc75976bb486719d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c9817d31fbcbc6344f2fd96b7891.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c9817d31fbcbc6344f2fd96b7891.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/bbb85306ec4cd76b4b3eaadf.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f8ee95a3a297fdfae0d5bdc2768a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f8ee95a3a297fdfae0d5bdc2768a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/adde7234a06957305933e6e5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/dd416da6edf2cdfdaa7629a9dbee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/dd416da6edf2cdfdaa7629a9dbee.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/935a223604026a9ad123241c.svg",
@@ -1753,43 +1753,43 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/bef734290dd20cc33c458fe9.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ef6a0be1cc19c64c0a1abfae761a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ef6a0be1cc19c64c0a1abfae761a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a1a09e4128938bf55cd16ff0.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3784187edc13a571af60644d2998.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3784187edc13a571af60644d2998.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0af218476d2e9664421ae297.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/168d815cc24966b4f68831767b1a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/168d815cc24966b4f68831767b1a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9bcb04bceafda4b7e8b938da.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ac91ece8d942497edc9e9a8aa96e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ac91ece8d942497edc9e9a8aa96e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1e8ad36b63660485e5617464.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cdbf9804ba432fcbade66191e182.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cdbf9804ba432fcbade66191e182.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cfca37893f52565114663a00.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1768601f6b3e767e821d367d1963.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1768601f6b3e767e821d367d1963.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d643eaf521caf28bcb0d3894.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a04796011144f0d137a1480bd32c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a04796011144f0d137a1480bd32c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/30d46efd984990b3b6d628b9.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9912de15ea3767cef141b1469343.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9912de15ea3767cef141b1469343.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2706a902c8c59f901eef5aba.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d839f6aca7d448c37289f27c9dff.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d839f6aca7d448c37289f27c9dff.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4d83e542d8974fcc1b77ac59.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c51dc728c5ec3b930df497029423.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c51dc728c5ec3b930df497029423.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e4adced8ef30271dba245753.svg",
@@ -1797,35 +1797,35 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/26b4206a0c1374440681ccb3.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9e080823f2c87e73b62d28215522.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9e080823f2c87e73b62d28215522.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0110a087e52e31da929f74eb.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/139ca66f3532cf37b6558447dc0c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/139ca66f3532cf37b6558447dc0c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5e25fd08805f85cb5c13f882.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e24c68dad1c8ddf28e6f217288a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e24c68dad1c8ddf28e6f217288a5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5c18d30cc7b877ac8cb5fc9e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d234ef8418329b647c14a74e5dbc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d234ef8418329b647c14a74e5dbc.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/7e8151b95448e397121601c5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7563d52cf88a33a3c51a4ed93b4e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7563d52cf88a33a3c51a4ed93b4e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ce6fa5dfd49f81b271441018.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f3791927cbae990001de57e899de.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f3791927cbae990001de57e899de.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a442bdc619a354a43e035734.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c6358f4940181ff3edda37e1398f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c6358f4940181ff3edda37e1398f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/fca40b85af1bf9e4a39d98b7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1091f8f25ee284bdef1b995d30bd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1091f8f25ee284bdef1b995d30bd.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1df96ebcbac47a580d9d0b2f.svg",
@@ -1833,7 +1833,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e2586e0f40046587dd46f27b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fd443bdce37e68426ba79fff1999.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fd443bdce37e68426ba79fff1999.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a039585a29b2223814c83ce1.svg",
@@ -1841,59 +1841,59 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/47999693a4d31227fc6d51d4.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e4ab0739339dd160455c8366d3fb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e4ab0739339dd160455c8366d3fb.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/85df8d12736eec8100adb45c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/86c0e3da6358f5fcca531521f09d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/86c0e3da6358f5fcca531521f09d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/39f1585df8d825e288d6d1c2.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f031d22c4dc9d607ba32f5e22cbd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f031d22c4dc9d607ba32f5e22cbd.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3b1206399af39dd7ff896795.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d0cb7a30015453014ae3b81ed168.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d0cb7a30015453014ae3b81ed168.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c8d784e2971d54fa3513dbef.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92ba6ea389b3f46de8e47a366a12.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92ba6ea389b3f46de8e47a366a12.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2aeb4e862d2ed8dedd4e98e9.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0fec7b90c66240537d6297cb205c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0fec7b90c66240537d6297cb205c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3d51c56951f9c60b5b7bfbe6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cb84b99c71a07c8ab888f441f84e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cb84b99c71a07c8ab888f441f84e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5ee9e42bb766fa6d76ad34c7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1b2aff77bdc3892486708b7277ad.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1b2aff77bdc3892486708b7277ad.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/24434a67f78d1fd5dfc9f829.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2c53213356f69ac779f3c396ad4d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2c53213356f69ac779f3c396ad4d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f40f3564e5c423aa82e663b3.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e9f3e1fe1f73d07ac2000166051e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e9f3e1fe1f73d07ac2000166051e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9c92eeedb893f9816ebf1867.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c5b3626549c0276f3f363dc164c2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c5b3626549c0276f3f363dc164c2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d2581640e0d556ff6a945617.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5375f078f0702c7858414e607ca4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5375f078f0702c7858414e607ca4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d225e197b7b556c2f2f2d90a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/573a9f54347954bd096e70411c55.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/573a9f54347954bd096e70411c55.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8bb20deebb03a0af421d1d5b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cfbdfcbdf12da9ce4153c3d88bca.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cfbdfcbdf12da9ce4153c3d88bca.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2d32d32a0d40cb09cef4af3d.svg",
@@ -1901,59 +1901,59 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5d58fa588c23cbb1bce44696.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/42b9b4720ac6c7f8c33ee9b10163.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/42b9b4720ac6c7f8c33ee9b10163.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0d6460989a5d6db556a8ac0c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3a8a14bc859e8ee12746d9d0bd0d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3a8a14bc859e8ee12746d9d0bd0d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6b9e0db7772b47f4ce550b66.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9e1d1be70b762f0657f099822cfe.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9e1d1be70b762f0657f099822cfe.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e3e2824896f1b48073ff9468.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/dbd6c3eedd3e3c2ab96d07eadb19.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/dbd6c3eedd3e3c2ab96d07eadb19.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0d4d2b477042c12186940039.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d0d07c04d2c5a53c87bf9bd304ab.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d0d07c04d2c5a53c87bf9bd304ab.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/129d870b77b282e665eb110f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ce7b7f7a0a8500e6a4f4c7c1cb96.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ce7b7f7a0a8500e6a4f4c7c1cb96.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/242225bfce6b01e7141e7321.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1b4b701e0c0403f8c35491184c8e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1b4b701e0c0403f8c35491184c8e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/dab791ea97b2cf38a343b048.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5349d8f90cefd00e4e94a891c2ac.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5349d8f90cefd00e4e94a891c2ac.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/65a2a67722103c798e1b3dfd.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/306808919494f24ded5d928aa280.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/306808919494f24ded5d928aa280.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3115fe4363d5b4ff300288b2.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2682cc60c56a4f5f2e7a939b07b6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2682cc60c56a4f5f2e7a939b07b6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c29bd0a243baf34088b7b2da.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e87f468b12589782c12f4494c263.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e87f468b12589782c12f4494c263.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/10a10aca24d1e64550ddfc28.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6be09a830d703f3fb2a3d35d28a7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6be09a830d703f3fb2a3d35d28a7.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0d87880d5e03de843cf67668.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9482051f69a1cb1f8dc9182810f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9482051f69a1cb1f8dc9182810f2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/235cc38a77eab3934e1c0667.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4cb93c15eb016c912bdb729d3d28.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4cb93c15eb016c912bdb729d3d28.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8ff3cd7cf74e8ea3faccdb7f.svg",
@@ -1965,11 +1965,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/612f848bf1b18c85a049fbc1.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f86ee6c79bd56c9b3e106622ec4e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f86ee6c79bd56c9b3e106622ec4e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ff8ca824ea41116265fa753a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/535a8c3b56a22739ae13b3a5fc0a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/535a8c3b56a22739ae13b3a5fc0a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/fe305e0aa2b7bc8ce42ff4f7.svg",
@@ -1977,11 +1977,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9f0d210119d3184c4b4360ec.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/670eda52607f00333cddbf561c25.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/670eda52607f00333cddbf561c25.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c3a4efa2be53b466188cdaa4.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4409889ebc8c962b231968dc42c5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4409889ebc8c962b231968dc42c5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/52419a930f6fff65c0c862fd.svg",
@@ -1993,55 +1993,55 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ce19f46d346f8b238123e8f1.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/577bc93023807ac7c7f3991f6f4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/577bc93023807ac7c7f3991f6f4a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0610a2540aaa181a9ad7fcbc.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7bceea70c46ce48fb3172ada3fac.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7bceea70c46ce48fb3172ada3fac.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2dcaa4524d59fdf7c8be19e7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/67bd09d50950f3a6391a24ff4054.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/67bd09d50950f3a6391a24ff4054.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/74bd5e494fef7f0ae9bb99c6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f4c149f32a40837ba8721e8b7b0b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f4c149f32a40837ba8721e8b7b0b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/94e24793db4232340fbd23f4.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/46953bad9b2a15fabed1779c2c23.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/46953bad9b2a15fabed1779c2c23.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/36b56fe9e7442506cc86f064.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c3898691385503bed44289dc3018.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c3898691385503bed44289dc3018.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ae2b047ebe4850ae4111e137.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a69d8c097a561823ef12ca666d10.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a69d8c097a561823ef12ca666d10.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2fa1545f6425e93bb763afe7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ef1fcbc3de00232fcb06216be12e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ef1fcbc3de00232fcb06216be12e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/fb5af4d6be73c9294b3dad2a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0df7521cfce55fc92e0ffed496a6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0df7521cfce55fc92e0ffed496a6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/42e3e38df2171496cc12a165.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c70ee0629cc4d6622957f2b47f96.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c70ee0629cc4d6622957f2b47f96.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8739db8317e96c5c6a1cef12.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4a6d937f62a15c631b2c15336252.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4a6d937f62a15c631b2c15336252.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d9f998d0a897d320426bff6b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a5ae501ffeddbbe1c125b073d4f8.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a5ae501ffeddbbe1c125b073d4f8.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5b2576974405d3f1cc7c9d2f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2c8dd2d61c2a5e54ba5e6166b517.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2c8dd2d61c2a5e54ba5e6166b517.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/7e71ec814bb09d3f6a81f1f2.svg",
@@ -2049,27 +2049,27 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ecd6c02d89c5ddeb87ed8fbf.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/01737fc4cc853f1922abed2be884.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/01737fc4cc853f1922abed2be884.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3f2f987522894b0d9e7679ae.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/82640bed702c711e23f176cc6161.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/82640bed702c711e23f176cc6161.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0e1d8493029d69b32e69f6f8.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/334107de83c1a046edd20b01b714.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/334107de83c1a046edd20b01b714.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9a6ad2707b691e030881d90d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ad0d3dd608a3eaf30c1e30fd4a92.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ad0d3dd608a3eaf30c1e30fd4a92.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/50a39f704304c51a7f6a761b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c9d1ca69db32f025ffed6994577f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c9d1ca69db32f025ffed6994577f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b388dbc61aac2dbb652bb43a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/73f79bfef54eae643d3169e78fb2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/73f79bfef54eae643d3169e78fb2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4b4fe50674ed7a245ac7d4f8.svg",
@@ -2077,51 +2077,51 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/dbbdfca7ef51394bcda3434d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5a19d67d0b72883ba3b398df263a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5a19d67d0b72883ba3b398df263a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e923030735e8363fe4fbdee1.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6b1452032000cd0ef379bc07c4da.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6b1452032000cd0ef379bc07c4da.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3751579fd4662c267d54fd20.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/40ac8ffde6ac8b48f6a11f398a35.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/40ac8ffde6ac8b48f6a11f398a35.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d9839ea0ebf27fdcf647312e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1f6413fa6f56f176d6d2fc7cd81e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1f6413fa6f56f176d6d2fc7cd81e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ee4194af51505ac942a00a02.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5b7214c7bd335824698f0955f4b7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5b7214c7bd335824698f0955f4b7.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/bb8f5f7a224117111c31b3a1.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6c2941342b7e711ca6c9a688c21a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6c2941342b7e711ca6c9a688c21a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cbff94cdca73d3a4fb07b70f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ef9c682e022748e9045580587741.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ef9c682e022748e9045580587741.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/70888919ef1c7a8d866debbc.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f73def1b8723fb86725cdbe380c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f73def1b8723fb86725cdbe380c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d970c8ba6b9bbb04a5916370.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8005b300df5f5c4479ca54eee0f6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8005b300df5f5c4479ca54eee0f6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/11d127744f8e380562de763b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3f06a3e97c06b8395617a0a32951.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3f06a3e97c06b8395617a0a32951.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/442cc09ff26b23895c173221.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4aa02d50a52156e1af244e25fa47.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4aa02d50a52156e1af244e25fa47.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/63bc6ccd8d91399ed31c7e3a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c7c6f91771351281adec0fad9840.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c7c6f91771351281adec0fad9840.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4cdff6fde66ea0134426d085.svg",
@@ -2129,55 +2129,55 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d70884c52ceba1f7d7e2bb36.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/191a6dd9d7833d0ce0b566d170dd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/191a6dd9d7833d0ce0b566d170dd.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/119ac2c265cb474cb565c18c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/70ab76861a76dae54bcc2c390104.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/70ab76861a76dae54bcc2c390104.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2c34d5f81060613dfed2ec81.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e20adfd3e884c2abf2195014c564.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e20adfd3e884c2abf2195014c564.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ba0987d3f1de72849c2fa882.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1081ca4ee3c8c02294ddd2304839.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1081ca4ee3c8c02294ddd2304839.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/17c79169fe330965480a0d36.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cabffb0efeaee08ff13a787e2486.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cabffb0efeaee08ff13a787e2486.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ac63763d32d2181160887edf.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/eae189da75cc719d613dfd244607.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/eae189da75cc719d613dfd244607.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1d0c9ca6d246d5ab3cbceb36.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/40882b47b63328d77288988ac9f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/40882b47b63328d77288988ac9f2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e6a7c70ae6d8ee61b73b7996.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1549b61321cb47497f36f681a26c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1549b61321cb47497f36f681a26c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4f5d66ab35064bc48fee6ac4.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0f1b45aa3a5153ac99b428234901.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0f1b45aa3a5153ac99b428234901.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/094c786eb265693f3c83c9e3.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e6c20b590d8aeb3f33895c669025.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e6c20b590d8aeb3f33895c669025.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a52a6b0a46f6027e62250ec9.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9d1f816a54ae8adc4747ffd2fbfd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9d1f816a54ae8adc4747ffd2fbfd.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/bb2bd530fc23b481bc12445c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c9bf82f7c74f996b3987dc7d98d3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c9bf82f7c74f996b3987dc7d98d3.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d5d597b4c9fbf86a3e82816e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/afe7a359472e52b680db588d72f6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/afe7a359472e52b680db588d72f6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/57180b3afbcff21f131b860b.svg",
@@ -2185,11 +2185,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d8f01b79e0cbbcce4849ed18.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/caa9d63ed552e65d25320d054e0e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/caa9d63ed552e65d25320d054e0e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9d6276377c53566f5a495945.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/383a7c6e4d2add8f6cc855dd86f8.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/383a7c6e4d2add8f6cc855dd86f8.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/eef40f3d93fe9cc70ab26dd1.svg",
@@ -2201,11 +2201,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6c6ce0dc359cc064ed325218.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c5f33ca82783aa46fb35c3569c68.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c5f33ca82783aa46fb35c3569c68.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c6074619cb77577f0efcff4e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cfe5a5ebd6c69bc6b1b4fa30ed31.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cfe5a5ebd6c69bc6b1b4fa30ed31.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/763ca07e31183fa89633d6e4.svg",
@@ -2213,27 +2213,27 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f3223ff3a3f9de6038a25321.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0d2f9b751d03047c96c6befe136e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0d2f9b751d03047c96c6befe136e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e05da46aaa0c5857f1bfc512.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/80d57b0015086af8fc0794524a17.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/80d57b0015086af8fc0794524a17.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c37543ddcf62f91ba6d08069.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/09cde71ada101861162cfb4a28fa.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/09cde71ada101861162cfb4a28fa.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8c97f09340ed2054e5f4d3b9.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fde23270d251d8431b33e1877594.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fde23270d251d8431b33e1877594.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/afc2e12e3aa7e8069bb9431c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f5473b633afdceba28d280cfec65.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f5473b633afdceba28d280cfec65.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9995874001175c0ddeb29bae.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/02e94301bde9db3d7e050097ef9d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/02e94301bde9db3d7e050097ef9d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ba728f1622e3fc857bfc99e6.svg",
@@ -2241,23 +2241,23 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2877c6c41af579dea9161b62.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/57f0098c964db40bdf982f582a81.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/57f0098c964db40bdf982f582a81.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a415043b2ffb1f385a669044.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b3acaa9a76105d1e59e104fcebcb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b3acaa9a76105d1e59e104fcebcb.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a21fcca218f1ce615b2cd938.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/259850357cf34d340ba18bbbc7fc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/259850357cf34d340ba18bbbc7fc.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b6f55dd14d82ac3b3902b981.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f8a80da063f36ebb9a63c0ef2e4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f8a80da063f36ebb9a63c0ef2e4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f38c5f5f7642373c2026eef5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/63a941468e7852d36fd9dfbd3bed.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/63a941468e7852d36fd9dfbd3bed.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c5e6dad11efabc7704fdfb82.svg",
@@ -2265,31 +2265,31 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/042bfff4cbe2126442dee32c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/43d29eede1accc8fdd4abe14aaeb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/43d29eede1accc8fdd4abe14aaeb.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f52e94cb6beec5121d459484.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fa48cfe8e933b012121704fb307a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fa48cfe8e933b012121704fb307a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cf8c8e9e99d83831e5548cf7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1801e499af64409e806093f0cc2e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1801e499af64409e806093f0cc2e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/65203588892526859d78f1a7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cd3dd0301b919897b2bc9ca8db8f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cd3dd0301b919897b2bc9ca8db8f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/49e05201b53529c5aeb2a88a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9accf8077912bc358550cee70268.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9accf8077912bc358550cee70268.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ee78801819345985e0f1c32b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/85610f8bdb94c56900a69feb30e7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/85610f8bdb94c56900a69feb30e7.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d42f2443669f19e78c3d6f4f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/87dbc2cc067bfe6d2ffc33f6b82f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/87dbc2cc067bfe6d2ffc33f6b82f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/943bff1d01522167040d01c7.svg",
@@ -2297,15 +2297,15 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/87c7020b32a8dd368e888817.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/941f2d8302a5d280360af7d6bc6d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/941f2d8302a5d280360af7d6bc6d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b0752a2b59113a042bb3731e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/137176d823002332bff2762c5bda.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/137176d823002332bff2762c5bda.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/fc74ade34a1fb3fda6e7ec9c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8276dc64686bbd8ae46b6a6a7ede.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8276dc64686bbd8ae46b6a6a7ede.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a8cab5bce318f0d0bd268926.svg",
@@ -2313,11 +2313,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1262dede454493bb5dccfd0e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9010984e70378fbe5d2003dae923.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9010984e70378fbe5d2003dae923.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e080cabd2fb522ffb72d2f75.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1ac96ccfaf6f0e66570d81ffa153.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1ac96ccfaf6f0e66570d81ffa153.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0d096225400f5a0861951e2f.svg",
@@ -2325,39 +2325,39 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/63098f2b9a949fe462055a5b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/774b06cbcce4fa8eec661b2ae1b9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/774b06cbcce4fa8eec661b2ae1b9.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/77e39aa8084ab7aa13ba31f2.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2a19ac79e516f9f4b218c6e7c9e6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2a19ac79e516f9f4b218c6e7c9e6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/22e40877270c30ad4190b7ea.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f7d05e6ea212e05c07719bf6d231.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f7d05e6ea212e05c07719bf6d231.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b074e5fae3c9b01ce0968807.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b9192325911c902a959951a54457.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b9192325911c902a959951a54457.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/120323c153ac2564b178d951.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1e891dbcb8e895b17bf45e2da9f4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1e891dbcb8e895b17bf45e2da9f4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a524bd258130af1375eaa6a4.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/205cbb75b1635bd4aa99a5ed24c2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/205cbb75b1635bd4aa99a5ed24c2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a6ef47cc68a6dcf31d29f6d6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/49105a9d6f1677d4fe09bce8ff94.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/49105a9d6f1677d4fe09bce8ff94.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ee054d0dee7ca569e02e1370.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/64224dc0f7bea3c8d1d359354c21.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/64224dc0f7bea3c8d1d359354c21.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a68ce492ef57f48280c0d5b0.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1bcc2d54d2161b342523f4d80ca4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1bcc2d54d2161b342523f4d80ca4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4c1ce82113fda29d74eb5882.svg",
@@ -2365,27 +2365,27 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2cbcc922c4d8dce856633b1d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a459e33f8bcd09b6414c31ebdec9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a459e33f8bcd09b6414c31ebdec9.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1c09a84a277723680f74ba93.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/30fa2c5b3dfc5d2c096a8c87d423.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/30fa2c5b3dfc5d2c096a8c87d423.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e75290be8d220a9eb9daedef.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7c870251cc5c34a00914b8037d35.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7c870251cc5c34a00914b8037d35.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d4e6603918f95c6d6f6be135.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/44d5e8a409f5a4792db79b21225b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/44d5e8a409f5a4792db79b21225b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2de80ee806790022d46870bf.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bcaaba89b417e2a7b5705a7c8ef9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bcaaba89b417e2a7b5705a7c8ef9.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e90235f3b28d9728899845a6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4f72d29cd72d1da76eb7a1993a9e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4f72d29cd72d1da76eb7a1993a9e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/23eb07a791003654bef50509.svg",
@@ -2393,7 +2393,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ebec455d10335330e020e9fa.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/33585c7b96c2a03dfdc5ce21740d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/33585c7b96c2a03dfdc5ce21740d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0cf66cd6cfc5d20b4e24ad71.svg",
@@ -2405,31 +2405,31 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0641e431bb348c52b5578134.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bc00525c1fee4449a4c8b167219f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bc00525c1fee4449a4c8b167219f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/70a9218f84d1ab4c53471b43.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/495049c1839a3a76cfb6c03f72b1.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/495049c1839a3a76cfb6c03f72b1.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ed0bf8a0267f5f90984f46be.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c0f5982f54c07c74bcc1290873ab.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c0f5982f54c07c74bcc1290873ab.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/733c388d235d3a2cb5682ac5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c57aecce563b69ca930d28e452ca.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c57aecce563b69ca930d28e452ca.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ae8f2dcd904bab01fd9b8144.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cab88bff7191e4b320da6ad700b3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cab88bff7191e4b320da6ad700b3.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/31d54ef7c685147f8ff5778a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f951c521a3bb4316b78fd8ab6cba.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f951c521a3bb4316b78fd8ab6cba.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8bb209aa793be8ebb7a42723.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8fee3300f01a8db5612d5d75efa3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8fee3300f01a8db5612d5d75efa3.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3b2437ea841d9b14d6216c42.svg",
@@ -2437,19 +2437,19 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9c06fea9764d7fd69c3e1e09.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/de11dcea78a4c00d1e7f904d2cb6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/de11dcea78a4c00d1e7f904d2cb6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ecac2b607e8f8eb0878de4e9.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/af204fe7b1042e128fe4817e586f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/af204fe7b1042e128fe4817e586f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2dc3cc7e733f71ab1e18734e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/20faa3daf1b8beb2f7bd3c58ec5d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/20faa3daf1b8beb2f7bd3c58ec5d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a8a4796ed15b7df459e95062.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b4ca7dd4e529101dfad276db6be5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b4ca7dd4e529101dfad276db6be5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cd73e1aac54627f40a5aed63.svg",
@@ -2457,23 +2457,23 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/384814060746754f068af04d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/15f3fba434a56686412909722615.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/15f3fba434a56686412909722615.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e7927d9666ebc1d0624bd65e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ddef9310348409137c6053efc4ee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ddef9310348409137c6053efc4ee.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/898909d91d150950dd5badaf.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/74d37daa0f0dfc7992045541df41.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/74d37daa0f0dfc7992045541df41.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b134332b2cdcbbc4b3e1b083.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4e5be9defb0e32cd0edd510d4270.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4e5be9defb0e32cd0edd510d4270.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/df77284d9dc757364f725543.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e7bc610ba18ae3737790b877c4ad.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e7bc610ba18ae3737790b877c4ad.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a0539b17343f4ad2e7968143.svg",
@@ -2481,35 +2481,35 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e730b4ff0f72515da319f67f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/dfe2a151470beb9d4725f6fa76da.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/dfe2a151470beb9d4725f6fa76da.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/64df023dada9c832f454109b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cfa149a7ddce42beb157651924f0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cfa149a7ddce42beb157651924f0.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e731254c624e302c0c70677e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/53d515fcfb43316fe4f1ccdb27a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/53d515fcfb43316fe4f1ccdb27a5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/057e71eb55b3b7c153b3ea0f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3dc3ea69d3e7437dafa4d4e89529.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3dc3ea69d3e7437dafa4d4e89529.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/799f069553773d65c63926c7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e7efb0392a24463cdfbd5aa8ea06.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e7efb0392a24463cdfbd5aa8ea06.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2a573355a9f38262ebd1785e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/565cc7b61810a27eb6387a8c5154.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/565cc7b61810a27eb6387a8c5154.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/67f6d3814fce6900df647d94.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a72b85b7047c05eb2a187f034a65.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a72b85b7047c05eb2a187f034a65.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b3cdd6d662a096998ce223a6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/32cd8098173c9f7c57bf2c62854f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/32cd8098173c9f7c57bf2c62854f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/60cdc5600949c2d48f2ca9f1.svg",
@@ -2517,59 +2517,59 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/31fb17f7285a8ccb16b91d26.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b49bdeab8decae5d0f9e396358eb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b49bdeab8decae5d0f9e396358eb.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/94af7813e22ace011d2270e0.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/36afcc07200588b0d74047d30b5b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/36afcc07200588b0d74047d30b5b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/78af3960bb60a3af57d8079e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e74abaa8b9ba0338c506b72c9f9b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e74abaa8b9ba0338c506b72c9f9b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2a83d67b1ae0ab662ae8d782.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/671f7a6d6c385991e93dc87be5dd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/671f7a6d6c385991e93dc87be5dd.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0124da253c6123ce5300e739.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c0249c28f572ccb68e0516fb04d7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c0249c28f572ccb68e0516fb04d7.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/66f6e1bdb0d6c9256c8ec966.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/102197e44c2308b152b70e2d5b30.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/102197e44c2308b152b70e2d5b30.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d581ccc640298a496aa7ac5e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d5999b07ca10310d3fba9db00324.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d5999b07ca10310d3fba9db00324.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1b7b8f9adc030cf38f3dda21.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0657619830932d788648cbff7c99.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0657619830932d788648cbff7c99.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/07e0c606d89221104b7ce2d1.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/71ffa704c0e83e823ce01efe3120.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/71ffa704c0e83e823ce01efe3120.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b4fd8f7f4448c57ed41e0923.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/597ac1ce1161e8549daddd50f2bf.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/597ac1ce1161e8549daddd50f2bf.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/70600f0711db7abcf20e1352.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/68728b5c3e6afcea34a28d3414f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/68728b5c3e6afcea34a28d3414f2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6fb8a79e88c829f9045e79dc.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f36edd036de6fed2ab2982c7a296.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f36edd036de6fed2ab2982c7a296.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/62fa0b7a4cc6ba7e7597d3cd.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/166b226005e1e00e34235079a915.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/166b226005e1e00e34235079a915.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/dd9ef86484b3740d045d7fdb.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4bf3dab986c3b5a7c2cee6ce66cb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4bf3dab986c3b5a7c2cee6ce66cb.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5ea11e11e1d64a82903a8da2.svg",
@@ -2577,55 +2577,55 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4c3003a021b830fe74e0f19b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f0a07624cc8d3f0e43ffc58836e9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f0a07624cc8d3f0e43ffc58836e9.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9b626e538760b9a965f4a426.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c4f044ba0873a9349d020b8a559b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c4f044ba0873a9349d020b8a559b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/41c2ef263ec168fbfec8611f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/17002fa4e139152774c0cd1db00a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/17002fa4e139152774c0cd1db00a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/db9fe7527c64fea7a663da2b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0a5ce30878f4e745d26cef67f447.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0a5ce30878f4e745d26cef67f447.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d57a1aafe0fe7474994094c2.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cd5616d94008c172ebcda6bf514a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cd5616d94008c172ebcda6bf514a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/45267c7ae6910406cbbf510b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c4b2c0c3380807154a40b470e35d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c4b2c0c3380807154a40b470e35d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/7bafffd7a11c15b56ea11a30.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a278b56e7517c441b377b9ee7e8e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a278b56e7517c441b377b9ee7e8e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5bea013a8c5a67e7df09906e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/056970d56099689d64d65b33c82f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/056970d56099689d64d65b33c82f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b3c028287fca12120fb4aa14.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d42ce11eeb95dbb00a210add1e8b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d42ce11eeb95dbb00a210add1e8b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/96a896caa6e90ff72aa02f32.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f872d9803a45b49e23df666f31f0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f872d9803a45b49e23df666f31f0.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/327b44221c50e4d62e4bdb5b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cc6dea975b42ebfdc18d0d47778e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cc6dea975b42ebfdc18d0d47778e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/769c18916d6b3fd3f7d3b053.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/56f6a446dd9a021796ec91de399d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/56f6a446dd9a021796ec91de399d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/390a9f8f5abd9f8a17bd9e4b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/12222a3b247e73ea158123b48e8b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/12222a3b247e73ea158123b48e8b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e96e795317cc19f7bc1fa514.svg",
@@ -2633,31 +2633,31 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/08e55041af5aca5f72e96093.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6f807f89565e520c38d812298cb5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6f807f89565e520c38d812298cb5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2fcfd236c0b826e5194c156b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/74b6f7228226f7d433bbcff483f8.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/74b6f7228226f7d433bbcff483f8.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1c6edbc5e0feee01d31a3b31.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ecf023010194e57777a04af245e0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ecf023010194e57777a04af245e0.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8555190039001d79091cf241.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d2af729a3fbc1f1b5c81ac10b94a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d2af729a3fbc1f1b5c81ac10b94a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/667743a5ea6fec7a4867e20a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/70cf9febf74f14206749a79c1a50.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/70cf9febf74f14206749a79c1a50.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/74833e76df23e61b2fbd167e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9f1f12d74d7345a6af6966ddea67.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9f1f12d74d7345a6af6966ddea67.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6e8ed1a7816a66b54ceb8815.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/78b968a60894c688d9b99f78cd1a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/78b968a60894c688d9b99f78cd1a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1bc1cfcf2a41d94ade33b900.svg",
@@ -2665,11 +2665,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b3fdaff12f7b3c67ed1fdb75.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/626805eec1bf4dfb59b9d30bb559.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/626805eec1bf4dfb59b9d30bb559.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f90bce4ee8f83cbce949bcea.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/913d1a12db9007041bf37e513b61.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/913d1a12db9007041bf37e513b61.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/768e069a6791982763ca1bf0.svg",
@@ -2677,7 +2677,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/7520d36e1f51e0a831ad8f31.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/32387354c0901d8fcddcce51c8c2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/32387354c0901d8fcddcce51c8c2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2a606136208338ecccb538ab.svg",
@@ -2685,71 +2685,71 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a7aafae452f49f4387213a3c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ee7a9226f9f67c7bd49efdc2704e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ee7a9226f9f67c7bd49efdc2704e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3786da9e6343b41f778718b6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5c7841eda27b7a0336157f806017.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5c7841eda27b7a0336157f806017.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/921a0f1d4b20a8bd00620d8d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e841a89d2473d7a5c3b1fa62c25a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e841a89d2473d7a5c3b1fa62c25a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/69997584c92841dc5fed5c9b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b34a666a4f005f7775808fbc1e1f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b34a666a4f005f7775808fbc1e1f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/84cb0982215344fcd3e48187.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/786bf3372fb3a085112f23ac224e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/786bf3372fb3a085112f23ac224e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/7d77f86e56d7de80dbbe0917.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c61829efa8c0e68f1c5cd25ce9f6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c61829efa8c0e68f1c5cd25ce9f6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/40c57f3667ad9279d3962d44.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/33f41a41c43f54dccc367ba32181.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/33f41a41c43f54dccc367ba32181.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e77382c47c915a861df24668.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/79958524c0f0c6bd9d1eb835adcc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/79958524c0f0c6bd9d1eb835adcc.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/32dec3f86fa6f3e60c96f51e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ca04de1dc7e7aaf4bc6e80ef06fb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ca04de1dc7e7aaf4bc6e80ef06fb.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/80bb6357b699014bd00288c8.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6b905246644a977e59b50449d406.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6b905246644a977e59b50449d406.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a13e01a18691dd458d1c68c5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bbed623bc74b544d07dfe951b229.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bbed623bc74b544d07dfe951b229.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4690fe132b2d32b19621426b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/070b7659f5ec0121d0e2f9a3406c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/070b7659f5ec0121d0e2f9a3406c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/dc8d1b1213ed54fc6f037c28.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/15c5d3d02319f19c011b9a6e12f5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/15c5d3d02319f19c011b9a6e12f5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/46558cae8eededabb3a412d8.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cbc33d38472f2f2780df2d0c69c5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cbc33d38472f2f2780df2d0c69c5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4ddb2a3adb3834478debf9bd.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/58160b5863301f580ff8deba5138.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/58160b5863301f580ff8deba5138.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/e3e630c312983d29777e3e38.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e5e594ccd9a7281b3b1eec8092b5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e5e594ccd9a7281b3b1eec8092b5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4bc3d5c0cccf1e149c9709d8.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c050151ee216170c0a351cf3ebc3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c050151ee216170c0a351cf3ebc3.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8b1824e067c37d236278e4e6.svg",
@@ -2757,19 +2757,19 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/552814bb4d484dc9856cfab6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f7b537f7b878ec913c554efd932f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f7b537f7b878ec913c554efd932f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cc1100fc504e06a093d6aee0.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/85fbb57c658d1b705a0856419874.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/85fbb57c658d1b705a0856419874.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/20a253667a1e201fabb2bd79.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b997b6da870747457e0da67dc589.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b997b6da870747457e0da67dc589.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/64357fdc1bc83718bfe89147.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/be02642095bb6b09ffe25d35057b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/be02642095bb6b09ffe25d35057b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/45f13fba38ad5cb6e39b6410.svg",
@@ -2777,15 +2777,15 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/58bb517fa6e87e85b9d625a0.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/468f1da08743d2c6b7d04af43a70.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/468f1da08743d2c6b7d04af43a70.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/72b7cc5b60319fe40919e375.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/576ffb12713798b309730b5b7e4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/576ffb12713798b309730b5b7e4a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f20276869a7c2fade6ce0a72.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b67a6e510c768f2a1ada175f7426.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b67a6e510c768f2a1ada175f7426.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/31f4a1b22c45733380b59291.svg",
@@ -2793,7 +2793,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/8df5662cbe57b533eed7f360.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6a4ba1f0c3ed83c2b4032a159f1b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6a4ba1f0c3ed83c2b4032a159f1b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/86a08c610d44963f53a9abe4.svg",
@@ -2801,11 +2801,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5501609347ae5ad1826303c2.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/40a59c612dd9c79c97426fc515a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/40a59c612dd9c79c97426fc515a5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/dbbc564a729c07b7049a8455.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f3c0baba4f1187c6a4472e4ef930.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f3c0baba4f1187c6a4472e4ef930.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/23639d3eee2e249332f28f2f.svg",
@@ -2813,39 +2813,39 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/fb506a21474ba2107d4cfbc4.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f8d9812206cbe2db36d18f68fe14.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f8d9812206cbe2db36d18f68fe14.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f4f9bbb69f71f270ee66238b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f5ab67bce788b47fc4d28f199f1e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f5ab67bce788b47fc4d28f199f1e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/fa1c18f39201bd629f1a67ef.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/52d6e8e2fff696f802b2e46eecd7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/52d6e8e2fff696f802b2e46eecd7.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/78404c16fbe0a76530a2f662.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1fb1d56ec0dce46ad80d9584043d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1fb1d56ec0dce46ad80d9584043d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/000015f6530db043db825dca.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e7ffa39044a8ccd5c501e6707384.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e7ffa39044a8ccd5c501e6707384.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2400bc2a32954ec6d0917bbe.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3a00a7fb05e8eaf15daf48cfa700.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3a00a7fb05e8eaf15daf48cfa700.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/bc50178db1551e3aadd9af7c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fbf5c14ef32d10cb6551968b296e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fbf5c14ef32d10cb6551968b296e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5004f70f0b54e69b49cf8f62.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e9605e4070f3cfeb5ffa71c8fe61.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e9605e4070f3cfeb5ffa71c8fe61.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/193256c34ce0b5d3fbdedd89.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ac228c06956054e966fba2df2488.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ac228c06956054e966fba2df2488.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9d272c2ecd8b95e6419e444e.svg",
@@ -2853,39 +2853,39 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1a3d3e19b74caf1776ae956a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f9af85b439913781b02df101fb9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f9af85b439913781b02df101fb9.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6050743a84f263ea9cad060c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/aebfa02778cd046584a8c5681971.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/aebfa02778cd046584a8c5681971.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4bbe0b62182c9b57469f5b68.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f4d54a3bdd3336652a5f416c2c0c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f4d54a3bdd3336652a5f416c2c0c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/dda6076fb7249f0d79bff883.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/73bfe32897d1e208624b91d5cb1d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/73bfe32897d1e208624b91d5cb1d.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/39e51d0dc8c27a8cda36b7c5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5c69c22f80ef0af66f1848357290.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5c69c22f80ef0af66f1848357290.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0784d77cc227d91d9e07c9e5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6552c4ba768becf1038205e1f7f2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6552c4ba768becf1038205e1f7f2.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/906ed418cd9d7d79fd399cbe.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ce26788c8d3758632dad9286432f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ce26788c8d3758632dad9286432f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a655de7fc0eeefc08451cfc7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d8fa049b91732e4e7b0633e6792b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d8fa049b91732e4e7b0633e6792b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/40b392a0e28a3b874e8765a6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/84ad19d5746b1403969705296d2b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/84ad19d5746b1403969705296d2b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/507f6715df85b1e5d2bdf377.svg",
@@ -2897,23 +2897,23 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/418951809b4081705b587e47.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7cb02e6e47abce6cb205262a8921.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7cb02e6e47abce6cb205262a8921.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/05b7b022435b0ccdec47a3fb.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/945b23120df746d68d4cdca801aa.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/945b23120df746d68d4cdca801aa.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9b007b6e9f40da4ab41845af.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/994ffdf9b547d3a00f905712fec7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/994ffdf9b547d3a00f905712fec7.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2fd58aadb08e294259ffb3b7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3836e5a226a224a01ff1bd7b7d1a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3836e5a226a224a01ff1bd7b7d1a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f1b44deb5a3d6e0f711cfc93.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92d6bf568c821277cfedefde02a4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92d6bf568c821277cfedefde02a4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/7edc03d910e3edc15b192c0b.svg",
@@ -2925,11 +2925,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/78a80678aec289a8d45ca9dd.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/894c206e5acf19aa1092d1dedb59.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/894c206e5acf19aa1092d1dedb59.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3ddbb98bbd7abd096b574bad.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/cf65c91b25a72e06cd045dd24c63.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/cf65c91b25a72e06cd045dd24c63.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/88c1e13bba5f6b3392fb80c0.svg",
@@ -2941,11 +2941,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0c829827b6348a2a1dfefcad.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bb7108db9f5c02020c194b303855.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bb7108db9f5c02020c194b303855.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a7991873d756f1e0d8d708ab.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8023a4f2ceed321db776311f0217.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8023a4f2ceed321db776311f0217.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a70c0da85cf0fc2b6a9ad051.svg",
@@ -2953,11 +2953,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/7499694719cf5b8f00c04bf8.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3698f1a1d871a199a7aa5c249ec4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3698f1a1d871a199a7aa5c249ec4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/77e6b624c6cb17edec35eff6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a2fada40304ed8897f9ecfdb917f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a2fada40304ed8897f9ecfdb917f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/14696a36c32c34359d4ff6ad.svg",
@@ -2973,19 +2973,19 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/040f0d8f767602a947d1459a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/8f34a3e0c2b9e427c0d066269495.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/8f34a3e0c2b9e427c0d066269495.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c4232798b3375bda1d09f3f7.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1bb01f29c2527c12809d6afeb2ee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1bb01f29c2527c12809d6afeb2ee.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/c857553bb7d6609672e90c85.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f9ebf7ab2c727105ba60e3fffe21.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f9ebf7ab2c727105ba60e3fffe21.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5b7ba08620438380ee79f0e8.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5019c3c9b4cb2830ab4d3711f4b3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5019c3c9b4cb2830ab4d3711f4b3.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/70cee5028760ca7659b435a5.svg",
@@ -2993,31 +2993,31 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3d2e3b3b9b0b85afde471e0d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f80c5f3103505b8fada2ab390039.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f80c5f3103505b8fada2ab390039.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a2f4386e05c4b00655f7a0f0.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/013feea8b95125d9523edbca5c8b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/013feea8b95125d9523edbca5c8b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6f6310e9de9948d52b563c92.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5c0c15c8c9665ebdf5fe866cf9a5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5c0c15c8c9665ebdf5fe866cf9a5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/5db30e1064484a44256e5628.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9a669603a9058a1db134e2c5a742.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9a669603a9058a1db134e2c5a742.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9b80c6709559ff83466b895d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6f4e212a43d7c2d2b156bce60af7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6f4e212a43d7c2d2b156bce60af7.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f9050750d511cda7fe319a55.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2415c00d4624318d724180f5fc03.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2415c00d4624318d724180f5fc03.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/90529ee952bf43014fb17491.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/24a891dbc82a4db7fac145edcbc5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/24a891dbc82a4db7fac145edcbc5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ec1d40f93d0226771b5c5f7b.svg",
@@ -3025,59 +3025,59 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6f7c83a094441f20609b25e6.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c43ae54aa1ed4717bef24e2aa476.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c43ae54aa1ed4717bef24e2aa476.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0eabd5158e131db859fe9b96.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1a4414156df314dd7f039ba600d4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1a4414156df314dd7f039ba600d4.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cb1c3047e64dbf4570300218.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9022a5070a4036e7c7370e94dee5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9022a5070a4036e7c7370e94dee5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/a9b4f3f09d6fb87b28d952ff.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/45ac123a4da7e1c81ab121a91d4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/45ac123a4da7e1c81ab121a91d4a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b6a4897e2e3deecda3e26f85.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d75624ae2eb9444a89b8af35ae2f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d75624ae2eb9444a89b8af35ae2f.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f50a1c862147d510480a43fb.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/25d9534ff273d22c183a6ca2b636.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/25d9534ff273d22c183a6ca2b636.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/20239f39f602697e86dfbe55.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3738b5a46b4cb1e57a1b3a3023e5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3738b5a46b4cb1e57a1b3a3023e5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/ebda8e811eee69930a0fe050.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a9c2c7b9fc9b3c8062959f115205.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a9c2c7b9fc9b3c8062959f115205.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b957a06cbf65876a3c72cabe.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f28aa35b771ebe7bb20f5017a02e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f28aa35b771ebe7bb20f5017a02e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/38d4e6bd3794254fef33cb69.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/af7c047b2b15c7aadd3e6bdf954e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/af7c047b2b15c7aadd3e6bdf954e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cc095697618b168a845892ad.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/141590dde425094bf9bcde768564.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/141590dde425094bf9bcde768564.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/244776a796c766a3973cb4ac.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0721dde6dc17459432ceb615960a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0721dde6dc17459432ceb615960a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/cea0b3497e703e110fd7fce5.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/add2078847d9f766c5f448192115.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/add2078847d9f766c5f448192115.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0ef8be3ae28b30ed71662176.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/45a1f1a61c4c6477cc13d5e2e328.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/45a1f1a61c4c6477cc13d5e2e328.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f1373860729d0114ea88c773.svg",
@@ -3085,43 +3085,43 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/3e583033b4657d5982dfe90e.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/eca4e77a766f6c0f939a4d6d6d6b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/eca4e77a766f6c0f939a4d6d6d6b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/db7c358206b002e5271909e2.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1c423b096c61eb5bd694e03197f5.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1c423b096c61eb5bd694e03197f5.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/f17b38e516d81d129af6919f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/44419d64d9450c2540de13978c93.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/44419d64d9450c2540de13978c93.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/20daef6e0a08c5e557a3583a.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b8837571fcce70b53e55c0f7e388.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b8837571fcce70b53e55c0f7e388.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1c0e41037e6cfed4e3f9f5b4.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bf8ff75b1d5c0b3a4fe102c36a56.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bf8ff75b1d5c0b3a4fe102c36a56.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/605937c20d2e0aa9c2e4442d.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c1cf8b02e8fabf32dc3855bbf7c6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c1cf8b02e8fabf32dc3855bbf7c6.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/388161158d479dc986199333.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d604bf80f6efe29f8475075b196e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d604bf80f6efe29f8475075b196e.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d4cd95e5855a207919642d94.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bee507bb1f2219ba991c55a10022.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bee507bb1f2219ba991c55a10022.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/1ccd77cc270864657ac5c856.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/c4d755995ee101392de93c0be42c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/c4d755995ee101392de93c0be42c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9e40bd59c5183aea951ecf76.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/00ad4605f0f478ba01ce3b044177.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/00ad4605f0f478ba01ce3b044177.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b4dbf6bc6ec1051dd2044c27.svg",
@@ -3129,23 +3129,23 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/d2170a77905037d410732989.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a95e25e133ef5aaaa9394c42bcfe.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a95e25e133ef5aaaa9394c42bcfe.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/790086c165b73f65cfba28ce.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f96889830ec406e5a5042a02c23b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f96889830ec406e5a5042a02c23b.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/9328b3fa28cbbfc81ebe023f.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a8ec4188156dda38592637052198.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a8ec4188156dda38592637052198.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/0e609486e4a43d0fc48dce5b.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/2a07cf0e99f0456b0a46c67ebdbe.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/2a07cf0e99f0456b0a46c67ebdbe.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/b73c66c4ef7f69b58a3856fb.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0949130a43637becf08171b74f4a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0949130a43637becf08171b74f4a.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6ea1058c33e21af66acb76ac.svg",
@@ -3153,31 +3153,31 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/actor-tokens/abad64a21657b8d963075a07.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0c9a459cb38fe78f6c49068e2c6c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0c9a459cb38fe78f6c49068e2c6c.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/2e24d5e52a6082b198baca1c.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fee70648b22f99cefff1d50d3708.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fee70648b22f99cefff1d50d3708.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/4d392280dad403818a770403.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ac480c7b17f2534800d037f1ccf9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ac480c7b17f2534800d037f1ccf9.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/fa5c8f727bdd8c551dcbb268.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1c847faca5234107c8fd6e39ed52.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1c847faca5234107c8fd6e39ed52.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6edcf4d8cf048cd3ebf61c57.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ee31c378b416ba7530b1faedab21.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ee31c378b416ba7530b1faedab21.svg"
   ],
   [
     "systems/starwarsffg/images/actor-tokens/6f0aa14cdd7c251874d013f9.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/08016b27b0c09b5f31ac2c2f6050.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/08016b27b0c09b5f31ac2c2f6050.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/784.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4d69508bee540e2bf720650e1e6a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4d69508bee540e2bf720650e1e6a.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-9e49b9c0640aa4e0f2a378ca.webp",
@@ -3185,15 +3185,15 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/779.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0fea15c0c00377837d12a7e8f0df.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0fea15c0c00377837d12a7e8f0df.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/793.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a006511ca04c6a0e8d789846a499.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a006511ca04c6a0e8d789846a499.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/780.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/62a7ebc656badd0f8e251fb99409.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/62a7ebc656badd0f8e251fb99409.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-25f609ebde3c098ef5f82a94.png",
@@ -3201,23 +3201,23 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/782.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d5580d3bf1716e8cc1b204b76f19.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d5580d3bf1716e8cc1b204b76f19.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/759.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/305a841a634c7b33b44d11adaeee.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/305a841a634c7b33b44d11adaeee.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/768.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d1014b66dd49bda6b0e988bbc0b6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d1014b66dd49bda6b0e988bbc0b6.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/790.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f21986438218364cad86c70f6c23.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f21986438218364cad86c70f6c23.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/797.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/bc7bfba4b3b514148d5ce7295a32.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/bc7bfba4b3b514148d5ce7295a32.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-194c00ced6bb45fe85f7eeb8.webp",
@@ -3225,7 +3225,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-35374a463027bc5656c92612.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-35374a463027bc5656c92612.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-35374a463027bc5656c92612.png"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-6ac9f691990b1741f457d1df.png",
@@ -3233,7 +3233,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/798.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92537e7d2d112e385c73f06f64cb.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92537e7d2d112e385c73f06f64cb.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-12db904e14210f02d4ddd549.webp",
@@ -3241,15 +3241,15 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/791.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/79cd30cacd04d84c31f5b843d4ab.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/79cd30cacd04d84c31f5b843d4ab.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/751.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7a0e6baf009a9c98e865d8b21b05.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7a0e6baf009a9c98e865d8b21b05.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/786.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d08d2996e90cf8cd5fc3abc79dd2.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d08d2996e90cf8cd5fc3abc79dd2.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-c9b359bed6b8f5b8df9856ae.png",
@@ -3257,31 +3257,31 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/771.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/ccf995777a4d7ad5fed3f2787a4f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/ccf995777a4d7ad5fed3f2787a4f.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/765.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/41d461e9f0935aedf331bf29cea6.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/41d461e9f0935aedf331bf29cea6.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/770.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/1985b37a239831612cb55786adfd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/1985b37a239831612cb55786adfd.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-b958f1069a87540f9c72f1ee.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b958f1069a87540f9c72f1ee.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b958f1069a87540f9c72f1ee.webp"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-b2d2c5e9dad5107ac6526e4a.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b2d2c5e9dad5107ac6526e4a.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-b2d2c5e9dad5107ac6526e4a.png"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/776.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/92d885e7c94ed6663890b7a6de55.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/92d885e7c94ed6663890b7a6de55.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/795.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3b9362a2b4d1a031adbcf2c156f3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3b9362a2b4d1a031adbcf2c156f3.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-f1e44422376d3a024be3e8de.webp",
@@ -3289,7 +3289,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/772.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7be346ccc82990cc774532fa3ec1.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7be346ccc82990cc774532fa3ec1.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-4e43f72e6549e83efead35b9.png",
@@ -3305,7 +3305,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/769.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6d523cf0f4d1189e6d5d04582e18.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6d523cf0f4d1189e6d5d04582e18.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-31972e45d0154d38587bbcaf.webp",
@@ -3313,19 +3313,19 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-54e571c805c996ca1a9c58f9.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-54e571c805c996ca1a9c58f9.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-54e571c805c996ca1a9c58f9.webp"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/785.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f46082359ea7ae28d72804ad704d.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f46082359ea7ae28d72804ad704d.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/757.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a2520b7eb07879258603fe3f6bed.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a2520b7eb07879258603fe3f6bed.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/766.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5fbef8f150c9b4e07e24f360daa0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5fbef8f150c9b4e07e24f360daa0.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-681fb8e2e8b9e945be460307.webp",
@@ -3333,7 +3333,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/754.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/62a2b403d0faf337774869580975.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/62a2b403d0faf337774869580975.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-fc9e0950d2871e66860fdd49.webp",
@@ -3341,7 +3341,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/753.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/93b5106b5eb049ba17036056f130.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/93b5106b5eb049ba17036056f130.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-cadf6fab7410ec17842066bb.webp",
@@ -3353,19 +3353,19 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/752.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/a2eced412390fa4cb287af96f5f9.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/a2eced412390fa4cb287af96f5f9.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/750.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/9a69833199fb6935d43e8ae06eaf.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/9a69833199fb6935d43e8ae06eaf.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/760.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/35b1467de52f18044c8f7cc41bcc.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/35b1467de52f18044c8f7cc41bcc.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/787.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4bd19dec2732d4cdb56f40f1be86.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4bd19dec2732d4cdb56f40f1be86.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-8c77f8cb95fafc64793f0804.png",
@@ -3373,27 +3373,27 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/749.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/7c501267fcff18c90b53babd0c55.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/7c501267fcff18c90b53babd0c55.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/775.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/d42b13dfa56180dd62b253bffa0f.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/d42b13dfa56180dd62b253bffa0f.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/778.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f40ce690e9f3d273052510fa19c3.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f40ce690e9f3d273052510fa19c3.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/789.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/e857b2cd07a364bc325478238364.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/e857b2cd07a364bc325478238364.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/773.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6cb3b610e42b4ef2ac8d4f2f7e70.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6cb3b610e42b4ef2ac8d4f2f7e70.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/792.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0cb635ffc150ca7324ac53144cd7.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0cb635ffc150ca7324ac53144cd7.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-9e8529685bdbbf84ba6023ae.png",
@@ -3401,35 +3401,35 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/796.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b68952af7b8667fe0a51ba8224b4.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b68952af7b8667fe0a51ba8224b4.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/799.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6e656261ad7cc35b62ec99240c94.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6e656261ad7cc35b62ec99240c94.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/788.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b0fc0c35284c2c42bebfe278c309.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b0fc0c35284c2c42bebfe278c309.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/762.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/4f9e1064a1e38b9daea2f1edf789.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/4f9e1064a1e38b9daea2f1edf789.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-4d29d317b151f0dff498ae4f.png",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-4d29d317b151f0dff498ae4f.png"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-4d29d317b151f0dff498ae4f.png"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/777.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/581fcc74b9eb8e62b45d1ae04653.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/581fcc74b9eb8e62b45d1ae04653.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/781.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f605716e2a755b07f38175e5552a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f605716e2a755b07f38175e5552a.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/783.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fe2a3dd4110c1754ed84999870bd.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fe2a3dd4110c1754ed84999870bd.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-047e1646eba8b5be55d009c5.webp",
@@ -3437,23 +3437,23 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/756.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fd8afc05acd105605ad122823873.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fd8afc05acd105605ad122823873.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/794.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/6277eb18343114aa93165b99373a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/6277eb18343114aa93165b99373a.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/748.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b3671c02672b11aac213713d1dad.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b3671c02672b11aac213713d1dad.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/755.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/5fdb896e96c9f41ceff4f1a06ce0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/5fdb896e96c9f41ceff4f1a06ce0.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/800.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/3ea7cf7b3e72935fd7e3a2d3b650.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/3ea7cf7b3e72935fd7e3a2d3b650.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-329cf216e25adf6d3ac3f70e.png",
@@ -3461,7 +3461,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/758.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/f85464526404f676479fedc3dd2e.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/f85464526404f676479fedc3dd2e.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-e80e64e5d6430c4563238668.png",
@@ -3469,7 +3469,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/767.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/0aa5a17d790302e6327114bf5b3c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/0aa5a17d790302e6327114bf5b3c.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-61422cb8ebf4ac2227afb76a.webp",
@@ -3477,7 +3477,7 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/763.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/56da6b7aa147e64a5fd4911d90c0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/56da6b7aa147e64a5fd4911d90c0.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-7ad1cc8676d7039b815c4e94.webp",
@@ -3485,11 +3485,11 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/764.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/b4df668d05fc888eca23fec8849c.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/b4df668d05fc888eca23fec8849c.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/761.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/776cbb6a662396c5c5e4a54d5f6a.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/776cbb6a662396c5c5e4a54d5f6a.svg"
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-d26466fa71ce35d9d7f7d0a6.webp",
@@ -3497,14 +3497,14 @@ export const legacyTokenArtworkEntries=[
   ],
   [
     "systems/starwarsffg/images/refreshed-tokens/preserved-f0f93827cd8ef9615394b152.webp",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-f0f93827cd8ef9615394b152.webp"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens/legacy/refreshed-tokens/preserved-f0f93827cd8ef9615394b152.webp"
   ],
   [
     "systems/starwarsffg/images/ship-tokens/cr90.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/fb697abce97fcb7face33731845b.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/fb697abce97fcb7face33731845b.svg"
   ],
   [
     "systems/starwarsffg/images/ship-tokens/tie-ln.svg",
-    "modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/tokens-20261114/241427fbe237b1e4cd419a5ee2c0.svg"
+    "modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/tokens-20261114/241427fbe237b1e4cd419a5ee2c0.svg"
   ]
 ];

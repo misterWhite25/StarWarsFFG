@@ -2,31 +2,6 @@ import type { Page, Locator } from '@playwright/test';
 import {expect} from "@playwright/test";
 
 /**
- * Match a sidebar directory entry on its full name.
- * v13 renders entries as `<a class="entry-name">`, so a substring match would also hit entries which
- * merely start with the same text (e.g. "qa armor" vs "qa armorItem").
- */
-function exactName(name: string): RegExp {
-  return new RegExp(`^\\s*${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
-}
-
-/**
- * The "Delete" entry of the context menu that was most recently opened.
- *
- * v13 gives directory context menus `fixed: true`, so each one is a popover appended to <body> and
- * they all share `id="context-menu"`. Clicking an entry calls `close()` without awaiting it, and
- * `close()` animates before removing the element - and a menu whose instance is no longer
- * `ui.context` is never closed by the global click handler at all. So more than one can be in the
- * DOM at once. Taking the last one is exact rather than a guess: `_setFixedPosition` appends to
- * <body>, so the newest menu is always last in document order.
- *
- * Targeting `.context-item` rather than the label also avoids matching both the <li> and its <span>.
- */
-function deleteMenuItem(page: Page): Locator {
-  return page.locator('#context-menu').last().locator('.context-item', { hasText: /^Delete$/ });
-}
-
-/**
  * Bring a sidebar directory into view.
  *
  * v13's `Sidebar#_onClickTab` treats a click on the already-active tab as a collapse:
@@ -50,31 +25,15 @@ async function showSidebarTab(page: Page, tab: Locator) {
   await expect(page.locator('#sidebar-content')).toHaveClass(/\bexpanded\b/);
 }
 
-/**
- * Right-click a sidebar directory entry, choose Delete, and confirm.
- *
- * The right-click and the menu click are retried as a unit. Deleting a document re-renders the
- * directory, which rebuilds its ContextMenu and detaches an open menu mid-click - Playwright reports
- * that as "element is not stable" followed by "element was detached from the DOM". Re-opening the
- * menu is the only reliable recovery, since the element the click was aimed at no longer exists.
- *
- * Waiting for the entry count to drop at the end is what keeps the *next* removal from racing the
- * re-render: without it, remove() returns as soon as the confirm dialog closes, while the delete and
- * the re-render it triggers are still in flight.
- */
-async function deleteDirectoryEntry(page: Page, entries: Locator) {
-  const before = await entries.count();
-  const confirm = page.getByRole('button', { name: 'Yes' });
-  await expect(async () => {
-    await entries.first().click({ button: 'right' });
-    const item = deleteMenuItem(page);
-    await expect(item).toBeVisible();
-    await item.click({ timeout: 5_000 });
-    await expect(confirm).toBeEnabled({ timeout: 5_000 });
-  }).toPass({ timeout: 20_000 });
-  await confirm.click();
-  await expect(confirm).not.toBeVisible();
-  await expect(entries).toHaveCount(before - 1);
+/** Remove the named fixture from the verified test world after its assertions. */
+async function removeTestDocument(page: Page, collection: 'actors' | 'items', name: string) {
+  await page.evaluate(async ({collection, name, world}) => {
+    const game = (window as any).game;
+    if (!world || game.world.id !== world || !game.user.isGM) throw new Error('Unexpected test world');
+    const docs = game[collection].filter((doc: {name: string}) => doc.name === name);
+    if (docs.length !== 1) throw new Error(`Expected one test document named ${name}, found ${docs.length}`);
+    await docs[0].delete();
+  }, {collection, name, world: process.env.FOUNDRY_TEST_WORLD});
 }
 
 /** Open only the explicitly configured disposable world before any test writes. */
@@ -83,7 +42,7 @@ export async function openGame(page: Page) {
     hasText: 'Your web browser does not have hardware acceleration enabled.',
   }), notice => notice.click());
   await page.goto('/game');
-  await expect(page.locator('#destinyDark')).toBeVisible({timeout: 30_000});
+  await page.waitForFunction(() => (window as any).game?.ready === true, null, {timeout: 60_000});
   const identity = await page.evaluate(() => {
     const game = (window as any).game;
     return {world: game.world.id, system: game.system.id, generation: game.release.generation, isGM: game.user.isGM};
@@ -116,7 +75,7 @@ export class Actors {
   constructor(public readonly page: Page, actorName: string, actorType: string) {
     this.actorName = actorName;
     this.actorType = actorType;
-    this.actorTab = this.page.getByRole('tab', { name: 'Actors' });
+    this.actorTab = this.page.locator('[role="tab"][data-tab="actors"]');
     // the directory's own create button, scoped so it does not collide with the create dialog's
     // submit button - in v13 both are labelled "Create Actor"
     this.createActorButton = this.page.locator('#actors button[data-action="createEntry"]');
@@ -161,34 +120,37 @@ export class Actors {
     await this.createActorNameField.fill(this.actorName);
     await this.createActorTypeField.selectOption(this.actorType)
     await this.createActorCreateField.click();
+    if (this.actorType === "vehicle") {
+      const mode = this.page.locator('.dialog-form').filter({has: this.page.locator('select[name="vehicleMode"]')});
+      await mode.locator('select[name="vehicleMode"]').selectOption("independent");
+      await mode.locator('[data-action="continue"]').click();
+    }
+    await expect(dialogs).toHaveCount(openDialogs, {timeout: 20_000});
     if (this.actorType !== "vehicle") {
       await expect(this.tabGear).toBeVisible();
     } else {
       await expect(this.tabWeapons).toBeVisible();
     }
-    // wait for the create window to close
-    await expect(dialogs).toHaveCount(openDialogs);
   }
 
   async closeSheet() {
     const closeButton = this.page.locator(
       '.sheet',
       {has: this.page.locator(`text=${this.actorName}`)}
-    ).locator('.close');
+    ).locator('[data-action="close"], .window-header .close');
     await closeButton.click({force: true});
   }
 
   async remove() {
-    // ensure we are on the correct tab
-    await this.goToTab();
-    const entries = this.page.locator('#actors .entry-name').filter({ hasText: exactName(this.actorName) });
-    await deleteDirectoryEntry(this.page, entries);
+    await removeTestDocument(this.page, 'actors', this.actorName);
   }
 
   async switchTab(tabName: string) {
     switch (tabName) {
       case 'characteristics':
-        await this.tabCharacteristics.click();
+        if (!await this.tabCharacteristics.evaluate(tab => tab.classList.contains('active'))) {
+          await this.tabCharacteristics.click();
+        }
         break;
       case 'gear':
         await this.tabGear.click();
@@ -290,12 +252,11 @@ export class Items {
     this.createItemNameField = createDialog.locator('input[name="name"]');
     this.createItemTypeField = createDialog.locator('select[name="type"]');
     this.createItemCreateField = createDialog.locator('button[data-action="ok"]');
-    this.sheetLocator = this.page.locator(
-      '.sheet',
-      {has: this.page.locator(`input[value="${this.itemName}"]`)}
-    );
+    const nameField = this.page.locator(`input[value="${this.itemName}"]`);
+    const sheetTitle = this.page.locator('.window-title').filter({hasText: this.itemName});
+    this.sheetLocator = this.page.locator('.sheet').filter({has: nameField.or(sheetTitle)});
     this.tabDescription =  this.sheetLocator.getByTitle('Description', {exact: true});
-    this.tabModifiers =  this.sheetLocator.getByTitle('Modifiers', {exact: true});
+    this.tabModifiers =  this.sheetLocator.locator('.sheet-tabs [data-tab="attributes"]');
     this.tabModifications =  this.sheetLocator.getByText('Modifications', {exact: true});
     this.tabConfiguration = this.sheetLocator.getByTitle('Configuration');
     this.tabLongDesc =  this.sheetLocator.getByTitle('Long Description and Sources', {exact: true});
@@ -327,15 +288,12 @@ export class Items {
 
   async closeSheet() {
     await new Promise(resolve => setTimeout(resolve, 505));
-    await this.sheetLocator.locator('.close').click();
+    await this.sheetLocator.locator('[data-action="close"], .window-header .close').click();
     await expect(this.sheetLocator).not.toBeVisible();
   }
 
   async remove() {
-    // ensure we are on the correct tab
-    await this.goToTab();
-    const entries = this.page.locator('#items .entry-name').filter({ hasText: exactName(this.itemName) });
-    await deleteDirectoryEntry(this.page, entries);
+    await removeTestDocument(this.page, 'items', this.itemName);
   }
 
   async switchTab(tabName: string) {
@@ -361,16 +319,19 @@ export class Items {
 
   async setStat(statName: string, statValue: string) {
     await this.switchTab('modifiers');
-    // friggin brits :p
-    if (statName === "defense") {
-      statName = 'defence';
-    }
-
-    if (['defence', 'soak', 'encumbrance', 'hardpoints', 'rarity'].includes(statName)) {
-      await this.setField(this.sheetLocator.locator(`input[name="data.${statName}.value"]`), statValue);
-    } else if (['Wounds', 'Strain', 'Brawn', 'Agility', 'Intellect', 'Cunning', 'Willpower', 'Presence'].includes(statName)) {
-      await this.setField(this.sheetLocator.locator(`input[name="data.attributes.${statName}.value"]`), statValue);
-    }
+    const stat = statName === 'defense' ? 'defence' : statName;
+    const attribute = ['Wounds', 'Strain', 'Brawn', 'Agility', 'Intellect', 'Cunning', 'Willpower', 'Presence'].includes(stat);
+    const path = attribute ? `attributes.${stat}.value` : `${stat}.value`;
+    const input = this.sheetLocator.locator(`input[name="data.${path}"]`);
+    await expect(async () => {
+      await input.fill(statValue);
+      await input.dispatchEvent('change');
+      await expect.poll(() => this.page.evaluate(({name, path}) => {
+        const game = (window as any).game;
+        const item = game.items.getName(name);
+        return String((window as any).foundry.utils.getProperty(item.system, path));
+      }, {name: this.itemName, path}), {timeout: 2_000}).toBe(statValue);
+    }).toPass({timeout: 20_000});
   }
 
   /**
@@ -410,7 +371,7 @@ export class Items {
   }
 
   async addDirectModifier(modifierType: string, modifier: string, modifierValue: string) {
-    const modifierElement = '.tab.attributes.active > .attributes-header > .attribute-control';
+    const modifierElement = '.tab.attributes.active .attributes-header [data-action="create"]';
     // this function fails if there's >1 mod on the same item, so be aware of this
     if (this.itemType === "forcepower") {
       await expect(this.sheetLocator.locator('.talent-action.hover').locator('.fa-cog')).toBeEnabled();
@@ -421,9 +382,10 @@ export class Items {
       await popoutPage.locator('.modtype').selectOption(modifierType);
       await popoutPage.locator('.mod').selectOption(modifier);
       await this.setField(popoutPage.locator('.modvalue'), modifierValue);
-      await popoutPage.locator('.close').click();
+      await popoutPage.locator('[data-action="close"], .window-header .close').click();
       await expect(popoutPage).not.toBeVisible();
     } else {
+      await this.switchTab('modifiers');
       await expect(this.sheetLocator.locator(modifierElement)).toBeEnabled();
       await this.sheetLocator.locator(modifierElement).click();
       await this.sheetLocator.locator('.modtype').selectOption(modifierType);
@@ -444,8 +406,8 @@ export class Items {
     await this.setField(popoutPage.locator('.modvalue'), modifierValue);
 
     await new Promise(resolve => setTimeout(resolve, 505));
-    await popoutPage.locator('.close').click();
-    await expect(popoutPage.locator('.close')).not.toBeVisible();
+    await popoutPage.locator('[data-action="close"], .window-header .close').click();
+    await expect(popoutPage.locator('[data-action="close"], .window-header .close')).not.toBeVisible();
   }
 
   async learnTalent(talentNumber: string) {

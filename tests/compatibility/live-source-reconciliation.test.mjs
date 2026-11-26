@@ -19,7 +19,7 @@ async function wizardFixture(api) {
     'helpers/effects.js':{default:{}},
     'helpers/actor-helpers.js':{xpLogEarn:async()=>events.push('earn'),xpLogSpend:async()=>events.push('spend')},
     'helpers/dice-helpers.js':{default:{}},
-    'actors/actor-sheet-ffg.js':{sortDataBy(){},addIfNotExist(){}},
+    'actors/actor-sheet-ffg.js':{sortDataBy(){}},
   })).namespace;
   const wizard=new CharacterCreator();
   wizard.render=()=>events.push('wizard-render');
@@ -31,7 +31,7 @@ async function wizardFixture(api) {
     async update(){events.push('update');},async createEmbeddedDocuments(){events.push('items');},
     sheet:{render(){events.push('sheet-render');}}};
   actors.set(actor.id,actor);
-  return {wizard,game,actor,events,errors};
+  return {wizard,game,actor,events,errors,context};
 }
 
 test('species discovery adds the installed core pack once and deduplicates document UUIDs',async()=>{
@@ -112,6 +112,56 @@ test('species preview and final actor stay managed until synchronization has com
   }
 });
 
+test('creation preview and final sheet both receive paid trees and motivation documents',async()=>{
+  const {wizard,actor}=await wizardFixture();
+  const item=name=>({name,uuid:`Item.${name}`});
+  wizard.data.selected.specialization=item('Primary');
+  wizard.data.selected.motivations.push({item:item('Cause')});
+  wizard.data.purchases.xp.specializations.push({item:item('Secondary'),cost:20});
+  wizard.data.purchases.xp.forcePowers.push({item:item('Influence'),cost:10});
+  const batches=[];
+  actor.createEmbeddedDocuments=async(type,documents)=>{
+    assert.equal(type,'Item');
+    batches.push(Array.from(documents,document=>document.name));
+  };
+  await wizard.showCharacterStatus(actor.id);
+  await wizard.createActor(actor.id);
+  const expected=['Primary','Secondary','Influence','Cause'];
+  assert.deepEqual(batches.filter(batch=>batch.length),[expected,expected]);
+});
+
+test('refunding a Force upgrade keeps other purchases and their XP costs',async()=>{
+  const {wizard,context}=await wizardFixture();
+  const power={name:'Influence',system:{upgrades:{upgrade0:{islearned:true}}},
+    updateSource(changes){this.system.upgrades.upgrade0.islearned=changes['system.upgrades.upgrade0.islearned'];}};
+  wizard.data.selected.species={system:{startingXP:100}};
+  wizard.data.purchases.xp.forcePowers=[{item:power,cost:10}];
+  wizard.data.purchases.xp.talents=[{specName:'Influence',key:'upgrade0',cost:5},{specName:'Healer',key:'talent1',cost:15}];
+  wizard.showCharacterStatusShim=async()=>{};
+  context.$=dataset=>({data:key=>dataset[key]});
+  await wizard.handleForcePowerTalentPurchase({currentTarget:{target:'upgrade0',forcepower:'Influence',cost:5}});
+  assert.equal(power.system.upgrades.upgrade0.islearned,false);
+  assert.deepEqual(Array.from(wizard.data.purchases.xp.talents,purchase=>purchase.specName),['Healer']);
+  assert.equal(wizard.calcXp().available,75);
+});
+
+test('only the initiating wizard processes an active GM reply once',async()=>{
+  const {wizard,game}=await wizardFixture();
+  game.user.id='player';
+  game.users.activeGM={id:'gm'};
+  const created=[];
+  wizard.createActor=async id=>created.push(id);
+  wizard._finalRequest='pending';
+  wizard._wizardSession='session';
+  const reply={eventType:'pcWizard',event:'createFinalActorResponse',recipient:'player',
+    wizardId:'session',requestId:'pending',actorId:'final'};
+  for(const [changes,author] of [[{recipient:'another'},'gm'],[{wizardId:'another'},'gm'],
+    [{requestId:'stale'},'gm'],[{},'another'],[{},'gm'],[{},'gm']]){
+    await wizard._wizardSocketHandler({...reply,...changes},author);
+  }
+  assert.deepEqual(created,['final']);
+});
+
 test('actor sheet supports absent NPC credits and still formats an existing large balance',async()=>{
   const source=await readFile(new URL('../../modules/actors/actor-sheet-ffg.js',import.meta.url),'utf8');
   const start=source.indexOf('        if (data.data.stats.credits');
@@ -136,20 +186,24 @@ test('item creation guard registers once alongside module hooks and allows one m
   item.type='career';assert.equal(callbacks[0][1](item),false);assert.equal(warnings.length,1);
 });
 
-test('pilotage extension hook runs after initial display and after reopening the existing dialog',async()=>{
-  const events=[],nodes=new Map();
-  const node=()=>({dataset:{},classList:{remove(){}},setAttribute(){},addEventListener(){},replaceChildren(){},append(){}});
-  const root={querySelectorAll:()=>[],querySelector:selector=>{if(!nodes.has(selector))nodes.set(selector,node());return nodes.get(selector);}};
-  class Dialog {constructor(){this.element=root;}async render(){this.rendered=true;}bringToFront(){events.push('front');}}
-  const context=vm.createContext({window:{innerWidth:1200},document:{createElement:node},canvas:{scene:{tokens:{contents:[],find(){}}}},
-    Hooks:{on(){},callAll:(name,dialog)=>{events.push(name);assert.equal(dialog.rendered,true);assert.equal(nodes.get('.pilotage-target-title').textContent,'Sélectionnez un personnage');}},
-    game:{i18n:await systemI18n('fr'),user:{isGM:true},users:{contents:[]},settings:{get:()=>({enabled:false})}},
-    foundry:{applications:{api:{DialogV2:Dialog}}}});
-  const api=(await loadSystemModule('helpers/pilotage-mj.js',context,{
-    'helpers/pilotage-assets.mjs':{setupPilotageAssets(){}},'helpers/pilotage-tabs.mjs':{setupPilotageTabs(){}},
-  })).namespace;
-  const options={saveDifficulty(){},changeDifficulty(){}};
-  const first=await api.showPilotageMJ({challenge:0,difficulty:0,setback:0},options);
-  const second=await api.showPilotageMJ({},options);
-  assert.equal(first,second);assert.deepEqual(events,['renderPilotageMJ','front','renderPilotageMJ']);
+test('combat modifier editor enables assignment for the selected scene token only',async()=>{
+  const fields=new Map();
+  const node=()=>({classList:{remove(){},add(){}},addEventListener(){},replaceChildren(){},
+    querySelector(selector){if(!fields.has(selector))fields.set(selector,node());return fields.get(selector);}});
+  const root=node();
+  const token={uuid:'Scene.scene.Token.chosen',name:'Dodge',actor:{getFlag:()=>[]}};
+  const context=vm.createContext({
+    structuredClone,document:{createElement:()=>({firstElementChild:root})},
+    canvas:{scene:{tokens:[token]}},
+    Hooks:{on(){},callAll(){}},
+    game:{i18n:await systemI18n('fr'),user:{isGM:true}}
+  });
+  const api=(await loadSystemModule('helpers/pilotage-mj.js',context)).namespace;
+  const editor=api.createPilotageModifierEditor();
+  editor.onSelect({token});
+  assert.equal(editor.modifierEditor,root);
+  assert.equal(fields.get('.pilotage-target-title').textContent,'Dodge');
+  assert.equal(fields.get('[data-pilotage-assign]').disabled,false);
+  editor.onSelect(null);
+  assert.equal(fields.get('[data-pilotage-assign]').disabled,true);
 });

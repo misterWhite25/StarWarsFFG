@@ -1,204 +1,140 @@
 import {registerSystemGuideTours} from './system-guide.js';
 import {registerLegacyTourCategory} from './legacy-tour-category.js';
-import EffectHelpers from "./effects.js";
-class CharacterTour extends foundry.nue.Tour {
-  #originalDeactivate = null;
+import DiceHelpers from './dice-helpers.js';
+import EffectHelpers from './effects.js';
+
+class ExampleActorTour extends foundry.nue.Tour {
+  tempActor = null;
+  companion = null;
+
+  get canStart() {
+    return Actor.implementation.canUserCreate(game.user);
+  }
 
   async start() {
-    await this.createActor();
-    // fix for tooltips sometimes dismissing the tour
-    // Store the original deactivate method and replace it with one that respects tour state
-    this.#originalDeactivate = game.tooltip.deactivate.bind(game.tooltip);
-    game.tooltip.deactivate = () => {
-      // Don't deactivate tooltips during the tour
-      if (foundry.nue.Tour.tourInProgress) return;
-      this.#originalDeactivate();
-    };
-    await super.start();
-  }
-
-  /** override */
-  async _preStep() {
-
-    const currentStep = this.currentStep;
-
-    if (currentStep.id === "roll-dice") {
-      await this.giveActorStats();
-    } else if (currentStep.id === "dice-pool") {
-      // render the dice roller for info about it
-      $("[data-ability=\"Athletics\"] .pure-u-6-24 .dice-pool").trigger("click");
-      await delay(100);
-    } else if (currentStep.id === "spending-xp-1") {
-      // close the dice roller
-      $("#roll-builder .control.close").trigger("click");
-      await delay(100);
-    }
-
-    await super._preStep();
-  }
-
-  /** override */
-  async _postStep() {
-    await super._postStep();
-    if (this.currentStep?.id === "spending-xp-3") {
-      await this.deleteActor();
+    if (!this.canStart || foundry.nue.Tour.tourInProgress || this.tempActor) return;
+    try {
+      this.tempActor = await Actor.create({
+        name: game.i18n.localize("SWFFG.Guide.ExampleActor"),
+        type: "character"
+      });
+      await this.prepareActor();
+      const sheet = this.tempActor.sheet;
+      await sheet.render({force: true});
+      sheet.bringToFront();
+      return await super.start();
+    } catch (error) {
+      await this.closeExample();
+      await foundry.applications.instances.get("tours-management")?.maximize();
+      throw error;
     }
   }
 
-  /** override */
+  async prepareActor() {}
+
+  async progress(index) {
+    try {
+      const result = await super.progress(index);
+      if (index === -1 || index === this.steps.length) await this.closeExample();
+      return result;
+    } catch (error) {
+      if (foundry.nue.Tour.activeTour === this) await this.exit();
+      else await this.closeExample();
+      throw error;
+    }
+  }
+
   async exit() {
-    // Restore original tooltip deactivate method
-    if (this.#originalDeactivate) {
-      game.tooltip.deactivate = this.#originalDeactivate;
-      this.#originalDeactivate = null;
+    super.exit();
+    await this.closeExample();
+  }
+
+  _getTargetElement(selector) {
+    return this.companion?.element?.querySelector(selector)
+      ?? this.tempActor?.sheet?.element?.querySelector(selector);
+  }
+
+  async closeCompanion() {
+    const companion = this.companion;
+    this.companion = null;
+    await companion?.close();
+  }
+
+  async closeExample() {
+    const actor = this.tempActor;
+    this.tempActor = null;
+    try {
+      await this.closeCompanion();
+    } finally {
+      if (actor && game.actors.has(actor.id)) await actor.delete();
     }
-    await this.deleteActor();
-    await super.exit();
-  }
-
-  async createActor() {
-    this.tempActor = await createActor();
-    this.tempActor.sheet.bringToFront();
-    await delay(100);
-  }
-
-  async deleteActor() {
-    await this.tempActor.delete()
-  }
-
-  async giveActorStats() {
-    await this.tempActor.update({"system.characteristics.Brawn.value": 3});
-    await delay(100);
   }
 }
 
-class EditModeTour extends foundry.nue.Tour {
-  #originalDeactivate = null;
-
-  async start() {
-    await this.createActor();
-    await this.giveActorAE();
-    // fix for tooltips sometimes dismissing the tour
-    // Store the original deactivate method and replace it with one that respects tour state
-    this.#originalDeactivate = game.tooltip.deactivate.bind(game.tooltip);
-    game.tooltip.deactivate = () => {
-      // Don't deactivate tooltips during the tour
-      if (foundry.nue.Tour.tourInProgress) return;
-      this.#originalDeactivate();
-    };
-    await super.start();
+class CharacterTour extends ExampleActorTour {
+  async prepareActor() {
+    await this.tempActor.update({"system.characteristics.Brawn.value": 3});
   }
 
-  /** override */
   async _preStep() {
-    const currentStep = this.currentStep;
-
-    if (currentStep.id === "enable-edit-mode") {
-      $(".ffg-sheet-options").trigger("click");
-      await delay(100);
-    } else if (currentStep.id === "stat-changes") {
-      await this.enableEditMode();
+    await this.closeCompanion();
+    if (this.currentStep.id === "dice-pool") {
+      this.companion = await DiceHelpers.rollSkillByKey(this.tempActor, "Athletics", 2, undefined, undefined, {
+        id: "ffg-character-tour-roll",
+        render: false
+      });
+      await this.companion?.render(true);
     }
-
     await super._preStep();
   }
+}
 
-  /** override */
-  async _postStep() {
-    await super._postStep();
-    if (this.currentStep?.id === "disable-edit-mode") {
-      await this.deleteActor();
-    }
-  }
-
-  /** override */
-  async exit() {
-    // Restore original tooltip deactivate method
-    if (this.#originalDeactivate) {
-      game.tooltip.deactivate = this.#originalDeactivate;
-      this.#originalDeactivate = null;
-    }
-    await this.deleteActor();
-    await super.exit();
-  }
-
-  async createActor() {
-    this.tempActor = await createActor();
-    this.tempActor.sheet.bringToFront();
-    await delay(100);
-  }
-
-  async deleteActor() {
-    await this.tempActor.delete()
-  }
-
-  /**
-   * Give the actor an AE so it can be suspended when we enable Edit Mode
-   * @returns {Promise<void>}
-   */
-  async giveActorAE() {
-    const AEData = {
+class EditModeTour extends ExampleActorTour {
+  async prepareActor() {
+    await this.tempActor.createEmbeddedDocuments("ActiveEffect", [{
+      name: game.i18n.localize("SWFFG.Guide.ExampleActor"),
       changes: [{
         key: "system.characteristics.Brawn.value",
         ...EffectHelpers.changeType(),
-        value: 3,
-      }],
-      name: "example",
-      disabled: false,
-    };
-    await this.tempActor.createEmbeddedDocuments("ActiveEffect", [AEData]);
-    await delay(100);
+        value: 3
+      }]
+    }]);
   }
 
-  /**
-   * Trigger Edit Mode on the actor so we can show changes with it on
-   * @returns {Promise<void>}
-   */
-  async enableEditMode() {
-    $("[name=\"config.enableEditMode\"]").trigger("click");
-    $("[data-button=\"one\"]").trigger("click");
-    await delay(300);
+  async _preStep() {
+    await this.closeCompanion();
+    const {id} = this.currentStep;
+    const options = this.tempActor.sheet.sheetoptions;
+    await options.save({"flags.starwarsffg.config.enableEditMode": id === "stat-changes"});
+    if (id === "enable-edit-mode") {
+      this.companion = await new Promise((resolve, reject) => {
+        const hook = Hooks.on("renderDialogV2", dialog => {
+          if (!dialog.element.querySelector('.sheet-options-dialog [name="config.enableEditMode"]')) return;
+          Hooks.off("renderDialogV2", hook);
+          resolve(dialog);
+        });
+        options.handler().then(() => {
+          Hooks.off("renderDialogV2", hook);
+          resolve(null);
+        }, error => {
+          Hooks.off("renderDialogV2", hook);
+          reject(error);
+        });
+      });
+    }
+    await super._preStep();
   }
 }
 
-/**
- * Register our tours for Foundry to see
- * @returns {Promise<void>}
- */
+/** Register the system guides and their native Foundry counterparts. */
 export async function register_system_tours() {
   registerLegacyTourCategory();
   registerSystemGuideTours();
-  try {
-    game.tours.register("starwarsffg", 'character', await CharacterTour.fromJSON('/systems/starwarsffg/modules/tours/character.json'));
-    game.tours.register("starwarsffg", 'edit-mode', await EditModeTour.fromJSON('/systems/starwarsffg/modules/tours/edit-mode.json'));
-  } catch (error) {
-    console.error("MyTour | Error registering tours: ",error);
+  for (const [id, Tour] of [["character", CharacterTour], ["edit-mode", EditModeTour]]) {
+    try {
+      game.tours.register("starwarsffg", id, await Tour.fromJSON(`/systems/starwarsffg/modules/tours/${id}.json`));
+    } catch (error) {
+      console.error("Star Wars FFG | Tour registration failed", id, error);
+    }
   }
-}
-
-const delay = (delayInMs) => {
-  return new Promise(resolve => setTimeout(resolve, delayInMs));
-};
-
-/**
- * Create an actor for showing the tour within
- * @returns {Promise<Document|Document[]|undefined>}
- */
-async function createActor() {
-  const tempActorData = {
-    name: game.i18n.localize("SWFFG.Guide.ExampleActor"),
-    type: "character",
-  };
-  const tempActor = await Actor.create(tempActorData);
-
-  await tempActor.sheet.render(true);
-  // wait for the rendering to actually finish
-  await new Promise(resolve => {
-    const waitForRender = () => {
-      if (tempActor.sheet.rendered) resolve();
-      else setTimeout(waitForRender, 5);
-    };
-    waitForRender();
-  });
-  return tempActor;
 }

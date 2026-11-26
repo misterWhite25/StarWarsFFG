@@ -1,11 +1,12 @@
 import {cancelSummaryRenders,renderSummary,summaryDialog} from './summary-render.mjs';
 import {rollContext} from './roll-context.mjs';
-import {hasSummaryTalents} from './talent-summary.js';
-import {equippedItems} from './equipment-summary.js';
+import {summaryTalents, talentDescription} from './talent-summary.js';
+import {equipmentDescription, equipmentStats} from './equipment-summary.js';
+import {summarizeItemQualities} from './item-view-data.mjs';
 import {rosterFilters,npcRosterFilter,npcRosterMatches,npcFavorites,toggleNpcFavorite} from './npc-roster-filters.mjs';
 import DiceHelpers from './dice-helpers.js';
-import {isPossession} from './inventory-location.js';
-import {installNpcCamps,npcCampInfo} from './npc-camps.mjs';
+import {isPossession, isCarriedEquipment} from './inventory-location.js';
+import {installNpcCamps,npcCampInfo,npcDisposition} from './npc-camps.mjs';
 import {DicePoolFFG} from '../dice/pool.js';
 import {npcCatalogue,npcAbilityKind,normalizeNpc,npcAdversaryRank,npcSkillVisible} from './npc-command-data.mjs';
 import {installNpcInitiative,hasActed} from './npc-initiative.mjs';
@@ -13,14 +14,14 @@ import {npcTurnReason,attachNpcBudget,reserveNpcAction,restoreNpcAction} from '.
 import {initiativeStamp} from '../space-combat/initiative.mjs';
 import {stateFor,selectGroundSheetToken,requestMovementCommand} from './ground-movement-state.mjs';
 import {board,command} from '../space-combat/board.mjs';
-import {crewRoster,crewActor,actionRoleReason} from '../space-combat/crew-access.mjs';
+import {crewRoster,crewActor,actionRoleReason,isGunnerRole} from '../space-combat/crew-access.mjs';
 import {ACTIONS,SECTORS,characterActionState} from '../space-combat/combat-rules.mjs';
 import {openCombatRoll} from '../space-combat/combat-rolls.mjs';
 import {weaponCrewCandidates} from './crew.js';
 import {crewRolesForSkill} from './crew-role-definitions.mjs';
 import {malfunctionNavigation} from './vehicle-malfunction-engine.js';
 const scope='starwarsffg',personal=new Set(['character','minion','rival','nemesis','vehicle']),panels=new Map();
-let sessionModel;
+let sessionModel, pendingSceneTokenUuid;
 const labels={ability:'Capacité',forcepower:'Pouvoir de la Force','force-upgrade':'Amélioration de la Force',signatureability:'Capacité signature'};
 const kinds={passive:'Passif',maneuver:'Manœuvre',reaction:'Broutille / réaction',action:'Action',manual:'Résolution manuelle'};
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -30,11 +31,47 @@ const button=(label,cmd,attributes='')=>`<button type="button" data-npc-cmd="${c
 function stylesheet(){if(document.querySelector('link[data-npc-command]'))return;const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('../../styles/npc-command.css',import.meta.url).href;link.dataset.npcCommand='';document.head.append(link);}
 export function npcRoster({includePlayers=false}={}) {
   const entries=[],seen=new Set();
-  const boarded=new Set((board().ships??[]).flatMap(ship=>crewRoster(game.actors.get(ship.actorId)).map(member=>member.actor_id)));
+  const ships = board().ships ?? [];
+  const crews = new Map();
+  const boarded = new Set();
+  for (const ship of ships) {
+    if (crews.has(ship.actorId)) continue;
+    const crew = crewRoster(game.actors.get(ship.actorId));
+    crews.set(ship.actorId, crew);
+    for (const member of crew) boarded.add(member.actor_id);
+  }
   const add=(token,participant=null)=>{const actor=token?.actor;if(!actor||!personal.has(actor.type)||token.getFlag(scope,'npcInitiativeShadow')&&boarded.has(actor.id)||(!includePlayers&&playerOwned(actor))||seen.has(token.uuid))return;seen.add(token.uuid);entries.push({key:token.uuid,name:token.name,actor,token,participant,mode:'ground',group:actor.type==='minion'?'Groupe de sbires':actor.type==='nemesis'?'Némésis':actor.type==='rival'?'Rival':'Personnage'});};
   for(const participant of game.combat?.combatants??[])add(participant.token,participant);
   for(const token of canvas.scene?.tokens??[])add(token);
-  for(const ship of board().ships??[]){const vehicle=game.actors.get(ship.actorId),members=new Map();for(const member of crewRoster(vehicle)){const actor=crewActor(member);if(member.integrated||!actor||(!includePlayers&&playerOwned(actor)))continue;const old=members.get(actor.id);if(old){old.roles.push(member.role);continue;}const entry={key:'space:'+ship.id+':'+actor.id,name:actor.name,actor,member,roles:[member.role],ship,vehicle,mode:'space',participant:game.combat?.combatants.find(p=>p.actor?.uuid===actor.uuid),group:ship.name};members.set(actor.id,entry);entries.push(entry);}}
+  let participants;
+  for (const ship of ships) {
+    const vehicle = game.actors.get(ship.actorId);
+    const members = new Map();
+    for (const member of crews.get(ship.actorId)) {
+      if (member.integrated) continue;
+      const actor = crewActor(member);
+      if (!actor || (!includePlayers && playerOwned(actor))) continue;
+      const existing = members.get(actor.id);
+      if (existing) {
+        existing.roles.push(member.role);
+        continue;
+      }
+      if (!participants) {
+        participants = new Map();
+        for (const participant of game.combat?.combatants ?? []) {
+          const uuid = participant.actor?.uuid;
+          if (uuid && !participants.has(uuid)) participants.set(uuid, participant);
+        }
+      }
+      const entry = {
+        key: 'space:' + ship.id + ':' + actor.id, name: actor.name, actor, member,
+        roles: [member.role], ship, vehicle, mode: 'space',
+        participant: participants.get(actor.uuid), group: ship.name
+      };
+      members.set(actor.id, entry);
+      entries.push(entry);
+    }
+  }
   return entries;
 }
 function skillLabel(actor,key){const value=actor.system.skills?.[key];return game.i18n.localize(value?.label??key);}
@@ -84,6 +121,11 @@ async function execute(model,choice,entry) {
     if(choice.kind==='space-action'){
       if(choice.id==='attack')throw Error('Choisissez une arme de vaisseau.');
       const def=ACTIONS.find(a=>a.id===choice.id),request={shipId:ship.id,version:ship.version,crewId:entry.actor.id,combatAction:choice.id,targetId,sector};
+      if (def.barrage) {
+        const {performBarrage} = await import('../space-combat/barrage-dialog.mjs');
+        const gunners = crewRoster(entry.vehicle).filter(member => member.actor_id === entry.actor.id && isGunnerRole(member));
+        return performBarrage(ship, def, gunners);
+      }
       if(def.skills||choice.id==='repairCritical'){
         const body=document.createElement('div');
         if(def.skills)body.innerHTML=`<label>Compétence<select name="skill">${def.skills.map(key=>`<option value="${esc(key)}">${esc(skillLabel(entry.actor,key))}</option>`).join('')}</select></label>`;
@@ -123,21 +165,48 @@ function adversaryBadge(actor){
   return rank?`<small class="nc-roster-adversary" title="Rang du talent Adversaire : ${rank}">Adversaire <span>${rank}</span></small>`:'';
 }
 function rosterSide(entry){
-  const camp=npcCampInfo(entry).key;
-  if(camp==='hostile')return 'enemies';if(camp==='friendly')return 'allies';
+  const disposition = npcDisposition(entry);
+  if (disposition === -1) return 'enemies';
+  if (disposition === 1) return 'allies';
   if(game.users.some(user=>!user.isGM&&user.character&&(user.character.uuid===entry.actor.uuid||entry.actor.type==='character'&&user.character.id===entry.actor.id)))return 'allies';
   return null;
 }
 function matchingRoster(model,entries){
   const query=normalizeNpc(model.search),filter=npcRosterFilter(model),favorites=npcFavorites();
-  return entries.filter(e=>npcRosterMatches(e,filter,{favorites})&&(!query||normalizeNpc(e.name+e.group+e.roles?.join(' ')).includes(query)));
+  return entries.filter(entry=>{
+    // Show the clicked token without changing the user's search or roster filter.
+    if(entry.key===model.selected&&entry.key===model.sceneSelection&&entry.token?.parent===canvas.scene)return true;
+    return npcRosterMatches(entry,filter,{favorites})&&
+      (!query||normalizeNpc(entry.name+entry.group+entry.roles?.join(' ')).includes(query));
+  });
 }
-function rosterHtml(model,entries,matching=matchingRoster(model,entries)){
-  const favorites=npcFavorites(),filter=npcRosterFilter(model);
-  const main=matching.filter(e=>rosterSide(e)===model.side),neutral=matching.filter(e=>!rosterSide(e));
-  const row=e=>`<div class="nc-person ${model.selected===e.key?'selected':''}" data-npc-entry="${esc(e.key)}" data-npc-camp="${npcCampInfo(e).key}"><button type="button" data-npc-select="${esc(e.key)}"><img src="${esc(e.token?.texture?.src??e.actor.img)}" alt=""><span class="nc-roster-info"><span class="nc-roster-name"><strong>${esc(e.name)}</strong>${rosterTypeBadge(e.actor)}${adversaryBadge(e.actor)}</span><small class="nc-roster-camp">${esc(npcCampInfo(e).label)}</small><small>${hasActed(game.combat,e.participant)?'Action utilisée':e.participant?.isDefeated?'Neutralisé':e.participant?'Dans l’initiative':'Hors initiative'}</small></span></button><button type="button" class="nc-favorite" data-npc-favorite="${esc(e.key)}" aria-pressed="${favorites.has(e.key)}" aria-label="${esc((favorites.has(e.key)?'Retirer des favoris : ':'Ajouter aux favoris : ')+e.name)}" title="${favorites.has(e.key)?'Retirer des favoris':'Ajouter aux favoris'}"><i class="${favorites.has(e.key)?'fa-solid':'fa-regular'} fa-star" aria-hidden="true"></i></button></div>`;
+function groupRoster(entries) {
+  const groups = {allies: [], enemies: [], neutral: []};
+  for (const entry of entries) groups[rosterSide(entry) ?? 'neutral'].push(entry);
+  return groups;
+}
+function rosterHtml(model,groups,entry){
+  const filter=npcRosterFilter(model),favorites=npcFavorites();
+  const main = groups[model.side];
+  const neutral = groups.neutral;
+  const option=entry=>`<option value="${esc(entry.key)}" ${entry.key===model.selected?'selected':''}>${esc(entry.name)}</option>`;
+  const options=main.map(option).join('')+(neutral.length
+    ? `<optgroup label="Neutres / camp masqué">${neutral.map(option).join('')}</optgroup>` : '');
+  const camp=entry&&npcCampInfo(entry);
+  const favorite=entry&&favorites.has(entry.key);
+  const favoriteLabel=favorite?'Retirer des favoris':'Ajouter aux favoris';
+  const star=entry?`<button type="button" data-npc-favorite="${esc(entry.key)}" aria-pressed="${favorite}"
+    aria-label="${favoriteLabel}" title="${favoriteLabel}"><i class="${favorite?'fa-solid':'fa-regular'} fa-star" aria-hidden="true"></i></button>`:'';
+  const status=!entry?'':hasActed(game.combat,entry.participant)?'Action utilisée'
+    :entry.participant?.isDefeated?'Neutralisé':entry.participant?'Dans l’initiative':'Hors initiative';
+  const meta=entry?`<div class="nc-picker-meta nc-person" data-npc-camp="${esc(camp.key)}"><img src="${esc(entry.token?.texture?.src??entry.actor.img)}" alt="">
+    ${rosterTypeBadge(entry.actor)}${adversaryBadge(entry.actor)}<small class="nc-roster-camp">${esc(camp.label)}</small><small>${status}</small></div>`:'';
   const listId=model.panelId+'-roster-'+model.side;
-  return `<h3>PNJ et équipages</h3><nav class="nc-roster-tabs" role="tablist" aria-label="Camps du combat">${[['allies','Joueurs et alliés'],['enemies','Ennemis']].map(([side,label])=>`<button type="button" role="tab" class="nc-side-tab" data-npc-side="${side}" id="${esc(model.panelId)}-side-${side}" aria-selected="${model.side===side}" aria-controls="${esc(model.panelId)}-roster-${side}" tabindex="${model.side===side?0:-1}">${label} <span>(${matching.filter(e=>rosterSide(e)===side).length})</span></button>`).join('')}</nav><label class="nc-roster-filter"><span>Afficher</span><select data-npc-roster-filter aria-label="Filtrer les personnages affichés">${rosterFilters.map(([key,label])=>`<option value="${key}" ${filter===key?'selected':''}>${label}</option>`).join('')}</select></label><div class="nc-roster" id="${esc(listId)}" role="tabpanel" aria-labelledby="${esc(model.panelId)}-side-${model.side}">${main.map(row).join('')||'<p class="nc-roster-empty">Aucun personnage.</p>'}${neutral.length?`<h4 class="nc-neutral-heading">Neutres / camp masqué</h4>${neutral.map(row).join('')}`:''}</div>`;
+  return `<h3>PNJ et équipages</h3><nav class="nc-roster-tabs" role="tablist" aria-label="Camps du combat">${[['allies','Joueurs et alliés'],['enemies','Ennemis']].map(([side,label])=>`<button type="button" role="tab" class="nc-side-tab" data-npc-side="${side}" id="${esc(model.panelId)}-side-${side}" aria-selected="${model.side===side}" aria-controls="${esc(model.panelId)}-roster-${side}" tabindex="${model.side===side?0:-1}">${label} <span>(${groups[side].length})</span></button>`).join('')}</nav><label class="nc-roster-filter"><span>Afficher</span><select data-npc-roster-filter aria-label="Filtrer les personnages affichés">${rosterFilters.map(([key,label])=>`<option value="${key}" ${filter===key?'selected':''}>${label}</option>`).join('')}</select></label>
+    <div id="${esc(listId)}" role="tabpanel" aria-labelledby="${esc(model.panelId)}-side-${model.side}">
+      <div class="nc-picker"><select data-npc-roster-select aria-label="Personnage" title="${esc(entry?.name)}" ${options?'':'disabled'}>
+        ${options||'<option>Aucun personnage</option>'}</select>${star}</div>${meta}
+    </div>`;
 }
 function statsHtml(entry){
   const stats=entry.actor.system.stats??{},fields=[['wounds','Blessures'],['strain','Stress'],['soak','Encaissement']];
@@ -178,12 +247,89 @@ function principalSkills(entry){
     .filter(([key,skill])=>number(skill.rank)>0||skill.useForInitiative||essentialSkills.has(normalizeNpc(key))||entry.mode==='space'&&spaceSkills.has(normalizeNpc(key)))
     .sort((a,b)=>number(b[1].rank)-number(a[1].rank)||priority(b)-priority(a)||skillLabel(entry.actor,a[0]).localeCompare(skillLabel(entry.actor,b[0]),'fr')).slice(0,8);
 }
+const localize = key => game.i18n.localize(key);
+
+const talentKey = talent => JSON.stringify([talent.itemId, talent.name, talent.characteristicChoice]);
+function referenceRow(name, caption, kind, key) {
+  return `<details class="nc-reference" data-npc-detail="${kind}" data-reference-key="${esc(key)}">
+    <summary><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><span>${esc(name)}</span>${caption ? `<small>${esc(caption)}</small>` : ''}</summary>
+    <div class="nc-reference-body"></div>
+  </details>`;
+}
+const referencePreviewLimit = 4;
+function referenceSection(kind, title, rows) {
+  if (!rows.length) return '';
+  const hasOverflow = rows.length > referencePreviewLimit + 1;
+  const preview = hasOverflow ? rows.slice(0, referencePreviewLimit) : rows;
+  const remaining = rows.length - preview.length;
+  const overflow = hasOverflow ? `<details class="nc-reference-overflow" data-reference-key="group:${kind}">
+    <summary>
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      <span class="nc-reference-more">${esc(game.i18n.format('SWFFG.UI.Pilotage.ShowMoreReferences', {count: remaining}))}</span>
+      <span class="nc-reference-less">${esc(localize('SWFFG.UI.Pilotage.ShowFewerReferences'))}</span>
+    </summary>
+    ${rows.slice(referencePreviewLimit).join('')}
+  </details>` : '';
+  return `<section class="nc-references"><h3>${esc(localize(title))}</h3>${preview.join('')}${overflow}</section>`;
+}
+const isCombatEquipment = item => (item?.type === 'weapon' || item?.type === 'armour') && isCarriedEquipment(item);
+function combatReferencesHtml(actor) {
+  const talents=summaryTalents(actor).map(talent=>{
+    const name=[talent.name,talent.characteristicChoice].filter(Boolean).join(' · ');
+    const rank=talent.isRanked?game.i18n.format('SWFFG.UI.Talent.RankNumber',{rank:talent.rank}):'';
+    const activation=localize(talent.active?'SWFFG.UI.Talent.Active':'SWFFG.UI.Talent.Passive');
+    return referenceRow(name,rank||activation,'talent',talentKey(talent));
+  });
+  const equipment=actor.items.filter(isCombatEquipment).sort((a,b)=>a.name.localeCompare(b.name,game.i18n.lang))
+    .map(item=>{
+      const quantity=number(item.system.quantity?.value??1);
+      return referenceRow(item.name,quantity>1?'×'+quantity:'','equipment',item.id);
+    });
+  return referenceSection('talent', 'SWFFG.TabTalents', talents) +
+    referenceSection('equipment', 'SWFFG.UI.Pilotage.EquippedWeaponsAndArmor', equipment);
+}
+async function loadCombatReference(detail,actor) {
+  const {npcDetail,referenceKey}=detail.dataset;
+  const body=detail.querySelector('.nc-reference-body');
+  const addNote=text=>{
+    const p=document.createElement('p');p.textContent=text;body.append(p);
+  };
+  if(npcDetail==='talent'){
+    const talent=summaryTalents(actor).find(talent=>talentKey(talent)===referenceKey);
+    if(!talent)return;
+    const description=await talentDescription(actor,talent);
+    if(!detail.isConnected||!detail.open)return;
+    body.replaceChildren();
+    if(talent.total)addNote(talent.total);
+    body.append(description);
+    return;
+  }
+  const item=actor.items.get(referenceKey);
+  if(!isCombatEquipment(item))return;
+  const stats=equipmentStats(item).map(([name,value])=>name+' '+localize(String(value)));
+  const qualities=summarizeItemQualities(item.system).map(quality=>
+    [quality.name,quality.totalRanks||''].join(' ').trim());
+  const source=[item.system.description,item.system.special?.value].filter(Boolean).map(equipmentDescription).join('\n');
+  const html=source?await foundry.applications.ux.TextEditor.enrichHTML(source,{secrets:actor.isOwner,relativeTo:item}):'';
+  if(!detail.isConnected||!detail.open)return;
+  body.replaceChildren();
+  if(stats.length)addNote(stats.join(' · '));
+  if(qualities.length)addNote(qualities.join(' · '));
+  if(html){
+    const description=document.createElement('div');
+    description.innerHTML=html;
+    body.append(description);
+  }
+}
+
 function controlsHtml(model,entry,main){
   if(!entry)return '<p>Sélectionnez un personnage.</p>';
   if(entry.actor.type==='vehicle')return `<header class="nc-actor-title"><h3>${esc(entry.name)}</h3>${button('<i class="fa-solid fa-address-card" aria-hidden="true"></i> Fiche Combat','combat-sheet','class="nc-combat-sheet"')}</header>`;
   const actor=entry.actor,availableTargets=targets(entry),reason=npcTurnReason(entry),weapons=[...actor.items].filter(i=>i.type==='weapon'&&!isPossession(i)&&i.system.equippable?.equipped===true),shipWeapons=entry.mode==='space'?[...entry.vehicle.items].filter(i=>i.type==='shipweapon'&&weaponMember(entry,i)):[];
   const weaponButton=(item,cmd)=>button(esc(item.name),cmd,`data-item="${item.id}" ${item.flags?.starwarsffg?.inventoryLocation==='possession'?'disabled title="Objet non porté"':''}`);
-  return `<header class="nc-actor-title"><h3>${esc(entry.name)}</h3>${button('<i class="fa-solid fa-address-card" aria-hidden="true"></i> Fiche Combat','combat-sheet','class="nc-combat-sheet"')}</header>${statsHtml(entry)}<div class="nc-roll-config">${entry.mode==='space'?`<label>Cible<select data-npc-field="targetId"><option value="">Choisir un vaisseau</option>${availableTargets.map(t=>`<option value="${esc(t.id)}" ${model.targetId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label><label>Secteur<select data-npc-field="sector">${Object.entries(SECTORS).map(([key,label])=>`<option value="${key}" ${model.sector===key?'selected':''}>${label}</option>`).join('')}</select></label>`:availableTargets.length?`<span class="nc-target">Cible : ${esc(availableTargets.map(t=>t.name).join(', '))}</span>`:''}</div>${weapons.length||shipWeapons.length?`<h3>Armes</h3><div class="nc-command-grid">${weapons.map(item=>weaponButton(item,'weapon')).join('')}${shipWeapons.map(item=>weaponButton(item,'ship-weapon')).join('')}</div>`:''}${entry.mode==='space'?`<h3>Actions à bord</h3><div class="nc-command-grid">${ACTIONS.filter(def=>def.id!=='attack'&&!actionRoleReason(entry.vehicle,actor.id,def.id)).map(def=>button(esc(def.label),'space-action',`data-id="${def.id}"`)).join('')}${button('Vaisseau et manœuvres','ship')}</div>`:''}<h3>Compétences principales</h3><div class="nc-main-skills">${main.map(([key])=>button(`<span class="nc-skill-name">${esc(skillLabel(actor,key))}</span><span class="roll-button dice-pool nc-skill-pool"></span>`,'skill',`class="nc-skill" data-ability="${esc(key)}" title="Préparer ${esc(skillLabel(actor,key))}"`)).join('')}</div>${reason?`<p class="nc-note nc-turn-reason">${esc(reason)}</p>`:''}<div class="nc-summary-actions">${button('<i class="fa-solid fa-list-check" aria-hidden="true"></i> '+esc(game.i18n.localize('SWFFG.TabTalents')),'talent-summary',hasSummaryTalents(actor)?'':'disabled title="Aucun talent"')}${button('<i class="fa-solid fa-suitcase" aria-hidden="true"></i> '+esc(game.i18n.localize('SWFFG.UI.Pilotage.Equipment')),'equipment-summary',equippedItems(actor).length?'':'disabled title="Aucun équipement porté"')}${commandCatalogue(actor).length?button('<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Pouvoirs et capacités','powers-summary'):''}</div>`;
+  return `<header class="nc-actor-title"><h3>${esc(entry.name)}</h3>${button('<i class="fa-solid fa-address-card" aria-hidden="true"></i> Fiche Combat','combat-sheet','class="nc-combat-sheet"')}</header>${statsHtml(entry)}<div class="nc-roll-config">${entry.mode==='space'?`<label>Cible<select data-npc-field="targetId"><option value="">Choisir un vaisseau</option>${availableTargets.map(t=>`<option value="${esc(t.id)}" ${model.targetId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label><label>Secteur<select data-npc-field="sector">${Object.entries(SECTORS).map(([key,label])=>`<option value="${key}" ${model.sector===key?'selected':''}>${label}</option>`).join('')}</select></label>`:availableTargets.length?`<span class="nc-target">Cible : ${esc(availableTargets.map(t=>t.name).join(', '))}</span>`:''}</div>${weapons.length||shipWeapons.length?`<h3>Armes</h3><div class="nc-command-grid">${weapons.map(item=>weaponButton(item,'weapon')).join('')}${shipWeapons.map(item=>weaponButton(item,'ship-weapon')).join('')}</div>`:''}${entry.mode==='space'?`<h3>Actions à bord</h3><div class="nc-command-grid">${ACTIONS.filter(def=>def.id!=='attack'&&(!def.minSize||entry.ship.silhouette>=def.minSize)&&!actionRoleReason(entry.vehicle,actor.id,def.id)).map(def=>button(esc(def.label),'space-action',`data-id="${def.id}"`)).join('')}${button('Vaisseau et manœuvres','ship')}</div>`:''}<h3>Compétences principales</h3><div class="nc-main-skills">${main.map(([key])=>button(`<span class="nc-skill-name">${esc(skillLabel(actor,key))}</span><span class="roll-button dice-pool nc-skill-pool"></span>`,'skill',`class="nc-skill" data-ability="${esc(key)}" title="Préparer ${esc(skillLabel(actor,key))}"`)).join('')}</div>${reason?`<p class="nc-note nc-turn-reason">${esc(reason)}</p>`:''}${combatReferencesHtml(actor)}${commandCatalogue(actor).length
+    ? '<div class="nc-summary-actions">'+button('<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Pouvoirs et capacités','powers-summary')+'</div>'
+    : ''}`;
 }
 async function enrichDescription(details,entry){
   const holder=details.querySelector('.nc-description');if(!holder||holder.dataset.loaded)return;holder.dataset.loaded='true';
@@ -213,15 +359,29 @@ function rememberNpcSummary(model,dialog,selection){
   (model.summaryDialogs??=new Set()).add(dialog);
 }
 function render(panel,model,{force=false,rosterOnly=false}={}){
-  if(!panel.isConnected)return;
+  if(!panel.isConnected||(!force&&!panel.closest('.sidebar-tab.active')))return;
   if(!force&&panel.contains(document.activeElement)&&['INPUT','SELECT'].includes(document.activeElement.tagName)){model.needsRefresh=true;return;}
   if(model.rendering)return;model.rendering=true;
   try{
     if(!rosterOnly)model.needsRefresh=false;
     const entries=rosterOnly&&model.entries?model.entries:npcRoster(model);model.entries=entries;
+    if(pendingSceneTokenUuid){
+      const picked=entries.find(entry=>entry.key===pendingSceneTokenUuid&&entry.token?.parent===canvas.scene);
+      pendingSceneTokenUuid=null;
+      if(picked&&picked.key!==model.selected){
+        model.selected=picked.key;
+        model.sceneSelection=picked.key;
+        model.side=rosterSide(picked)??model.side;
+        model.catalogueSearch='';
+        model.message='';
+      }
+    }
     const visible=matchingRoster(model,entries);
-    if(!visible.some(e=>e.key===model.selected)){model.selected=visible.find(e=>rosterSide(e)===model.side)?.key??visible.find(e=>!rosterSide(e))?.key??null;}
-    const entry=entries.find(e=>e.key===model.selected),switched=model.renderedSelection!==model.selected;
+    const groups = groupRoster(visible);
+    const entry = visible.find(candidate => candidate.key === model.selected)
+      ?? groups[model.side][0] ?? groups.neutral[0];
+    model.selected = entry?.key ?? null;
+    const switched = model.renderedSelection !== model.selected;
     if(entry)model.side=rosterSide(entry)??model.side;
     if(switched){closeNpcSummaries(model);model.summarySheet=entry?.actor.sheet;}
     model.renderedSelection=model.selected;
@@ -233,8 +393,15 @@ function render(panel,model,{force=false,rosterOnly=false}={}){
     const search=root.querySelector('[data-npc-field="search"]');
     if(search.value!==model.search)search.value=model.search;
     const message=root.querySelector('.nc-message');message.hidden=!model.message;message.textContent=model.message??'';
-    const roster=root.querySelector('[data-scroll="roster"]'),rosterMarkup=rosterHtml(model,entries,visible);
-    if(model.rosterHtml!==rosterMarkup){const top=roster.scrollTop;roster.innerHTML=rosterMarkup;roster.scrollTop=top;model.rosterHtml=rosterMarkup;}
+    const roster=root.querySelector('[data-scroll="roster"]'),rosterMarkup=rosterHtml(model,groups,entry);
+    if(model.rosterHtml!==rosterMarkup){
+      const focus=document.activeElement;
+      roster.innerHTML=rosterMarkup;
+      model.rosterHtml=rosterMarkup;
+      for(const selector of ['[data-npc-roster-select]','[data-npc-roster-filter]']){
+        if(focus?.matches(selector))roster.querySelector(selector)?.focus({preventScroll:true});
+      }
+    }
     const card=root.querySelector('[data-scroll="card"]');
     const editor=model.integration?.modifierEditor;
     if(editor&&!root.contains(editor)){
@@ -246,14 +413,39 @@ function render(panel,model,{force=false,rosterOnly=false}={}){
       const changed=switched||model.cardHtml!==markup;
       if(changed){
         const top=switched?0:card.scrollTop;
-        card.innerHTML=markup;model.cardHtml=markup;card.scrollTop=top;
+        const expanded = new Set(switched ? [] : Array.from(
+          card.querySelectorAll('[data-reference-key][open]'), row=>row.dataset.referenceKey
+        ));
+        card.innerHTML=markup;
+        for(const row of card.querySelectorAll('[data-reference-key]')){
+          if(expanded.has(row.dataset.referenceKey))row.open=true;
+        }
+        model.cardHtml=markup;
+        card.scrollTop=top;
       }
       const poolKey=entry?JSON.stringify(main.map(([key,skill])=>[key,skill,entry.actor.system.characteristics?.[skill.characteristic]])):null;
       if(changed||poolKey!==model.poolKey){
         model.poolKey=poolKey;
         if(entry)for(const row of card.querySelectorAll('.nc-skill')){
-          row.querySelector('.roll-button')?.replaceChildren();
-          void DiceHelpers.addSkillDicePool({data:entry.actor.system},row).catch(error=>CONFIG.logger.error(error));
+          const preview=row.querySelector('.roll-button');
+          preview.replaceChildren();
+          preview.classList.remove('hover');
+          delete row.dataset.tooltipHtml;
+          void DiceHelpers.addSkillDicePool({data:entry.actor.system},row).then(()=>{
+            const sources=preview.querySelector('.tooltip2');
+            if(!sources){
+              row.title='Préparer '+row.querySelector('.nc-skill-name').textContent;
+              return;
+            }
+            const list=document.createElement('ul');
+            list.append(...sources.querySelectorAll('li'));
+            sources.remove();
+            preview.classList.remove('hover');
+            row.removeAttribute('title');
+            row.dataset.tooltipHtml=list.outerHTML;
+            row.dataset.tooltipDirection='LEFT';
+            row.dataset.tooltipClass='ffg-combat-skill-tooltip';
+          }).catch(error=>CONFIG.logger.error(error));
         }
       }
       model.integration?.onSelect?.(entry);
@@ -313,13 +505,6 @@ async function handle(panel,model,cmd,element){
   if(cmd==='power'){const item=npcCatalogue(entry.actor).find(e=>e.key===element.dataset.key);await execute(model,choiceForItem(entry.actor.items.get(item.itemId)),entry);return;}
   if(cmd==='skill'){await execute(model,{kind:'skill',id:element.dataset.ability,name:skillLabel(entry.actor,element.dataset.ability)},entry);return;}
   if(cmd==='powers-summary'){const selection=model.selected,sheet=entry.actor.sheet;await showNpcPowers(panel,model,entry);rememberNpcSummary(model,sheet._npcPowerSummary,selection);return;}
-  if(cmd==='talent-summary'||cmd==='equipment-summary'){
-    const selection=model.selected,sheet=entry.actor.sheet,anchor=panel.closest('.application')??panel;
-    if(cmd==='talent-summary'){const {showTalentSummary}=await import('./talent-summary.js');await showTalentSummary(sheet,false,anchor);}
-    else{const {showEquipmentSummary}=await import('./equipment-summary.js');await showEquipmentSummary(sheet,false,anchor);}
-    rememberNpcSummary(model,sheet[cmd==='talent-summary'?'_talentSummary':'_equipmentSummary'],selection);
-    return;
-  }
   if(cmd==='combat-sheet'){
     const {setCombatSheetMode,fitCombatSheet}=await import('./combat-sheet.mjs'),sheet=entry.actor.sheet;
     if(!sheet.rendered){sheet._ffgCombatMode=true;await sheet.render({force:true});await fitCombatSheet(sheet);}
@@ -329,9 +514,9 @@ async function handle(panel,model,cmd,element){
   if(cmd==='focus'){if(entry.mode==='space'){await handle(panel,model,'ship',element);}else{await waitForMap();if(canvas.scene?.id!==entry.token.parent.id)await entry.token.parent.view();await waitForMap();
       if(!canvas.ready||canvas.scene?.id!==entry.token.parent.id)throw Error('La carte de ce pion n’est pas disponible.');
       canvas.tokens.activate();entry.token.object?.control({releaseOthers:true});const point=entry.token.getCenterPoint();
-      const modal=panel.closest('.application')?.getBoundingClientRect(),sidebar=document.querySelector('#sidebar')?.getBoundingClientRect(),right=sidebar?.width>100?sidebar.left:innerWidth;
-      const gaps=modal?[[80,modal.left-20],[modal.right+20,right-20]].filter(([a,b])=>b-a>120).sort((a,b)=>(b[1]-b[0])-(a[1]-a[0])):[];
-      const screen=canvas.stage.toGlobal(point),targetX=gaps.length?(gaps[0][0]+gaps[0][1])/2:innerWidth/2,scale=canvas.stage.scale.x;
+      const sidebar=document.querySelector('#sidebar-content.expanded')?.getBoundingClientRect();
+      const targetX=(sidebar?.left??innerWidth)/2;
+      const screen=canvas.stage.toGlobal(point),scale=canvas.stage.scale.x;
       await canvas.animatePan({x:canvas.stage.pivot.x+(screen.x-targetX)/scale,y:canvas.stage.pivot.y+(screen.y-innerHeight/2)/scale,duration:250});}return;}
   if(cmd==='ship'){
     let app=foundry.applications.instances.get('ffg-space-combat');
@@ -342,14 +527,16 @@ async function handle(panel,model,cmd,element){
 
 }
 export function setupNpcCommandPanel(panel,integration={}){
-  if(!game.user.isGM||panels.has(panel))return;stylesheet();
+  if(!game.user.isGM)return;
+  const existing=panels.get(panel);
+  if(existing){render(panel,existing);return;}
+  stylesheet();
   const model={selected:null,search:'',rosterFilters:game.user.getFlag(scope,'npcCommandRosterFilters')??{},catalogueSearch:'',side:'allies',difficulty:2,targetId:'',sector:'fore',message:'',...sessionModel,includePlayers:true,integration,panelId:panel.id};sessionModel=model;panels.set(panel,model);
   panel.addEventListener('click',async event=>{
-    const favorite=event.target.closest('[data-npc-favorite]');if(favorite){event.preventDefault();event.stopPropagation();favorite.disabled=true;try{await toggleNpcFavorite(game.user,favorite.dataset.npcFavorite);}catch(error){ui.notifications.warn(error.message);}finally{render(panel,model,{force:true});}return;}
-    const side=event.target.closest('[data-npc-side]');if(side){event.preventDefault();model.side=side.dataset.npcSide;model.selected=null;model.message='';render(panel,model,{force:true});return;}
-    const select=event.target.closest('[data-npc-select]');if(select){model.selected=select.dataset.npcSelect;model.message='';model.catalogueSearch='';render(panel,model,{force:true});event.preventDefault();try{await handle(panel,model,'focus',select);if(npcRosterFilter(model)==='scene'&&currentEntry(model)?.mode==='ground')await handle(panel,model,'combat-sheet',select);}catch(error){model.message=error.message;ui.notifications.warn(error.message);render(panel,model,{force:true});}return;}
+    const favorite=event.target.closest('[data-npc-favorite]');if(favorite){event.preventDefault();event.stopPropagation();favorite.disabled=true;try{await toggleNpcFavorite(game.user,favorite.dataset.npcFavorite);}catch(error){ui.notifications.warn(error.message);}finally{favorite.disabled=false;render(panel,model,{force:true});}return;}
+    const side=event.target.closest('[data-npc-side]');if(side){event.preventDefault();model.side=side.dataset.npcSide;model.selected=null;model.sceneSelection=null;model.message='';render(panel,model,{force:true});return;}
     const element=event.target.closest('[data-npc-cmd]');if(!element)return;event.preventDefault();element.disabled=true;
-    try{await handle(panel,model,element.dataset.npcCmd,element);}catch(error){model.message=error.message;ui.notifications.warn(error.message);}finally{render(panel,model,{force:true});}
+    try{await handle(panel,model,element.dataset.npcCmd,element);}catch(error){model.message=error.message;ui.notifications.warn(error.message);}finally{element.disabled=false;render(panel,model,{force:true});}
   });
   panel.addEventListener('keydown',event=>{
     const tab=event.target.closest('[data-npc-side]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
@@ -358,7 +545,18 @@ export function setupNpcCommandPanel(panel,integration={}){
   });
   panel.addEventListener('change',async event=>{
     const node=event.target;
+    if(node.hasAttribute('data-npc-roster-select')){
+      model.selected=node.value;
+      model.sceneSelection=null;
+      model.message='';
+      model.catalogueSearch='';
+      render(panel,model,{force:true});
+      try{await handle(panel,model,'focus',node);}
+      catch(error){model.message=error.message;ui.notifications.warn(error.message);render(panel,model,{force:true});}
+      return;
+    }
     if(node.hasAttribute('data-npc-roster-filter')){
+      model.sceneSelection=null;
       model.rosterFilters={...model.rosterFilters,[model.side]:node.value};model.message='';
       try{await game.user.setFlag(scope,'npcCommandRosterFilters',model.rosterFilters);}catch(error){ui.notifications.warn(error.message);}
       render(panel,model,{force:true});return;
@@ -368,19 +566,29 @@ export function setupNpcCommandPanel(panel,integration={}){
     if(node.dataset.npcResource){const entry=currentEntry(model);try{await entry.actor.update({['system.stats.'+node.dataset.npcResource+'.value']:number(node.value)});}catch(error){model.message=error.message;}}
     render(panel,model,{force:true});
   });
-  panel.addEventListener('input',event=>{const node=event.target,key=node.dataset.npcField;if(!['search','catalogueSearch'].includes(key))return;model[key]=node.value;render(panel,model,{force:true,rosterOnly:key==='search'});});
+  panel.addEventListener('input',event=>{const node=event.target,key=node.dataset.npcField;if(!['search','catalogueSearch'].includes(key))return;model[key]=node.value;if(key==='search')model.sceneSelection=null;render(panel,model,{force:true,rosterOnly:key==='search'});});
+  panel.addEventListener('toggle',event=>{
+    const detail=event.target;
+    if(!detail.matches('[data-npc-detail]')||!detail.open)return;
+    const actor=model.entries?.find(entry=>entry.key===model.selected)?.actor;
+    if(actor)void loadCombatReference(detail,actor).catch(error=>ui.notifications.warn(error.message));
+  },true);
   panel.addEventListener('focusout',()=>queueMicrotask(()=>{if(model.needsRefresh)render(panel,model);}));
   render(panel,model,{force:true});
 }
 export async function openNpcCommand(key=null){
-  if(!game.user.isGM)return;const {showGMDifficulty}=await import('./gm-difficulty.js'),app=await showGMDifficulty();
-  app.element.querySelector('[aria-controls$="-panel-npcs"]')?.click();app.setPosition({width:Math.min(860,innerWidth-40),height:Math.min(800,innerHeight-50)});
-  const panel=app.element.querySelector('[data-pilotage-panel="npcs"]'),model=panels.get(panel);if(key&&model){
+  if(!game.user.isGM)return;
+  const app=ui.ffgPilotageCombat;
+  app.activate();
+  const panel=await app.preparePanel();
+  const model=panels.get(panel);
+  if(key&&model){
     const token=fromUuidSync(key),actor=token?.actor;if(actor&&playerOwned(actor))model.includePlayers=true;
-    const aboard=foundry.applications.instances.get('ffg-space-combat')?.rendered&&npcRoster(model).find(entry=>entry.mode==='space'&&entry.actor.id===actor?.id);
-    model.selected=aboard?.key??key;model.search='';
-    const chosen=npcRoster(model).find(entry=>entry.key===model.selected);if(chosen){model.side=rosterSide(chosen)??model.side;if(!npcRosterMatches(chosen,npcRosterFilter(model)))model.rosterFilters={...model.rosterFilters,[model.side]:'all'};}
-    render(panel,model,{force:true});if(currentEntry(model))await handle(panel,model,'focus',panel);}return app;
+    const entries=npcRoster(model);
+    const aboard=foundry.applications.instances.get('ffg-space-combat')?.rendered&&entries.find(entry=>entry.mode==='space'&&entry.actor.id===actor?.id);
+    model.selected=aboard?.key??key;model.sceneSelection=null;model.search='';
+    const chosen=entries.find(entry=>entry.key===model.selected);if(chosen){model.side=rosterSide(chosen)??model.side;if(!npcRosterMatches(chosen,npcRosterFilter(model)))model.rosterFilters={...model.rosterFilters,[model.side]:'all'};}
+    render(panel,model,{force:true});if(model.selected)await handle(panel,model,'focus',panel);}return app;
 }
 let timer;
 const dirtyPanels=new Set();
@@ -402,6 +610,13 @@ if(typeof Hooks!=='undefined'){
   Hooks.on('updateActor',actor=>refresh(model=>model.entries?.some(entry=>entry.actor===actor||entry.actor.id===actor.id||entry.vehicle?.id===actor.id)));
   for(const name of ['createItem','updateItem','deleteItem'])Hooks.on(name,item=>{const actor=item.parent;if(actor?.documentName==='Actor')refresh(model=>model.entries?.some(entry=>entry.actor===actor||entry.actor.id===actor.id||entry.vehicle?.id===actor.id));});
   Hooks.on('updateSetting',setting=>{if(String(setting.key).startsWith('starwarsffg.'))refresh();});
+  Hooks.on('ffgPilotageSceneTokenSelected',token=>{
+    if(!game.user.isGM||!personal.has(token.actor?.type))return;
+    pendingSceneTokenUuid=token.uuid;
+    for(const [panel,model]of panels){
+      if(panel.isConnected&&panel.closest('.sidebar-tab.active'))render(panel,model,{force:true});
+    }
+  });
   Hooks.on('controlToken',(token,controlled)=>{
     if(!controlled)return;
     for(const [panel,model]of panels)if(panel.isConnected&&model.selected!==token.document.uuid)closeNpcSummaries(model);

@@ -16,6 +16,7 @@ test('carried and worn armour counts all copies and respects adjusted zero',asyn
  armour.system.equippable.equipped=true;armour.system.encumbrance.adjusted=0;actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,0);
  armour.system.quantity.value=0;delete armour.system.encumbrance.adjusted;actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,0);
  actor.items=[{type:'gear',system:{encumbrance:{value:4,adjusted:2},quantity:{value:3}}}];actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,6);
+ actor.items=[{type:'shipattachment',system:{encumbrance:{value:5,adjusted:0},quantity:{value:1}}}];actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,5);
 });
 test('minions fall only above each threshold and incomplete groups stay finite',async()=>{
  const ActorFFG=await actorClass();const actor=new ActorFFG();actor.items=[];

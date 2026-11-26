@@ -13,8 +13,47 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 })[char]);
 
-const bilingual = (fr, en) => game.i18n.lang === 'fr' ? fr : en;
 const formatNumber = value => Number(value).toLocaleString(game.i18n.lang, {maximumFractionDigits: 2});
+const malfunctionModifiers = [
+  ['hull', 'SWFFG.VehicleHullTrauma'],
+  ['strain', 'SWFFG.UI.Interface.SystemStrain'],
+  ['malfunctions', 'SWFFG.VehicleMalfunctions.ActiveModifiers'],
+  ['criticals', 'SWFFG.CriticalDamage'],
+  ['additional', 'SWFFG.VehicleMalfunctions.AdditionalModifiers'],
+  ['adjustment', 'SWFFG.UI.Vehicle.MalfunctionGMAdjustment']
+];
+const signedModifier = value => (value < 0 ? '- ' : '+ ') + formatNumber(Math.abs(value));
+
+export function malfunctionRollDetailsHTML(record) {
+  if (!record?.roll) return '';
+  let roll;
+  try { roll = record.roll instanceof Roll ? record.roll : Roll.fromData(record.roll); }
+  catch { return ''; }
+  if (!Number.isFinite(roll.total)) return '';
+  const dice = roll.dice;
+  const [die] = dice;
+  const raw = dice.length === 1 && die.faces === 100 && die.number === 1 ? die.total : null;
+  const rolled = Number.isFinite(raw) ? `d100 (${formatNumber(raw)})` : '';
+  const total = formatNumber(roll.total);
+  const modifiers = record.modifiers;
+  const modifier = modifiers?.total + (modifiers?.adjustment ?? 0);
+  let calculation;
+  let detail = '';
+  if (rolled && Number.isFinite(modifier)) {
+    const subtotal = raw + modifier;
+    const minimum = subtotal < 1 ? ` = ${formatNumber(subtotal)} → ${total} (${localize('MinimumApplied')})` : ` = ${total}`;
+    calculation = `${rolled} ${signedModifier(modifier)}${minimum}`;
+    detail = malfunctionModifiers
+      .filter(([key]) => Number.isFinite(modifiers[key]) && modifiers[key] !== 0)
+      .map(([key, label]) => `${game.i18n.localize(label)} ${signedModifier(modifiers[key])}`)
+      .join(' · ');
+  } else {
+    const formula = rolled && roll.formula === '1d100' ? rolled : [rolled, roll.formula].filter(Boolean).join(' · ');
+    calculation = `${formula} = ${total}`;
+  }
+  return `<p class="ffg-malfunction-roll"><strong>${escape(calculation)}</strong>${detail ? `<br><small>${escape(detail)}</small>` : ''}</p>`;
+}
+
 function repairLabel(quote) {
   return quote.total === null ? game.i18n.localize("SWFFG.UI.Vehicle.CostToDetermine") :
     formatNumber(quote.total) + game.i18n.localize("SWFFG.UI.Vehicle.MalfunctionCredits");
@@ -94,7 +133,7 @@ export async function rollAndRecordMalfunction(actor, options = {}) {
     const entry = {...record, id: foundry.utils.randomID(), when: new Date().toISOString(), source: 'table'};
     await mutate(actor, entries => [...entries, entry], {instant: entry});
   }
-  const content = '<h3>' + escape(record.title) + '</h3>' + record.description +
+  const content = '<h3>' + escape(record.title) + '</h3>' + malfunctionRollDetailsHTML(record) + record.description +
     '<p>' + game.i18n.localize("SWFFG.UI.Vehicle.Repair") + ' : ' + escape(repairLabel(record.repair)) + '</p>';
   try { await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({actor}), content, rolls: [Roll.fromData(record.roll)],
@@ -235,5 +274,5 @@ export async function vehicleMalfunctionAction(event, control) {
 
 if(globalThis.Hooks) Hooks.once('ready',()=>{
   game.starwarsffg??={};
-  game.starwarsffg.malfunctions={draw:drawVehicleMalfunction,navigation:malfunctionNavigation,prompt:promptVehicleMalfunction};
+  game.starwarsffg.malfunctions={draw:drawVehicleMalfunction,rollDetailsHTML:malfunctionRollDetailsHTML,navigation:malfunctionNavigation,prompt:promptVehicleMalfunction};
 });

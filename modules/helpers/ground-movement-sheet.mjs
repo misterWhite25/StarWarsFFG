@@ -1,7 +1,7 @@
 import {paymentFor} from './ground-movement-payment.mjs';
 import {dualDistance} from './metric-distances.mjs';
 import {modes,bands,calibration} from './ground-movement-model.mjs';
-import {movementMode,enabledMovementModes,groundTokensForActor,groundTokenForActor,selectGroundSheetToken,stateFor,rangeFor,isGroundToken,requestMovementCommand} from './ground-movement-state.mjs';
+import {battlemapMovementLimited,movementMode,enabledMovementModes,groundTokensForActor,groundTokenForActor,selectGroundSheetToken,stateFor,rangeFor,isGroundToken,requestMovementCommand} from './ground-movement-state.mjs';
 import {cancelGroundTarget} from './ground-target-picker.mjs';
 import {setGroundRangeOverlay,hasGroundRangeOverlay,clearGroundRangeOverlay,refreshGroundRangeOverlay,rangeLabels,rangeColors} from './ground-range-overlay.mjs';
 const views=new Map(),types=new Set(['character','minion','rival','nemesis']);let frame,styles;
@@ -102,7 +102,7 @@ class GroundSheetView{
   }
   if(mode==='battlemap'){
    const config=calibration(canvas.scene);
-   body.append(el('small','ffg-movement-note',game.i18n.format('SWFFG.UI.Ground.DistanceSummary',{distance:dualDistance(state.distance,canvas.scene),movement:dualDistance(config.movement,canvas.scene)})));
+   body.append(el('small','ffg-movement-note',battlemapMovementLimited(token.parent)?game.i18n.format('SWFFG.UI.Ground.DistanceSummary',{distance:dualDistance(state.distance,canvas.scene),movement:dualDistance(config.movement,canvas.scene)}):game.i18n.localize('SWFFG.UI.Ground.FreeMovementHint')));
    if(hasGroundRangeOverlay(this)){
     const legend=el('div','ffg-sheet-range-legend');['short','medium','long','extreme'].forEach((key,index)=>{const item=el('span','',game.i18n.localize(rangeLabels[index])+' : '+dualDistance(config[key],canvas.scene));item.style.setProperty('--ffg-ring-color','#'+rangeColors[index].toString(16).padStart(6,'0'));legend.append(item);});body.append(legend,el('small','ffg-movement-note',game.i18n.localize("SWFFG.UI.Ground.RangeRingsHint")));
    }

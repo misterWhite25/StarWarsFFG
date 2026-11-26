@@ -45,6 +45,10 @@ export function skillDescriptor(builder){
   const raw=builder.weaponContext?.skillKey??builder.roll.skillName??builder.roll.item?.system?.skill?.value;
   if(!raw)return null;
   const actor=builder.roll.data?.document??game.actors.get(builder.roll.data?.actor?._id);
+  return describeSkill(raw, actor);
+}
+
+export function describeSkill(raw, actor) {
   const actorSkills=actor?.system?.skills??{};
   const names=[raw,game.i18n.localize(raw)].map(normalize);
   const match=Object.entries({...standardSkills,...actorSkills}).find(([key,data])=>[key,data.value,data.label,game.i18n.localize(data.label??key)].some(value=>names.includes(normalize(value))));

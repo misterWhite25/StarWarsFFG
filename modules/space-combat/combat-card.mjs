@@ -1,3 +1,4 @@
+import {command} from "./board.mjs";
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 import {setCombatSheetMode} from "../helpers/combat-sheet.mjs";
 import {canSelectShip} from "./crew-access.mjs";
@@ -72,7 +73,26 @@ export function combatCard(ship,report,options={}) {
   const mobility=node("div","sc-card-grid");
   stat(mobility,"Gabarit",ship.silhouette);
   const speed=node("div","sc-card-stat");
-  speed.append(node("span","","Vitesse carte"),node("strong","",number(ship.speed)+" / "+number(ship.maxSpeed)));
+  speed.append(node("span","","Vitesse carte"));
+  if(game.user.isGM){
+    const values=node("div","sc-card-values"),input=node("input");
+    let savedSpeed=ship.speed;
+    input.type="number";input.min="0";input.max=String(ship.maxSpeed);input.step="1";input.required=true;
+    input.value=String(ship.speed);input.dataset.shipSpeed=ship.id;
+    input.setAttribute("aria-label","Vitesse du vaisseau sur la carte");
+    input.title="Réglage MJ : vitesse du pion, sans coût en manœuvre ni en stress.";
+    input.addEventListener("change",async event=>{
+      event.stopPropagation();
+      if(input.disabled||!input.isConnected)return;
+      if(!input.reportValidity()){input.value=String(savedSpeed);return;}
+      const value=input.valueAsNumber;if(value===savedSpeed)return;
+      input.disabled=true;
+      try{await command("speed",{shipId:ship.id,version:ship.version,speed:value});savedSpeed=value;}
+      catch(error){input.value=String(savedSpeed);report(error);}
+      finally{input.disabled=false;}
+    });
+    values.append(input,node("span","","/ "+number(ship.maxSpeed)));speed.append(values);
+  }else speed.append(node("strong","",number(ship.speed)+" / "+number(ship.maxSpeed)));
   mobility.append(speed);
   card.append(mobility);
   if(!readable) {

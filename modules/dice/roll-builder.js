@@ -14,8 +14,8 @@ import {SIMULATION_ITERATIONS,probabilityOptions,simulationVisible} from '../hel
 import {ProbabilityPreview} from '../helpers/probability-preview.mjs';
 
 export default class RollBuilderFFG extends FormApplicationV2 {
-  constructor(rollData, rollDicePool, rollDescription, rollSkillName, rollItem, rollAdditionalFlavor, rollSound) {
-    super();
+  constructor(rollData, rollDicePool, rollDescription, rollSkillName, rollItem, rollAdditionalFlavor, rollSound, options) {
+    super(undefined, options);
     this.roll = {
       data: rollData,
       skillName: rollSkillName,
@@ -116,6 +116,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     return {
       isGM: game.user.isGM,
       flavor: this.roll.flavor,
+      requestedRoll: this._rollRequest ? {reason: this.roll.flavor} : null,
       users,
       enableForceDie,
       labels,
@@ -155,6 +156,8 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       const talentActor = this.weaponContext?.actor ?? this.roll.data?.document ?? resolveCrewActor(this.roll.data?.actor?._id);
       const talentSkill = this.weaponContext?.skillKey ?? this.roll.skillName;
       try {
+      if(this._rollRequest)game.ffg.rollRequests.assert(this);
+      if(this._rollRequest&&html.find(".user-selection")?.[0]?.value)throw Error(game.i18n.localize("SWFFG.UI.RollRequests.RollHere"));
       this._rollTargets?.refreshUI();
       if(this._rollTargets?.error)throw new Error(this._rollTargets.error);
       if((this._talentSelections??[]).some(s=>s.id==='confidence')){const fear=this._previewPool();if(!fear.difficulty&&!fear.challenge){ui.notifications.info(game.i18n.localize("SWFFG.UI.Dice.NoFearCheck"));return;}}
@@ -247,10 +250,11 @@ export default class RollBuilderFFG extends FormApplicationV2 {
         await roll.toMessage({
           author: game.user.id,
           speaker: ChatMessage.getSpeaker({actor: integratedCrewVehicle(talentActor) ?? talentActor,alias:talentActor?.name}),
-          flags: {starwarsffg: {targetTokenUuids:this.roll.targetTokenUuids,targetAdversary:this.roll.targetAdversary,triggeredTalent:this.roll.data?.triggeredTalent, talentProtection:finalPool._talentProtection,pilotageEffects:pilotageTransaction.entries.map(e=>({id:e.id,subjectUuid:e.subjectUuid,boost:e.boost,setback:e.setback,reason:e.reason})), shot, combatMode:this.roll.combatMode, combatSkill:this.roll.skillName, autoFire:Boolean(this.roll.autoFire && hasAutoFire(this.roll.item)), rollTalents:talentTransaction.selections, usedAid: (this._aidEntries ?? []).map(a => a.id)}},
+          flags: {starwarsffg: {rollRequest:this._rollRequest,targetTokenUuids:this.roll.targetTokenUuids,targetAdversary:this.roll.targetAdversary,triggeredTalent:this.roll.data?.triggeredTalent, talentProtection:finalPool._talentProtection,pilotageEffects:pilotageTransaction.entries.map(e=>({id:e.id,subjectUuid:e.subjectUuid,boost:e.boost,setback:e.setback,reason:e.reason})), shot, combatMode:this.roll.combatMode, combatSkill:this.roll.skillName, autoFire:Boolean(this.roll.autoFire && hasAutoFire(this.roll.item)), rollTalents:talentTransaction.selections, usedAid: (this._aidEntries ?? []).map(a => a.id)}},
           flavor: `${game.i18n.localize("SWFFG.Rolling")} ${game.i18n.localize(this.roll.skillName)}...`,
         });
         posted = true;
+        if(this._rollRequest)this._rollRequestSubmitted=true;
         this._frenziedPaid=null;
         if(talentTransaction.selections.length) {
           this._talentSelections = [];
@@ -282,6 +286,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
       } finally {
         this._postingRoll = false;
         void this._rollTargets?.sync();
+        if(posted&&this._rollRequest)await this.close();
       }
     });
 

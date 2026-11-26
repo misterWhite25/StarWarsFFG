@@ -2,7 +2,7 @@ import './ground-automatic-movement.mjs';
 import './ground-range-settings.mjs';
 import {metricUnit,toMetric,fromMetric,metricRulerContext,feetDistance,hasDualUnits} from './metric-distances.mjs';
 import {modes,calibration,validateCalibration} from './ground-movement-model.mjs';
-import {movementMode,enabledMovementModes,migrateMovementModes,stateFor,isGroundToken,recordNativeMovement} from './ground-movement-state.mjs';
+import {battlemapMovementLimited,enabledMovementModes,migrateMovementModes,stateFor,isGroundToken,recordNativeMovement} from './ground-movement-state.mjs';
 const scope='starwarsffg',el=(tag,css,text)=>{const node=document.createElement(tag);if(css)node.className=css;if(text!==undefined)node.textContent=text;return node;};
 import {refreshGroundSheets,loadGroundMovementStyles as loadStyles} from './ground-movement-sheet.mjs';
 function refreshControls(){refreshGroundSheets();}
@@ -14,11 +14,14 @@ function sceneFields(app){
  const row=(title,input,equivalent)=>{const line=el('div','form-group'),label=el('label','',title),fields=el('div','form-fields');fields.append(input);if(equivalent)fields.append(equivalent);line.append(label,fields);group.append(line);};
  group.append(el('p','hint',game.i18n.localize("SWFFG.UI.Ground.ChooseModeInPilotage")));
  group.append(el('p','hint',game.i18n.format(hasDualUnits(scene)?'SWFFG.UI.Ground.ConventionWithFeet':'SWFFG.UI.Ground.ConventionWithoutFeet',{unit:metricUnit(scene)})));
- for(const [key,title]of Object.entries({movement:game.i18n.localize("SWFFG.UI.Ground.DistancePerManeuver"),short:game.i18n.localize("SWFFG.UI.Ground.ShortRangeLimit"),medium:game.i18n.localize("SWFFG.UI.Ground.MediumRangeLimit"),long:game.i18n.localize("SWFFG.UI.Ground.LongRangeLimit"),extreme:game.i18n.localize("SWFFG.UI.Ground.ExtremeRangeLimit")})){
+ for(const [key,title]of [['movement',game.i18n.localize("SWFFG.UI.Ground.DistancePerManeuver")]]){
   const input=el('input');input.type='number';input.step='any';input.min='0.001';input.value=String(Math.round(toMetric(config[key],scene)*1e9)/1e9);input.style.textAlign='center';
-  const stored=el('input');stored.type='hidden';stored.name='flags.starwarsffg.groundMovement.'+key;stored.value=String(config[key]);
+  const stored=el('input');stored.type='hidden';stored.value=String(config[key]);
+  const fieldName='flags.starwarsffg.groundMovement.'+key;
+  // Opening and saving SceneConfig must not turn inherited defaults into overrides.
+  if(Object.hasOwn(scene.getFlag('starwarsffg','groundMovement')??{},key))stored.name=fieldName;
   const equivalent=el('span','hint ffg-distance-equivalent',feetDistance(config[key],scene));equivalent.hidden=!hasDualUnits(scene);equivalent.style.whiteSpace='nowrap';equivalent.setAttribute('aria-live','polite');
-  input.addEventListener('input',()=>{stored.value=input.value===''?'':String(fromMetric(Number(input.value),scene));equivalent.textContent=input.value===''?'':feetDistance(Number(stored.value),scene);});
+  input.addEventListener('input',()=>{stored.name=fieldName;stored.value=input.value===''?'':String(fromMetric(Number(input.value),scene));equivalent.textContent=input.value===''?'':feetDistance(Number(stored.value),scene);});
   row(title+' ('+metricUnit(scene)+')',input,equivalent);group.append(stored);
  }host.append(group);
 }
@@ -33,7 +36,7 @@ Hooks.once('init',()=>{
   _getWaypointLabelContext(waypoint,state){
    const token=this.token.document,previousElevation=state.previousElevation;
    const context=metricRulerContext(super._getWaypointLabelContext(waypoint,state),waypoint,token.parent,{previousElevation,elevationBase:canvas.level?.elevation.base??0});
-   if(context&&movementMode(token.parent)==='battlemap'&&isGroundToken(token)&&context.cost&&waypoint.stage!=='passed'){
+   if(context&&battlemapMovementLimited(token.parent)&&isGroundToken(token)&&context.cost&&waypoint.stage!=='passed'){
     let planned=0;for(let point=waypoint;point&&point.stage!=='passed';point=point.previous)planned+=point.measurement.backward?.cost??0;
     const current=stateFor(token),count=Math.max(0,Math.ceil(Math.max(0,current.distance+planned-1e-7)/calibration(token.parent).movement)-current.movePaid);
     const over=Number.isFinite(count)&&current.used+count>2;

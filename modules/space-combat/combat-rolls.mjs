@@ -1,6 +1,7 @@
 import {BARRAGES,barrageConfiguration} from './barrage-rules.mjs';
 import {resolveCrewActor,resolveCrewDocument,integratedCrewVehicle} from '../helpers/integrated-crew.mjs';
 import {requireLivingVehicleGroup,vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
+import {shipWeaponAttackProfile} from '../helpers/ship-weapon-profile.mjs';
 const groupSignature=vehicle=>{const group=vehicleMinionGroup(vehicle);return JSON.stringify([group.enabled,group.count,group.alive,group.hullPerVehicle]);};
 import DiceHelpers,{get_dice_pool} from "../helpers/dice-helpers.js";
 import {DicePoolFFG} from "../dice/pool.js";
@@ -61,6 +62,12 @@ class CombatRollBuilder extends RollBuilderFFG {
     const target=board().ships.find(s=>s.id===context.target?.id);
     if(current?.version!==context.ship.version||target?.version!==context.target?.version)
       throw Error("Le combat a changé. Rouvrez le jet pour recalculer les effets.");
+    if(context.attack) {
+      const weapon=vehicle.items.get(this.roll.item?.id);
+      const profile=shipWeaponAttackProfile({...current,spaceShip:vehicle.system.spaceShip},weapon,target.silhouette);
+      if(!weapon||profile.effectiveSilhouette!==context.attackProfile.effectiveSilhouette)
+        throw Error(game.i18n.localize('SWFFG.ShipWeapon.ProfileChanged'));
+    }
     transaction.spaceCombat=await command("combat",{shipId:current.id,version:current.version,
       crewId:context.member.actor_id,combatAction:context.attack?"attackReserve":"pilotReserve",
       targetId:target?.id,targetVersion:target?.version,weaponId:this.roll.item?.id,rollId:context.rollId,barrage:context.barrage?{id:context.barrage.id,weaponId:this.roll.item?.id,barrageArc:context.barrage.arc,barrageArcs:context.barrage.arcs,barrageCount:context.barrage.count}:undefined});
@@ -101,7 +108,7 @@ export async function openCombatRoll(ship,member,{weapon,targetId,sector,terrain
   if(barrageData&&!isGunnerRole(current))throw Error("Les barrages sont réservés aux artilleurs.");
   if(barrageData?.id==="concentratedBarrage"&&target?.silhouette<5)throw Error("Le barrage concentré exige une cible de gabarit 5 ou plus.");
   let key=pilotSkill(vehicle,game.settings.get("starwarsffg","skilltheme"));
-  let pool;
+  let pool,attackProfile;
   const crew={name:vehicle.name,img:vehicle.img,crew_card:true,role:current.role};
   let guided=false;
   if(attack) {
@@ -115,8 +122,8 @@ export async function openCombatRoll(ship,member,{weapon,targetId,sector,terrain
     const allowed=weaponRangeIndex(weapon);
     const band=["Proche","Courte","Moyenne","Longue","Extrême"].indexOf(range.band);
     if(allowed>=0&&band>allowed)throw Error("La cible est hors de portée de cette arme.");
-    const difference=target.silhouette-ship.silhouette;
-    const difficulty=difference>=2?1:difference<=-4?5:difference===-3?4:difference===-2?3:2;
+    attackProfile=shipWeaponAttackProfile({...ship,spaceShip:vehicle.system.spaceShip},weapon,target.silhouette);
+    const {difficulty}=attackProfile;
     pool=get_dice_pool(actor,key,new DicePoolFFG({difficulty,setback:malfunctions.weaponSetbacks[weapon.id]??0}));
     pool=await DiceHelpers.getModifiers(pool,weapon);
     sector=Object.hasOwn(SECTORS,sector)?sector:attackSector(ship,target,actor.id);
@@ -136,6 +143,6 @@ export async function openCombatRoll(ship,member,{weapon,targetId,sector,terrain
   const builder=new CombatRollBuilder(data,pool,barrageData?barrageData.label:attack?"Tir - "+weapon.name:"Test de pilotage",key,item,
     attack?"Combat spatial contre "+game.actors.get(target.actorId)?.name:"Combat spatial");
   builder.roll.crew=crew;builder.roll.combatMode="vehicle";
-  builder.spaceCombat={groupSignature:groupSignature(vehicle),ship:structuredClone(ship),target:target&&structuredClone(target),member:current,attack,sector,guided,rollId,barrage:barrageData,initiative:initiativeStamp()};
+  builder.spaceCombat={groupSignature:groupSignature(vehicle),ship:structuredClone(ship),target:target&&structuredClone(target),member:current,attack,attackProfile,sector,guided,rollId,barrage:barrageData,initiative:initiativeStamp()};
   return builder.render(true);
 }

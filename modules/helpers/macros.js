@@ -1,14 +1,19 @@
+import {skillIcon,needsSkillIconUpdate} from './skill-hotbar-model.mjs';
 // Macro API updates adapted from salohcin714's PR #2280; owned weapons use their actual parent Actor.
 const createMacroItem = async (macro) => {
   const existing = game.macros.find(m => m.name === macro.name && m.command === macro.command);
-  return existing ?? CONFIG.Macro.documentClass.create(macro);
+  if (!existing) return CONFIG.Macro.documentClass.create(macro);
+  if (macro.flags?.starwarsffg?.skillShortcut && existing.isOwner && needsSkillIconUpdate(existing.img, macro.img)) {
+    await existing.update({img: macro.img, 'flags.starwarsffg.skillShortcut': macro.flags.starwarsffg.skillShortcut});
+  }
+  return existing;
 };
 
 async function createSkillMacro(data) {
   const actor = game.actors.get(data.actorId);
   if (!actor) return null;
   const command = `await game.ffg.DiceHelpers.rollSkillByKey(${JSON.stringify(data.actorId)}, ${JSON.stringify(data.data.skill)}, 2);`;
-  return createMacroItem({name: `${actor.name}-${data.data.skill}`, type: "script", command});
+  return createMacroItem({name: `${actor.name}-${data.data.skill}`, type: "script", img:skillIcon(data.data.skill,actor.system?.skills?.[data.data.skill]), command, flags:{starwarsffg:{skillShortcut:{version:1,actorUuid:actor.uuid??"Actor."+actor.id,skillKey:data.data.skill}}}});
 }
 
 export async function createFFGMacro(bar, data, slot) {
@@ -38,6 +43,7 @@ export async function createFFGMacro(bar, data, slot) {
 
 /** Update the image for macros opening a document sheet. */
 export async function updateMacro(macro) {
+  if(macro.getFlag?.("starwarsffg", "skillShortcut"))return macro;
   const uuid = macro.command.split('"')[1];
   if (uuid) {
     const document = await foundry.utils.fromUuid(uuid);

@@ -91,6 +91,10 @@ async function zoomPortrait(uuid){
 function renderPortraits(){
   let root=document.getElementById('ffg-shared-portraits');
   const state=sharedPortraitState();
+  const visible=new Set(enabled()?state.portraits.map(p=>p.uuid):[]);
+  for(const [uuid,preview]of portraitPreviews)if(!visible.has(uuid)){
+    portraitPreviews.delete(uuid);preview.close().catch(fail);
+  }
   if(!enabled()||!state.portraits.length){root?.remove();return;}
   if(!root){
     root=element('section','ffg-shared-portraits');root.id='ffg-shared-portraits';
@@ -111,6 +115,12 @@ function renderPortraits(){
     for(const type of ['pointerdown','mousedown','dblclick'])zoom.addEventListener(type,event=>event.stopPropagation());
     zoom.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();zoomPortrait(p.uuid).catch(fail);});
     art.append(zoom);
+    if(game.user.isGM){
+      const close=action(game.i18n.localize('SWFFG.UI.Interface.RemovePortrait'),'fa-xmark',()=>editSharedPortrait(p.uuid,{remove:true}));
+      close.classList.add('ffg-portrait-close');
+      for(const type of ['pointerdown','mousedown','dblclick'])close.addEventListener(type,event=>event.stopPropagation());
+      art.append(close);
+    }
     card.append(art);
     if(p.name)card.append(element('figcaption','',p.name));
     return card;
@@ -140,7 +150,7 @@ function updateBounds(){
   let bottom=Math.max(top+1,Math.min(innerHeight-12,hotbar&&hotbar.top>innerHeight*.4?hotbar.top-12:innerHeight-12));
   if(state.layout==='bottom'&&players)left=Math.min(right-1,Math.max(left,players.right+12));
   if(state.layout==='left'&&players&&players.left<left+Math.min(440,(right-left)*.34))bottom=Math.max(top+1,Math.min(bottom,players.top-12));
-  const grid=fitPortraitGrid({count:state.portraits.length,width:right-left,height:bottom-top,position:state.layout,size:state.size,named:state.portraits.some(p=>p.name)});
+  const grid=fitPortraitGrid({count:state.portraits.length,width:right-left,height:bottom-top,position:state.layout,size:state.size});
   if(!grid?.columns)return;
   const horizontal=['top','bottom'].includes(state.layout);
   const x=horizontal?left+(right-left-grid.width)/2:state.layout==='left'?left:right-grid.width;
@@ -168,10 +178,9 @@ function action(label,icon,callback){
 }
 function renderPanel(app){
   const root=app?.element;
-  if(!root?.classList.contains('pilotage-mj-dialog'))return;
-  let panel=root.querySelector('.ffg-shared-portraits-controls');
+  let panel=root?.querySelector('.ffg-shared-portraits-controls');
   if(!game.user.isGM||!enabled()){panel?.remove();return;}
-  const views=root.querySelector('.pilotage-views-content')??root.querySelector('[data-pilotage-panel="views"]');if(!views)return;
+  const views=root?.querySelector('.pilotage-views-content');if(!views)return;
   const state=sharedPortraitState();
   if(!panel){
     panel=element('section','ffg-shared-portraits-controls');
@@ -226,7 +235,7 @@ function renderPanel(app){
 function refresh(){
   if(!game.ready)return;
   renderPortraits();
-  for(const app of foundry.applications.instances.values()){renderPanel(app);}
+  renderPanel(ui.ffgPilotage);
 }
 async function refreshSources(){
   if(!enabled()||!game.user.isActiveGM)return;
@@ -250,10 +259,7 @@ Hooks.once('init',()=>{
   const link=element('link');link.rel='stylesheet';link.href=new URL('../../styles/shared-portraits.css',import.meta.url).href;document.head.append(link);
 });
 Hooks.once('ready',()=>{refresh();observeBounds();refreshSources().catch(fail);});
-Hooks.on('renderApplicationV2',app=>{
-  if(!game.ready)return;
-  if(app.element?.classList.contains('pilotage-mj-dialog'))requestAnimationFrame(()=>renderPanel(app));
-});
+Hooks.on('renderPilotageMJ',renderPanel);
 Hooks.on('getActorContextOptions',(app,options)=>{
   options.push({group:'starwarsffg',label:game.i18n.localize("SWFFG.UI.Interface.ShowToGroup"),icon:'fa-solid fa-users-viewfinder',
     visible:li=>game.user.isGM&&enabled()&&TYPES.has(app.collection.get(li.dataset.entryId)?.type),

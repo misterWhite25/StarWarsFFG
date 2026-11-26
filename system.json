@@ -33,8 +33,7 @@
     "lib/pure/grids-min.css",
     "lib/slimselect/slimselect.css",
     "lib/datatables/datatables.min.css",
-    "styles/banner-gallery.css",
-    "styles/pilotage-tabs.css"
+    "styles/banner-gallery.css"
   ],
   "scripts": [
     "lib/jszip/jszip.min.js",

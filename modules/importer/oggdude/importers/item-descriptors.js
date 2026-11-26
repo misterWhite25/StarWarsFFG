@@ -15,10 +15,9 @@ export default class ItemDescriptors {
 
   static async Import(xml) {
     const base = JXON.xmlToJs(xml);
-    let items = base.ItemDescriptors.ItemDescriptor;
+    const items = ImportHelpers.xmlRecords(base.ItemDescriptors.ItemDescriptor);
     let totalCount = items.length;
     let currentCount = 0;
-    let pack;
     
     $(".import-progress.itemmodifier").toggleClass("import-hidden");
     const packMap = {
@@ -74,14 +73,7 @@ export default class ItemDescriptors {
           );
         }
 
-        try {
-          // attempt to select the specific compendium for this type of mod
-          pack = packMap[data.data.type];
-        } catch {
-          // but fail back to the generic compendium
-          pack = packMap["all"];
-        }
-
+        const pack = Object.hasOwn(packMap, data.data.type) ? packMap[data.data.type] : packMap.all;
         await ImportHelpers.addImportItemToCompendium("Item", data, pack);
 
         currentCount += 1;

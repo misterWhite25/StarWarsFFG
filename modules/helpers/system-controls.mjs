@@ -1,8 +1,9 @@
 // Style the system shortcuts in place, preserving Foundry's control hierarchy.
-const shortcuts = '[data-open-space-combat], [data-open-galactic-travel], [data-open-galactic-market], li[data-deck-ship] > button';
+const shortcuts = '[data-trombinoscope], [data-open-space-combat], [data-open-galactic-travel], [data-open-galactic-market], li[data-deck-ship] > button, li[data-base-plan-scene] > button';
 let observedRoot, observer, frame;
 
 function windowId(button) {
+  if (button.hasAttribute('data-trombinoscope')) return 'ffg-trombinoscope';
   if (button.hasAttribute('data-open-space-combat')) return 'ffg-space-combat';
   if (button.hasAttribute('data-open-galactic-travel')) return 'swffg-galactic-travel';
   if (button.hasAttribute('data-open-galactic-market')) return 'swffg-galactic-market';
@@ -24,16 +25,22 @@ function refresh() {
   const market=root.querySelector('[data-open-galactic-market]')?.closest('li');
   const space=root.querySelector('[data-open-space-combat]')?.closest('li');
   if(market&&space&&market.parentElement===space.parentElement&&market.nextElementSibling!==space)market.after(space);
+  const portraits = root.querySelector('[data-trombinoscope]')?.closest('li');
+  if (space && portraits && space.parentElement === portraits.parentElement && space.nextElementSibling !== portraits) {
+    space.after(portraits);
+  }
   const rows = new Set();
   for (const button of root.querySelectorAll(shortcuts)) {
     const row = button.closest('li');
     if (!row) continue;
     rows.add(row);
     const id = windowId(button);
-    const open = !!(id && document.getElementById(id));
+    const sceneId = row.dataset.basePlanScene;
+    const open = sceneId ? canvas.scene?.id === sceneId : !!(id && document.getElementById(id));
     button.classList.add('ffg-system-control');
     button.classList.toggle('ffg-system-control-open', open);
-    button.setAttribute('aria-expanded', String(open));
+    if (sceneId) button.setAttribute('aria-current', open ? 'location' : 'false');
+    else button.setAttribute('aria-expanded', String(open));
   }
   for (const row of root.querySelectorAll('.ffg-system-control-row')) {
     if (!rows.has(row)) row.classList.remove('ffg-system-control-row', 'ffg-system-control-start', 'ffg-system-control-end');
@@ -58,8 +65,9 @@ Hooks.once('init', () => {
 });
 Hooks.once('ready', schedule);
 Hooks.on('renderSceneControls', schedule);
+Hooks.on('canvasReady', schedule);
 for (const hook of ['renderApplicationV2', 'closeApplicationV2']) {
   Hooks.on(hook, app => {
-    if (app.id === 'ffg-space-combat' || app.id === 'swffg-galactic-travel' || app.id === 'swffg-galactic-market' || app.id?.startsWith('ffg-deck-')) schedule();
+    if (app.id === 'ffg-trombinoscope' || app.id === 'ffg-space-combat' || app.id === 'swffg-galactic-travel' || app.id === 'swffg-galactic-market' || app.id?.startsWith('ffg-deck-')) schedule();
   });
 }

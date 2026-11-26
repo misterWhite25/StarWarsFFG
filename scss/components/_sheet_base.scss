@@ -43,7 +43,7 @@
       input {
         height: 40px;
         border: 0;
-        font-size: 30px;
+        font-size: 27px;
         text-align: center;
 
         &:focus {
@@ -78,10 +78,6 @@
   padding: 0;
   z-index: 1;
   border: 0;
-
-  .block-background-shadow {
-    top: 36px;
-  }
 
   .block-background {
     padding: 5px 5px;
@@ -157,7 +153,6 @@
 
   .shadow-text {
     position: absolute;
-    top: 5px;
     font-size: 9px;
     left: 50%;
     transform: translateX(-50%);

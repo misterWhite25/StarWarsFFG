@@ -156,7 +156,8 @@ export default class DiceHelpers {
     const prepared = await prepareRememberedWeapon(weaponContext, item, dicePool);
     const actor=weaponContext?.actor??data?.document??resolveCrewActor(data?.actor?._id??data?.actor?.id);
     if(integratedCrewVehicle(actor)){data.document=actor;data.documentUuid=actor.uuid;data.integratedCrewGroup??=integratedCrewGroupSignature(actor);}
-    const builder = new RollBuilderFFG(data, prepared.pool, description, skillName, prepared.item, flavorText, sound);
+    const builder = new RollBuilderFFG(data, prepared.pool, description, skillName, prepared.item, flavorText, sound,
+      rollChoices.id ? {id: rollChoices.id} : undefined);
     builder.weaponContext = weaponContext;
     builder.roll.nonAttack = Boolean(rollChoices.nonAttack);
     builder.roll.crew = rollChoices.crew ?? prepared.item?.crew;
@@ -168,7 +169,7 @@ export default class DiceHelpers {
       builder.roll.combatMode=rollChoices.combatMode;
       builder._combatModeExplicit=true;
     }
-    return builder.render(true);
+    return rollChoices.render === false ? builder : builder.render(true);
   }
 
   static async addSkillDicePool(data, elem) {
@@ -266,13 +267,13 @@ export default class DiceHelpers {
   }
 
   /** Resolve a skill macro from stable document identifiers so its weapon selector uses current Actor data. */
-  static async rollSkillByKey(actorId, skillKey, difficulty = 2, flavorText, sound) {
+  static async rollSkillByKey(actorId, skillKey, difficulty = 2, flavorText, sound, {id, render} = {}) {
     const actor = resolveCrewActor(actorId);
     const skill = actor?.system?.skills?.[skillKey];
     const characteristic = actor?.system?.characteristics?.[skill?.characteristic];
     if (!actor || !skill || !characteristic) return null;
-    const sheet = rollContext(actor);
-    return this.rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound, {actor, skillKey});
+    const sheet = rollContext(actor, {tokenUuid: actorId?.tokenUuid});
+    return this.rollSkillDirect(skill, characteristic, difficulty, sheet, flavorText, sound, {actor, skillKey, id, render});
   }
 
   // Takes a skill object, characteristic object, difficulty number and ActorSheetFFG.getData() object and creates the appropriate roll dialog.
@@ -310,7 +311,7 @@ export default class DiceHelpers {
 
     const dicePool = await makePool({});
     const weaponContext = !context.nonAttack && actor && supportsWeaponSelection(skillKey, skill) ? {actor, skillKey, makePool} : null;
-    return this.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, {}, flavorText, sound, weaponContext, {nonAttack:context.nonAttack});
+    return this.displayRollDialog(sheet, dicePool, `${game.i18n.localize("SWFFG.Rolling")} ${skill.label}`, skill.label, {}, flavorText, sound, weaponContext, {nonAttack:context.nonAttack,id:context.id,render:context.render});
   }
 
   static getWeaponStatus(item) {

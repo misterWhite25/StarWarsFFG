@@ -1,6 +1,10 @@
 &.sheet {
   &.item {
     .item-sheet-specialization {
+      .talent-grid .popout-editor {
+        height: calc(100% - 1.3rem);
+      }
+
       .popout-editor {
         height: 100%;
         width: 100%;

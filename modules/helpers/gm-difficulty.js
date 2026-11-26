@@ -1,4 +1,4 @@
-import {applyPilotagePool,showPilotageMJ} from "./pilotage-mj.js";
+import {applyPilotagePool} from "./pilotage-mj.js";
 export const GM_DIFFICULTY_SETTING = "gmDifficulty";
 export const NEGATIVE_DICE = ["difficulty", "challenge", "setback"];
 export function normalizeDifficulty(value = {}) {
@@ -23,18 +23,6 @@ export function effectivePool(pool, config = gmDifficulty(pool)) {
   final._pilotageResolved=true;
   return final;
 }
-const summary = config => game.i18n.format("SWFFG.UI.Interface.GMDiceSummary",{difficulty:config.difficulty,challenge:config.challenge,setback:config.setback});
-function refresh() {
-  const config = gmDifficulty();
-  for (const button of document.querySelectorAll('.ffg-gm-difficulty')) {
-    const label = config.enabled ? game.i18n.format("SWFFG.UI.Interface.GMActiveDifficulty",{summary:summary(config)}) : game.i18n.localize("SWFFG.UI.Interface.GMInactiveDifficulty");
-    button.setAttribute('aria-label', label);
-    button.setAttribute('data-tooltip', label);
-    button.classList.toggle('active', config.enabled);
-    button.setAttribute('aria-pressed', String(config.enabled));
-  }
-  Hooks.callAll('ffgGMDifficultyChanged');
-}
 export function changeGMDifficulty(config, downgrade = false) {
   if (downgrade) {
     if (config.challenge > 0) { config.challenge--; config.difficulty++; }
@@ -42,24 +30,9 @@ export function changeGMDifficulty(config, downgrade = false) {
   else config.difficulty++;
   return config;
 }
-export async function showGMDifficulty() {
-  return showPilotageMJ(gmDifficulty(), {
-    saveDifficulty: config => game.settings.set('starwarsffg', GM_DIFFICULTY_SETTING, normalizeDifficulty(config)),
-  });
-}
 export function registerGMDifficulty() {
   game.settings.register('starwarsffg', GM_DIFFICULTY_SETTING, {
     scope: 'world', config: false, type: Object,
-    default: normalizeDifficulty({difficulty: 2}), onChange: refresh
+    default: normalizeDifficulty({difficulty: 2}), onChange: () => Hooks.callAll('ffgGMDifficultyChanged')
   });
-}
-export function renderGMDifficultyButton(_app, html) {
-  if (!game.user.isGM) return;
-  const root = html instanceof HTMLElement ? html : html?.[0];
-  const anchor = root?.querySelector('#message-modes, #roll-privacy') ?? document.querySelector('#message-modes, #roll-privacy');
-  if (!anchor || anchor.parentElement.querySelector('.ffg-gm-difficulty')) return;
-  const button = document.createElement('button');
-  button.type = 'button'; button.className = 'ffg-gm-difficulty ui-control icon fa-light fa-sliders';
-  button.addEventListener('click', showGMDifficulty);
-  anchor.after(button); refresh();
 }

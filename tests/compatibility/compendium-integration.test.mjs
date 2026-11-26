@@ -54,14 +54,14 @@ test('actor form preserves derived overrides, invalid numbers and valid zeroes',
 
 test('the vehicle sheet reads past voyages when the travel package is disabled', async () => {
   const scope = 'swffg-compendium-bilingual-steelers-core_rule';
-  const actor = {uuid:'Actor.ship', type:'vehicle', isOwner:true, items:[], system:{stats:{consumables:{value:3,duration:'days'}}},
+  const actor = {uuid:'Actor.ship', type:'vehicle', isOwner:true, testUserPermission:()=>true, items:[], system:{stats:{consumables:{value:3,duration:'days'}}},
     flags:{[scope]:{voyageResources:{resources:{hours:24},history:{a:{id:'a',cost:{maintenance:50},
       breakdown:{title:'Damaged panel',description:'Panel offline',repair:{total:10}}}}}}},
     getFlag(key, flag) {
       assert.equal(key, 'starwarsffg');
       return this.flags[key]?.[flag];
     }};
-  const context = vm.createContext({structuredClone, game:{i18n:await systemI18n('fr'),user:{isGM:true}, 
+  const context = vm.createContext({structuredClone, game:{i18n:await systemI18n('fr'),user:{isGM:true,can:()=>true}, 
     settings:{settings:new Map(), get(){throw Error('Unregistered setting');}}},
     foundry:{utils:{deepClone:structuredClone},applications:{sheets:{ActorSheetV2:class{}},
       api:{HandlebarsApplicationMixin:C=>C},ux:{TextEditor:{implementation:{enrichHTML:async value=>value}}}}}});

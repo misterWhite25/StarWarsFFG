@@ -1,4 +1,5 @@
 ﻿
+import {isCarriedEquipment} from "../helpers/inventory-location.js";
 import { activeEffectCreateData, activeEffectUpdateData } from "../compatibility/active-effects.js";
 
 function disablePushOnItem(effect, options){
@@ -14,6 +15,16 @@ function disablePushOnItem(effect, options){
  * @extends {ActiveEffect}
  */
 export class ActiveEffectFFG extends ActiveEffect {
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    const item = this.parent;
+    // Gear has no equip toggle. Its generated modifiers follow its inventory location,
+    // including modifiers saved as disabled by earlier system versions.
+    if (item?.type === "gear" && item.actor && Object.hasOwn(item.system.attributes ?? {}, this.name)) {
+      this.disabled = !isCarriedEquipment(item);
+    }
+  }
+
   /** Normalize legacy inputs at the document boundary, including embedded batch operations. */
   static async createDocuments(data = [], operation = {}) {
     return super.createDocuments(data.map(effect => activeEffectCreateData(effect)), operation);

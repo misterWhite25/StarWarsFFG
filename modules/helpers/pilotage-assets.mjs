@@ -1,6 +1,6 @@
 import {actorDirectoryGroup} from './vehicle-directory.js';
 import {showCreditPayment} from './pilotage-credit-payments.mjs';
-import {isInventoryEquipment,isPossession} from './inventory-location.js';
+import {isCarriedEquipment} from './inventory-location.js';
 
 const windows=new Map(),types=new Set(['character','minion','rival','nemesis']);
 const SYSTEM='starwarsffg',INCLUDED='pilotageAssetsIncluded';
@@ -72,7 +72,7 @@ class PilotageAssets extends foundry.applications.api.ApplicationV2{
   for(const card of this.body.querySelectorAll('[data-asset-actor]'))scrolls.set(card.dataset.assetActor,card.querySelector('.pilotage-assets-column-body')?.scrollTop??0);
   let count=0;
   for(const actor of (this.shared?this.snapshot:actors())){
-   const inventory=this.kind==='possessions'?(this.shared?actor.items:actor.items.filter(item=>isInventoryEquipment(item)&&!isPossession(item)&&(item.type==='gear'||item.system.equippable?.equipped===true)).sort((a,b)=>a.name.localeCompare(b.name,'fr',{numeric:true,sensitivity:'base'}))):[];
+   const inventory=this.kind==='possessions'?(this.shared?actor.items:actor.items.filter(isCarriedEquipment).sort((a,b)=>a.name.localeCompare(b.name,'fr',{numeric:true,sensitivity:'base'}))):[];
    const nameMatches=normalize(actor.name).includes(query),items=nameMatches?inventory:inventory.filter(item=>normalize(item.name).includes(query));
    if(query&&!nameMatches&&!items.length)continue;count++;
    const card=element('section','pilotage-assets-column');card.dataset.assetActor=actor.id;
@@ -119,19 +119,19 @@ export async function showPilotageAssets(kind){
 }
 export function setupPilotageAssets(root){
  if(!game.user.isGM||root.querySelector('.pilotage-assets-actions'))return;loadStyles();
- const nav=root.querySelector('.pilotage-left-column');if(!nav)return;
+ const nav=root.querySelector('.pilotage-difficulty-footer');if(!nav)return;
  const actions=element('div','pilotage-assets-actions pilotage-card');actions.setAttribute('aria-label',game.i18n.localize("SWFFG.UI.Pilotage.CharacterOverviews"));
  for(const [kind,label,icon]of [['possessions',game.i18n.localize("SWFFG.UI.Pilotage.Equipment"),'fa-person-walking-luggage'],['credits',game.i18n.localize("SWFFG.UI.Pilotage.Credits"),'fa-coins']]){
   const control=button(label,()=>showPilotageAssets(kind));control.dataset.pilotageAssets=kind;
   if(kind==='possessions'){const hint=game.i18n.localize("SWFFG.UI.Pilotage.CarriedEquipmentHint");control.dataset.tooltip=hint;control.setAttribute('aria-description',hint);}
   const glyph=element('i','fa-solid '+icon);glyph.setAttribute('aria-hidden','true');control.prepend(glyph);actions.append(control);
- }nav.append(actions);
+ }nav.insertBefore(actions,nav.querySelector('[data-pilotage-save-difficulty]'));
 }
 
 export function renderPilotageAssetsField(sheet){
  const actor=sheet.actor,root=sheet.element;if(!types.has(actor?.type)||actor.isToken||!root)return;
  const tab=root.querySelector('.tab[data-tab=general]');if(!tab)return;loadStyles();
- const fr=game.i18n.lang==='fr';let field=tab.querySelector('.ffg-pilotage-assets-field');
+ let field=tab.querySelector('.ffg-pilotage-assets-field');
  if(!field){
   field=element('div','ffg-pilotage-assets-field');const label=element('label'),caption=element('span','',game.i18n.localize("SWFFG.UI.Pilotage.PilotageAssets.IncludeInGMCreditsAndCarriedEquipment"));
   const input=element('input');input.type='checkbox';input.dataset.pilotageAssetsIncluded='';label.append(caption,input);
@@ -156,7 +156,7 @@ let sharedWrite=Promise.resolve(),sharedRender=Promise.resolve(),sharedTimer;
 function sharedState(){return game.settings.get(SYSTEM,SHARED_ASSETS)??{};}
 function assetSnapshot(kind){
  return actors().map(actor=>({id:actor.id,name:actor.name,img:actor.img,
-  ...(kind==='credits'?{balances:balances(actor)}:{items:actor.items.filter(item=>isInventoryEquipment(item)&&!isPossession(item)&&(item.type==='gear'||item.system.equippable?.equipped===true))
+  ...(kind==='credits'?{balances:balances(actor)}:{items:actor.items.filter(isCarriedEquipment)
    .sort((a,b)=>a.name.localeCompare(b.name,'fr',{numeric:true,sensitivity:'base'})).map(item=>({id:item.id,name:item.name,type:item.type,quantity:number(item.system.quantity?.value)}))})
  }));
 }

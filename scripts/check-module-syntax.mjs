@@ -1,5 +1,5 @@
-import {execFileSync} from "node:child_process";
-import {readdirSync, statSync} from "node:fs";
+import {SourceTextModule} from "node:vm";
+import {readdirSync, readFileSync, statSync} from "node:fs";
 import {join} from "node:path";
 
 function javascriptFiles(directory) {
@@ -10,5 +10,12 @@ function javascriptFiles(directory) {
 }
 
 const files = javascriptFiles("modules");
-for (const file of files) execFileSync(process.execPath, ["--check", file], {stdio: "pipe"});
+for (const file of files) {
+  try {
+    new SourceTextModule(readFileSync(file, "utf8"), {identifier: file});
+  } catch (error) {
+    console.error(file + ": " + error.message);
+    process.exit(1);
+  }
+}
 console.log(`Syntax checked ${files.length} module files.`);

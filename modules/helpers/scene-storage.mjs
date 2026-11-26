@@ -18,7 +18,8 @@ export function isStored(doc, stored = mapping()) {
     const value = stored[kind(current)]?.[current.id];
     if (typeof value === 'boolean') return value;
   }
-  return false;
+  // The generated space-combat scene is technical; explicit personal choices above still win.
+  return kind(doc) === 'Scene' && doc.getFlag?.(SYSTEM, 'spaceCombatScene') === true;
 }
 
 function refresh() {

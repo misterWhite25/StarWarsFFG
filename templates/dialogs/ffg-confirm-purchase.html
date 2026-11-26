@@ -1,7 +1,7 @@
 <select name="purchase" id="ffgPurchase">
   <option>{{localize "SWFFG.Actors.Sheets.Purchase.Dropdown" itemType=itemType}}</option>
   {{#each groups as |group| }}
-    {{#if (eq ../itemCategory "forcepower") }} %}
+    {{#if (eq ../itemCategory "forcepower") }}
       <optgroup label="{{ group }} {{ localize 'SWFFG.ForceRating' }}">
     {{else}}
         {{#if (eq ../itemCategory "specialization") }}

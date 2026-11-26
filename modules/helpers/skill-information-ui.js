@@ -31,18 +31,24 @@ export async function openSkillInformation(builder){
   const skill=skillDescriptor(builder);if(!skill)return;
   const requirement=skillCompendiumRequirement();
   if(requirement)return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillInformationTitle",{name:skill.label}),`<h2>${escapeText(skill.label)}</h2><h3>${game.i18n.localize("SWFFG.UI.SkillInfo.CompendiumRequired")}</h3><p role="status">${escapeText(requirement)}</p>`);
-  const description=await skillDescription(skill);
-  let html=`<h2>${escapeText(skill.label)}</h2><div class="skill-description-text">${await foundry.applications.ux.TextEditor.enrichHTML(description.html,{secrets:description.secrets===true})}</div>${description.source?`<p class="skill-description-source">${escapeText(description.source)}</p>`:''}`;
+  const html = `<h2>${escapeText(skill.label)}</h2>${await skillDescriptionHTML(skill)}`;
   return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillInformationTitle",{name:skill.label}),html);
 }
 
-function skillTableIds(builder,skill){
-  return new Set(suggestTables(skill.key,{scale:builder.roll.combatMode,criticalTreatment:skill.key==='Medicine',concealment:builder.roll.combatMode==='personal'}).map(row=>row.id));
+export async function skillDescriptionHTML(skill) {
+  const description = await skillDescription(skill);
+  const html = await foundry.applications.ux.TextEditor.enrichHTML(description.html, {secrets:description.secrets === true});
+  return `<div class="skill-description-text">${html}</div>${description.source ? `<p class="skill-description-source">${escapeText(description.source)}</p>` : ''}`;
+}
+
+function skillTableIds(skill, {scale, improvised, silhouetteDifference} = {}) {
+  return new Set(suggestTables(skill.key, {scale, criticalTreatment:skill.key === 'Medicine',
+    concealment:scale === 'personal', improvised, silhouetteDifference}).map(row => row.id));
 }
 
 export function hasSkillReferenceTables(builder){
   const skill=skillDescriptor(builder);if(!skill)return false;
-  if(skillTableIds(builder,skill).size)return true;
+  if(skillTableIds(skill, {scale:builder.roll.combatMode}).size)return true;
   return Array.from(game.journal??[]).some(journal=>journal.testUserPermission(game.user,'OBSERVER')&&Array.from(journal.pages).some(page=>{
     if(page.type!=='text'||!page.testUserPermission(game.user,'OBSERVER'))return false;
     const linked=page.getFlag('starwarsffg','skillKeys')??[];
@@ -50,16 +56,32 @@ export function hasSkillReferenceTables(builder){
   }));
 }
 
+export async function skillReferenceHTML(skill, {scale, improvised, silhouetteDifference, collapsible = false, includeCombatSpending = true} = {}) {
+  const ids = skillTableIds(skill, {scale, improvised, silhouetteDifference});
+  const spendingIds = ['6-2', '6-3'];
+  if (!includeCombatSpending) for (const id of spendingIds) ids.delete(id);
+  const pages = (await referencePages(skill, ids)).filter(page =>
+    includeCombatSpending || !spendingIds.includes(page.name.split(' · ')[0]));
+  if (!pages.length) return `<p>${game.i18n.localize("SWFFG.UI.SkillInfo.NoSkillReference")}</p>`;
+  const order = [...ids];
+  pages.sort((a,b) => order.indexOf(a.name.split(' · ')[0])-order.indexOf(b.name.split(' · ')[0]));
+  const sections = await Promise.all(pages.map(async page => {
+    const id = escapeText(page.name.split(' · ')[0]);
+    const title = escapeText(page.name);
+    const html = await foundry.applications.ux.TextEditor.enrichHTML(page.text.content, {secrets:page.isOwner});
+    const content = collapsible ? `<details><summary>${title}</summary>${html}</details>` : `<h4>${title}</h4>${html}`;
+    return `<section data-reference-id="${id}">${content}</section>`;
+  }));
+  return sections.join('');
+}
+
 export async function openSkillReferences(builder){
   const skill=skillDescriptor(builder);if(!skill)return;
+  const title=game.i18n.format("SWFFG.UI.SkillInfo.SkillReferenceTitle",{name:skill.label});
+  const heading=`<h2>${escapeText(skill.label)}</h2>`;
   const requirement=skillCompendiumRequirement();
-  if(requirement)return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillReferenceTitle",{name:skill.label}),`<h2>${escapeText(skill.label)}</h2><h3>${game.i18n.localize("SWFFG.UI.SkillInfo.CompendiumRequired")}</h3><p role="status">${escapeText(requirement)}</p>`);
-  const ids=skillTableIds(builder,skill),pages=await referencePages(skill,ids);
-  const order=[...ids];pages.sort((a,b)=>order.indexOf(a.name.split(' · ')[0])-order.indexOf(b.name.split(' · ')[0]));
-  let html=`<h2>${escapeText(skill.label)}</h2>`;
-  if(!pages.length)html+=`<p>${game.i18n.localize("SWFFG.UI.SkillInfo.NoSkillReference")}</p>`;
-  for(const page of pages)html+=`<section data-reference-id="${escapeText(page.name.split(' · ')[0])}"><h4>${escapeText(page.name)}</h4>${await foundry.applications.ux.TextEditor.enrichHTML(page.text.content,{secrets:page.isOwner})}</section>`;
-  return openNeighbour(builder,game.i18n.format("SWFFG.UI.SkillInfo.SkillReferenceTitle",{name:skill.label}),html);
+  if(requirement)return openNeighbour(builder,title,`${heading}<h3>${game.i18n.localize("SWFFG.UI.SkillInfo.CompendiumRequired")}</h3><p role="status">${escapeText(requirement)}</p>`);
+  return openNeighbour(builder,title,heading + await skillReferenceHTML(skill, {scale:builder.roll.combatMode}));
 }
 
 export function renderSkillInformation(builder, html) {

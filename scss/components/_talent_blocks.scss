@@ -9,6 +9,10 @@
 }
 
 .talent-grid {
+  .talent-body {
+    height: calc(100% - 2rem);
+  }
+
   display: flex;
   flex-wrap: wrap;
   position: relative;

@@ -166,6 +166,11 @@ async function apply(command, user) {
         if(ship.destination)ship.destination={x,y};
         break;
       }
+      case "speed":
+        // GM setup changes the pawn's baseline without spending a maneuver.
+        ship.speed=number(command.speed,0,ship.maxSpeed,"La vitesse",true);
+        ship.startSpeed=ship.speed;
+        break;
       case "configure":
         ship.name = String(command.name || ship.name).trim().slice(0, 90) || ship.name;
         ship.silhouette = number(command.silhouette, 1, 20, "Le gabarit", true);
@@ -203,7 +208,10 @@ function serialize(work) {
 }
 async function syncInitiative() {
   if(game.users.activeGM?.id!==game.user.id)return;
-  const previous=board(),next=synchronizeInitiative(structuredClone(previous));
+  const previous = board();
+  const context = initiativeContext();
+  if (context.started ? !previous.ships.length : !previous.initiative) return;
+  const next = synchronizeInitiative(structuredClone(previous), context);
   if(JSON.stringify(previous)!==JSON.stringify(next))await game.settings.set(scope,setting,next);
 }
 

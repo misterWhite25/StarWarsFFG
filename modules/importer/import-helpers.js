@@ -15,102 +15,74 @@ export default class ImportHelpers {
    * @returns {boolean} - true if verfied, false if unable to create/verify
    */
   static async verifyPath(startingSource, path) {
+    const picker = foundry.applications.apps.FilePicker;
+    const options = {bucket: null};
     try {
-      const paths = path.split("/");
-      let currentSource = paths[0];
-
-      for (let i = 0; i < paths.length; i += 1) {
-        try {
-          if (currentSource !== paths[i]) {
-            currentSource = `${currentSource}/${paths[i]}`;
-          }
-          await foundry.applications.apps.FilePicker.createDirectory(startingSource, `${currentSource}`, { bucket: null });
-        } catch (err) {
-          
-        }
-      }
+      await picker.browse(startingSource, path, options);
+      return true;
     } catch {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Imports binary file, by extracting from zip file and uploading to path.
-   *
-   * @param  {string} path - Path to image within zip file
-   * @param  {object} zip - Zip file
-   * @param  {object} pack - Compendium Pack
-   * @returns {string} - Path to file within VTT
-   */
-  static async importImage(path, zip, pack) {
-    if (path) {
-      const serverPath = `worlds/${game.world.id}/images/packs/${pack.metadata.name}`;
-      const filename = path.replace(/^.*[\\/]/, "");
-      if (!CONFIG.temporary.images) {
-        CONFIG.temporary.images = [];
-      }
-      try {
-        if (!CONFIG.temporary.images.includes(`${serverPath}/${filename}`)) {
-          CONFIG.temporary.images.push(`${serverPath}/${filename}`);
-          await ImportHelpers.verifyPath("data", serverPath);
-          const img = await zip.file(path).async("uint8array");
-          var arr = img.subarray(0, 4);
-          var header = "";
-          for (var a = 0; a < arr.length; a++) {
-            header += arr[a].toString(16);
-          }
-          const type = Helpers.getMimeType(header);
-
-          const i = new File([img], filename, { type });
-          await Helpers.UploadFile("data", `${serverPath}`, i, { bucket: null });
+      let parent = "";
+      for (const segment of path.split("/").filter(Boolean)) {
+        parent = parent ? parent + "/" + segment : segment;
+        try {
+          await picker.createDirectory(startingSource, parent, options);
+        } catch {
+          // Existing directories can reject creation, including concurrent imports.
+          try { await picker.browse(startingSource, parent, options); }
+          catch { return false; }
         }
-
-        return `${serverPath}/${filename}`;
-      } catch {
-        CONFIG.logger.error(`Error Uploading File: ${path} to ${serverPath}`);
       }
+      return true;
     }
   }
 
-  /**
-   * Imports binary file, by extracting from zip file and uploading to path.
-   * Uploads to a different directory than the standard importer
-   *
-   * @param  {string} path - Path to image within zip file
-   * @param  {object} zip - Zip file
-   * @param  {object} pack - Compendium Pack
-   * @returns {string} - Path to file within VTT
-   */
-  static async importSilhouetteImage(path, zip, pack) {
-    if (path) {
-      const serverPath = `worlds/${game.world.id}/images/packs/${pack.metadata.name}Silhouettes`;
-      const filename = path.replace(/^.*[\\/]/, "");
-      if (!CONFIG.temporary.images) {
-        CONFIG.temporary.images = [];
-      }
-      try {
-        if (!CONFIG.temporary.images.includes(`${serverPath}/${filename}`)) {
-          CONFIG.temporary.images.push(`${serverPath}/${filename}`);
-          await ImportHelpers.verifyPath("data", serverPath);
-          const img = await zip.file(path).async("uint8array");
-          var arr = img.subarray(0, 4);
-          var header = "";
-          for (var a = 0; a < arr.length; a++) {
-            header += arr[a].toString(16);
-          }
-          const type = Helpers.getMimeType(header);
+  static importImage(path, zip, pack) {
+    return this.importPackImage(path, zip, pack.metadata.name);
+  }
 
-          const i = new File([img], filename, { type });
-          await Helpers.UploadFile("data", `${serverPath}`, i, { bucket: null });
-        }
+  static importSilhouetteImage(path, zip, pack) {
+    return this.importPackImage(path, zip, pack.metadata.name + "Silhouettes");
+  }
 
-        return `${serverPath}/${filename}`;
-      } catch {
-        CONFIG.logger.error(`Error Uploading File: ${path} to ${serverPath}`);
-      }
-    }
+  static async importPackImage(path, zip, folder) {
+    if (!path) return;
+    const directory = "worlds/" + game.world.id + "/images/packs/" + folder;
+    const filename = path.split(/[\\/]/).pop();
+    const target = directory + "/" + filename;
+    const images = CONFIG.temporary.images ??= new Map();
+    if (images.has(target)) return images.get(target);
+
+    const upload = async () => {
+      if (!globalThis.ForgeVTT?.usingTheForge && !(await this.verifyPath("data", directory))) throw Error("Cannot access " + directory);
+      const bytes = await zip.file(path).async("uint8array");
+      const header = Array.from(bytes.subarray(0, 4), byte => byte.toString(16).padStart(2, "0")).join("");
+      const file = new File([bytes], filename, {type: Helpers.getMimeType(header)});
+      const response = await Helpers.UploadFile("data", directory, file, {bucket: null});
+      if (!response?.path) throw Error("No uploaded image path");
+      return response.path;
+    };
+
+    const pending = upload().catch(error => {
+      images.delete(target);
+      CONFIG.logger.error("Error uploading " + target, error);
+    });
+    images.set(target, pending);
+    return pending;
+  }
+
+  static xmlFiles(zip, directory) {
+    return Object.values(zip.files).filter(entry => !entry.dir && entry.name.toLowerCase().endsWith(".xml")
+      && entry.name.split("/").slice(0, -1).includes(directory));
+  }
+
+  static xmlRecords(value) {
+    if (Array.isArray(value)) return value;
+    return value && typeof value === "object" ? [value] : [];
+  }
+
+  static importTags(categories, type) {
+    return [categories, type].flat().filter(tag => typeof tag === "string" && tag.length)
+      .map(tag => tag.toLowerCase());
   }
 
   /**
@@ -493,8 +465,6 @@ export default class ImportHelpers {
       await callback(array[index], index, array);
     }
   };
-
-  static characteristicKeyToName(_key) {}
 
   static minionTemplate = {
     name: "no name",
@@ -2072,14 +2042,12 @@ export default class ImportHelpers {
 
       try {
         const serverPath = `worlds/${game.world.id}/images/characters`;
-        await ImportHelpers.verifyPath("data", serverPath);
-
         const imge = characterData.Character.Portrait;
-        if (imge) {
+        if (imge && (globalThis.ForgeVTT?.usingTheForge || await ImportHelpers.verifyPath("data", serverPath))) {
           const img = this.b64toBlob(imge);
           const i = new File([img], `${characterData.Character.Key}.png`, { type: "image/png" });
-          await Helpers.UploadFile("data", serverPath, i, { bucket: null });
-          character.img = `${serverPath}/${characterData.Character.Key}.png`;
+          const response = await Helpers.UploadFile("data", serverPath, i, { bucket: null });
+          if (response?.path) character.img = response.path;
         }
       } catch (err) {
         CONFIG.logger.error(`Failed to upload character portrait.`, err);

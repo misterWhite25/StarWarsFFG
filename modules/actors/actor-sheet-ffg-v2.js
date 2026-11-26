@@ -3,15 +3,18 @@ import {activateVehicleDefenseImage} from '../helpers/vehicle-defense-image.mjs'
 import {activateVehicleMinionGroup} from '../helpers/vehicle-minion-ui.mjs';
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 import {activateAutoCrew} from '../helpers/auto-crew-ui.mjs';
-import {actorSheetType} from '../helpers/actor-types.mjs';
+import {actorSheetType, supportsVehiclePlan} from '../helpers/actor-types.mjs';
 import DiceHelpers from "../helpers/dice-helpers.js";
 import {renderActorCampField} from '../helpers/actor-camp-sheet.mjs';
 import {prepareGroundMovement} from "../helpers/ground-movement-sheet.mjs";
 import {renderReviewedTalentControls} from "../helpers/reviewed-talent-ui.js";
 import {renderCharacterCredits} from "../helpers/character-credit-balance.mjs";
+import {characterPdfHeaderControl} from "../helpers/character-pdf-ui.mjs";
 import {prepareCombatSheet,fitCombatSheet,resizeActorSheet} from "../helpers/combat-sheet.mjs";
 import {prepareVehiclePlanButton,configureVehiclePlan} from "../helpers/vehicle-plan-action.mjs";
 import {prepareLegacySheetContext, revealSheetFrame} from '../applications/legacy-sheet-layout.js';
+import {basePlanAction,basePlanContext} from '../helpers/base-plan.mjs';
+import {baseGalleryAction, baseGalleryContext} from '../helpers/base-gallery.mjs';
 import {activateHomesteadFields} from '../helpers/homestead-fields.js';
 import {vehicleMaintenance,applyVehicleMaintenanceEdit} from '../helpers/vehicle-maintenance.js';
 import {prepareVehicleMalfunctions,vehicleMalfunctionAction} from '../helpers/vehicle-malfunctions.js';
@@ -39,7 +42,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["starwarsffg", "sheet", "actor", "v2", "themed"],
     editable: true,
-    actions: {vehicleMalfunction: vehicleMalfunctionAction},
+    actions: {baseGallery:baseGalleryAction,basePlan:basePlanAction,vehicleMalfunction: vehicleMalfunctionAction},
     position: { width: 710, height: 650 },
     window: { resizable: true },
     form: {
@@ -161,7 +164,9 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
     });
     if (this.actor.type === "character") controls.splice(1, 0, {action: "ffgCalculationDetails", icon: "fas fa-calculator", label: game.i18n.localize("SWFFG.UI.Actor.CalculationDetails"), onClick: () => showCalculationDetails(this.actor)});
     if(this.actor.type==='character') controls.push({action:'ffgCreationGuide',icon:'fas fa-graduation-cap',label:game.i18n.localize("SWFFG.UI.Actor.CreationAndXP"),onClick:async()=>{const {showCreationGuide}=await import('../helpers/creation-guide.js');return showCreationGuide(this.actor);}});
-    if(this.actor.type==='vehicle'&&!this.actor.isToken&&!this.actor.pack) controls.push({action:'ffgVehiclePlanSettings',icon:'fas fa-map',label:game.i18n.localize("SWFFG.UI.Actor.ConfigureInteriorPlan"),visible:this.isEditable,onClick:()=>configureVehiclePlan(this)});
+    const pdfControl = characterPdfHeaderControl(this);
+    if (pdfControl) controls.push(pdfControl);
+    if(supportsVehiclePlan(this.actor)&&!this.actor.isToken&&!this.actor.pack) controls.push({action:'ffgVehiclePlanSettings',icon:'fas fa-map',label:game.i18n.localize("SWFFG.UI.Actor.ConfigureInteriorPlan"),visible:this.isEditable,onClick:()=>configureVehiclePlan(this)});
     const detachIndex = controls.findIndex(control => control.action === "detach");
     if (detachIndex > 0) controls.unshift(controls.splice(detachIndex, 1)[0]);
     return controls;
@@ -197,6 +202,13 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       [context.vehicleOwners, context.vehicleMalfunctions] = await Promise.all([
         prepareVehicleOwners(this.actor), prepareVehicleMalfunctions(this.actor)
       ]);
+    }
+    if (this.actor.type === 'vehicle' || actorSheetType(this.actor.type) === 'homestead') {
+      context.hideInteriorPlan = !supportsVehiclePlan(this.actor) || this.actor.pack || this.actor.isToken;
+      context.baseGallery = baseGalleryContext(this);
+      context.hideBaseGallery = !context.baseGallery;
+      context.basePlan = basePlanContext(this.actor);
+      context.hideBasePlan = !context.basePlan;
     }
     context.inventoryPossessionsEnabled=['character','minion','rival','nemesis'].includes(this.actor.type);
     if(context.inventoryPossessionsEnabled){
@@ -273,10 +285,10 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
       if (sidebar) {
         prepareVehiclePlanButton(this, sidebar);
         sidebar.querySelectorAll('.ffg-summary-button').forEach(button => button.remove());
+        if (this.actor.pack) return;
         const summaryButtons = [];
         if (isCharacter || npcWithTalents) summaryButtons.push([game.i18n.localize("SWFFG.UI.Actor.TalentSummary"), 'fa-list-check', showTalentSummary]);
         if (isCharacter || npcWithTalents) summaryButtons.push([game.i18n.localize("SWFFG.UI.Actor.TriggerTalent"), 'fa-bolt', async sheet => {try {await (await import('../helpers/triggered-talents.js')).showTriggeredTalents(sheet);} catch(error) {ui.notifications.error(error.message);}}]);
-        if (isCharacter) summaryButtons.push([game.i18n.localize("SWFFG.UI.Actor.EquipmentSummary"), 'fa-suitcase', showEquipmentSummary]);
         for (const [label, icon, show] of summaryButtons) {
           const button = document.createElement('button');
           button.type = 'button';

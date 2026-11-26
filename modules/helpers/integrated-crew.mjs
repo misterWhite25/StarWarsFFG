@@ -38,7 +38,7 @@ async function writeProfile(vehicle,id,change){
     return actor??resolveCrewActor({actor_id:id,vehicle_id:vehicle.id});
   });
 }
-function bindEmbedded(actor,vehicle,profile){
+function bindEmbedded(actor){
   for(const type of ['Item','ActiveEffect'])for(const document of actor.getEmbeddedCollection(type)??[]){
     document.update=async changes=>{await actor.updateEmbeddedDocuments(type,[{_id:document.id,...changes}]);return actor.getEmbeddedCollection(type).get(document.id);};
     document.delete=async()=>{await actor.deleteEmbeddedDocuments(type,[document.id]);return document;};
@@ -47,7 +47,7 @@ function bindEmbedded(actor,vehicle,profile){
 function hydrateActor(actor,vehicle,profile){
   const raw=applyVehicleMinionSkills(clone(profile.data),vehicle);
   actor.updateSource(raw);actor.prepareData();actor._integratedCrew={vehicle,id:profile.id,kind:profile.kind,station:profile.station};
-  bindEmbedded(actor,vehicle,profile);
+  bindEmbedded(actor);
   const cached=cache.get(vehicle.uuid+':'+profile.id);if(cached)cached.signature=JSON.stringify([profile,vehicle.flags?.[scope]?.vehicleMinionGroup,vehicle.system?.stats?.hullTrauma]);
 }
 function makeActor(vehicle,profile){
@@ -73,7 +73,7 @@ function makeActor(vehicle,profile){
     const removed=(actor.getEmbeddedCollection(type)?.contents??[]).filter(document=>ids.includes(document.id));
     await writeProfile(vehicle,profile.id,current=>{current.data[field]=(current.data[field]??[]).filter(document=>!ids.includes(document._id));return current;});return removed;
   };
-  actor.prepareData();bindEmbedded(actor,vehicle,profile);return actor;
+  actor.prepareData();bindEmbedded(actor);return actor;
 }
 /** Resolve normal actors and persistent, fully prepared NPC profiles stored inside a vehicle. */
 export function resolveCrewActor(value,vehicle=null){

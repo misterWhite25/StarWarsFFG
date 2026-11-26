@@ -1,16 +1,18 @@
 import test from 'node:test';
+import {systemI18n} from '../system-i18n.mjs';
 import assert from 'node:assert/strict';
 import {npcCampInfo,repairCampClaims} from '../../modules/helpers/npc-camps.mjs';
 import {claimsAfterRemoval,removeParticipant,removeTrackedCombatant,handleTrackedRemoval,cleanupLegacySlots} from '../../modules/helpers/combatant-removal.mjs';
-test('allied NPCs use token disposition, independently of player ownership and actor defaults',()=>{
+test('allied NPCs use token disposition, independently of player ownership and actor defaults',async()=>{
+  globalThis.game={i18n:await systemI18n('fr')};
   assert.equal(npcCampInfo({token:{disposition:1},actor:{prototypeToken:{disposition:-1}}},{player:false}).label,'PNJ allié');
   assert.equal(npcCampInfo({token:{disposition:-1}},{player:true}).key,'hostile');
   assert.equal(npcCampInfo({participant:{token:{disposition:0}}},{player:false}).label,'Neutre');
 });
-test('ownership of an NPC or vehicle does not turn it into a player character',()=>{
-  globalThis.game={users:[{isGM:false,character:{id:'pc',uuid:'Actor.pc'}}]};
-  assert.equal(npcCampInfo({token:{disposition:1},actor:{id:'npc',uuid:'Actor.npc',type:'rival',testUserPermission:()=>true}}).label,'PNJ allié');
-  assert.equal(npcCampInfo({token:{disposition:1},actor:{id:'pc',uuid:'Actor.pc',type:'character'}}).label,'PJ allié');
+test('ownership of an NPC or vehicle does not turn it into a player character',async()=>{
+  globalThis.game={i18n:await systemI18n('en'),users:[{isGM:false,character:{id:'pc',uuid:'Actor.pc'}}]};
+  assert.equal(npcCampInfo({token:{disposition:1},actor:{id:'npc',uuid:'Actor.npc',type:'rival',testUserPermission:()=>true}}).label,'Allied NPC');
+  assert.equal(npcCampInfo({token:{disposition:1},actor:{id:'pc',uuid:'Actor.pc',type:'character'}}).label,'Allied PC');
 });
 test('camp changes repair crossed swaps without changing same-camp assignments',()=>{
   const turns=[{id:'a',actor:{},disposition:1},{id:'b',actor:{},disposition:-1},{id:'c',actor:{},disposition:-1}];

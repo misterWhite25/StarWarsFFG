@@ -234,7 +234,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         await enrichTreeDescriptions(this.item,Array.from({length:20},(_,x)=>data.data.talents[`talent${x}`]));
         for (let x = 0; x < 20; x++) {
           const treeTalent = data.data.talents[`talent${x}`];
-          treeTalent.bookActivation = bookPresentation.bookActivation(treeTalent,game.i18n.lang);
+          treeTalent.bookActivation = bookPresentation.bookActivation(treeTalent);
           treeTalent.displayName = treePresentation.talentTitle(treeTalent.name);
           treeTalent.textVerified = treeTalent.verification?.status === 'verified';
           treeTalent.enrichedDescription = treePresentation.treeTalentDescription(treeTalent, treeTalent.enrichedDescription, treeNames);
@@ -1502,8 +1502,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
   _updateObject(event, formData) {
     if(this.actor && !this.actor?.verifyEditModeIsNotEnabled()) return;
 
-    const itemUpdate = ItemHelpers.itemUpdate.bind(this);
-    itemUpdate(event, formData);
+    return ItemHelpers.itemUpdate.call(this, event, formData);
   }
 
   /**
@@ -1738,7 +1737,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     if (!itemObject) return;
 
     if (itemObject.type === "talent") {
-      itemObject = await ItemHelpers.uniqueAttrs(itemObject, specialization);
+      itemObject = await ItemHelpers.uniqueAttrs(itemObject);
       $(li).find(`input[name='data.talents.${talentId}.name']`).val(itemObject.name);
       $(li).find(`input[name='data.talents.${talentId}.activation']`).val(itemObject.system.activation.value);
       $(li).find(`input[name='data.talents.${talentId}.activationLabel']`).val(itemObject.system.activation.label);
@@ -1866,7 +1865,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
               // mark the mods as active so they transfer to the parent item
               mod.system.active = true;
             }
-            itemObject = await ItemHelpers.uniqueAttrs(itemObject, this.object);
+            itemObject = await ItemHelpers.uniqueAttrs(itemObject);
             items.push(itemObject);
           } else {
             ui.notifications.warn(game.i18n.format("SWFFG.UI.Item.NotEnoughHardpoints", {remaining: this.object.system.hardpoints.adjusted}));

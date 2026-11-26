@@ -170,7 +170,7 @@ Hooks.on('closeJournalEntrySheet',app=>{
   restorePermissions(app.document);
   if(!closing&&isShared(app)&&canStop())session.request('close').catch(report);
 });
-Hooks.on('renderDialogV2',app=>pilotage(app));
+Hooks.on('renderPilotageMJ',pilotage);
 Hooks.on('deleteJournalEntry',entry=>{
   if(session?.state.open&&session.state.view?.uuid===entry.uuid&&canStop())session.request('close').catch(report);
 });

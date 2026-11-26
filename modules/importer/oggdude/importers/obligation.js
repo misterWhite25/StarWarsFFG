@@ -35,7 +35,7 @@ export default class Obligation {
         await delay(200);
       }
 
-      const items = base[baseKey][secondaryKey];
+      const items = ImportHelpers.xmlRecords(base[baseKey][secondaryKey]);
       if (items.length) {
         let totalCount = items.length;
         let currentCount = 0;
@@ -56,7 +56,7 @@ export default class Obligation {
             type: motivationType,
             description: item.Description,
             magnitude: 0,
-            subtype: "",
+            subtype: Object.hasOwn(typeMap, item.Type) ? typeMap[item.Type] : "",
             metadata: {
               tags: [
                 "obligation",
@@ -65,12 +65,6 @@ export default class Obligation {
               sources: ImportHelpers.getSourcesAsArray(item?.Sources ?? item?.Source),
             },
           };
-
-          try {
-            data.data.subtype = typeMap[item.Type];
-          } catch (error) {
-            
-          }
 
           let imgPath = await ImportHelpers.getImageFilename(zip, "Talent", "", data.flags.starwarsffg.ffgimportid);
           if (imgPath) {

@@ -1,3 +1,4 @@
+import {addSkillHotbarButton} from './skill-hotbar-button.mjs';
 import {showCombatReference} from './combat-quick-reference.mjs';
 
 const types=new Set(['character','minion','rival','nemesis','vehicle']);
@@ -208,7 +209,7 @@ function compactVitals(sheet,source){
 }
 
 function prepareCombatAids(sheet,source){
-  if(sheet.actor.type==='vehicle')return;
+  if(sheet.actor.pack || sheet.actor.type==='vehicle')return;
   const sidebar=source.querySelector('.sheet-tabs');if(!sidebar)return;
   for(const [kind,title,icon]of [['personal',game.i18n.localize("SWFFG.UI.CombatSheet.PersonalCombatTurn"),'fa-person-rifle'],['space',game.i18n.localize("SWFFG.UI.CombatSheet.VehicleCombatTurn"),'fa-shuttle-space']]){
     const action=button('',()=>showCombatReference(kind),'ffg-summary-button ffg-sheet-combat-aid');
@@ -268,6 +269,7 @@ export function prepareCombatSheet(sheet,source,context){
     },'ffg-sheet-mode');
     control.dataset.combatMode=String(mode);control.setAttribute('aria-pressed',String(!!sheet._ffgCombatMode===mode));bar.append(control);
   }
+  addSkillHotbarButton(sheet,bar);
   source.insertBefore(bar,source.querySelector('.sheet-header')??source.firstChild);
   prepareCombatAids(sheet,source);
   if(!sheet._ffgCombatMode)return;

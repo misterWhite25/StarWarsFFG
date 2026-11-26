@@ -1,5 +1,5 @@
 import {CREW_ACTION_ORDER,REPAIR_ACTIONS,DAMAGE_CONTROL} from './barrage-rules.mjs';
-import {chooseBarrage} from './barrage-dialog.mjs';
+import {performBarrage} from './barrage-dialog.mjs';
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 import {board,command} from "./board.mjs";
 import {aboardRoster,crewActor,controlsCrewMember,isPilotRole,isNavigationRole,canRedirectShields,actionRoleReason} from "./crew-access.mjs";
@@ -95,7 +95,12 @@ export function renderCombatControls(ship,report,{targetId,onTarget,onFly}={}) {
       const definition=[...MANEUVERS,...ACTIONS].find(entry=>entry.id===id);
       const candidates=availableMembers(id);
       const maneuver=MANEUVERS.find(entry=>entry.id===id);
-      const automaticManeuver=personalPerformer(candidates);
+      if (definition?.barrage) {
+        const target = await performBarrage(ship, definition, candidates, prefs.terrain);
+        if (target) onTarget?.(target);
+        return;
+      }
+      const automaticManeuver=maneuver ? personalPerformer(candidates) : null;
       let member;
       if(id==="shields") {
         if(!automaticManeuver)return;
@@ -107,7 +112,7 @@ export function renderCombatControls(ship,report,{targetId,onTarget,onFly}={}) {
         extra={...extra,fromSector:transfer.fromSector,sector:transfer.sector};
       } else if(maneuver)member=maneuver.pilot?maneuverPerformer(board().ships.find(entry=>entry.id===ship.id),candidates,board().round):automaticManeuver;
       else {
-        const choice=definition.barrage?await chooseBarrage(ship,definition,candidates):await chooseCombatAction(ship,definition,candidates,description(definition));
+        const choice=await chooseCombatAction(ship,definition,candidates,description(definition));
         if(!choice)return;
         member=candidates.find(entry=>entry.actor_id===choice.crewId);
         extra={...extra,...choice};
@@ -128,9 +133,7 @@ export function renderCombatControls(ship,report,{targetId,onTarget,onFly}={}) {
         if(delta!==1&&delta!==-1)return;
         extra={...extra,speedDelta:delta};
       }
-      if(definition.barrage&&definition.target) {
-        await openCombatRoll(current,member,{weapon:vehicle.items.get(extra.weaponId),targetId:extra.targetId,sector:extra.sector,barrage:{id,...extra},terrain:prefs.terrain??0});
-      } else await command("combat",{shipId:ship.id,version:current.version,crewId:member.actor_id,combatAction:id,sector:prefs.sector,
+      await command("combat",{shipId:ship.id,version:current.version,crewId:member.actor_id,combatAction:id,sector:prefs.sector,
         fromSector:prefs.fromSector,secondCost:prefs.secondCost??"strain",terrain:prefs.terrain,...extra});
       if(!maneuver&&extra.targetId)onTarget?.(extra.targetId);
     } catch(error) {report(error);}

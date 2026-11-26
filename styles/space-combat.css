@@ -1,3 +1,21 @@
+#ffg-combat-turn-banner {
+  flex: none;
+  max-width: min(100%, 32rem);
+  margin: 0.65rem 0 0;
+  padding: 0.3rem 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid #579a9b;
+  border-radius: 0.35rem;
+  background: #112932;
+  color: #f2fbfa;
+  font: 600 0.95rem/1.3 var(--font-primary);
+  text-align: center;
+  pointer-events: none;
+}
+
+
 .sc-window {
   --sc-base: #0d1a23;
   --sc-panel: #14242f;

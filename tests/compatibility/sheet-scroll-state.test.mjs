@@ -10,7 +10,7 @@ class NativeSync {
  _preSyncPartState(_id,_next,_prior,state){state.scrollPositions=[];}
  _syncPartState(_id,next,_prior,state){for(const [selector,top,left] of state.scrollPositions){const el=selector?next.querySelector(selector):next;if(el){el.scrollTop=top;el.scrollLeft=left;}}}
 }
-const Sheet=vm.runInNewContext(`(class extends NativeSync {${methods}})`,{game:{i18n:await systemI18n('fr')},NativeSync,prepareVehiclePlanButton(){},renderCharacterCredits(){},prepareCombatSheet(){},prepareGroundMovement(){},activateInventoryImagePreview(){},activateInventoryPossessions(){},renderReviewedTalentControls(){},renderActorCampField(){},DiceHelpers:{addSkillDicePool(){}},CSS:{escape:s=>s},hasSummaryTalents:()=>false,showTalentSummary(){},showEquipmentSummary(){},document:{createElement:tag=>({tag,dataset:{},setAttribute(){},append(){},addEventListener(){}})}});
+const Sheet=vm.runInNewContext(`(class extends NativeSync {${methods}})`,{game:{i18n:await systemI18n('fr')},NativeSync,prepareVehiclePlanButton(){},renderCharacterCredits(){},prepareCombatSheet(){},prepareGroundMovement(){},activateInventoryImagePreview(){},activateInventoryPossessions(){},renderReviewedTalentControls(){},renderActorCampField(){},DiceHelpers:{addSkillDicePool(){}},CSS:{escape:s=>s},hasSummaryTalents:()=>false,showTalentSummary(){},document:{createElement:tag=>({tag,dataset:{},setAttribute(){},append(){},addEventListener(){}})}});
 function view(){
  const tabs=['characteristics','items','talents'].map(tab=>({dataset:{tab},active:tab==='items',scrollTop:tab==='items'?446:0,scrollLeft:0}));
  for(const node of tabs){let top=node.scrollTop;Object.defineProperty(node,'scrollTop',{get:()=>top,set:value=>{top=node.active?value:0;}});node.classList={toggle(_name,on){node.active=on;}};}
@@ -33,7 +33,7 @@ test('root template replacement preserves state even when prior and next root ar
  assert.equal(root.scrollTop,138);assert.equal(root.tabs[1].scrollTop,446);
 });
 
-test('all three shortcuts and the selected tab are ready before rendered HTML is inserted',async()=>{
+test('the talent shortcuts and the selected tab are ready before rendered HTML is inserted',async()=>{
  const sheet=new Sheet();sheet.actor={type:'character'};sheet._sheetTab='items';
  const tabs=['characteristics','items'].map(name=>({dataset:{tab:name},classList:{toggle(_class,value){this.active=value;}}}));
  const buttons=[];
@@ -41,6 +41,6 @@ test('all three shortcuts and the selected tab are ready before rendered HTML is
  const element={querySelector:selector=>selector==='.sheet-tabs'?sidebar:tabs[0],querySelectorAll:selector=>selector==='.skill'?[]:tabs};
  sheet.result={sheet:element};
  assert.equal(await sheet._renderHTML({},{}),sheet.result);
- assert.equal(buttons.length,3);
+ assert.equal(buttons.length,2);
  assert(!tabs[0].classList.active);assert(tabs[1].classList.active);
 });

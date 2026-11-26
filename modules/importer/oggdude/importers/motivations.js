@@ -19,7 +19,7 @@ export default class Motivations {
       const baseKey = "SpecificMotivations";
       const secondaryKey = "SpecificMotivation";
 
-      const items = base[baseKey][secondaryKey];
+      const items = ImportHelpers.xmlRecords(base[baseKey][secondaryKey]);
       if (items.length) {
         let totalCount = items.length;
         let currentCount = 0;

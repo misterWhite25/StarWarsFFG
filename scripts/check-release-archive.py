@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_DIRECTORIES = (
-    "assets", "data", "fonts", "images", "lang", "lib", "modules", "styles", "templates",
+    "assets", "data", "fonts", "gallery", "images", "lang", "lib", "modules", "styles", "templates",
 )
 
 

@@ -7,11 +7,10 @@ export function calibration(scene){
  const step=Number(scene?.grid?.distance)||1,positive=(value,fallback)=>Number.isFinite(Number(value))&&Number(value)>0?Number(value):fallback;
  const movement=positive(raw.movement,step*3);
  const defaults=groundRangeValues(),factor=['ft','foot','feet','pied','pieds',"'",'′'].includes(String(scene?.grid?.units??'m').trim().toLowerCase().replace(/\.$/,''))?0.3048:1;
- return {movement,...Object.fromEntries(['short','medium','long','extreme'].map(key=>[key,positive(raw[key],defaults[key]/factor)]))};
+ return {movement,...Object.fromEntries(['short','medium','long','extreme'].map(key=>[key,defaults[key]/factor]))};
 }
 export function validateCalibration(config){
- if(!['movement','short','medium','long','extreme'].every(key=>Number.isFinite(Number(config[key]))&&Number(config[key])>0))throw Error(game.i18n.localize("SWFFG.UI.Ground.PositiveDistancesRequired"));
- if(!(Number(config.short)<Number(config.medium)&&Number(config.medium)<Number(config.long)&&Number(config.long)<Number(config.extreme)))throw Error(game.i18n.localize("SWFFG.UI.Ground.IncreasingRangeLimits"));
+ if(!Number.isFinite(Number(config.movement))||Number(config.movement)<=0)throw Error(game.i18n.localize("SWFFG.UI.Ground.PositiveDistancesRequired"));
  return config;
 }
 export function bandForDistance(distance,config){

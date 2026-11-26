@@ -1,4 +1,5 @@
-import {board} from './board.mjs';
+import {board, command} from './board.mjs';
+import {openCombatRoll} from './combat-rolls.mjs';
 import {crewActor} from './crew-access.mjs';
 import {crewStationWeapons} from '../helpers/crew.js';
 import {crewRoleDefinitions} from '../helpers/crew-role-definitions.mjs';
@@ -39,6 +40,25 @@ export async function chooseBarrage(ship,definition,candidates){
       target?.addEventListener('change',()=>{const destination=board().ships.find(entry=>entry.id===target.value);if(destination)sector.value=attackSector(ship,destination,crew.value);validate();});selectCrew();
     }
   });
+}
+
+export async function performBarrage(ship, definition, candidates, terrain = 0) {
+  const choice = await chooseBarrage(ship, definition, candidates);
+  if (!choice) return;
+  const current = board().ships.find(entry => entry.id === ship.id);
+  if (!current) throw Error('Ce vaisseau a quitté la carte.');
+  if (definition.target) {
+    const member = candidates.find(entry => entry.actor_id === choice.crewId);
+    const weapon = game.actors.get(current.actorId)?.items.get(choice.weaponId);
+    if (!weapon || !member) throw Error('Cette batterie ou son artilleur est indisponible.');
+    await openCombatRoll(current, member, {
+      weapon, targetId: choice.targetId, sector: choice.sector, terrain,
+      barrage: {id: definition.id, ...choice}
+    });
+  } else {
+    await command('combat', {shipId: current.id, version: current.version, combatAction: definition.id, terrain, ...choice});
+  }
+  return choice.targetId;
 }
 
 // Keep the optional symbol spends visible beside the ordinary post-roll controls.

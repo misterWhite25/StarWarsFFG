@@ -1,4 +1,5 @@
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
+import {isAntiFighterWeapon} from '../helpers/ship-weapon-profile.mjs';
 import {vehicleCrew} from '../helpers/crew-gunners.mjs';
 import {crewRolesForSkill,crewRoleDefinitions} from '../helpers/crew-role-definitions.mjs';
 import {weaponCrewCandidates,crewStationWeapons} from '../helpers/crew.js';
@@ -42,7 +43,13 @@ export function renderCrewWeapon(ship,actor,item,report,options={},member){
   const range=data.range?.label??CONFIG.FFG.vehicle_ranges?.[data.range?.value]??data.range?.value??"";
   const arcLabels={fore:"Avant",aft:"Arrière",port:"Bâbord",starboard:"Tribord",dorsal:"Dorsal",ventral:"Ventral"};
   const arcs=Object.entries(arcLabels).filter(([key])=>data.firingarc?.[key]).map(([,label])=>label);
-  row.append(node("p","sc-weapon-stats",["Dég. "+number(damage),"Crit. "+number(crit),game.i18n.localize(String(range)),...arcs].filter(Boolean).join(" · ")));
+  const stats=node("p","sc-weapon-stats",["Dég. "+number(damage),"Crit. "+number(crit),game.i18n.localize(String(range)),...arcs].filter(Boolean).join(" · "));
+  if(isAntiFighterWeapon(item)) {
+    const badge=node('span','ffg-anti-fighter-badge',game.i18n.localize('SWFFG.ShipWeapon.AntiFighter'));
+    badge.title=game.i18n.localize('SWFFG.ShipWeapon.AntiFighterHint');
+    stats.append(' ',badge);
+  }
+  row.append(stats);
   const qualities=(data.adjusteditemmodifier??data.itemmodifier??[]).filter(quality=>quality?.name).map(quality=>{
     const rank=Number(quality.system?.rank_current??quality.system?.rank??quality.rank);
     return quality.name+(rank>1?" "+rank:"");

@@ -1,4 +1,4 @@
-export const DEFAULT_GROUND_RANGES=Object.freeze({contact:1.5,short:10,medium:50,long:250,extreme:1000});
+export const DEFAULT_GROUND_RANGES=Object.freeze({contact:1.5,short:10,medium:20,long:50,extreme:150});
 export function validateGroundRanges(values){
  const result=Object.fromEntries(Object.keys(DEFAULT_GROUND_RANGES).map(key=>[key,Number(values?.[key])]));
  const numbers=Object.values(result);
