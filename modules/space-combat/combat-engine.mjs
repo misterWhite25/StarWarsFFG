@@ -25,11 +25,10 @@ export async function executeCombat(state,ship,request,user,services={}) {
   const combat=combatState(ship),turn=turnState(ship,request.crewId,state.round);
   const previousAction=!!turn.action,previousActionLabel=turn.actionLabel;
   const updates=[],messages=[];
-  const resource=(document,key,delta)=>{
-    if(document===vehicle&&key==="systemStrain"&&vehicleMinionGroup(vehicle).enabled){
-      if(delta<=0)return;
-      key=vehicleDamageResource(vehicle,key);
-    }
+  const resource=(document,requestedKey,delta)=>{
+    const convertStrain=document===vehicle&&requestedKey==="systemStrain"&&vehicleMinionGroup(vehicle).enabled;
+    if(convertStrain&&delta<=0)return;
+    const key=convertStrain?vehicleDamageResource(vehicle,requestedKey):requestedKey;
     const path="system.stats."+key+".value";
     const current=Number(document.system.stats?.[key]?.value);
     if(!Number.isFinite(current))throw Error(localizeSystem("SWFFG.UI.SpaceCombat.ResourceValueRequired", {key, name:document.name}));

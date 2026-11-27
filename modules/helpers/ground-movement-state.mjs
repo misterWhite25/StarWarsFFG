@@ -182,8 +182,8 @@ async function execute(command,user){
  await foundry.documents.modifyBatch(batch);return next;
 }
 export function applyMovementCommand(command,user=game.user){const task=queue.catch(()=>{}).then(()=>execute(command,user));queue=task;return task;}
-export async function requestMovementCommand(command){
- command={id:foundry.utils.randomID(),...command};
+export async function requestMovementCommand(input){
+ const command={id:foundry.utils.randomID(),...input};
  if(!game.users.activeGM||game.users.activeGM.id===game.user.id)return applyMovementCommand(command);
  let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});
  const timer=setTimeout(()=>{waiting.delete(command.id);reject(Error(game.i18n.localize("SWFFG.UI.Ground.GMTimeout")));},20000);

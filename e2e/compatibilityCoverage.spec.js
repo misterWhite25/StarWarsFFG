@@ -307,3 +307,50 @@ test("persists sheet field edits through the form submission path", async ({page
     expect(entry.persisted, `${entry.type}.${entry.field} did not persist`).toBe(entry.value);
   }
 });
+
+test("OggDude ZIP persists independent talent modifiers for single and repeated specialization slots", async ({page}) => {
+  const packs = ["world.oggdudetalents", "world.oggdudespecializations"];
+  test.skip(await page.evaluate(ids => ids.some(id => game.packs.has(id)), packs), "Requires empty test compendiums");
+  const zip = await page.evaluate(async () => {
+    const archive = new JSZip();
+    archive.file("Data/Talents.xml", "<Talents><Talent><Key>QA_TOUGH</Key><Name>QA Tough</Name><Ranked>true</Ranked><Attributes><WoundThreshold>2</WoundThreshold></Attributes></Talent></Talents>");
+    for (const [key, count] of [["SINGLE", 1], ["DOUBLE", 2]]) {
+      const row = "<Talents>" + "<Key>QA_TOUGH</Key>".repeat(count) + "</Talents><Directions>" +
+        "<Direction><Right>true</Right></Direction>".repeat(count) + "</Directions>";
+      archive.file(`Data/Specializations/${key}.xml`, `<Specialization><Key>${key}</Key><Name>${key}</Name><TalentRows><TalentRow>${row}</TalentRow></TalentRows></Specialization>`);
+    }
+    return archive.generateAsync({type:"base64"});
+  });
+  try {
+    await page.evaluate(() => ui.compendium.activate());
+    await page.locator(".og-character").click();
+    const importer = page.locator("#data-importer");
+    await importer.locator("input[type=file]").setInputFiles({name:"specializations.zip", mimeType:"application/zip", buffer:Buffer.from(zip, "base64")});
+    await importer.locator("[data-action=loadFile]").click();
+    await importer.locator("[data-action=selectAll]").click();
+    await expect(importer.locator("input[name=imports]:checked")).toHaveCount(2);
+    await importer.locator("button[type=submit]").click();
+    await expect(importer).not.toBeVisible({timeout:30_000});
+    const data = await page.evaluate(async ([talentPack, treePack]) => {
+      const [talent] = await game.packs.get(talentPack).getDocuments();
+      const keys = Object.keys(talent.system.attributes);
+      const trees = (await game.packs.get(treePack).getDocuments()).sort((a, b) => a.name.localeCompare(b.name));
+      const summary = trees.map(tree => {
+        const slots = Object.values(tree.system.talents).filter(slot => slot.name === talent.name);
+        return {name:tree.name, slots:slots.map(slot => {
+          const [id, modifier] = Object.entries(slot.attributes)[0];
+          keys.push(id);
+          return {linked:slot.itemId === talent.id, wounds:Number(modifier.value),
+            effect:tree.effects.some(effect => effect.name === id && effect.disabled)};
+        })};
+      });
+      return {summary, uniqueKeys:new Set(keys).size};
+    }, packs);
+    const slot = {linked:true, wounds:2, effect:true};
+    expect(data).toEqual({summary:[{name:"DOUBLE", slots:[slot, slot]}, {name:"SINGLE", slots:[slot]}], uniqueKeys:4});
+  } finally {
+    await page.evaluate(async ids => {
+      for (const id of ids) await game.packs.get(id)?.deleteCompendium();
+    }, packs);
+  }
+});

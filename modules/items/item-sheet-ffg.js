@@ -984,7 +984,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             ffgTempItemIndex: itemIndex,
             ffgIsTemp: true,
             ffgParent: this.object.flags,
-            ffgParentApp: this.appId, // TODO: check if this is needed
           }
         },
         ownership: {
@@ -1001,8 +1000,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
               ffgTempItemType: itemType,
               ffgTempItemIndex: itemIndex,
               ffgIsTemp: true,
-              ffgUuid: this.object.uuid, // TODO: check if this is needed (needed when item on actor)
-              ffgIsOwned: this.object.isEmbedded, // TODO: check if this is needed (needed when item on actor)
+              ffgUuid: this.object.uuid,
+              ffgIsOwned: this.object.isEmbedded,
             }
           },
           ownership: {
@@ -1075,9 +1074,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             ffgTempItemIndex: -1,                       // index of the added item within the parent
             ffgParent: this.object.flags.starwarsffg,   // flags from the parent
             ffgIsTemp: true,                            // this is a temporary item
-            ffgUuid: this.object.uuid,                  // UUID for the parent (if available) TODO: check if this is needed
-            ffgParentApp: this.appId,                   // not sure what this is x.x
-            ffgIsOwned: this.object.isEmbedded,         // if this is within an actor TODO: check if this is needed
+            ffgUuid: this.object.uuid,                  // resolves the parent item, including embedded items
+            ffgIsOwned: this.object.isEmbedded,         // selects the controls for actor-owned items
           }
         },
         system: {
@@ -1869,6 +1867,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             items.push(itemObject);
           } else {
             ui.notifications.warn(game.i18n.format("SWFFG.UI.Item.NotEnoughHardpoints", {remaining: this.object.system.hardpoints.adjusted}));
+            return;
           }
           break;
         }
@@ -1881,7 +1880,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       foundry.utils.setProperty(formData, `data.${itemObject.type}`, items);
 
       await obj.update(formData);
-      // TODO: this happens even if there isn't enough HP (meaning the item gets rejected)
       if (rankOnlyUpdate) {
         await ItemHelpers.syncAEStatus(this.object, this.object.effects);
       } else {

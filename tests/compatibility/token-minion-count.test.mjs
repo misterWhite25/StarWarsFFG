@@ -38,3 +38,30 @@ test('effectives belong to each token actor and ordinary vehicles have no count'
  a.actor.flags.starwarsffg.vehicleMinionGroup.enabled=false;const old=a.minionCount;draw(a);assert(old.destroyed);assert.equal(a.minionCount,null);assert.equal(a.children.length,0);
  assert.equal(b.minionCount.children.length,4);state.enabled=false;draw(b);assert.equal(b.minionCount,null);assert.equal(b.children.length,0);
 });
+
+test('unchanged minion badges retain their graphics across refreshes and rebuild after a resize or loss', async () => {
+  const {draw} = await load();
+  const t = token(vehicle(6));
+  draw(t);
+  const markers = [...t.minionCount.children];
+  for (let refresh = 0; refresh < 100; refresh++) draw(t);
+  assert.ok(markers.every((marker, i) => marker === t.minionCount.children[i] && !marker.destroyed));
+
+  t.h = 150;
+  draw(t);
+  assert.ok(markers.every(marker => marker.destroyed));
+  assert.equal(t.minionCount.children[0].y, 124);
+
+  t.actor.flags.starwarsffg.vehicleMinionGroup.count = 8;
+  draw(t);
+  const overflow = t.minionCount.children[0];
+  assert.equal(overflow.text, String.fromCodePoint(0x221e));
+  t.actor.system.stats.hullTrauma.value = 7;
+  draw(t);
+  assert.equal(t.minionCount.children[0], overflow);
+
+  t.actor.flags.starwarsffg.vehicleMinionGroup.count = 2;
+  draw(t);
+  assert.ok(overflow.destroyed);
+  assert.deepEqual(t.minionCount.children.map(marker => marker.color), ['0x00A2E84D', '0x8800154D']);
+});

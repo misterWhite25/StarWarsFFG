@@ -16,39 +16,85 @@ export function setGroundRangeOverlay(owner,token,enabled){
  if(movementMode(token.parent)!=='battlemap')throw Error(game.i18n.localize("SWFFG.UI.Ground.BattlemapRangesRequired"));
  active={owner,tokenUuid:token.uuid};schedule();Hooks.callAll('ffgGroundRangeOverlayChanged');
 }
-function draw(){
- frame=null;
- if(!active||!canvas.ready){graphic?.destroy({children:true});graphic=null;return;}
- const token=fromUuidSync(active.tokenUuid),object=token?.object;
- if(!isGroundToken(token)||!object||token.parent.id!==canvas.scene?.id||!token.actor.isOwner||!game.user.isGM&&!object.isVisible){clearGroundRangeOverlay();return;}
- if(movementMode(token.parent)!=='battlemap'){graphic?.destroy({children:true});graphic=null;return;}
- const config=calibration(token.parent),grid=canvas.grid,center=object.center,zoom=canvas.stage.scale.x||1;
- const bounds=canvas.dimensions.rect??new PIXI.Rectangle(0,0,canvas.dimensions.width,canvas.dimensions.height);
- const corners=[{x:bounds.x,y:bounds.y},{x:bounds.right,y:bounds.y},{x:bounds.right,y:bounds.bottom},{x:bounds.x,y:bounds.bottom}];
- const maxDistance=Math.max(...corners.map(point=>grid.measurePath([center,point]).distance));
- const next=new PIXI.Container();next.name='ffg-ground-range-overlay';next.eventMode='none';next.interactiveChildren=false;
- const lines=new PIXI.Graphics();lines.eventMode='none';next.addChild(lines);
- const contours=[];
- for(const [index,key]of ['short','medium','long','extreme'].entries()){
-  const radius=config[key];
-  // A boundary beyond the entire canvas cannot be seen. Avoid enormous native polygons.
-  if(radius>maxDistance*1.25)continue;
-  const edge=grid.getTranslatedPoint(center,0,radius),radiusPixels=Math.hypot(edge.x-center.x,edge.y-center.y);
-  if(!Number.isFinite(radiusPixels)||radiusPixels<=0)continue;
-  lines.lineStyle(1.5/zoom,rangeColors[index],0.78).drawCircle(center.x,center.y,radiusPixels);
-  const angle=(-35+index*10)*Math.PI/180,point={x:center.x+Math.cos(angle)*radiusPixels,y:center.y+Math.sin(angle)*radiusPixels};
-  // Rasterize at a stable screen size, rather than a tiny world font enlarged by zoom.
-  const label=new PIXI.Text(game.i18n.localize(rangeLabels[index]),{fontFamily:'Arial',fontSize:13,fontWeight:'600',fill:'#f4f7f8'});
-  label.resolution=Math.max(2,window.devicePixelRatio||1);label.roundPixels=true;
-  label.eventMode='none';label.anchor.set(.5,.5);
-  const badge=new PIXI.Container();badge.eventMode='none';badge.scale.set(1/zoom);
-  const screen=canvas.interface.toGlobal(new PIXI.Point(point.x,point.y));
-  const aligned=canvas.interface.toLocal(new PIXI.Point(Math.round(screen.x),Math.round(screen.y)));badge.position.copyFrom(aligned);
-  const background=new PIXI.Graphics();background.lineStyle(1,rangeColors[index],.85).beginFill(0x132733,.95).drawRoundedRect(-label.width/2-6,-label.height/2-3,label.width+12,label.height+6,4).endFill();
-  badge.addChild(background,label);next.addChild(badge);contours.push({label:game.i18n.localize(rangeLabels[index]),distance:radius,radiusPixels,shape:'circle'});
+// Keep the four possible rings and their rasterized labels for the life of the overlay.
+function createBand(layer, index) {
+ const ring = new PIXI.Graphics();
+ const badge = new PIXI.Container();
+ const background = new PIXI.Graphics();
+ const label = new PIXI.Text('', {fontFamily:'Arial', fontSize:13, fontWeight:'600', fill:'#f4f7f8'});
+ label.anchor.set(.5);
+ label.roundPixels = true;
+ badge.addChild(background, label);
+ layer.addChildAt(ring, 0);
+ layer.addChild(badge);
+ const angle = (-35 + index * 10) * Math.PI / 180;
+ return {ring, badge, background, label, dx:Math.cos(angle), dy:Math.sin(angle)};
+}
+
+function updateBand(layer, band, index, radiusPixels, zoom) {
+ const {ring, badge, background, label} = band;
+ const color = rangeColors[index];
+ if (band.radiusPixels !== radiusPixels || band.zoom !== zoom) {
+  ring.clear().lineStyle(1.5 / zoom, color, .78).drawCircle(0, 0, radiusPixels);
+  badge.scale.set(1 / zoom);
+  band.radiusPixels = radiusPixels;
+  band.zoom = zoom;
  }
- next.ffgRanges=contours;next.position.set(0,0);next.ffgCenter={x:center.x,y:center.y};
- canvas.interface.addChild(next);const old=graphic;graphic=next;old?.destroy({children:true});
+ const text = game.i18n.localize(rangeLabels[index]);
+ const resolution = Math.max(2, window.devicePixelRatio || 1);
+ if (label.text !== text || label.resolution !== resolution) {
+  label.text = text;
+  label.resolution = resolution;
+  background.clear().lineStyle(1, color, .85).beginFill(0x132733, .95)
+   .drawRoundedRect(-label.width / 2 - 6, -label.height / 2 - 3, label.width + 12, label.height + 6, 4).endFill();
+ }
+ const point = new PIXI.Point(band.dx * radiusPixels, band.dy * radiusPixels);
+ const screen = layer.toGlobal(point);
+ screen.set(Math.round(screen.x), Math.round(screen.y));
+ badge.position.copyFrom(layer.toLocal(screen));
+ return text;
+}
+
+function draw() {
+ frame = null;
+ if (!active || !canvas.ready) { graphic?.destroy({children:true}); graphic = null; return; }
+ const token = fromUuidSync(active.tokenUuid), object = token?.object;
+ if (!isGroundToken(token) || !object || token.parent.id !== canvas.scene?.id || !token.actor.isOwner || (!game.user.isGM && !object.isVisible)) {
+  clearGroundRangeOverlay();
+  return;
+ }
+ if (movementMode(token.parent) !== 'battlemap') { graphic?.destroy({children:true}); graphic = null; return; }
+ const config = calibration(token.parent), grid = canvas.grid, center = object.center, zoom = canvas.stage.scale.x || 1;
+ const bounds = canvas.dimensions.rect ?? new PIXI.Rectangle(0, 0, canvas.dimensions.width, canvas.dimensions.height);
+ const corners = [{x:bounds.x, y:bounds.y}, {x:bounds.right, y:bounds.y}, {x:bounds.right, y:bounds.bottom}, {x:bounds.x, y:bounds.bottom}];
+ const maxDistance = Math.max(...corners.map(point => grid.measurePath([center, point]).distance));
+ if (!graphic) {
+  graphic = new PIXI.Container();
+  graphic.name = 'ffg-ground-range-overlay';
+  graphic.eventMode = 'none';
+  graphic.interactiveChildren = false;
+  graphic.bands = [];
+  canvas.interface.addChild(graphic);
+ }
+ graphic.position.copyFrom(center);
+ graphic.ffgCenter = {x:center.x, y:center.y};
+ graphic.ffgRanges = [];
+ for (const [index, key] of ['short','medium','long','extreme'].entries()) {
+  const radius = config[key];
+  let radiusPixels = 0;
+  if (radius <= maxDistance * 1.25) {
+   const edge = grid.getTranslatedPoint(center, 0, radius);
+   radiusPixels = Math.hypot(edge.x - center.x, edge.y - center.y);
+  }
+  const visible = Number.isFinite(radiusPixels) && radiusPixels > 0;
+  let band = graphic.bands[index];
+  if (!band && visible) band = graphic.bands[index] = createBand(graphic, index);
+  if (!band) continue;
+  band.ring.visible = band.badge.visible = visible;
+  if (!visible) continue;
+  const label = updateBand(graphic, band, index, radiusPixels, zoom);
+  graphic.ffgRanges.push({label, distance:radius, radiusPixels, shape:'circle'});
+ }
 }
 export function refreshGroundRangeOverlay(){schedule();}
 function schedule(){if(active && frame == null)frame=requestAnimationFrame(draw);}

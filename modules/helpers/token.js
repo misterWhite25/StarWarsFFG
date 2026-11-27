@@ -52,16 +52,22 @@ export function drawMinionCount(token) {
   const maxCount = group?.enabled ? group.count : actor.system.quantity.max;
   const maxRender = 6;
 
-  // attempt to draw it on the token directly
-  // check for existing copies of the container
-  if (!token.children.find(i => i.name === "minionCount")) {
-    const countContainer = new PIXI.Container();
-    countContainer.name = "minionCount";
-    token.minionCount = token.addChild(countContainer);
-  } else {
+  // Foundry also refreshes tokens during movement, hovering and selection.
+  const signature = maxCount > maxRender
+    ? `overflow:${token.w}:${token.h}`
+    : `${curCount}:${maxCount}:${token.w}:${token.h}`;
+  if (existing?._minionSignature === signature) return;
+
+  if (existing) {
     token.minionCount = existing;
-    token.minionCount.removeChildren().forEach(i => i.destroy());
+    existing.removeChildren().forEach(child => child.destroy());
+  } else {
+    const container = new PIXI.Container();
+    container.name = "minionCount";
+    container.eventMode = "none";
+    token.minionCount = token.addChild(container);
   }
+  token.minionCount._minionSignature = signature;
 
   const tokenWidth = token.w;
   const markerWidth = Math.floor(tokenWidth / 8);
@@ -88,34 +94,14 @@ export function drawMinionCount(token) {
     text.y = token.h - 12;
     token.minionCount.addChild(text);
   } else {
-    for (let i = 0; i < curCount; i++) {
+    for (let i = 0; i < maxCount; i++) {
       const element = new PIXI.Graphics();
-      // add the border
       element.lineStyle(borderWidth, "0x000000", markerWidth / 4);
-      // draw the rectangle
-      element.beginFill(friendlyColor);
+      element.beginFill(i < curCount ? friendlyColor : enemyColor);
       element.drawRoundedRect(0, 0, markerWidth, markerHeight, 2);
       element.endFill();
-      element.endFill();
-      // position it
       element.x = (i * (markerWidth + insideGap)) + outsideGap;
       element.y = token.h - markerHeight - 2;
-      // add it to the container
-      token.minionCount.addChild(element);
-    }
-
-    for (let i = 0; i < maxCount - curCount; i++) {
-      const element = new PIXI.Graphics();
-      // add the border
-      element.lineStyle(borderWidth, "0x000000", markerWidth / 4);
-      // draw the rectangle
-      element.beginFill(enemyColor);
-      element.drawRoundedRect(0, 0, markerWidth, markerHeight, 2);
-      element.endFill();
-      // position it
-      element.x = ((i + curCount) * (markerWidth + insideGap)) + outsideGap;
-      element.y = token.h - markerHeight - 2;
-      // add it to the container
       token.minionCount.addChild(element);
     }
   }

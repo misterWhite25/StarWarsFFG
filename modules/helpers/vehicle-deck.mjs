@@ -169,9 +169,9 @@ async function setDeckImage(ship,value) {
   await ship.update({[path+'.image']:src,...(!src?{[path+'.enabled']:false,[path+'.epoch']:foundry.utils.randomID()}:{})});
 }
 
-async function setDeckMode(ship,enabled) {
+async function setDeckMode(ship,requestedMode) {
   assertOwner(ship);
-  enabled=!!enabled;
+  const enabled=Boolean(requestedMode);
   if(enabled && !hasPlan(ship))throw Error(game.i18n.localize("SWFFG.UI.Vehicle.ChooseDeckForMap"));
   const app=windows.get(ship.id);
   if(app?._changingMode || enabled===mapEnabled(ship))return;

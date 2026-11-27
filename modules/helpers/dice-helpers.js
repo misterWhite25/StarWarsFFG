@@ -96,8 +96,6 @@ export default class DiceHelpers {
     if (!status) throw new Error(game.i18n.localize("SWFFG.ItemTooDamagedToUse"));
     let defenseDice = this.getDefenseDice(skill, itemData);
 
-    // TODO: Get weapon specific modifiers from itemmodifiers and itemattachments
-
     let dicePool = new DicePoolFFG({
       ability: Math.max(characteristic.value, skill.rank),
       boost: skill.boost ?? 0,
@@ -152,8 +150,8 @@ export default class DiceHelpers {
     return defenseDice;
   }
 
-  static async displayRollDialog(data, dicePool, description, skillName, item, flavorText, sound, weaponContext = null, rollChoices = {}) {
-    dicePool = await resetNewRollTarget(dicePool, {skillName, item, weaponContext, nonAttack:rollChoices.nonAttack});
+  static async displayRollDialog(data, initialPool, description, skillName, item, flavorText, sound, weaponContext = null, rollChoices = {}) {
+    const dicePool = await resetNewRollTarget(initialPool, {skillName, item, weaponContext, nonAttack:rollChoices.nonAttack});
     const prepared = await prepareRememberedWeapon(weaponContext, item, dicePool);
     const actor=weaponContext?.actor??data?.document??resolveCrewActor(data?.actor?._id??data?.actor?.id);
     if(integratedCrewVehicle(actor)){data.document=actor;data.documentUuid=actor.uuid;data.integratedCrewGroup??=integratedCrewGroupSignature(actor);}

@@ -228,7 +228,8 @@ export function scenePlanShortcuts() {
   return game.scenes.filter(hasShortcut).sort((a,b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
 }
 
-export function renderBasePlanShortcuts(menu, anchor, scenes) {
+export function renderBasePlanShortcuts(menu, initialAnchor, scenes) {
+  let anchor = initialAnchor;
   const existing = new Map(Array.from(menu.querySelectorAll('li[data-base-plan-scene]'), row => [row.dataset.basePlanScene, row]));
   for (const scene of scenes) {
     let row = existing.get(scene.id);

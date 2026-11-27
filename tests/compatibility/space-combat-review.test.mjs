@@ -143,12 +143,12 @@ class PlotNode {
   releasePointerCapture(id){this.captured.delete(id);}
 }
 
-async function plotFixture(options={}) {
+async function plotFixture(options={}, globals={}) {
   const frames=new Map(),cameras=[],moves=[];let nextFrame=0;
   const svg=new PlotNode('svg'),doc=new PlotNode('document');
   doc.createElementNS=(_namespace,tag)=>new PlotNode(tag);doc.createDocumentFragment=()=>new PlotNode('fragment');
   const context=vm.createContext({document:doc,AbortController,game:{actors:new Map()},
-    requestAnimationFrame:callback=>{frames.set(++nextFrame,callback);return nextFrame;},cancelAnimationFrame:id=>frames.delete(id)});
+    requestAnimationFrame:callback=>{frames.set(++nextFrame,callback);return nextFrame;},cancelAnimationFrame:id=>frames.delete(id), ...globals});
   const {drawPlot}=(await loadSystemModule('space-combat/plot.mjs',context)).namespace;
   const dispose=drawPlot(svg,{ships:[],camera:{x:0,y:0,width:24},onCamera:value=>cameras.push(value),onMove:(...value)=>moves.push(value),...options});
   return {svg,dispose,cameras,moves,frames,flush(){const pending=[...frames.values()];frames.clear();for(const callback of pending)callback();}};
@@ -216,4 +216,110 @@ test('cancelling or disposing a space plot cancels pending frames and pointer ca
   f.flush();assert.equal(f.svg.renders,renders);
   f.svg.dispatch('wheel',{deltaY:5,deltaMode:0});
   assert.equal(f.frames.size,0);
+});
+
+test('space range overlays read each weapon range once and preserve the inventory order for every target', async () => {
+  const {shipRanges} = (await loadSystemModule('space-combat/ranges.mjs', vm.createContext({}))).namespace;
+  const origin = {id:'source', x:0, y:0};
+  const fleet = [origin, ...Array.from({length:30}, (_, i) => ({id:String(i), x:i, y:0}))];
+  let reads = 0;
+  const weapon = (name, range) => ({
+    name, type:'shipweapon', system:{range:{get value() { reads++; return range; }}}
+  });
+  const vehicle = {items:[
+    weapon('Turret', 'Short'), weapon('Laser', 'EXTREME'), weapon('Turret', 'long'),
+    weapon('Unspecified', ''), {name:'Cargo', type:'shipattachment'}
+  ]};
+  const result = shipRanges(origin, fleet, vehicle);
+  assert.equal(reads, 4);
+  assert.equal(result.maximum, 4);
+  assert.equal(result.targets.length, 30);
+  for (const target of result.targets) {
+    const expected = target.distance < 5 ? ['Turret','Laser','Turret'] : target.distance < 20 ? ['Laser','Turret'] : ['Laser'];
+    assert.deepEqual([...target.weapons], expected);
+    assert.equal(target.inRange, true);
+  }
+  const unarmed = shipRanges(origin, fleet, {items:[weapon('Missing', null)]});
+  assert.equal(unarmed.maximum, -1);
+  assert.equal(unarmed.weaponRange, null);
+  assert.ok(unarmed.targets.every(target => !target.inRange && target.weapons.length === 0));
+});
+
+test('space map shares number formatters across a fleet and refreshes both precisions on a language change', async () => {
+  const formats = [];
+  class CountedNumberFormat extends Intl.NumberFormat {
+    constructor(language, options) {
+      super(language, options);
+      formats.push([language, options.maximumFractionDigits]);
+    }
+  }
+  const ships = Array.from({length:12}, (_, i) => ({
+    id:String(i), name:'Ship ' + i, x:i, y:i, heading:45, speed:1.5, silhouette:3
+  }));
+  const game = {i18n:{lang:'en'}, actors:new Map()};
+  const f = await plotFixture({ships, rangeShipId:'0'}, {Intl:{NumberFormat:CountedNumberFormat}, game});
+  const titles = node => [node.localName === 'title' ? node.textContent : '', ...node.children.flatMap(titles)];
+  assert.deepEqual(formats, [['en',1],['en',3]]);
+  assert.ok(titles(f.svg).some(text => text.includes('1.414 u.')));
+  for (const width of [20, 30]) {
+    f.dispose.view({width});
+    f.flush();
+  }
+  assert.equal(formats.length, 2);
+  game.i18n.lang = 'fr';
+  f.dispose.view({width:24});
+  f.flush();
+  assert.deepEqual(formats, [['en',1],['en',3],['fr',1],['fr',3]]);
+  assert.ok(titles(f.svg).some(text => text.includes('1,414 u.')));
+  f.dispose();
+});
+
+test('world document changes only inspect the fleet while the space map is visible or rendering', async () => {
+  const hooks = new Map(), frames = new Set();
+  const board = {round:0, encounterId:'encounter', ships:[{actorId:'vehicle'}]};
+  const vehicle = {id:'vehicle', flags:{starwarsffg:{crew:[{actor_id:'pilot'}]}}};
+  let boardReads = 0, window, session;
+  class ApplicationV2 {
+    static RENDER_STATES = {RENDERING:1};
+    constructor() { window = this; }
+    render() { this.rendered = true; }
+    close() { this.rendered = false; }
+  }
+  const context = vm.createContext({
+    foundry:{applications:{api:{ApplicationV2}}}, document:{querySelector:() => null},
+    game:{user:{isGM:false}, actors:new Map([[vehicle.id,vehicle]])},
+    Hooks:{once() {}, on:(name, callback) => hooks.set(name, callback)},
+    requestAnimationFrame:callback => { frames.add(callback); return callback; },
+    cancelAnimationFrame:callback => frames.delete(callback)
+  });
+  await loadSystemModule('space-combat/application.mjs', context, {
+    'space-combat/board.mjs':{board:() => { boardReads++; return board; }, command() {}, registerBoard() {}, shipAppearance() {}},
+    'space-combat/combat-card.mjs':{combatCard() {}},
+    'helpers/integrated-crew.mjs':{resolveCrewActor() {}},
+    'space-combat/sharing.mjs':{registerSharing:function(callbacks) { session = callbacks; return {}; }},
+    'space-combat/scene-view.mjs':{enterCombatScene() {}, leaveCombatScene() {}, hasCombatSceneReturn() {}}
+  });
+  const notify = () => {
+    hooks.get('updateActor')({id:'pilot'});
+    hooks.get('updateItem')({parent:{id:'pilot'}});
+    hooks.get('updateCombat')({id:'encounter'});
+  };
+  notify();
+  assert.equal(boardReads, 0);
+  await session.show();
+  boardReads = 0;
+  hooks.get('updateActor')({id:'unrelated'});
+  assert.equal(frames.size, 0);
+  window.rendered = false;
+  window.state = ApplicationV2.RENDER_STATES.RENDERING;
+  notify();
+  assert.equal(boardReads, 4);
+  assert.equal(frames.size, 1);
+  window.rendered = true;
+  window.state = 2;
+  await session.hide();
+  boardReads = 0;
+  notify();
+  assert.equal(boardReads, 0);
+  assert.equal(frames.size, 0);
 });

@@ -10,7 +10,7 @@ export default class ModifierHelpers {
    * @param  {string} key
    */
   static getCalculatedValueFromItems(items, key, modtype, includeSource) {
-    // TODO: we are returning 0 from this; it can probably be removed. but we need to validate that it isn't making other changes
+    // The legacy scalar return is zero. The source report contains the computed total.
     let total = 0;
     let checked = false;
     let sources = [];
@@ -177,7 +177,7 @@ export default class ModifierHelpers {
     }
   }
 
-  // TODO: this should probably be either removed or refactored
+  /** Combine the current item with the legacy modifier list, including sources when requested. */
   static getCalculatedValueFromCurrentAndArray(item, items, key, modtype, includeSource) {
     let total = 0;
     let sources = [];

@@ -3,8 +3,8 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-async function loadHelper(file) {
-  const context = vm.createContext({CONFIG: {logger: {debug() {}}}});
+async function loadHelper(file, globals = {}) {
+  const context = vm.createContext({CONFIG: {logger: {debug() {}}}, ...globals});
   const module = new vm.SourceTextModule(await readFile(new URL(`../../modules/helpers/${file}`, import.meta.url), 'utf8'), {context});
   await module.link(() => new vm.SyntheticModule(['default', 'getActiveEffectChanges', 'activeEffectChangesUpdate', 'deleteDataField'], function () {
     this.setExport('default', {});
@@ -74,3 +74,58 @@ for (const [type,field] of [['specialization','talents'],['forcepower','upgrades
     await assert.rejects(helpers.syncAEStatus(item,[effect]),error=>error===failure);
   });
 }
+
+test('a broken nested item parent reports the localized error before attempting lookup', async () => {
+  const warnings = [];
+  const helper = await loadHelper('embeddeditem-helpers.js', {
+    game: {i18n: {localize: key => key}},
+    ui: {notifications: {warn: message => warnings.push(message)}},
+    fromUuid: () => assert.fail('Broken parent must not trigger a document lookup'),
+  });
+  const item = {flags: {starwarsffg: {ffgUuid: 'Item.parent', ffgParent: {}}}};
+  await assert.rejects(helper._getRealItem(item), {message: 'SWFFG.UI.Equipment.MissingParent'});
+  assert.deepEqual(warnings, ['SWFFG.UI.Equipment.MissingParent']);
+});
+
+test('an attachment rejected for insufficient hardpoints makes no changes and transfers no effects', async () => {
+  const warnings = [];
+  const attachment = {name: 'Scope', type: 'itemattachment', system: {type: 'weapon', hardpoints: {value: 2}, itemmodifier: []}};
+  const context = vm.createContext({
+    foundry: {
+      appv1: {sheets: {ItemSheet: class {}}},
+      utils: {randomID: () => 'nested', duplicate: structuredClone, setProperty: (obj, path, value) => { obj[path] = value; }},
+    },
+    game: {i18n: {format: (key, {remaining}) => key + ':' + remaining}},
+    ui: {notifications: {warn: message => warnings.push(message)}},
+    fromUuid: async () => attachment,
+  });
+  const module = new vm.SourceTextModule(await readFile(new URL('../../modules/items/item-sheet-ffg.js', import.meta.url), 'utf8'), {context});
+  await module.link(specifier => {
+    const exports = specifier.endsWith('/item-helpers.js') ? {default: {uniqueAttrs: async item => item}} : {
+      default: {}, LegacyDialogV2: {}, enrichedSheetText() {}, enrichTreeDescriptions() {}, summarizeItemQualities() {},
+      careerSkillChoices() {}, deleteDataField() {}, xpLogSpend() {}, forcePowerEditor() {}, itemEditor() {},
+    };
+    return new vm.SyntheticModule(Object.keys(exports), function () {
+      for (const [name, value] of Object.entries(exports)) this.setExport(name, value);
+    }, {context});
+  });
+  await module.evaluate();
+
+  const installed = [], updates = [], transfers = [];
+  const item = {type: 'weapon', system: {hardpoints: {adjusted: 1}, itemattachment: installed},
+    update: async data => updates.push(data)};
+  const sheet = {object: item, _transferActiveEffects: async data => transfers.push(data)};
+  const drop = {dataTransfer: {getData: () => JSON.stringify({type: 'Item', uuid: 'Item.scope'})}};
+  const applyDrop = module.namespace.ItemSheetFFG.prototype._onDropItem.bind(sheet);
+  await applyDrop(drop);
+  assert.deepEqual(warnings, ['SWFFG.UI.Item.NotEnoughHardpoints:1']);
+  assert.deepEqual(installed, []);
+  assert.deepEqual(updates, []);
+  assert.deepEqual(transfers, []);
+
+  item.system.hardpoints.adjusted = 2;
+  await applyDrop(drop);
+  assert.equal(installed.length, 1);
+  assert.equal(updates.length, 1);
+  assert.deepEqual(transfers, installed);
+});

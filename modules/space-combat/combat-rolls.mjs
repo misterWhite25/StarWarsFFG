@@ -23,12 +23,14 @@ function pilotModifiers(pool,ship,vehicle,terrain=0,{assist=true}={}) {
   const handling=Number(vehicle.system.stats.handling?.value)||0;
   pool.boost+=Math.max(0,handling);pool.setback+=Math.max(0,-handling);
   pool.upgradeDifficulty(malfunctionNavigation(vehicle).pilotUpgrade??0);
-  const effects=ship.combat?.effects??[];
-  if(assist) {
-    pool.upgradeDifficulty(-effects.filter(e=>e.kind==="copilot").reduce((sum,e)=>sum+e.value,0));
-    terrain=Math.max(0,terrain-effects.filter(e=>e.kind==="plot").reduce((sum,e)=>sum+e.value,0));
+  if(!assist) {
+    pool.setback+=terrain;
+    return;
   }
-  pool.setback+=terrain;
+  const effects=ship.combat?.effects??[];
+  pool.upgradeDifficulty(-effects.filter(e=>e.kind==="copilot").reduce((sum,e)=>sum+e.value,0));
+  const plotted=effects.filter(e=>e.kind==="plot").reduce((sum,e)=>sum+e.value,0);
+  pool.setback+=Math.max(0,terrain-plotted);
 }
 export async function rollCombatCheck({ship,vehicle,actor,key,difficulty,user,label,piloting=false,terrain=0}) {
   requireLivingVehicleGroup(vehicle);
@@ -90,10 +92,10 @@ class CombatRollBuilder extends RollBuilderFFG {
   }
 }
 
-export async function openCombatRoll(ship,member,{weapon,targetId,sector,terrain=0,barrage}={}) {
+export async function openCombatRoll(shipSnapshot,member,{weapon:selectedWeapon,targetId,sector:selectedSector,terrain=0,barrage}={}) {
   if(board().round===0)throw localizedSystemError("SWFFG.UI.SpaceCombat.CombatEnded");
   // Read the authoritative current counter instead of a rendered card snapshot.
-  ship=board().ships.find(entry=>entry.id===ship.id);
+  const ship=board().ships.find(entry=>entry.id===shipSnapshot.id);
   const vehicle=game.actors.get(ship?.actorId),actor=resolveCrewActor(member,vehicle);
   requireLivingVehicleGroup(vehicle);
   const current=vehicle&&vehicleCrew(vehicle).find(m=>m.actor_id===member.actor_id&&m.role===member.role);
@@ -101,20 +103,21 @@ export async function openCombatRoll(ship,member,{weapon,targetId,sector,terrain
   const reason=initiativeReason(current);if(reason)throw Error(reason);
   const turn=characterActionState(board().ships,member.actor_id,board().round);
   if(!game.user.isGM&&(turn.action||turn.ended))throw localizedSystemError("SWFFG.UI.SpaceCombat.TurnAlreadyUsed");
-  const attack=!!weapon;
+  const attack=!!selectedWeapon;
   if(attack){const reason=actionRoleReason(vehicle,member.actor_id,"attack");if(reason)throw Error(reason);}
   if(!attack&&!game.user.isGM&&!isNavigationRole(current))throw localizedSystemError("SWFFG.UI.SpaceCombat.PilotingRoleRestriction");
   const target=board().ships.find(entry=>entry.id===targetId&&entry.id!==ship.id);
-  const barrageData=barrage?barrageConfiguration(ship,vehicle,BARRAGES.find(action=>action.id===barrage.id),{...barrage,weaponId:weapon?.id}):null;
+  const barrageData=barrage?barrageConfiguration(ship,vehicle,BARRAGES.find(action=>action.id===barrage.id),{...barrage,weaponId:selectedWeapon?.id}):null;
   if(barrageData&&!isGunnerRole(current))throw localizedSystemError("SWFFG.UI.SpaceCombat.GunnersOnly");
   if(barrageData?.id==="concentratedBarrage"&&target?.silhouette<5)throw localizedSystemError("SWFFG.UI.SpaceCombat.ConcentratedTarget");
   let key=pilotSkill(vehicle,game.settings.get("starwarsffg","skilltheme"));
-  let pool,attackProfile;
+  let pool,attackProfile,weapon;
+  let sector=selectedSector;
   const crew={name:vehicle.name,img:vehicle.img,crew_card:true,role:current.role};
   let guided=false;
   if(attack) {
     if(!target)throw localizedSystemError("SWFFG.UI.SpaceCombat.ChooseAttackTarget");
-    weapon=vehicle.items.get(weapon.id);
+    weapon=vehicle.items.get(selectedWeapon.id);
     key=weapon?.system.skill?.value;
     const malfunctions=malfunctionNavigation(vehicle);
     if(malfunctions.disabledWeapons.includes(weapon?.id))throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponDisabled");

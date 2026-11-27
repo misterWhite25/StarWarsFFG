@@ -12,7 +12,19 @@ const NS = "http://www.w3.org/2000/svg";
 const plots = new WeakMap();
 let nextId = 0;
 let resizer;
-const format = value => Number(value).toLocaleString(game.i18n?.lang, {maximumFractionDigits: 1});
+function numberFormatter(maximumFractionDigits) {
+  let formatter, language;
+  return value => {
+    const current = game.i18n?.lang;
+    if (!formatter || current !== language) {
+      formatter = new Intl.NumberFormat(current, {maximumFractionDigits});
+      language = current;
+    }
+    return formatter.format(value);
+  };
+}
+const format = numberFormatter(1);
+const formatDistance = numberFormatter(3);
 
 function element(tag, attributes = {}, content) {
   const node = document.createElementNS(NS, tag);
@@ -141,7 +153,7 @@ function paintRangeTarget(group,range,radius,hasWeapons) {
   const indicator=element("g",{class:"sc-range-target","data-range-band":range.bandKey,"data-in-range":range.inRange,
     "data-range-distance":range.distance,"pointer-events":"none"});
   const description=range.inRange?localizeSystem("SWFFG.UI.SpaceCombat.InWeaponRange", {weapons:range.weapons.join(", ")}):hasWeapons?localizeSystem("SWFFG.UI.SpaceCombat.OutsideWeaponRange"):localizeSystem("SWFFG.UI.SpaceCombat.WeaponRangeUnknown");
-  indicator.append(element("title",{},range.band+" · "+range.distance.toLocaleString(game.i18n?.lang,{maximumFractionDigits:3})+" u. "+description),
+  indicator.append(element("title",{},range.band+" · "+formatDistance(range.distance)+" u. "+description),
     element("circle",{r:radius+3,fill:"none",stroke:color,"stroke-width":range.inRange?2:1.2,"stroke-opacity":range.inRange?.9:.5,
       "stroke-dasharray":range.inRange?"none":"3 4"}),
     element("rect",{x:-width/2,y:y-11,width,height:18,rx:4,fill:"#0d202a","fill-opacity":.96,stroke:color,"stroke-width":1}));
@@ -181,20 +193,22 @@ function paintStatus(group,status,radius,bottom,color) {
     element("path",{class:"sc-heading",d:`M-6 ${-radius+2} L0 ${-radius-9} L6 ${-radius+2} L0 ${-radius-1} Z`,
       fill:color,stroke:"#061017","stroke-width":2,"stroke-linejoin":"round","paint-order":"stroke"}));
   group.append(direction);
-  const badgeWidth=Math.max(28,18+String(text(status.speed)).length*7);
+  const speedText = text(status.speed);
+  const badgeWidth=Math.max(28,18+speedText.length*7);
   const badge=element("g",{class:"sc-token-speed","data-current-speed":status.speed??"unknown",
     transform:`translate(0 ${Math.max(0,radius-8)})`,"pointer-events":"none"});
-  badge.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.CurrentSpeed") + " "+text(status.speed)),
+  badge.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.CurrentSpeed") + " "+speedText),
     element("rect",{x:-badgeWidth/2,y:-9,width:badgeWidth,height:18,rx:5,fill:"#0b1922","fill-opacity":.96,stroke:color,"stroke-opacity":.8,"stroke-width":1}),
-    element("text",{class:"sc-token-speed-value",x:0,y:4,fill:"#efffff","text-anchor":"middle","font-size":11,"font-weight":700},localizeSystem("SWFFG.UI.SpaceCombat.SpeedBadge", {speed:text(status.speed)})));
+    element("text",{class:"sc-token-speed-value",x:0,y:4,fill:"#efffff","text-anchor":"middle","font-size":11,"font-weight":700},localizeSystem("SWFFG.UI.SpaceCombat.SpeedBadge", {speed:speedText})));
   group.append(badge);
   const damageColor={normal:"#79d3ab",warning:"#edbf68",danger:"#f17c7c",unknown:"#a3b2bb"}[status.tone];
   const width=Math.max(46,Math.min(100,radius*1.7));
   const damage=element("g",{class:"sc-token-damage is-"+status.tone,"data-damage":status.damage??"unknown",
     "data-damage-threshold":status.threshold??"unknown","data-damage-ratio":status.ratio??"unknown",
     transform:`translate(0 ${bottom+23})`,"pointer-events":"none"});
-  const caption=localizeSystem("SWFFG.UI.SpaceCombat.DamageShort") + " "+text(status.damage)+" / "+text(status.threshold)+(status.criticals?" · Crit. "+status.criticals:"");
-  damage.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.HullTaken") + " "+text(status.damage)+" / "+text(status.threshold)+
+  const hullText = text(status.damage) + " / " + text(status.threshold);
+  const caption=localizeSystem("SWFFG.UI.SpaceCombat.DamageShort") + " "+hullText+(status.criticals?" · Crit. "+status.criticals:"");
+  damage.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.HullTaken") + " "+hullText+
       (status.exceeded?localizeSystem("SWFFG.UI.SpaceCombat.ThresholdExceeded"):"")+(status.criticals?" " + localizeSystem("SWFFG.UI.SpaceCombat.CriticalHits") + " "+status.criticals+".":"")),
     element("rect",{class:"sc-damage-track",x:-width/2,y:0,width,height:6,rx:3,fill:"#08151d",stroke:damageColor,"stroke-opacity":.7,"stroke-width":1}));
   if(status.ratio!==null)damage.append(element("rect",{class:"sc-damage-fill",x:-width/2,y:0,width:width*status.ratio,height:6,rx:3,fill:damageColor}));

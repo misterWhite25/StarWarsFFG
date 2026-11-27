@@ -27,9 +27,9 @@ function availableGunners(ship,actor,weapon,member){
     return controlsCrewMember(candidate)&&!initiativeReason(candidate)&&!actionRoleReason(actor,candidate.actor_id,'attack')&&(game.user.isGM||!turn.action&&!turn.ended);
   });
 }
-export function fireCrewWeapon(ship,actor,weapon,options={},member){
+export function fireCrewWeapon(ship,actor,selectedWeapon,options={},member){
   if(!canSelectShip(ship))throw localizedSystemError("SWFFG.UI.SpaceCombat.CrewMembershipRequired");
-  weapon=actor.items.get(weapon.id);if(!weapon)throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponUnavailable");
+  const weapon=actor.items.get(selectedWeapon.id);if(!weapon)throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponUnavailable");
   const candidates=availableGunners(ship,actor,weapon,member);
   if(!candidates.length)throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponCrewUnavailable");
   return openSelectedCombatRoll(ship,candidates[0],weapon,options);

@@ -177,8 +177,12 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
       const c=this.camera;board.setAttribute('viewBox',[c.x,c.y,c.w,c.h].join(' '));
     };
     const updateCamera=(v)=>{this.camera=view(v);board.setAttribute('viewBox',Object.values(this.camera).join(' '));if(session?.canNavigate())session.publishView(this.camera);};
-    const zoom=(scale,p)=>{if(!canNavigate())return;const c=this.camera,w=clamp(c.w*scale,360,boardWidth),ratio=w/c.w;
-      p??={x:c.x+c.w/2,y:c.y+c.h/2};updateCamera({x:p.x-(p.x-c.x)*ratio,y:p.y-(p.y-c.y)*ratio,w,h:c.h*ratio});};
+    const zoom=(scale,point)=>{
+      if(!canNavigate())return;
+      const c=this.camera,w=clamp(c.w*scale,360,boardWidth),ratio=w/c.w;
+      const pivot=point??{x:c.x+c.w/2,y:c.y+c.h/2};
+      updateCamera({x:pivot.x-(pivot.x-c.x)*ratio,y:pivot.y-(pivot.y-c.y)*ratio,w,h:c.h*ratio});
+    };
     const refresh=()=>this.render({force:true});
     action('−',()=>zoom(1.35),!canNavigate());action('+',()=>zoom(1/1.35),!canNavigate());
     action('Vue d’ensemble',()=>updateCamera(origin()),!canNavigate());

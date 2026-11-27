@@ -57,10 +57,11 @@ function bindSkillRules(root, actorFor, builder) {
  update();
 }
 
-export async function showRollRequestDialog({builder,skillKey='Perception'}={}){
+export async function showRollRequestDialog({builder,skillKey:initialSkill='Perception'}={}){
  if(!game.user.isGM)throw Error(tr('GMOnly'));
  const fixed=personalActor(builder);
  if(builder&&!fixed?.uuid)throw Error(tr('NoPlayerActor'));
+ let skillKey=initialSkill;
  if(builder){const key=builder.weaponContext?.skillKey??builder.roll.skillName;skillKey=Object.keys(fixed.system.skills??{}).find(candidate=>candidate===key||fixed.system.skills[candidate].label===key||skillLabel(fixed,candidate)===key)??key;}
  const players=game.users.filter(user=>user.active&&!user.isGM),choices=new Map(players.map(user=>[user.id,fixed?(fixed.testUserPermission(user,'OWNER')?[fixed]:[]):actorsFor(user)]));
  const root=node('div'),layout=node('div','ffg-roll-request-layout'),form=node('section','ffg-roll-request-form');

@@ -302,9 +302,8 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         if (data.limited) {
           this.position.height = 165;
         }
-        // we need to update all specialization talents with the latest talent information
+        // Refresh specialization talents once, when the actor sheet first prepares them.
         if (!this.actor.flags.starwarsffg?.loaded && this.actor.type !== "rival") {
-          // TODO: is this actually needed?
           await this._updateSpecialization(data);
           await this.object._prepareCharacterData(data);
         }
@@ -411,7 +410,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     data.actor.items = ActorSheetFFG.sortForActorSheet(data.actor.items);
     data.disabled = !this._manualEditMode;
 
-    data.modTypeSelected = "all"; // TODO: should this be something else?
+    data.modTypeSelected = "all";
     data.modifierTypes = CONFIG.FFG.allowableModifierTypes;
     data.modifierChoices = CONFIG.FFG.allowableModifierChoices;
 

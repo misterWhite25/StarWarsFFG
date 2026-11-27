@@ -379,7 +379,9 @@ async function show() {
     throw error;
   }
 }
-const refresh = renderScheduler({isOpen:()=>!!app&&!app._refreshClosing&&(app.rendered||app.state===foundry.applications.api.ApplicationV2.RENDER_STATES.RENDERING),render:()=>app.render(),onError:report});
+const mapIsOpen = () => !!app && !app._refreshClosing &&
+  (app.rendered || app.state === foundry.applications.api.ApplicationV2.RENDER_STATES.RENDERING);
+const refresh = renderScheduler({isOpen:mapIsOpen,render:()=>app.render(),onError:report});
 const sharing = registerSharing({
   show, hide: () => app?.rendered && app.close({fromSession:true}), refresh, report
 });
@@ -422,9 +424,12 @@ Hooks.on("canvasReady",()=>{
   if(app?.rendered&&hasCombatSceneReturn()&&!canvas.scene?.getFlag("starwarsffg","spaceCombatScene"))app.close().catch(report);
 });
 Hooks.on("ffgSpaceCombatControlsReady",refresh);
-for(const hook of ["createActor","deleteActor","updateActor"])Hooks.on(hook,actor=>{if(actorAffectsSpaceCombat(board(),actor))refresh();});
-for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant"])Hooks.on(hook,document=>{if(combatAffectsSpaceCombat(board(),document))refresh();});
-Hooks.on("updateUser",(_user,changes)=>{if(changes.role!==undefined||changes.character!==undefined)refresh();});
-for(const hook of ["createItem","updateItem","deleteItem"])Hooks.on(hook,item=>{
-  if(actorAffectsSpaceCombat(board(),item.parent))refresh();
+function refreshForActor(actor) {
+  if (mapIsOpen() && actorAffectsSpaceCombat(board(), actor)) refresh();
+}
+for(const hook of ["createActor","deleteActor","updateActor"]) Hooks.on(hook,refreshForActor);
+for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant"]) Hooks.on(hook,document=>{
+  if (mapIsOpen() && combatAffectsSpaceCombat(board(), document)) refresh();
 });
+Hooks.on("updateUser",(_user,changes)=>{if(changes.role!==undefined||changes.character!==undefined)refresh();});
+for(const hook of ["createItem","updateItem","deleteItem"]) Hooks.on(hook,item=>refreshForActor(item.parent));

@@ -150,9 +150,7 @@ export default class ImportHelpers {
    * @returns {object} - Entity Object Data
    */
   static findEntityByImportId(type, id) {
-    return game.data[type].find((item) => {
-      return item.flags.starwarsffg.ffgimportid === id;
-    });
+    return game[type].find(item => item.flags?.starwarsffg?.ffgimportid === id);
   }
 
   /**
@@ -1225,8 +1223,8 @@ export default class ImportHelpers {
       if(comForceAbility)
       {
         let force = JSON.parse(JSON.stringify(comForceAbility));
-        // Just add all upgrades since there's no good way of mapping the NPC upgrades to their Character-sheet Counterparts
-        // todo : find a solution to this known issue.
+        // Adversary exports do not identify the corresponding nodes in the character upgrade tree.
+        // Import the full tree as learned, as described in the generated import notes.
         Object.keys(force.data.upgrades).forEach((key) => {
           force.data.upgrades[key].islearned = true;
         });
@@ -2450,7 +2448,7 @@ export default class ImportHelpers {
         folder: compendiumFolder.id,
       });
       return game.packs.get(searchName);
-    } else {
+    } else if (pack.locked) {
       await pack.configure({locked: false});
     }
 
@@ -2572,13 +2570,16 @@ export default class ImportHelpers {
     return parentFolder;
   }
 
+  static attributeKey() {
+    return `attr${foundry.utils.randomID()}`;
+  }
+
   static processCharacteristicMod(mod) {
-    const nk = new Date().getTime();
     const modtype = "Characteristic";
     const type = ImportHelpers.convertOGCharacteristic(mod.Key);
 
     return {
-      type: `attr${nk}`,
+      type: ImportHelpers.attributeKey(),
       value: {
         mod: type,
         modtype,
@@ -2646,13 +2647,11 @@ export default class ImportHelpers {
       if (mod.Key) {
         let skill = CONFIG.temporary.skills[mod.Key];
 
-        if (skill.includes(":") && !skill.includes(": ")) {
+        if (skill?.includes(":") && !skill.includes(": ")) {
           skill = skill.replace(":", ": ");
         }
 
-        if (Object.keys(CONFIG.FFG.skills).includes(skill)) {
-          type = CONFIG.temporary.skills[mod.Key];
-        }
+        if (skill && Object.hasOwn(CONFIG.FFG.skills, skill)) type = skill;
       } else if (mod?.Skill) {
         type = mod.Skill;
       }
@@ -2663,62 +2662,28 @@ export default class ImportHelpers {
   }
 
   static async processDieMod(mod) {
-    if (!Array.isArray(mod.DieModifier)) {
-      mod.DieModifier = [mod.DieModifier];
-    }
-
-    let output = {
-      attributes: {},
-    };
-
-    await ImportHelpers.asyncForEach(mod.DieModifier, async (dieMod) => {
-      const key = `attr${new Date().getTime()}`;
-      // ensure further keys have a new entry
-      await new Promise(r => setTimeout(r, 1));
-      if (!dieMod) {
-        return;
-      } else if (dieMod.SkillKey) {
-        // this is a skill modifier
-        const skillModifier = ImportHelpers.processSkillMod({ Key: dieMod.SkillKey, ...dieMod });
-        output.attributes[key] = skillModifier.value;
-      } else if (dieMod.SkillChar) {
-        // this is a skill modifier based on characteristic (ex all Brawn skills);
-        const skillTheme = await game.settings.get("starwarsffg", "skilltheme");
-        const allSkillsLists = await game.settings.get("starwarsffg", "arraySkillList");
-        const skills = allSkillsLists.find((i) => i.id === skillTheme).skills;
-        const characteristicSkills = Object.keys(skills).filter((s) => skills[s].characteristic === ImportHelpers.convertOGCharacteristic(dieMod.SkillChar));
-
-        characteristicSkills.forEach((cs) => {
-          const skillModifier = ImportHelpers.processSkillMod({ Skill: cs, ...dieMod });
-
-          if (output.attributes[key]) {
-            output.attributes[key].value += skillModifier.value.value;
-          } else {
-            output.attributes[key] = skillModifier.value;
-          }
-        });
-      } else if (dieMod.SkillType) {
-        const skillTheme = await game.settings.get("starwarsffg", "skilltheme");
-        const allSkillsLists = await game.settings.get("starwarsffg", "arraySkillList");
-        const skills = allSkillsLists.find((i) => i.id === skillTheme).skills;
-        const characteristicSkills = Object.keys(skills).filter((s) => skills[s].type.toLowerCase() === dieMod.SkillType.toLowerCase());
-
-        characteristicSkills.forEach((cs) => {
-          const skillModifier = ImportHelpers.processSkillMod({ Skill: cs, ...dieMod });
-
-          if (output.attributes[key]) {
-            output.attributes[key].value += skillModifier.value.value;
-          } else {
-            output.attributes[key] = skillModifier.value;
-          }
-        });
+    const attributes = {};
+    let themeSkills;
+    const modifiers = Array.isArray(mod.DieModifier) ? mod.DieModifier : [mod.DieModifier];
+    for (const dieMod of modifiers) {
+      if (!dieMod) continue;
+      if (!dieMod.SkillKey && (dieMod.SkillChar || dieMod.SkillType)) {
+        if (!themeSkills) {
+          const theme = game.settings.get("starwarsffg", "skilltheme");
+          themeSkills = Object.entries(CONFIG.FFG.alternateskilllists.find(list => list.id === theme)?.skills ?? {});
+        }
+        const characteristic = ImportHelpers.convertOGCharacteristic(dieMod.SkillChar);
+        const skillType = dieMod.SkillType?.toLowerCase();
+        for (const [skill, definition] of themeSkills) {
+          const matches = dieMod.SkillChar ? definition.characteristic === characteristic : definition.type?.toLowerCase() === skillType;
+          if (matches) attributes[ImportHelpers.attributeKey()] = ImportHelpers.processSkillMod({...dieMod, Skill: skill}).value;
+        }
       } else {
-        const skillModifier = ImportHelpers.processSkillMod({ Key: dieMod.SkillKey, ...dieMod }, true);
-        output.attributes[key] = skillModifier.value;
+        const modifier = ImportHelpers.processSkillMod({Key: dieMod.SkillKey, ...dieMod}, !dieMod.SkillKey);
+        if (modifier) attributes[ImportHelpers.attributeKey()] = modifier.value;
       }
-    });
-
-    return output;
+    }
+    return {attributes};
   }
 
   static async processModsData(modifiersData) {
@@ -2827,10 +2792,9 @@ export default class ImportHelpers {
   }
 
   static async processDiceMods(obj) {
-    const nk = new Date().getTime();
     if (obj.Key === "BOOSTADD" || obj.Key === "ACCURATE") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Roll Modifiers",
           mod: "Add Boost",
           value: '1',
@@ -2838,7 +2802,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "INACCURATE" || obj.Key === "SETBACKADD") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Roll Modifiers",
           mod: "Add Setback",
           value: '1',
@@ -2846,7 +2810,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "SUCCADD") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Result Modifiers",
           mod: "Add Success",
           value: '1',
@@ -2854,7 +2818,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "THRADD") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Result Modifiers",
           mod: "Add Threat",
           value: '1',
@@ -2862,7 +2826,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "UPGRADEDIFF") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Dice Modifiers",
           mod: "Upgrade Difficulty",
           value: '1',
@@ -2906,12 +2870,7 @@ export default class ImportHelpers {
           }
         }
 
-        const key = `attr${new Date().getTime()}`;
-        if (type) {
-          attributes[key] = { mod: type, modtype, value };
-        }
-        // ensure further keys have a new entry
-        await new Promise(r => setTimeout(r, 1));
+        if (type) attributes[ImportHelpers.attributeKey()] = { mod: type, modtype, value };
       }
     }
 
@@ -2919,40 +2878,21 @@ export default class ImportHelpers {
   }
 
   static async processCareerSkills(skills, includeRank) {
-    let attributes = {};
-    if (skills?.Key) {
-      if (!Array.isArray(skills.Key)) {
-        skills.Key = [skills.Key];
+    const attributes = {};
+    const keys = skills?.Key;
+    for (const key of Array.isArray(keys) ? keys : keys ? [keys] : []) {
+      const name = CONFIG.temporary.skills[key];
+      if (!name) {
+        CONFIG.logger.warn(`Skill ${key} was not found in the current skills list.`);
+        continue;
       }
-
-      for (const skill of skills.Key) {
-        let mod = CONFIG.temporary.skills[skill];
-        if (mod) {
-          if (mod.includes(":") && !mod.includes(": ")) {
-            mod = mod.replace(":", ": ");
-          }
-
-          if (Object.keys(CONFIG.FFG.skills).includes(mod)) {
-            const key = `attr${new Date().getTime()}`;
-            // ensure further keys have a new entry
-            await new Promise(r => setTimeout(r, 1));
-            if (mod) {
-              const modtype = "Career Skill";
-              attributes[key] = { mod, modtype, value: true };
-
-              if (includeRank) {
-                attributes[key] = { mod, modtype: "Skill Rank", value: 0 };
-              }
-            } else {
-              CONFIG.logger.warn(`Skill ${skill} was not found in the current skills list.`);
-            }
-          }
-        } else {
-          CONFIG.logger.warn(`Skill ${skill} was not found in the current skills list.`);
-        }
+      const mod = name.includes(":") && !name.includes(": ") ? name.replace(":", ": ") : name;
+      if (Object.hasOwn(CONFIG.FFG.skills, mod)) {
+        attributes[ImportHelpers.attributeKey()] = includeRank
+          ? { mod, modtype: "Skill Rank", value: 0 }
+          : { mod, modtype: "Career Skill", value: true };
       }
     }
-
     return attributes;
   }
 

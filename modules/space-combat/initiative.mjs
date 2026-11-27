@@ -73,9 +73,9 @@ export function synchronizeInitiative(state,context=initiativeContext()) {
     if(previous?.combatId===combatId) {
       Object.assign(ship,{startSpeed:ship.speed,destination:{x:ship.x,y:ship.y},desiredHeading:ship.heading,turn:0,movementSpent:0,movementTurnSpent:0});
       advanceCombatRound(ship,round-1);
-    }
-    else if(previous)ship=endShipCombat(ship);
-    else if(ship.combat) {
+    } else if(previous) {
+      return {...endShipCombat(ship),version:version+1};
+    } else if(ship.combat) {
       for(const turn of Object.values(ship.combat.turns??{}))turn.round=round;
       for(const effect of ship.combat.effects??[])if(Number.isFinite(effect.expiresRound))effect.expiresRound+=round-oldRound;
       ship.combat.reservations={};

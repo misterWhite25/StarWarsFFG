@@ -6,8 +6,8 @@ const campLabel = key => game.i18n.localize('SWFFG.Combats.Camp.' + key);
 let queue=Promise.resolve();
 const serial=fn=>{const next=queue.catch(()=>{}).then(fn);queue=next;return next;};
 export function npcDisposition(entry){return Number(entry.token?.disposition??entry.participant?.token?.disposition??entry.actor?.prototypeToken?.disposition??0);}
-export function npcCampInfo(entry,{player=null}={}){
-  if(player===null)player=globalThis.game?.users?.some(user=>!user.isGM&&user.character&&(user.character.uuid===entry.actor?.uuid||entry.actor?.type==='character'&&user.character.id===entry.actor.id))??false;
+export function npcCampInfo(entry,{player:playerOverride=null}={}){
+  const player=playerOverride??globalThis.game?.users?.some(user=>!user.isGM&&user.character&&(user.character.uuid===entry.actor?.uuid||entry.actor?.type==='character'&&user.character.id===entry.actor.id))??false;
   const value=npcDisposition(entry),key=value===1?'friendly':value===-1?'hostile':value===-2?'secret':'neutral';
   const label = campLabel({friendly: player ? 'AlliedPC' : 'AlliedNPC', hostile: player ? 'OpposingPC' : 'Enemy', secret: 'Secret', neutral: 'Neutral'}[key]);
   return {value,key,label};

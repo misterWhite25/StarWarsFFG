@@ -14,12 +14,15 @@ const active=(vehicle,id)=>(vehicle?.flags?.[scope]?.crew??[]).some(member=>memb
 export function integratedCrewProfiles(vehicle){if(npcVehicle(vehicle))return Object.values(vehicle.flags.starwarsffg.npcVehicle.stations);return Object.values(vehicle?.flags?.[scope]?.[flag]?.profiles??{}).filter(profile=>active(vehicle,profile.id));}
 export function integratedCrewVehicle(actor){return actor?._integratedCrew?.vehicle??null;}
 export function integratedCrewGroupSignature(actor){const vehicle=integratedCrewVehicle(actor);if(!vehicle)return null;const group=vehicleMinionGroup(vehicle);return JSON.stringify([group.enabled,group.count,group.alive,group.hullPerVehicle]);}
-function findProfile(value,vehicle){
+function findProfile(value,fallbackVehicle){
   const id=typeof value==='string'?value:value?.actor_id??value?.actorId??value?.id;
   if(!id)return null;
-  if(value?.vehicle_id)vehicle=game.actors.get(value.vehicle_id)??vehicle;
+  const vehicle=(value?.vehicle_id ? game.actors.get(value.vehicle_id) : null)??fallbackVehicle;
   const match=String(id).match(/^Actor\.([^.]+)\.Crew\.([^.]+)(?:\.|$)/);
-  if(match){vehicle=game.actors.get(match[1]);return vehicle&&active(vehicle,match[2])&&vehicle.flags?.[scope]?.[flag]?.profiles?.[match[2]]?{vehicle,profile:vehicle.flags[scope][flag].profiles[match[2]]}:null;}
+  if(match){
+    const target=game.actors.get(match[1]),profile=target?.flags?.[scope]?.[flag]?.profiles?.[match[2]];
+    return profile&&active(target,match[2])?{vehicle:target,profile}:null;
+  }
   if(active(vehicle,id)&&vehicle?.flags?.[scope]?.[flag]?.profiles?.[id])return {vehicle,profile:vehicle.flags[scope][flag].profiles[id]};
   for(const candidate of game.actors??[])if(candidate.type==='vehicle'&&active(candidate,id)&&candidate.flags?.[scope]?.[flag]?.profiles?.[id])return {vehicle:candidate,profile:candidate.flags[scope][flag].profiles[id]};
   return null;
@@ -77,14 +80,14 @@ function makeActor(vehicle,profile){
   actor.prepareData();bindEmbedded(actor);return actor;
 }
 /** Resolve normal actors and persistent, fully prepared NPC profiles stored inside a vehicle. */
-export function resolveCrewActor(value,vehicle=null){
+export function resolveCrewActor(value,vehicleHint=null){
   if(value?.documentName==='Actor')return value;
   if(value?.tokenUuid)return globalThis.fromUuidSync?.(value.tokenUuid)?.actor??null;
   const id=typeof value==='string'?value:value?.actor_id??value?.actorId??value?.id;
-  const npc=npcStationActor(value,vehicle);if(npc)return npc;
+  const npc=npcStationActor(value,vehicleHint);if(npc)return npc;
   const world=game.actors?.get(id);if(world)return world;
-  const match=findProfile(value,vehicle);if(!match)return null;
-  const {profile}=match;vehicle=match.vehicle;const key=vehicle.uuid+':'+profile.id;
+  const match=findProfile(value,vehicleHint);if(!match)return null;
+  const {profile,vehicle}=match;const key=vehicle.uuid+':'+profile.id;
   const signature=JSON.stringify([profile,vehicle.flags?.[scope]?.vehicleMinionGroup,vehicle.system?.stats?.hullTrauma]);
   const existing=cache.get(key);if(existing){if(existing.signature!==signature)hydrateActor(existing.actor,vehicle,profile);return existing.actor;}
   const actor=makeActor(vehicle,profile);cache.set(key,{actor,signature});return actor;

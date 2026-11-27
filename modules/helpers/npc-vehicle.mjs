@@ -90,21 +90,24 @@ export function copyNpcVehicle(vehicle){
   for(const id of Object.keys(config.stations))stations['-='+id]=null;
   return {['flags.'+scope+'.npcVehicle.stations']:stations,['flags.'+scope+'.npcVehicle.stationAliases']:Object.fromEntries(Object.entries(config.stationAliases??{}).map(([old,target])=>[old,ids.get(target)??target])),['flags.'+scope+'.crew']:crew,['flags.'+scope+'.vehicleDeck.passengers']:passengers,['flags.'+scope+'.vehicleDeck.positions']:positions};
 }
-function locate(value,vehicle){
+function locate(value,vehicleHint){
   let id=typeof value==='string'?value:value?.actor_id??value?.actorId??value?.id;
   const match=String(id??'').match(/^(.*)\.NpcStation\.([^.]+)$/);
-  if(match){vehicle=globalThis.fromUuidSync?.(match[1]);id=match[2];}
-  if(!vehicle&&value?.vehicle_uuid)vehicle=globalThis.fromUuidSync?.(value.vehicle_uuid);
-  if(!vehicle&&value?.vehicle_id)vehicle=game.actors.get(value.vehicle_id);
+  const vehicleReference=match ? globalThis.fromUuidSync?.(match[1]) : vehicleHint;
+  const vehicle=vehicleReference
+    || (value?.vehicle_uuid && globalThis.fromUuidSync?.(value.vehicle_uuid))
+    || (value?.vehicle_id && game.actors.get(value.vehicle_id));
+  if(match)id=match[2];
   if(vehicle&&npcVehicle(vehicle)){const config=vehicle.flags[scope].npcVehicle;id=config.stationAliases?.[id]??id;if(config.stations[id])return {vehicle,id};}
   if(vehicle)return null;
   for(const candidate of game.actors??[])if(npcVehicle(candidate)){const config=candidate.flags[scope].npcVehicle,found=config.stationAliases?.[id]??id;if(config.stations[found])return {vehicle:candidate,id:found};}
   return null;
 }
 /** A small skill account, never a native Actor document or a hidden character sheet. */
-export function npcStationActor(value,vehicle=null){
-  const found=locate(value,vehicle);if(!found)return null;
-  vehicle=found.vehicle;const id=found.id,post=vehicle.flags[scope].npcVehicle.stations[id],config=vehicle.flags[scope].npcVehicle;
+export function npcStationActor(value,vehicleHint=null){
+  const found=locate(value,vehicleHint);if(!found)return null;
+  const {vehicle,id}=found;
+  const config=vehicle.flags[scope].npcVehicle,post=config.stations[id];
   const skills={},characteristics={Agility:{value:2},Intellect:{value:2},Presence:{value:2},Willpower:{value:2}};
   for(const [key,pool]of Object.entries({...initiativeDefaults(),...post.skills})){
     const group=vehicleGroupSkillRank(vehicle,key,{groupskill:config.type==='minion'&&pool.rank>0}),rank=config.type==='minion'?group??0:pool.rank;

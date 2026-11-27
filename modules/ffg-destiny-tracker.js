@@ -194,10 +194,10 @@ export default class DestinyTracker extends FormApplicationV2 {
     const element = this.element;
     const handle = element.querySelector(".destiny-drag-handle");
     const key = `starwarsffg.destiny-position.${game.world.id}.${game.user.id}`;
-    const place = ({ left, top }) => {
+    const place = ({ left: requestedLeft, top: requestedTop }) => {
       const bounds = element.getBoundingClientRect();
-      left = Math.max(0, Math.min(left, window.innerWidth - bounds.width));
-      top = Math.max(0, Math.min(top, window.innerHeight - bounds.height));
+      const left = Math.max(0, Math.min(requestedLeft, window.innerWidth - bounds.width));
+      const top = Math.max(0, Math.min(requestedTop, window.innerHeight - bounds.height));
       Object.assign(element.style, { left: `${left}px`, top: `${top}px`, bottom: "auto", right: "auto" });
       return { left, top };
     };

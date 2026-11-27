@@ -396,3 +396,61 @@ test('runtime: skill previews use one actor sheet context per render', async ({p
     expect(result.hasDice).toBe(true);
   }
 });
+
+test('runtime: ground range labels follow the token through pans, zooms and range changes', {tag: '@canvas'}, async ({page}) => {
+  await page.waitForFunction(() => canvas.initialized && !canvas.loading && (!game.scenes.current || canvas.ready));
+  const result = await page.evaluate(async () => {
+    const {setGroundRangeOverlay, clearGroundRangeOverlay} = await import('/systems/starwarsffg/modules/helpers/ground-range-overlay.mjs');
+    const oldMode = game.settings.get('starwarsffg', 'enableBattlemapMovement');
+    const oldRanges = game.settings.get('starwarsffg', 'groundRangeDistances');
+    const oldScene = game.scenes.current;
+    const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    let scene, actor;
+    try {
+      await game.settings.set('starwarsffg', 'enableBattlemapMovement', true);
+      await game.settings.set('starwarsffg', 'groundRangeDistances', {contact: 1, short: 2, medium: 4, long: 6, extreme: 8});
+      actor = await Actor.create({name:'Runtime range token', type:'minion'}, {renderSheet:false});
+      scene = await Scene.create({name:'Runtime ground ranges', active:false, width:1600, height:1600, grid:{type:1, size:100, distance:1, units:'m'},
+        flags:{starwarsffg:{groundMovement:{mode:'battlemap'}}},
+        tokens:[{name:actor.name, actorId:actor.id, actorLink:true, x:600, y:600}]});
+      await scene.view();
+      const token = scene.tokens.contents[0];
+      setGroundRangeOverlay({token}, token, true);
+      await nextFrame();
+      const overlay = () => canvas.interface.children.find(child => child.name === 'ffg-ground-range-overlay');
+      const labels = () => overlay().children.flatMap(child => child.visible ? child.children.filter(text => text instanceof PIXI.Text) : []);
+      const first = labels();
+      const pixelPositions = () => labels().every(label => {
+        const screen = label.getGlobalPosition();
+        return Math.abs(screen.x - Math.round(screen.x)) < .001 && Math.abs(screen.y - Math.round(screen.y)) < .001;
+      });
+      canvas.pan({x:740, y:720, scale:1.25});
+      await nextFrame();
+      const zoom = canvas.stage.scale.x;
+      const readable = pixelPositions() && labels().every(label => Math.abs(label.parent.scale.x * zoom - 1) < .001);
+      canvas.pan({x:660, y:680, scale:zoom});
+      await nextFrame();
+      const afterPan = pixelPositions();
+      await token.update({x:800, y:900}, {animate:false});
+      await nextFrame();
+      const center = token.object.center;
+      const followed = overlay().ffgCenter.x === center.x && overlay().ffgCenter.y === center.y;
+      const retained = first.length === 4 && first.every((label, i) => labels()[i] === label);
+      await game.settings.set('starwarsffg', 'groundRangeDistances', {contact:1, short:3, medium:4, long:6, extreme:10000});
+      await nextFrame();
+      const ranges = overlay().ffgRanges.map(({distance, radiusPixels}) => [distance, radiusPixels]);
+      const visibleLabels = labels().length;
+      clearGroundRangeOverlay();
+      return {readable, afterPan, followed, retained, ranges, visibleLabels, removed:!overlay(), released:first.every(label => label.destroyed)};
+    } finally {
+      clearGroundRangeOverlay();
+      if (oldScene) await oldScene.view();
+      await scene?.delete();
+      await actor?.delete();
+      await game.settings.set('starwarsffg', 'groundRangeDistances', oldRanges);
+      await game.settings.set('starwarsffg', 'enableBattlemapMovement', oldMode);
+    }
+  });
+  expect(result).toEqual({readable:true, afterPan:true, followed:true, retained:true,
+    ranges:[[3,300],[4,400],[6,600]], visibleLabels:3, removed:true, released:true});
+});

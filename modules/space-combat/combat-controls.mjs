@@ -81,7 +81,7 @@ export function renderCombatControls(ship,report,{targetId,onTarget,onFly}={}) {
     });
   };
   const personalPerformer=candidates=>[...candidates].sort((a,b)=>maneuverCost(ship,a.actor_id,board().round).personal-maneuverCost(ship,b.actor_id,board().round).personal)[0];
-  const perform=async(id,extra={})=>{
+  const perform=async(id,options={})=>{
     if(pending.has(ship.id))return;
     pending.add(ship.id);
     section.querySelectorAll("button").forEach(button=>button.disabled=true);
@@ -101,6 +101,7 @@ export function renderCombatControls(ship,report,{targetId,onTarget,onFly}={}) {
         return;
       }
       const automaticManeuver=maneuver ? personalPerformer(candidates) : null;
+      let extra=options;
       let member;
       if(id==="shields") {
         if(!automaticManeuver)return;
@@ -124,12 +125,12 @@ export function renderCombatControls(ship,report,{targetId,onTarget,onFly}={}) {
         await onFly(member);return;
       }
       if(id==="speed") {
-        const options=[];
-        if(current.speed<current.maxSpeed)options.push({action:"accelerate",label:localizeSystem("SWFFG.UI.SpaceCombat.AccelerateOne"),callback:()=>1});
-        if(current.speed>0)options.push({action:"decelerate",label:localizeSystem("SWFFG.UI.SpaceCombat.DecelerateOne"),callback:()=>-1});
+        const speedOptions=[];
+        if(current.speed<current.maxSpeed)speedOptions.push({action:"accelerate",label:localizeSystem("SWFFG.UI.SpaceCombat.AccelerateOne"),callback:()=>1});
+        if(current.speed>0)speedOptions.push({action:"decelerate",label:localizeSystem("SWFFG.UI.SpaceCombat.DecelerateOne"),callback:()=>-1});
         const delta=await foundry.applications.api.DialogV2.wait({window:{title:localizeSystem("SWFFG.UI.SpaceCombat.Speed")},
           content:`<p>${localizeSystem("SWFFG.UI.SpaceCombat.CurrentSpeed")} `+current.speed+" / "+current.maxSpeed+".</p>",rejectClose:false,
-          buttons:[...options,{action:"cancel",label:localizeSystem("SWFFG.Cancel"),callback:()=>null}]});
+          buttons:[...speedOptions,{action:"cancel",label:localizeSystem("SWFFG.Cancel"),callback:()=>null}]});
         if(delta!==1&&delta!==-1)return;
         extra={...extra,speedDelta:delta};
       }

@@ -273,7 +273,6 @@ export class itemEditor extends FormApplicationV2  {
    * @param event "change" event
    */
   async _updateDropdown(event) {
-    // TODO: I think the handlebars select helper can be used here, basically to remove most of this function
     let new_value = event.currentTarget.value;
     let dropdown = event.currentTarget.getAttribute('data-type');
 

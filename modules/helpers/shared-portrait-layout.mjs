@@ -4,8 +4,8 @@ export const PORTRAIT_SIZES={auto:null,small:100,medium:140,large:180,xlarge:220
 /** Fit all portraits into an edge band, keeping the preferred size whenever
  * possible. Extra rows/columns and smaller cards are chosen locally, so a
  * participant with a smaller screen still sees the same cast in the same order. */
-export function fitPortraitGrid({count,width,height,position='right',size='auto'}){
-  width=Math.max(1,width);height=Math.max(1,height);
+export function fitPortraitGrid({count,width:viewportWidth,height:viewportHeight,position='right',size='auto'}){
+  const width=Math.max(1,viewportWidth),height=Math.max(1,viewportHeight);
   if(!count)return {columns:0,rows:0,width:0,height:0,cardWidth:0,cardHeight:0,gap:0};
   const horizontal=['top','bottom'].includes(position);
   const target=PORTRAIT_SIZES[size]??Math.max(100,Math.min(170,Math.min(width*.16,height*.24)));
