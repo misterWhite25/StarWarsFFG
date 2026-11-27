@@ -1,7 +1,8 @@
+import {localizeSystem} from "./system-localization.mjs";
 const scope='starwarsffg';
 export function npcTurnReason(entry){
-  if(!game.user.isGM)return 'Cette commande est réservée au MJ.';
-  if(!entry?.actor)return 'Ce personnage n’existe plus.';
+  if(!game.user.isGM)return localizeSystem("SWFFG.UI.Operations.GMCommandOnly");
+  if(!entry?.actor)return localizeSystem("SWFFG.UI.Operations.CharacterMissing");
   return '';
 }
 export async function reserveNpcAction(entry){

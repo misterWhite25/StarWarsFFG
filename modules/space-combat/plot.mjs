@@ -1,3 +1,4 @@
+import {localizeSystem} from "../helpers/system-localization.mjs";
 import {reconcileSvg,reconcileSvgChildren} from './svg-reconcile.mjs';
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 import { previewFlight, rangeBetween, tokenDiameter,movementRadius } from "./flight.mjs";
@@ -11,7 +12,7 @@ const NS = "http://www.w3.org/2000/svg";
 const plots = new WeakMap();
 let nextId = 0;
 let resizer;
-const format = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
+const format = value => Number(value).toLocaleString(game.i18n?.lang, {maximumFractionDigits: 1});
 
 function element(tag, attributes = {}, content) {
   const node = document.createElementNS(NS, tag);
@@ -77,11 +78,11 @@ function paintCourse(root, ship, frame) {
     points:hexPoints((cell.x-destination.x)*frame.scale,-(cell.y-destination.y)*frame.scale,frame.scale*.95),
     fill:"#72ebe0","fill-opacity":.08,stroke:"#79efe7","stroke-opacity":.7,"stroke-width":1.2,"stroke-dasharray":"4 4"
   }));
-  end.append(element("title", {}, "Position après validation du pilote"),
+  end.append(element("title", {}, localizeSystem("SWFFG.UI.SpaceCombat.ConfirmedPilotPosition")),
     element("path", { d: "M0 -10 L7 7 L0 4 L-7 7 Z",transform:`rotate(${90-plan.end.heading})` }));
   if(plan.distance) {
     const bottom=Math.max(...cells.map(cell=>(destination.y-cell.y+1/Math.sqrt(3))*frame.scale));
-    end.append(label(0,bottom+16,"Arrivée prévue","sc-destination-label","#a4fff0"));
+    end.append(label(0,bottom+16,localizeSystem("SWFFG.UI.SpaceCombat.ExpectedArrival"),"sc-destination-label","#a4fff0"));
   }
   root.append(end);
 }
@@ -93,7 +94,7 @@ function paintRuler(root, from, to, frame) {
   const group = element("g", { class: "sc-measure", "pointer-events": "none" });
   group.append(element("line", { x1, y1, x2, y2, stroke: "#edc477", "stroke-width": 1.5,
     "stroke-dasharray": "3 5" }), label((x1 + x2) / 2, (y1 + y2) / 2 - 8,
-    format.format(measure.distance) + " u · " + measure.band, "sc-range-label", "#ffe6b1"));
+    format(measure.distance) + " u · " + measure.band, "sc-range-label", "#ffe6b1"));
   root.append(group);
 }
 
@@ -121,26 +122,26 @@ function paintRangeKey(root,ship,ranges,frame) {
   const key=element("g",{class:"sc-range-key",transform:`translate(${Math.max(8,frame.width-width-12)} 12)`,"pointer-events":"none"});
   key.append(element("rect",{width,height,rx:5,fill:"#10232e","fill-opacity":.95,stroke:"#536974","stroke-width":1}));
   const name=ship.name.length>27?ship.name.slice(0,26)+"…":ship.name;
-  key.append(element("title",{},"Portées de "+ship.name),element("text",{x:10,y:19,fill:"#e1f3f4","font-size":12,"font-weight":650},name));
+  key.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.RangeOf", {name:ship.name})),element("text",{x:10,y:19,fill:"#e1f3f4","font-size":12,"font-weight":650},name));
   for(const band of ranges.bands) {
     const y=40+band.index*16;
     key.append(element("circle",{cx:13,cy:y-4,r:3,fill:band.color}),element("text",{
       x:23,y,fill:band.color,"font-size":11,"font-weight":band.weaponLimit?700:500
     },band.label+" "+(band.limit===null?"≥ "+ranges.bands[band.index-1].limit:"< "+band.limit)+" u"));
   }
-  key.append(element("text",{x:10,y:126,fill:"#bde8d8","font-size":11},"Armes : "+(ranges.weaponRange??"non renseignées")),
-    element("text",{x:10,y:145,fill:"#afc2cb","font-size":10},"✓ À portée selon la distance"));
-  if(ranges.usesAltitude)key.append(element("text",{x:10,y:162,fill:"#afc2cb","font-size":10},"Anneaux à altitude égale · cibles en 3D"));
+  key.append(element("text",{x:10,y:126,fill:"#bde8d8","font-size":11},localizeSystem("SWFFG.UI.SpaceCombat.WeaponRange", {range:ranges.weaponRange??localizeSystem("SWFFG.UI.SpaceCombat.NotSpecified")})),
+    element("text",{x:10,y:145,fill:"#afc2cb","font-size":10},localizeSystem("SWFFG.UI.SpaceCombat.WithinDistance")));
+  if(ranges.usesAltitude)key.append(element("text",{x:10,y:162,fill:"#afc2cb","font-size":10},localizeSystem("SWFFG.UI.SpaceCombat.EqualAltitude")));
   root.append(key);
 }
 function paintRangeTarget(group,range,radius,hasWeapons) {
   const color=range.inRange?"#8fe0c5":range.color;
   const text=range.band+(range.inRange?" ✓":"");
   const width=Math.max(52,text.length*6.2+14),y=-radius-26;
-  const indicator=element("g",{class:"sc-range-target","data-range-band":range.band,"data-in-range":range.inRange,
+  const indicator=element("g",{class:"sc-range-target","data-range-band":range.bandKey,"data-in-range":range.inRange,
     "data-range-distance":range.distance,"pointer-events":"none"});
-  const description=range.inRange?"À portée de "+range.weapons.join(", ")+" selon la distance.":hasWeapons?"Hors de portée des armes selon la distance.":"Portée des armes non renseignée.";
-  indicator.append(element("title",{},range.band+" · "+range.distance.toLocaleString("fr-FR",{maximumFractionDigits:3})+" u. "+description),
+  const description=range.inRange?localizeSystem("SWFFG.UI.SpaceCombat.InWeaponRange", {weapons:range.weapons.join(", ")}):hasWeapons?localizeSystem("SWFFG.UI.SpaceCombat.OutsideWeaponRange"):localizeSystem("SWFFG.UI.SpaceCombat.WeaponRangeUnknown");
+  indicator.append(element("title",{},range.band+" · "+range.distance.toLocaleString(game.i18n?.lang,{maximumFractionDigits:3})+" u. "+description),
     element("circle",{r:radius+3,fill:"none",stroke:color,"stroke-width":range.inRange?2:1.2,"stroke-opacity":range.inRange?.9:.5,
       "stroke-dasharray":range.inRange?"none":"3 4"}),
     element("rect",{x:-width/2,y:y-11,width,height:18,rx:4,fill:"#0d202a","fill-opacity":.96,stroke:color,"stroke-width":1}));
@@ -151,8 +152,8 @@ function paintRangeButton(root,ship,frame,active) {
   const center=nearestHex(ship),radius=(ship.silhouette<5?.86:tokenDiameter(ship.silhouette))*frame.scale/2;
   const button=element("g",{class:"sc-token-ranges"+(active?" is-active":""),"data-range-ship":ship.id,
     transform:`translate(${frame.x(center.x)+radius+13} ${frame.y(center.y)-Math.max(18,radius*.65)})`,
-    role:"button",tabindex:0,"aria-pressed":active,"aria-label":(active?"Masquer":"Afficher")+" les portées de "+ship.name,cursor:"pointer"});
-  button.append(element("title",{},(active?"Masquer":"Afficher")+" les portées de "+ship.name),
+    role:"button",tabindex:0,"aria-pressed":active,"aria-label":localizeSystem(active?"SWFFG.UI.SpaceCombat.HideRange":"SWFFG.UI.SpaceCombat.ShowRange", {name:ship.name}),cursor:"pointer"});
+  button.append(element("title",{},localizeSystem(active?"SWFFG.UI.SpaceCombat.HideRange":"SWFFG.UI.SpaceCombat.ShowRange", {name:ship.name})),
     element("circle",{class:"sc-range-button-face",r:12,fill:active?"#24534d":"#102733",stroke:active?"#8fe0c5":"#91afc7","stroke-width":1.4}),
     element("circle",{r:7,fill:"none",stroke:"#ddf0f1","stroke-width":1,"pointer-events":"none"}),
     element("circle",{r:3.5,fill:"none",stroke:"#ddf0f1","stroke-width":1,"pointer-events":"none"}),
@@ -164,8 +165,8 @@ function paintFrontButton(root,ship,frame) {
   const center=nearestHex(ship),radius=(ship.silhouette<5?.86:tokenDiameter(ship.silhouette))*frame.scale/2;
   const button=element("g",{class:"sc-token-front","data-front-ship":ship.id,
     transform:`translate(${frame.x(center.x)+radius+13} ${frame.y(center.y)-Math.max(18,radius*.65)-28})`,
-    role:"button",tabindex:0,"aria-label":"Mettre "+ship.name+" au premier plan",cursor:"pointer"});
-  button.append(element("title",{},"Mettre au premier plan"),
+    role:"button",tabindex:0,"aria-label":localizeSystem("SWFFG.UI.SpaceCombat.BringShipForward", {name:ship.name}),cursor:"pointer"});
+  button.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.BringToFront")),
     element("circle",{class:"sc-front-button-face",r:12,fill:"#102733",stroke:"#91afc7","stroke-width":1.4}),
     element("rect",{x:-6,y:-2,width:8,height:8,rx:1,fill:"#102733",stroke:"#8aa6b4","stroke-width":1.2,"pointer-events":"none"}),
     element("rect",{x:-1,y:-7,width:8,height:8,rx:1,fill:"#d9f2f1",stroke:"#d9f2f1","stroke-width":1.2,"pointer-events":"none"}));
@@ -173,28 +174,28 @@ function paintFrontButton(root,ship,frame) {
 }
 
 function paintStatus(group,status,radius,bottom,color) {
-  const text=value=>value===null?"?":format.format(value);
+  const text=value=>value===null?"?":format(value);
   const direction=element("g",{class:"sc-token-heading",transform:`rotate(${90-status.heading})`,
     "data-current-heading":status.heading,"data-compass-heading":status.compass,"pointer-events":"none"});
-  direction.append(element("title",{},"Cap actuel : "+status.direction+" ("+text(status.compass)+"°)"),
+  direction.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.CurrentHeading") + " "+status.direction+" ("+text(status.compass)+"°)"),
     element("path",{class:"sc-heading",d:`M-6 ${-radius+2} L0 ${-radius-9} L6 ${-radius+2} L0 ${-radius-1} Z`,
       fill:color,stroke:"#061017","stroke-width":2,"stroke-linejoin":"round","paint-order":"stroke"}));
   group.append(direction);
   const badgeWidth=Math.max(28,18+String(text(status.speed)).length*7);
   const badge=element("g",{class:"sc-token-speed","data-current-speed":status.speed??"unknown",
     transform:`translate(0 ${Math.max(0,radius-8)})`,"pointer-events":"none"});
-  badge.append(element("title",{},"Vitesse actuelle : "+text(status.speed)),
+  badge.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.CurrentSpeed") + " "+text(status.speed)),
     element("rect",{x:-badgeWidth/2,y:-9,width:badgeWidth,height:18,rx:5,fill:"#0b1922","fill-opacity":.96,stroke:color,"stroke-opacity":.8,"stroke-width":1}),
-    element("text",{class:"sc-token-speed-value",x:0,y:4,fill:"#efffff","text-anchor":"middle","font-size":11,"font-weight":700},"V "+text(status.speed)));
+    element("text",{class:"sc-token-speed-value",x:0,y:4,fill:"#efffff","text-anchor":"middle","font-size":11,"font-weight":700},localizeSystem("SWFFG.UI.SpaceCombat.SpeedBadge", {speed:text(status.speed)})));
   group.append(badge);
   const damageColor={normal:"#79d3ab",warning:"#edbf68",danger:"#f17c7c",unknown:"#a3b2bb"}[status.tone];
   const width=Math.max(46,Math.min(100,radius*1.7));
   const damage=element("g",{class:"sc-token-damage is-"+status.tone,"data-damage":status.damage??"unknown",
     "data-damage-threshold":status.threshold??"unknown","data-damage-ratio":status.ratio??"unknown",
     transform:`translate(0 ${bottom+23})`,"pointer-events":"none"});
-  const caption="Dég. "+text(status.damage)+" / "+text(status.threshold)+(status.criticals?" · Crit. "+status.criticals:"");
-  damage.append(element("title",{},"Dégâts de coque subis : "+text(status.damage)+" / "+text(status.threshold)+
-      (status.exceeded?". Seuil dépassé.":"")+(status.criticals?" Dégâts critiques : "+status.criticals+".":"")),
+  const caption=localizeSystem("SWFFG.UI.SpaceCombat.DamageShort") + " "+text(status.damage)+" / "+text(status.threshold)+(status.criticals?" · Crit. "+status.criticals:"");
+  damage.append(element("title",{},localizeSystem("SWFFG.UI.SpaceCombat.HullTaken") + " "+text(status.damage)+" / "+text(status.threshold)+
+      (status.exceeded?localizeSystem("SWFFG.UI.SpaceCombat.ThresholdExceeded"):"")+(status.criticals?" " + localizeSystem("SWFFG.UI.SpaceCombat.CriticalHits") + " "+status.criticals+".":"")),
     element("rect",{class:"sc-damage-track",x:-width/2,y:0,width,height:6,rx:3,fill:"#08151d",stroke:damageColor,"stroke-opacity":.7,"stroke-width":1}));
   if(status.ratio!==null)damage.append(element("rect",{class:"sc-damage-fill",x:-width/2,y:0,width:width*status.ratio,height:6,rx:3,fill:damageColor}));
   damage.append(label(0,20,caption,"sc-token-damage-value",damageColor));
@@ -209,9 +210,9 @@ function paintShip(root, ship, frame, selected, targeted, plotId, selectable,ran
   const color = active ? "#72ebe0" : targeted ? "#edc477" : "#b2cbd5";
   const group = element("g", { class: "sc-ship" + (active ? " is-selected" : "") + (targeted ? " is-target" : ""),
     "data-ship": ship.id, "data-hex-count":cells.length, transform: `translate(${frame.x(center.x)} ${frame.y(center.y)})`,
-    role: "button", tabindex: selectable?0:-1, "aria-label": ship.name + ", gabarit " + ship.silhouette+", cap "+status.direction+", vitesse "+(status.speed??"inconnue")+", dégâts de coque "+(status.damage??"inconnus")+" sur "+(status.threshold??"seuil inconnu"),
+    role: "button", tabindex: selectable?0:-1, "aria-label": localizeSystem("SWFFG.UI.SpaceCombat.ShipAria", {name:ship.name, silhouette:ship.silhouette, direction:status.direction, speed:status.speed??"?", damage:status.damage??"?", threshold:status.threshold??localizeSystem("SWFFG.UI.SpaceCombat.UnknownThreshold")}),
     "aria-pressed": active, "aria-disabled":!selectable, cursor: selectable?"pointer":"default" });
-  group.append(element("title", {}, ship.name + " · Gabarit " + ship.silhouette + " · " + cells.length + " hexagone(s) · Cap actuel " +status.direction+" ("+format.format(status.compass) + "°) · Vitesse "+(status.speed??"?")));
+  group.append(element("title", {}, localizeSystem("SWFFG.UI.SpaceCombat.ShipTooltip", {name:ship.name, silhouette:ship.silhouette, hexes:cells.length, direction:status.direction, heading:format(status.compass), speed:status.speed??"?"})));
   const defs = element("defs"), clip = element("clipPath",{id:plotId+"-clip-"+ship.id,clipPathUnits:"userSpaceOnUse"});
   const footprint = element("g",{class:"sc-ship-footprint"});
   for (const cell of cells) {
@@ -242,7 +243,7 @@ function paintShip(root, ship, frame, selected, targeted, plotId, selectable,ran
   artwork.append(facing);
   const bottom = Math.max(...cells.map(cell=>(center.y-cell.y+1/Math.sqrt(3))*frame.scale));
   group.append(artwork, label(0, bottom + 15, ship.name, "sc-ship-name", color));
-  if(minions.enabled){const text=minions.alive+' / '+minions.count,width=Math.max(34,text.length*7+10),badge=element('g',{class:'sc-token-minion-count','data-group-alive':minions.alive,'data-group-count':minions.count,transform:'translate('+(-radius+10)+' '+(-radius+10)+')','pointer-events':'none'});badge.append(element('title',{},minions.alive+' appareils survivants sur '+minions.count),element('rect',{x:-width/2,y:-9,width,height:18,rx:5,fill:'#182c3b',stroke:'#bdcad8','stroke-width':1}),element('text',{x:0,y:4,fill:'#fff5d7','text-anchor':'middle','font-size':11,'font-weight':700},text));group.append(badge);}
+  if(minions.enabled){const text=minions.alive+' / '+minions.count,width=Math.max(34,text.length*7+10),badge=element('g',{class:'sc-token-minion-count','data-group-alive':minions.alive,'data-group-count':minions.count,transform:'translate('+(-radius+10)+' '+(-radius+10)+')','pointer-events':'none'});badge.append(element('title',{},localizeSystem("SWFFG.UI.SpaceCombat.AliveCraft", {alive:minions.alive, count:minions.count})),element('rect',{x:-width/2,y:-9,width,height:18,rx:5,fill:'#182c3b',stroke:'#bdcad8','stroke-width':1}),element('text',{x:0,y:4,fill:'#fff5d7','text-anchor':'middle','font-size':11,'font-weight':700},text));group.append(badge);}
   if(range)paintRangeTarget(group,range,radius,hasWeapons);
   paintStatus(group,status,radius,bottom,color);
   root.append(group);
@@ -278,7 +279,7 @@ export function drawPlot(svg, options={}) {
   const gridLayer=element('g',{class:'sc-grid-layer'}),worldLayer=element('g',{class:'sc-world-layer'}),legendLayer=element('g',{class:'sc-legend-layer'});
   const rangeLayer=element('g',{class:'sc-range-layer'}),movementLayer=element('g',{class:'sc-movement-layer'}),courseLayer=element('g',{class:'sc-course-layer'}),shipLayer=element('g',{class:'sc-ships-layer'}),buttonLayer=element('g',{class:'sc-buttons-layer'}),frontLayer=element('g',{class:'sc-front-layer'});
   worldLayer.append(rangeLayer,movementLayer,courseLayer,shipLayer,buttonLayer,frontLayer);
-  svg.replaceChildren(element('title',{},'Carte tactique des combats spatiaux'),gridLayer,worldLayer,legendLayer);
+  svg.replaceChildren(element('title',{},localizeSystem("SWFFG.UI.SpaceCombat.TacticalMap")),gridLayer,worldLayer,legendLayer);
   const retainedShips=new Map();
   let modelsChanged=true,lastScale,lastPreview,lastHover,lastFront,lastLegendWidth,prepared=[],ranges,rangeSource,targetRanges=new Map();
   function updateMovement(from,f){
@@ -286,7 +287,7 @@ export function drawPlot(svg, options={}) {
     if(from&&choosingDirection){
       const radius=movementRadius(from),zone=element('g',{class:'sc-movement-zone','data-movement-radius':radius,'pointer-events':'none'});
       zone.append(element('circle',{cx:f.x(from.x),cy:f.y(from.y),r:radius*f.scale,fill:'#72ebe0','fill-opacity':.08,stroke:'#72ebe0','stroke-width':2,'stroke-dasharray':'7 4'}),
-        label(f.x(from.x),f.y(from.y)-radius*f.scale-10,'Voler / Conduire · '+format.format(radius)+' u par manœuvre','sc-movement-label','#affff1'));
+        label(f.x(from.x),f.y(from.y)-radius*f.scale-10,localizeSystem("SWFFG.UI.SpaceCombat.MovementRadius", {radius:format(radius)}),'sc-movement-label','#affff1'));
       if(hoverDestination)zone.append(element('polygon',{class:'sc-movement-hover',points:hexPoints(f.x(hoverDestination.x),f.y(hoverDestination.y),f.scale*.96),fill:'#72ebe0','fill-opacity':.3,stroke:'#d7fff6','stroke-width':2}));
       layer.append(zone);
     }
@@ -494,7 +495,7 @@ export function drawPlot(svg, options={}) {
 
   svg.setAttribute("tabindex", "0");
   svg.setAttribute("role", "group");
-  svg.setAttribute("aria-label", "Carte de combat spatial");
+  svg.setAttribute("aria-label", localizeSystem("SWFFG.UI.SpaceCombat.Map"));
   svg.style.touchAction = "none";
   svg.classList.toggle("sc-choosing-direction",choosingDirection);
   const dispose = () => {

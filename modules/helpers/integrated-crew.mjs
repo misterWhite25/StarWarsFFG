@@ -1,3 +1,4 @@
+import {localizedSystemError} from "./system-localization.mjs";
 import {npcVehicle,npcStationActor,removeNpcStation} from './npc-vehicle.mjs';
 import {planAutoCrew,autoCrewProfile,AUTO_CREW_VERSION,passengerFromCrew} from './auto-crew-model.mjs';
 import {editVehicleCrew} from './crew-assignments.mjs';
@@ -27,10 +28,10 @@ function serial(vehicle,fn){
   const key=vehicle.uuid,task=(pending.get(key)??Promise.resolve()).catch(()=>{}).then(fn);pending.set(key,task);
   return task.finally(()=>{if(pending.get(key)===task)pending.delete(key);});
 }
-function rawProfile(vehicle,id){const profile=vehicle.flags?.[scope]?.[flag]?.profiles?.[id];if(!profile)throw Error('Ce poste intégré n’existe plus.');return profile;}
+function rawProfile(vehicle,id){const profile=vehicle.flags?.[scope]?.[flag]?.profiles?.[id];if(!profile)throw localizedSystemError("SWFFG.UI.Operations.IntegratedStationMissing");return profile;}
 function changedData(data,changes){return foundry.utils.mergeObject(clone(data),foundry.utils.expandObject(changes),{inplace:false,applyOperators:true});}
 async function writeProfile(vehicle,id,change){
-  if(!game.user.isGM)throw Error('Seul le MJ peut gérer cet équipage intégré.');
+  if(!game.user.isGM)throw localizedSystemError("SWFFG.UI.Operations.ManageIntegratedGMOnly");
   return serial(vehicle,async()=>{
     const profile=rawProfile(vehicle,id),next=await change(clone(profile));
     await vehicle.update({[path(id)]:next});
@@ -58,18 +59,18 @@ function makeActor(vehicle,profile){
   actor._integratedCrew={vehicle,id:profile.id,kind:profile.kind,station:profile.station};
   actor.update=async changes=>writeProfile(vehicle,profile.id,current=>({...current,data:changedData(current.data,changes)}));
   actor.createEmbeddedDocuments=async(type,documents)=>{
-    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw Error('Document intégré non pris en charge.');
+    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw localizedSystemError("SWFFG.UI.Operations.IntegratedUnsupported");
     const added=documents.map(document=>({...clone(document),_id:document._id??foundry.utils.randomID()}));
     await writeProfile(vehicle,profile.id,current=>{current.data[field]=[...(current.data[field]??[]),...added];return current;});
     return added.map(document=>actor.getEmbeddedCollection(type).get(document._id));
   };
   actor.updateEmbeddedDocuments=async(type,updates)=>{
-    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw Error('Document intégré non pris en charge.');
+    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw localizedSystemError("SWFFG.UI.Operations.IntegratedUnsupported");
     await writeProfile(vehicle,profile.id,current=>{current.data[field]=(current.data[field]??[]).map(document=>{const update=updates.find(change=>change._id===document._id);return update?changedData(document,update):document;});return current;});
     return updates.map(document=>actor.getEmbeddedCollection(type).get(document._id));
   };
   actor.deleteEmbeddedDocuments=async(type,ids)=>{
-    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw Error('Document intégré non pris en charge.');
+    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw localizedSystemError("SWFFG.UI.Operations.IntegratedUnsupported");
     const removed=(actor.getEmbeddedCollection(type)?.contents??[]).filter(document=>ids.includes(document.id));
     await writeProfile(vehicle,profile.id,current=>{current.data[field]=(current.data[field]??[]).filter(document=>!ids.includes(document._id));return current;});return removed;
   };
@@ -93,7 +94,7 @@ export function resolveCrewDocument(uuid){
   const match=String(uuid??'').match(/^(Actor\.[^.]+\.Crew\.[^.]+)(?:\.(Item|ActiveEffect)\.([^.]+))?$/);
   if(!match)return null;const actor=resolveCrewActor(match[1]);return match[2]?actor?.getEmbeddedCollection(match[2])?.get(match[3])??null:actor;
 }
-function requireVehicle(vehicle){if(!game.user.isGM||vehicle?.type!=='vehicle'||vehicle.pack||!vehicle.isOwner)throw Error('Ce réglage est réservé au MJ sur un véhicule du monde.');}
+function requireVehicle(vehicle){if(!game.user.isGM||vehicle?.type!=='vehicle'||vehicle.pack||!vehicle.isOwner)throw localizedSystemError("SWFFG.UI.Operations.WorldVehicleGMOnly");}
 function labelFor(station){return tr('Role.'+station.kind)+(station.weaponName?' - '+station.weaponName:'');}
 function supportDefinitions(vehicle,crew){
   const saved=vehicle.flags?.[scope]?.crewRoleDefinitions;
@@ -104,7 +105,7 @@ function supportDefinitions(vehicle,crew){
   return roles;
 }
 export async function completeIntegratedCrew(vehicle,options={}){
-  requireVehicle(vehicle);const actorType=options.actorType??'rival';if(!['minion','rival','nemesis'].includes(actorType))throw Error('Type d’équipage invalide.');
+  requireVehicle(vehicle);const actorType=options.actorType??'rival';if(!['minion','rival','nemesis'].includes(actorType))throw localizedSystemError("SWFFG.UI.Operations.InvalidCrewType");
   let result;
   await editVehicleCrew(vehicle,async current=>{
     const plan=planAutoCrew(vehicle,options,id=>resolveCrewActor(id,vehicle),current);
@@ -124,7 +125,7 @@ export async function completeIntegratedCrew(vehicle,options={}){
     const next=[...plan.crew,...entries.filter(entry=>!passengers['a'+entry.actor_id])],changed=[];
     try{
       if(plan.weaponUpdates.length){changed.push(...plan.weaponUpdates);await vehicle.updateEmbeddedDocuments('Item',plan.weaponUpdates.map(update=>({_id:update.id,['flags.'+scope+'.weaponCrew']:update.after})));}
-      if(JSON.stringify(vehicle.getFlag(scope,'crew')??[])!==JSON.stringify(current))throw Error('L’équipage a changé pendant sa préparation.');
+      if(JSON.stringify(vehicle.getFlag(scope,'crew')??[])!==JSON.stringify(current))throw localizedSystemError("SWFFG.UI.Operations.CrewChanged");
       await vehicle.update({['flags.'+scope+'.'+flag]:{version:1,profiles},['flags.'+scope+'.crew']:next,['flags.'+scope+'.vehicleDeck.passengers']:passengers,['flags.'+scope+'.crewRoleDefinitions']:supportDefinitions(vehicle,next)});
     }catch(error){
       for(const update of changed){const item=vehicle.items.get(update.id);if(JSON.stringify(item?.getFlag(scope,'weaponCrew'))!==JSON.stringify(update.after))continue;await item.update(update.before===undefined?{['flags.'+scope+'.-=weaponCrew']:null}:{['flags.'+scope+'.weaponCrew']:update.before});}

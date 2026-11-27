@@ -1,3 +1,4 @@
+import {localizeSystem} from "../helpers/system-localization.mjs";
 const scope="starwarsffg";
 const setting="spaceCombatSceneId";
 
@@ -13,7 +14,7 @@ export async function ensureCombatScene() {
   let scene=combatScene();
   if(!scene) {
     scene=await Scene.create({
-      name:"Combat spatial",active:false,navigation:false,
+      name:localizeSystem("SWFFG.UI.SpaceCombat.Title"),active:false,navigation:false,
       width:4000,height:3000,padding:0,tokenVision:false,
       background:{src:"systems/starwarsffg/assets/space-combat/deep-space.webp"},
       grid:{type:CONST.GRID_TYPES.GRIDLESS},

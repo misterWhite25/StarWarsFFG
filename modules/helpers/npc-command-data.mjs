@@ -1,3 +1,4 @@
+import {localizeSystem} from "./system-localization.mjs";
 const catalogueCache=new WeakMap();
 export function invalidateNpcCatalogue(actor) {if(actor)catalogueCache.delete(actor);}
 function cachedCatalogue(actor) {
@@ -24,7 +25,7 @@ export function npcCatalogue(actor) {
     }
   };
   for(const item of items) {
-    add('item:'+item.id,item.name,item.type,item.system,'Fiche du PNJ',item.id);
+    add('item:'+item.id,item.name,item.type,item.system,localizeSystem("SWFFG.UI.Operations.NpcSheet"),item.id);
     nested(item.system,item.name,item.id);
     if(['specialization','forcepower','signatureability','species'].includes(item.type)){
       for(const field of ['talents','upgrades','abilities'])for(const [key,node] of Object.entries(item.system?.[field]??{})){
@@ -38,7 +39,7 @@ export function npcCatalogue(actor) {
     if(!talent?.name)continue;
     if(talent.itemId&&seen.has('item:'+talent.itemId))continue;
     if(talentNames.has(normalizeNpc(talent.name)))continue;
-    add('derived:'+index,talent.name,'talent',talent,'Talents acquis',talent.itemId??null);
+    add('derived:'+index,talent.name,'talent',talent,localizeSystem("SWFFG.UI.Operations.AcquiredTalents"),talent.itemId??null);
   }
   if(actor.documentName==='Actor')catalogueCache.set(actor,{items:actor.items,talents:actor.talentList,catalogue:result,ranks:new Map()});
   return result;

@@ -1,3 +1,4 @@
+import {localizedSystemError} from "./system-localization.mjs";
 const scope='starwarsffg';
 export const rosterFilters=[['all','Tous'],['initiative','Initiative'],['scene','Scène'],['favorites','Favoris']];
 const valid=new Set(rosterFilters.map(([key])=>key));
@@ -23,7 +24,7 @@ export function npcRosterMatches(entry,filter,{scene=globalThis.canvas?.scene,fa
 let pending=Promise.resolve();
 export function toggleNpcFavorite(user,key){
   const next=pending.catch(()=>{}).then(async()=>{
-    if(!user?.isGM||typeof key!=='string'||!key)throw Error('Favori invalide.');
+    if(!user?.isGM||typeof key!=='string'||!key)throw localizedSystemError("SWFFG.UI.Operations.FavoriteInvalid");
     const favorites=npcFavorites(user);
     if(favorites.has(key))favorites.delete(key);else favorites.add(key);
     await user.setFlag(scope,'npcCommandFavorites',[...favorites]);

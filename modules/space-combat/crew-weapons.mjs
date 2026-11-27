@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 import {isAntiFighterWeapon} from '../helpers/ship-weapon-profile.mjs';
 import {vehicleCrew} from '../helpers/crew-gunners.mjs';
@@ -11,7 +12,7 @@ import {board} from './board.mjs';
 
 function node(tag,className,text){const e=document.createElement(tag);if(className)e.className=className;if(text!=null)e.textContent=String(text);return e;}
 function button(label,callback,report){const e=node('button','sc-card-action',label);e.type='button';e.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();Promise.resolve().then(callback).catch(report);});return e;}
-const number=value=>Number.isFinite(Number(value))&&value!==''&&value!=null?Number(value).toLocaleString('fr-FR'):'?';
+const number=value=>Number.isFinite(Number(value))&&value!==''&&value!=null?Number(value).toLocaleString(game.i18n?.lang):'?';
 
 // Keep damaged weapons visible at their posts; firing still checks their actual condition.
 export function stationWeapons(vehicle,member){
@@ -27,10 +28,10 @@ function availableGunners(ship,actor,weapon,member){
   });
 }
 export function fireCrewWeapon(ship,actor,weapon,options={},member){
-  if(!canSelectShip(ship))throw Error('Vous devez être membre de l’équipage de ce vaisseau.');
-  weapon=actor.items.get(weapon.id);if(!weapon)throw Error('Cette arme est indisponible.');
+  if(!canSelectShip(ship))throw localizedSystemError("SWFFG.UI.SpaceCombat.CrewMembershipRequired");
+  weapon=actor.items.get(weapon.id);if(!weapon)throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponUnavailable");
   const candidates=availableGunners(ship,actor,weapon,member);
-  if(!candidates.length)throw Error('Aucun membre d’équipage disponible pour cette arme.');
+  if(!candidates.length)throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponCrewUnavailable");
   return openSelectedCombatRoll(ship,candidates[0],weapon,options);
 }
 export function renderCrewWeapon(ship,actor,item,report,options={},member){
@@ -41,9 +42,9 @@ export function renderCrewWeapon(ship,actor,item,report,options={},member){
   const damage=Number(data.damage?.adjusted)>0?data.damage.adjusted:data.damage?.value;
   const crit=Number(data.crit?.adjusted)>0?data.crit.adjusted:data.crit?.value;
   const range=data.range?.label??CONFIG.FFG.vehicle_ranges?.[data.range?.value]??data.range?.value??"";
-  const arcLabels={fore:"Avant",aft:"Arrière",port:"Bâbord",starboard:"Tribord",dorsal:"Dorsal",ventral:"Ventral"};
+  const arcLabels={fore:localizeSystem("SWFFG.UI.SpaceCombat.Fore"),aft:localizeSystem("SWFFG.UI.SpaceCombat.Aft"),port:localizeSystem("SWFFG.UI.SpaceCombat.Port"),starboard:localizeSystem("SWFFG.UI.SpaceCombat.Starboard"),dorsal:"Dorsal",ventral:"Ventral"};
   const arcs=Object.entries(arcLabels).filter(([key])=>data.firingarc?.[key]).map(([,label])=>label);
-  const stats=node("p","sc-weapon-stats",["Dég. "+number(damage),"Crit. "+number(crit),game.i18n.localize(String(range)),...arcs].filter(Boolean).join(" · "));
+  const stats=node("p","sc-weapon-stats",[localizeSystem("SWFFG.UI.SpaceCombat.DamageShort") + " "+number(damage),"Crit. "+number(crit),game.i18n.localize(String(range)),...arcs].filter(Boolean).join(" · "));
   if(isAntiFighterWeapon(item)) {
     const badge=node('span','ffg-anti-fighter-badge',game.i18n.localize('SWFFG.ShipWeapon.AntiFighter'));
     badge.title=game.i18n.localize('SWFFG.ShipWeapon.AntiFighterHint');
@@ -58,10 +59,10 @@ export function renderCrewWeapon(ship,actor,item,report,options={},member){
   if(qualities.length)row.append(node("p","sc-card-note",qualities.join(" · ")));
   if(item.flags?.starwarsffg?.config?.enableAmmo)row.append(node("p","sc-card-note","Munitions "+number(data.ammo?.value)+" / "+number(data.ammo?.max)));
   if(canSelectShip(ship)) {
-    const shoot=button("Tirer",()=>fireCrewWeapon(ship,actor,item,options,member),report);
+    const shoot=button(localizeSystem("SWFFG.UI.SpaceCombat.AttackShort"),()=>fireCrewWeapon(ship,actor,item,options,member),report);
     const candidates=availableGunners(ship,actor,item,member);
     shoot.disabled=board().round===0||!candidates.length;
-    if(shoot.disabled)shoot.title=board().round===0?"Commencez un nouveau combat pour tirer.":"Assignez un membre d’équipage autorisé à utiliser cette arme.";
+    if(shoot.disabled)shoot.title=board().round===0?localizeSystem("SWFFG.UI.SpaceCombat.StartBeforeAttack"):localizeSystem("SWFFG.UI.SpaceCombat.AssignGunner");
     row.append(shoot);
   }
   return row;

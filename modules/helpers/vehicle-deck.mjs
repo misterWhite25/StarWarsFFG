@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "./system-localization.mjs";
 import {fieldsAffect,passengerFields,identityFields} from './actor-change-fields.mjs';
 import {supportsVehiclePlan} from './actor-types.mjs';
 import {renderBasePlanShortcuts,scenePlanShortcuts} from './base-plan.mjs';
@@ -99,7 +100,7 @@ function point(event, image) {
 }
 async function board(ship, documents, position) {
   assertOwner(ship);
-  if(ship.flags?.starwarsffg?.npcVehicle?.version===1)throw Error('Ce véhicule PNJ utilise des postes simplifiés. Choisissez un véhicule indépendant pour affecter des personnages.');
+  if(ship.flags?.starwarsffg?.npcVehicle?.version===1)throw localizedSystemError("SWFFG.UI.Operations.SimplifiedStations");
   const aboard = roster(ship);
   const updates = {};
   for (const doc of documents) {
@@ -266,9 +267,9 @@ function passengerSkillCell(ship,member,key){
   const mayRoll=actor=>!!actor&&(game.user.isGM||!member.integrated&&actor.testUserPermission(game.user,'OWNER'));
   const control=button('',async()=>{
     const current=roster(ship).get(member.key),actor=current&&!current.crew?resolveCrewActor(current,ship):null;
-    if(!mayRoll(actor))throw Error('Vous ne pouvez pas lancer les compétences de ce passager.');
+    if(!mayRoll(actor))throw localizedSystemError("SWFFG.UI.Operations.PassengerRollForbidden");
     const fresh=passengerSkillKey(actor,key);
-    if(!fresh)throw Error('Cette compétence est indisponible.');
+    if(!fresh)throw localizedSystemError("SWFFG.UI.Operations.SkillUnavailable");
     return DiceHelpers.rollSkillByKey(actor,fresh);
   },'ffg-passenger-skill');
   control.dataset.passengerSkill=key;control.dataset.passengerActor=member.actorId;control.disabled=!mayRoll(actor);
@@ -298,7 +299,7 @@ function drawPassengers(app,ship) {
     const cell=el('td'),name=el('span','ffg-deck-passenger-name');
     const image=el('img');image.src=member.img;image.alt='';
     name.append(image,document.createTextNode(member.name));
-    if(member.integrated){name.dataset.integratedPassenger=member.actorId;name.tabIndex=0;name.style.cursor='pointer';name.setAttribute('role','button');name.title='Ouvrir le profil intégré';const open=()=>resolveCrewActor(member,ship)?.sheet.render({force:true});name.addEventListener('click',open);name.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();open();}});}
+    if(member.integrated){name.dataset.integratedPassenger=member.actorId;name.tabIndex=0;name.style.cursor='pointer';name.setAttribute('role','button');name.title=localizeSystem("SWFFG.UI.Operations.OpenIntegratedProfile");const open=()=>resolveCrewActor(member,ship)?.sheet.render({force:true});name.addEventListener('click',open);name.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();open();}});}
     cell.append(name);row.append(cell);
     for(const key of ['Computers','Mechanics','Leadership'])row.append(passengerSkillCell(ship,member,key));
     if(editable) {

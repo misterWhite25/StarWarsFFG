@@ -1,3 +1,4 @@
+import {localizeSystem} from "./system-localization.mjs";
 import {actorDirectoryGroup} from './actor-directory-group.mjs';
 const valid=new Set([-2,-1,0,1]);
 let installed=false,queue=Promise.resolve();
@@ -9,7 +10,7 @@ export function usesAlliedDirectoryDefault(actor,token=null){
 }
 export const flushDirectoryCamps=()=>queue;
 const activeGM=()=>game.user?.isGM&&(!game.users.activeGM||game.users.activeGM.id===game.user.id);
-const enqueue=fn=>{const task=queue.catch(()=>{}).then(fn);queue=task;task.catch(error=>ui.notifications.error('Camp par défaut : '+error.message));return task;};
+const enqueue=fn=>{const task=queue.catch(()=>{}).then(fn);queue=task;task.catch(error=>ui.notifications.error(localizeSystem("SWFFG.UI.Operations.DefaultCamp") + " "+error.message));return task;};
 const groupFields=['flags.starwarsffg.npcDirectory','flags.starwarsffg.vehicleDirectory','flags.starwarsffg.vehicleInActors','type'];
 function directoryChanged(changes){return groupFields.some(path=>read(changes,path)!==undefined);}
 function setChange(changes,path,value){foundry.utils.setProperty(changes,path,value);}

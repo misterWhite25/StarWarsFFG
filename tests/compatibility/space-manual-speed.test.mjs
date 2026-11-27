@@ -35,11 +35,11 @@ test('GM can set a pawn speed from zero to its maximum without maneuver, strain,
 test('manual speed rejects invalid values, stale commands and non-GM users without saving',async()=>{
  const f=await fixture();
  for(const speed of [-1,6,1.5,NaN,Infinity,'3',null]){
-  await assert.rejects(f.api.command('speed',{shipId:'ship',version:4,speed}),/La vitesse/);
+  await assert.rejects(f.api.command('speed',{shipId:'ship',version:4,speed}),{message:"SWFFG.UI.SpaceCombat.OutOfBounds"});
  }
- await assert.rejects(f.api.command('speed',{shipId:'ship',version:3,speed:3}),/Le pion a changé/);
+ await assert.rejects(f.api.command('speed',{shipId:'ship',version:3,speed:3}),{message: "SWFFG.UI.SpaceCombat.TokenOrderChanged"});
  f.user.isGM=false;
- await assert.rejects(f.api.command('speed',{shipId:'ship',version:4,speed:3}),/réservée au MJ/);
+ await assert.rejects(f.api.command('speed',{shipId:'ship',version:4,speed:3}),{message:"SWFFG.UI.SpaceCombat.CommandGMOnly"});
  assert.equal(f.writes,0);
  assert.equal(f.state.ships[0].speed,0);
 });

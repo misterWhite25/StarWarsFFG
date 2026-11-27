@@ -1,32 +1,33 @@
+import {localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {BARRAGES} from './barrage-rules.mjs';
 // Vehicle maneuvers, actions and their costs. Voler / Conduire commits map movement.
 export const MANEUVERS = [
-  {id:"speed",label:"Accélérer / Décélérer",pilot:true,description:"Augmente ou réduit la vitesse de 1, entre 0 et la vitesse maximale."},
-  {id:"fly",label:"Voler / Conduire",pilot:true,minSpeed:1,description:"Dépense une manœuvre pour choisir une destination dans la zone de déplacement. Le déplacement et son coût s’appliquent à la validation."},
-  {id:"evasive",label:"Manœuvre d’évasion",pilot:true,maxSize:4,minSpeed:3,description:"Améliore une fois la difficulté des attaques effectuées et subies, jusqu’à la fin du prochain tour du pilote."},
-  {id:"stay",label:"Coller à la cible",pilot:true,maxSize:4,minSpeed:3,description:"Améliore une fois les dés de maîtrise des attaques effectuées et subies, jusqu’à la fin du prochain tour du pilote."},
-  {id:"punch",label:"Mettre la gomme",pilot:true,maxSize:4,description:"Passe à la vitesse maximale. Le vaisseau subit 1 stress système par point de vitesse gagné."},
-  {id:"shields",label:"Réorienter les boucliers",description:"Transfère 1 point de défense du secteur source au secteur choisi. Choisissez le pilote, le copilote, un membre d’équipage hors artilleurs ou un passager à bord. Une seconde manœuvre coûte 2 stress personnel, sans stress système."}
+  {id:"speed",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Speed");},pilot:true,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.SpeedDescription");}},
+  {id:"fly",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Fly");},pilot:true,minSpeed:1,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.FlyDescription");}},
+  {id:"evasive",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Evasive");},pilot:true,maxSize:4,minSpeed:3,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.EvasiveDescription");}},
+  {id:"stay",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Stay");},pilot:true,maxSize:4,minSpeed:3,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.StayDescription");}},
+  {id:"punch",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Punch");},pilot:true,maxSize:4,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.PunchDescription");}},
+  {id:"shields",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Shields");},get description(){return localizeSystem("SWFFG.UI.SpaceCombat.ShieldsDescription");}}
 ];
 export const ACTIONS = [
-  {id:"attack",label:"Effectuer une attaque",target:true,description:"Choisissez le personnage, une arme accessible, le vaisseau cible et le secteur visé. La préparation du jet inclut les effets des manœuvres et permet de choisir les talents. L’action est dépensée au lancer des dés."},
-  {id:"advantage",label:"Prendre l’avantage",pilot:true,maxSize:4,minSpeed:4,target:true,skill:"pilot",description:"Test de pilotage selon les vitesses relatives. En cas de réussite, le pilote ignore les pénalités des manœuvres évasives contre cette cible et choisit son secteur défensif jusqu’à la fin du round suivant."},
-  {id:"repairStrain",label:"Limiter les avaries - stress",skill:"Mechanics",description:"Test de Mécanique selon le stress actuel. Une réussite retire 1 stress système."},
-  {id:"repairHull",label:"Limiter les avaries - coque",skill:"Mechanics",description:"Une tentative par rencontre pour le vaisseau. Chaque succès net répare 1 dégât de coque. Le MJ doit autoriser les réparations réalisables dans la situation."},
-  {id:"repairCritical",label:"Réparer un dégât critique",skill:"Mechanics",description:"Test de Mécanique selon la gravité du dégât critique sélectionné. Une réussite retire ce dégât critique. Une nouvelle tentative reste possible à un tour ultérieur."},
-  {id:"manualRepair",label:"Réparations manuelles",skill:"Athletics",difficulty:3,description:"Avec l’accord du MJ et les outils adaptés, répare 1 dégât de coque par succès net. Partage la limite d’une tentative de réparation de coque par rencontre."},
-  {id:"copilot",label:"Assister pilotage",skill:"pilot",difficulty:2,description:"Chaque succès net rétrograde une fois la difficulté du prochain test de pilotage du pilote."},
-  {id:"plot",label:"Tracer l’itinéraire",skills:["Astrogation","Perception"],description:"Astrogation moyenne ou Perception difficile. Chaque succès retire 1 dé d’infortune dû au terrain au prochain test de pilotage."},
-  {id:"jam",label:"Brouillage",skill:"Computers",difficulty:2,target:true,description:"La cible doit réussir un test d’Informatique pour communiquer. La difficulté est de 2, plus 1 par succès supplémentaire."},
-  {id:"boostShields",label:"Intensifier le bouclier",skill:"Mechanics",difficulty:3,description:"Si le vaisseau possède une défense, une réussite lui inflige 1 stress système et ajoute 1 défense au secteur choisi. Chaque succès supplémentaire prolonge l’effet d’un round."},
-  {id:"fireDiscipline",label:"Discipline de tir",skills:["Leadership","Discipline"],difficulty:3,description:"Ajoute 1 dé de fortune au prochain tir, puis à un autre tir par paire de succès supplémentaires."},
-  {id:"scan",label:"Scanner l’ennemi",skill:"Perception",difficulty:3,target:true,description:"Une réussite révèle l’armement, les modifications et les seuils de coque et de stress. Les avantages peuvent révéler les niveaux actuels."},
-  {id:"slice",label:"Pirater les systèmes de l’ennemi",skill:"Computers",difficulty:3,target:true,description:"Une réussite réduit de 1 la défense du secteur ciblé pendant un round par succès net."},
-  {id:"spoof",label:"Contre mesures",skills:["Computers","Vigilance"],description:"Informatique moyenne ou Vigilance difficile. Une réussite améliore une fois la difficulté des attaques guidées jusqu’au début du prochain tour."},
+  {id:"attack",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Attack");},target:true,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.AttackDescription");}},
+  {id:"advantage",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Advantage");},pilot:true,maxSize:4,minSpeed:4,target:true,skill:"pilot",get description(){return localizeSystem("SWFFG.UI.SpaceCombat.AdvantageDescription");}},
+  {id:"repairStrain",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.RepairStrain");},skill:"Mechanics",get description(){return localizeSystem("SWFFG.UI.SpaceCombat.RepairStrainDescription");}},
+  {id:"repairHull",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.RepairHull");},skill:"Mechanics",get description(){return localizeSystem("SWFFG.UI.SpaceCombat.RepairHullDescription");}},
+  {id:"repairCritical",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.RepairCritical");},skill:"Mechanics",get description(){return localizeSystem("SWFFG.UI.SpaceCombat.RepairCriticalDescription");}},
+  {id:"manualRepair",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.ManualRepair");},skill:"Athletics",difficulty:3,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.ManualRepairDescription");}},
+  {id:"copilot",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Copilot");},skill:"pilot",difficulty:2,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.CopilotDescription");}},
+  {id:"plot",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Plot");},skills:["Astrogation","Perception"],get description(){return localizeSystem("SWFFG.UI.SpaceCombat.PlotDescription");}},
+  {id:"jam",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Jam");},skill:"Computers",difficulty:2,target:true,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.JamDescription");}},
+  {id:"boostShields",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.BoostShields");},skill:"Mechanics",difficulty:3,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.BoostShieldsDescription");}},
+  {id:"fireDiscipline",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.FireDiscipline");},skills:["Leadership","Discipline"],difficulty:3,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.FireDisciplineDescription");}},
+  {id:"scan",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Scan");},skill:"Perception",difficulty:3,target:true,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.ScanDescription");}},
+  {id:"slice",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Slice");},skill:"Computers",difficulty:3,target:true,get description(){return localizeSystem("SWFFG.UI.SpaceCombat.SliceDescription");}},
+  {id:"spoof",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Spoof");},skills:["Computers","Vigilance"],get description(){return localizeSystem("SWFFG.UI.SpaceCombat.SpoofDescription");}},
   ...BARRAGES,
-  {id:"communicate",label:"Rétablir les communications",skill:"Computers",description:"Effectue le test imposé par un brouillage. Une réussite permet de communiquer malgré ce brouillage."}
+  {id:"communicate",get label(){return localizeSystem("SWFFG.UI.SpaceCombat.Communicate");},skill:"Computers",get description(){return localizeSystem("SWFFG.UI.SpaceCombat.CommunicateDescription");}}
 ];
-export const SECTORS = {fore:"Avant",aft:"Arrière",port:"Bâbord",starboard:"Tribord"};
+export const SECTORS = {get fore(){return localizeSystem("SWFFG.UI.SpaceCombat.Fore");},get aft(){return localizeSystem("SWFFG.UI.SpaceCombat.Aft");},get port(){return localizeSystem("SWFFG.UI.SpaceCombat.Port");},get starboard(){return localizeSystem("SWFFG.UI.SpaceCombat.Starboard");}};
 export const normalizeSkill = key => String(key??"").toLowerCase().replace(/[^a-z]/g,"");
 export function pilotSkill(vehicle,theme="starwars") {
   return theme==="starwars"?(vehicle.system.spaceShip?"Piloting: Space":"Piloting: Planetary"):(vehicle.system.spaceShip?"Piloting":"Driving");
@@ -54,9 +55,9 @@ export function maneuverCost(ship,actorId,round,pilot=false) {
   return {personal:turn.maneuvers===1?2:0,system:pilot&&pilotManeuverLimit(ship)>1&&(ship.combat?.pilotManeuvers??0)===1?2:0,
     available:!turn.ended&&turn.maneuvers<2&&(!pilot||(ship.combat?.pilotManeuvers??0)<pilotManeuverLimit(ship))};
 }
-export function maneuverCostLabel(cost,systemLabel="stress système") {
-  if(!cost.personal&&cost.system)return "aucun stress personnel · +2 "+systemLabel;
-  return [cost.personal?"+2 stress personnel":"",cost.system?"+2 "+systemLabel:""].filter(Boolean).join(" · ")||"sans coût de stress";
+export function maneuverCostLabel(cost,systemLabel=localizeSystem("SWFFG.UI.SpaceCombat.SystemStrainLower")) {
+  if(!cost.personal&&cost.system)return localizeSystem("SWFFG.UI.SpaceCombat.NoPersonalStrain", {stat:systemLabel});
+  return [cost.personal?localizeSystem("SWFFG.UI.SpaceCombat.PersonalStrainTwo"):"",cost.system?"+2 "+systemLabel:""].filter(Boolean).join(" · ")||localizeSystem("SWFFG.UI.SpaceCombat.NoStrainCost");
 }
 export function maneuverPerformer(ship,members,round,preferredId="") {
   const unique=[...new Map(members.map(member=>[member.actor_id,member])).values()];
@@ -65,21 +66,21 @@ export function maneuverPerformer(ship,members,round,preferredId="") {
   return available.sort((a,b)=>maneuverCost(ship,a.actor_id,round,true).personal-maneuverCost(ship,b.actor_id,round,true).personal)[0];
 }
 export function maneuverReason(def,ship,pilot) {
-  if(def.pilot&&!pilot)return ACTIONS.some(action=>action.id===def.id)?"Seul le pilote peut effectuer cette action.":"Seuls le pilote et le copilote peuvent effectuer cette manœuvre.";
-  if(def.minSize&&ship.silhouette<def.minSize)return "Réservé aux gabarits "+def.minSize+" ou plus.";
-  if(def.maxSpeed!==undefined&&ship.speed>def.maxSpeed)return "Vitesse maximale "+def.maxSpeed+" pour cette action.";
-  if(def.maxSize&&ship.silhouette>def.maxSize)return "Réservé aux gabarits 1 à "+def.maxSize+".";
-  if(def.minSpeed&&ship.speed<def.minSpeed)return "Vitesse minimale "+def.minSpeed+".";
+  if(def.pilot&&!pilot)return ACTIONS.some(action=>action.id===def.id)?localizeSystem("SWFFG.UI.SpaceCombat.PilotOnlyAction"):localizeSystem("SWFFG.UI.SpaceCombat.PilotAndCopilotManeuver");
+  if(def.minSize&&ship.silhouette<def.minSize)return localizeSystem("SWFFG.UI.SpaceCombat.MinSilhouette", {min:def.minSize});
+  if(def.maxSpeed!==undefined&&ship.speed>def.maxSpeed)return localizeSystem("SWFFG.UI.SpaceCombat.MaxActionSpeed", {max:def.maxSpeed});
+  if(def.maxSize&&ship.silhouette>def.maxSize)return localizeSystem("SWFFG.UI.SpaceCombat.MaxSilhouette", {max:def.maxSize});
+  if(def.minSpeed&&ship.speed<def.minSpeed)return localizeSystem("SWFFG.UI.SpaceCombat.MinActionSpeed", {min:def.minSpeed});
   if(def.id==="shields"&&!Object.values(globalThis.game?.actors?.get(ship.actorId)?.system.stats?.shields??{}).some(value=>Number(value)>0))
-    return "Ce vaisseau ne possède aucun point de défense à réorienter.";
-  if(def.id==="speed"&&ship.maxSpeed<=0)return "Ce véhicule ne peut pas changer de vitesse.";
-  if((def.id==="accelerate"||def.id==="punch")&&ship.speed>=ship.maxSpeed)return "La vitesse maximale est déjà atteinte.";
-  if(def.id==="decelerate"&&ship.speed<=0)return "Le vaisseau est déjà à l’arrêt.";
+    return localizeSystem("SWFFG.UI.SpaceCombat.NoShieldDefense");
+  if(def.id==="speed"&&ship.maxSpeed<=0)return localizeSystem("SWFFG.UI.SpaceCombat.NoSpeedChange");
+  if((def.id==="accelerate"||def.id==="punch")&&ship.speed>=ship.maxSpeed)return localizeSystem("SWFFG.UI.SpaceCombat.AtMaximumSpeed");
+  if(def.id==="decelerate"&&ship.speed<=0)return localizeSystem("SWFFG.UI.SpaceCombat.AlreadyStopped");
   return "";
 }
 export function repairDifficulty(resource) {
   const value=Number(resource?.value),max=Number(resource?.max);
-  if(!Number.isFinite(value)||!Number.isFinite(max)||max<=0)throw Error("Le seuil et la valeur de cette ressource doivent être renseignés.");
+  if(!Number.isFinite(value)||!Number.isFinite(max)||max<=0)throw localizedSystemError("SWFFG.UI.SpaceCombat.ResourceThresholdRequired");
   return value>max?3:value>=max/2?2:1;
 }
 export function advantageDifficulty(ship,target) {

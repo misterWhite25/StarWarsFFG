@@ -1,3 +1,4 @@
+import {localizeSystem} from "../helpers/system-localization.mjs";
 import {isBarrage} from './barrage-rules.mjs';
 import {resolveCrewActor} from '../helpers/integrated-crew.mjs';
 export function crewRoster(vehicle) {
@@ -39,16 +40,16 @@ export function isGunnerRole(member) {
 }
 export function actionRoleReason(vehicle,actorId,actionId) {
   const assignments=crewRoster(vehicle).filter(member=>member.actor_id===actorId);
-  if(isBarrage(actionId))return assignments.some(isGunnerRole)?"":"Les barrages sont réservés aux artilleurs.";
-  if(actionId==="advantage")return assignments.some(isPilotRole)?"":"Prendre l’avantage est réservé au pilote.";
-  if(actionId==="copilot")return assignments.some(member=>isNavigationRole(member)&&!isPilotRole(member))?"":"Assister pilotage est réservé au copilote.";
-  if(actionId==="attack")return assignments.some(member=>isNavigationRole(member)||isGunnerRole(member))?"":"Le tir est réservé au pilote, au copilote et aux artilleurs disposant d’une arme accessible.";
+  if(isBarrage(actionId))return assignments.some(isGunnerRole)?"":localizeSystem("SWFFG.UI.SpaceCombat.GunnersOnly");
+  if(actionId==="advantage")return assignments.some(isPilotRole)?"":localizeSystem("SWFFG.UI.SpaceCombat.AdvantagePilotOnly");
+  if(actionId==="copilot")return assignments.some(member=>isNavigationRole(member)&&!isPilotRole(member))?"":localizeSystem("SWFFG.UI.SpaceCombat.CopilotOnly");
+  if(actionId==="attack")return assignments.some(member=>isNavigationRole(member)||isGunnerRole(member))?"":localizeSystem("SWFFG.UI.SpaceCombat.GunneryRoles");
   const crew=assignments.some(member=>{
     const role=String(member.role??"").trim();
     return role&&!isNavigationRole(member)&&!isGunnerRole(member)&&!/^(initiative|passager|passenger)$/i.test(role);
   });
   const passenger=aboardRoster(vehicle).some(member=>member.actor_id===actorId&&member.passenger&&!isNavigationRole(member)&&!isGunnerRole(member));
-  return crew||passenger?"":"Cette action est réservée aux passagers et aux membres de soutien, hors pilote, copilote et artilleurs.";
+  return crew||passenger?"":localizeSystem("SWFFG.UI.SpaceCombat.SupportRoles");
 }
 export function canRedirectShields(member) {
   const role=String(member?.role??"").normalize("NFD").replace(/[\u0300-\u036f\s_-]/g,"").toLowerCase();

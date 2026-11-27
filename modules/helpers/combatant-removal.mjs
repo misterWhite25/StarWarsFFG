@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "./system-localization.mjs";
 const scope='starwarsffg',queues=new Map(),cleanups=new Map();
 let cleanupInstalled=false;
 const serial=(combat,fn)=>{const next=(queues.get(combat.id)??Promise.resolve()).catch(()=>{}).then(fn);queues.set(combat.id,next);return next;};
@@ -17,14 +18,14 @@ export function claimsAfterRemoval(all,removedId,{turns=[]}={}){
 }
 function claimUpdates(before,after){const update={};for(const round of new Set([...Object.keys(before),...Object.keys(after)]))for(const id of new Set([...Object.keys(before[round]??{}),...Object.keys(after[round]??{})])){const old=before[round]?.[id],next=after[round]?.[id];if(old!==next)update['flags.starwarsffg.combatClaims.'+round+'.'+(next===undefined?'-=':'')+id]=next??null;}return update;}
 export async function removeParticipant(combat,id){
-  if(!game.user.isGM)throw Error('Seul le MJ peut retirer un combattant.');
+  if(!game.user.isGM)throw localizedSystemError("SWFFG.UI.Operations.GMRemoveCombatant");
   return serial(combat,async()=>{
     const participant=combat.combatants.get(id);if(!participant)return false;
     const before=combat.getFlag(scope,'combatClaims')??{},currentSlot=combat.turns?.[combat.turn]?.id,currentClaimant=before[combat.round]?.[currentSlot]??currentSlot,oldTurn=combat.turn??0,started=!!combat.started;
     combat._ffgRosterMutation=true;
     try{
       const deleted=await combat.deleteEmbeddedDocuments('Combatant',[id],{ffgRosterRemoval:true});
-      if(!deleted.length||combat.combatants.has(id))throw Error('La suppression a été annulée. Le combattant est conservé.');
+      if(!deleted.length||combat.combatants.has(id))throw localizedSystemError("SWFFG.UI.Operations.RemoveCanceled");
       const after=claimsAfterRemoval(before,id,{turns:[...combat.combatants]});
       combat.setupTurns();
       const claimantSurvives=combat.combatants.has(currentClaimant),assignedSlot=claimantSurvives?Object.keys(after[combat.round]??{}).find(slot=>after[combat.round][slot]===currentClaimant):null;
@@ -42,7 +43,7 @@ export async function handleTrackedRemoval(combat,participant){
 export async function removeTrackedCombatant(combat,element){
   const row=element?.getAttribute?element:element?.[0],slotId=row?.getAttribute('data-alt-id')||row?.getAttribute('data-combatant-id');
   const id=combat.started?(combat.getSlotClaims(combat.round,slotId)||row?.getAttribute('data-combatant-id')||slotId):row?.getAttribute('data-combatant-id')||slotId;
-  const participant=combat.combatants.get(id);if(!participant?.actor)throw Error('Ce créneau ne contient aucun combattant.');
+  const participant=combat.combatants.get(id);if(!participant?.actor)throw localizedSystemError("SWFFG.UI.Operations.EmptyCombatSlot");
   return handleTrackedRemoval(combat,participant);
 }
 export function isLegacyEmptySlot(participant){
@@ -61,5 +62,5 @@ export function installLegacySlotCleanup(){
   void (async()=>{
     const {flushDirectoryCamps}=await import('./directory-camps.mjs');await flushDirectoryCamps();
     for(const combat of game.combats)await cleanupLegacySlots(combat);
-  })().catch(error=>ui.notifications.error('Nettoyage des créneaux : '+error.message));
+  })().catch(error=>ui.notifications.error(localizeSystem("SWFFG.UI.Operations.CleanupSlots") + " "+error.message));
 }

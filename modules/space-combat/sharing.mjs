@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {createSharedWindowSession} from "../helpers/shared-window-session.mjs";
 
 const SETTING = "spaceCombatMapMode";
@@ -130,8 +131,8 @@ export function registerSharing({show, hide, refresh, report}) {
   }
 
   async function setShared(enabled) {
-    if (!game.user.isGM) throw Error("Seul le MJ peut changer le mode de la carte.");
-    if (typeof enabled !== "boolean") throw TypeError("Le mode partagé doit être activé ou désactivé.");
+    if (!game.user.isGM) throw localizedSystemError("SWFFG.UI.SpaceCombat.SharingGMOnly");
+    if (typeof enabled !== "boolean") throw TypeError(localizeSystem("SWFFG.UI.SpaceCombat.InvalidSharing"));
     if (enabled === mode().shared) return;
     const next = {shared: enabled, epoch: foundry.utils.randomID(24)};
     const wasVisible = visible;

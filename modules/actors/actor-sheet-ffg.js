@@ -366,7 +366,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
                 'supportSkill': ({engineer:'Mechanics',operator:'Computers',astromech:'Mechanics'})[actor?._integratedCrew?.kind]??null,
                 'supportRoll': actor?._integratedCrew&&['engineer','operator','astromech'].includes(actor._integratedCrew.kind)?get_dice_pool(actor,actor._integratedCrew.kind==='operator'?'Computers':'Mechanics',new DicePoolFFG({difficulty:0})).renderPreview().innerHTML:null,
                 'id': crew[i].actor_id,
-                'name': crew[i].actor_name,
+                'name': actor?._npcStation ? actor.name : crew[i].actor_name,
                 'role': crew[i].role,
                 'roleLabel': crewRoleDefinition(this.actor,crew[i].role)?.label ?? crew[i].role,
                 'img': img,

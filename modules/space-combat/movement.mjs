@@ -1,14 +1,15 @@
+import {localizedSystemError} from "../helpers/system-localization.mjs";
 import {movementRadius,previewFlight,headingTowards} from "./flight.mjs";
 import {nearestHex} from "./hex.mjs";
 
 // Validate the snapped centre, not the pointer, so rounding never grants extra range.
 export function movementDestination(ship,point) {
-  if(!Number.isFinite(point?.x)||!Number.isFinite(point?.y))throw Error("Choisissez une destination sur la carte.");
+  if(!Number.isFinite(point?.x)||!Number.isFinite(point?.y))throw localizedSystemError("SWFFG.UI.SpaceCombat.PickDestination");
   const destination=nearestHex(point),maximum=movementRadius(ship);
   const origin=nearestHex(ship);
   if(destination.q===origin.q&&destination.r===origin.r)return {x:ship.x,y:ship.y};
   const distance=Math.hypot(destination.x-ship.x,destination.y-ship.y);
-  if(distance>maximum+1e-8)throw Error("Cette case est hors de la zone de déplacement.");
+  if(distance>maximum+1e-8)throw localizedSystemError("SWFFG.UI.SpaceCombat.DestinationTooFar");
   return {x:destination.x,y:destination.y};
 }
 

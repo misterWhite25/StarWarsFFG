@@ -1,3 +1,4 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -18,7 +19,7 @@ test('a click on the rendered talent button opens the normal Hard Mechanics dial
  }}}}});
  const dice=new vm.SyntheticModule(['default'],function(){this.setExport('default',{rollSkillDirect:async(...args)=>{calls.push(args);return {rendered:true};}});},{context});await dice.link(()=>{});await dice.evaluate();
  const state=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/reviewed-talent-state.js',import.meta.url),'utf8'),{context});await state.link(()=>{});await state.evaluate();
- const module=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/triggered-talents.js',import.meta.url),'utf8'),{context,importModuleDynamically:async spec=>{assert.equal(spec,'./dice-helpers.js');return dice;}});await module.link(async spec=>spec.includes('vehicle-minion-group')?new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context}):spec.includes('legacy-text-format')?new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/legacy-text-format.js',import.meta.url),'utf8'),{context}):state);await module.evaluate();
+ const module=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/triggered-talents.js',import.meta.url),'utf8'),{context,importModuleDynamically:async spec=>{assert.equal(spec,'./dice-helpers.js');return dice;}});await linkWithSystemLocalization(module, context, async spec=>spec.includes('vehicle-minion-group')?new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context}):spec.includes('legacy-text-format')?new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/legacy-text-format.js',import.meta.url),'utf8'),{context}):state);await module.evaluate();
  const actor={id:'a',isOwner:true,items:[{id:'bad',type:'talent',name:'Défaut de motivateur',system:{description:'Test de Mécanique Difficile',ranks:{ranked:false}}}],system:{characteristics:{Intellect:{value:3}},skills:{Mechanics:{rank:2,value:'Mechanics',label:'Mécanique',characteristic:'Intellect',boost:1}}}};
  const sheet={actor};await module.namespace.showTriggeredTalents(sheet);
  const body=sheet._triggeredTalentsWindow.host.children[0];

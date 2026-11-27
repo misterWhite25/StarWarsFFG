@@ -1,6 +1,6 @@
 import {suggestTables} from './skill-reference-mapping.js';
 import {adjacentPlacement} from './pilotage-core.js';
-import {skillDescriptor,skillDescription} from './skill-information.js';
+import {referenceMatchesLocale,skillDescriptor,skillDescription} from './skill-information.js';
 
 const escapeText=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -50,7 +50,7 @@ export function hasSkillReferenceTables(builder){
   const skill=skillDescriptor(builder);if(!skill)return false;
   if(skillTableIds(skill, {scale:builder.roll.combatMode}).size)return true;
   return Array.from(game.journal??[]).some(journal=>journal.testUserPermission(game.user,'OBSERVER')&&Array.from(journal.pages).some(page=>{
-    if(page.type!=='text'||!page.testUserPermission(game.user,'OBSERVER'))return false;
+    if(page.type!=='text'||!page.testUserPermission(game.user,'OBSERVER')||!referenceMatchesLocale(journal,page))return false;
     const linked=page.getFlag('starwarsffg','skillKeys')??[];
     return (Array.isArray(linked)?linked:[linked]).some(key=>key===skill.key||key===skill.label);
   }));
@@ -108,13 +108,13 @@ async function referencePages(skill,ids){
   const addJournal=journal=>{
     if(!journal?.testUserPermission(game.user,'OBSERVER'))return;
     for(const page of journal.pages){
-      if(page.type!=='text'||!page.testUserPermission(game.user,'OBSERVER'))continue;
+      if(page.type!=='text'||!page.testUserPermission(game.user,'OBSERVER')||!referenceMatchesLocale(journal,page))continue;
       const linked=page.getFlag('starwarsffg','skillKeys')??[];
       const explicit=(Array.isArray(linked)?linked:[linked]).some(key=>key===skill.key||key===skill.label);
       const number=page.name.split(' · ')[0];
       const knownBook=journal.flags?.['swffg-reference-tables-fr']||journal.getFlag('starwarsffg','referenceTables')||/tables? de combat et soins|combat and healing tables/i.test(journal.name);
       if(explicit||(knownBook&&ids.has(number))){
-        const identity=explicit?page.uuid:number;
+        const identity=knownBook&&ids.has(number)?number:page.uuid;
         if(!seen.has(identity)){pages.push(page);seen.add(identity);}
       }
     }
@@ -129,9 +129,9 @@ async function referencePages(skill,ids){
   }
   }
   if([...ids].some(id=>!seen.has(id))){
-    const language=game.i18n.lang==='fr'?'fr':'en';
+    const language=game.i18n.lang==="fr"?"fr":"en";
     if(!bundledReferences.has(language)){
-      const request=fetch(`/systems/starwarsffg/data/skill-references-${language}.json`).then(response=>{
+      const request=fetch(foundry.utils.getRoute(`systems/starwarsffg/data/skill-references-${language}.json`)).then(response=>{
         if(!response.ok)throw Error(game.i18n.localize("SWFFG.UI.SkillInfo.SkillReferencesUnavailable"));
         return response.json();
       }).catch(error=>{bundledReferences.delete(language);throw error;});

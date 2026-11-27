@@ -1,10 +1,11 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 async function load() {
  const context=vm.createContext({game:{i18n:{lang:'fr'},combat:{id:'fight',round:2,started:true}},foundry:{utils:{getProperty:(object,path)=>path.split('.').reduce((value,key)=>value?.[key],object)}}});
- const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/roll-talents.js',import.meta.url),'utf8'),{context});await module.link(()=>{});await module.evaluate();
+ const module=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/roll-talents.js',import.meta.url),'utf8'),{context});await linkWithSystemLocalization(module, context, ()=>{});await module.evaluate();
  return {api:module.namespace,game:context.game};
 }
 function actor() {

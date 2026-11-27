@@ -147,7 +147,7 @@ Hooks.once('init', () => {
             callback: (_event, _button, dialog) => game.settings.set(scope, setting,
               Array.from(dialog.element.querySelectorAll('[data-sidebar-order-key]'), row => row.dataset.sidebarOrderKey))
           },
-          {action: 'cancel', label: 'Cancel'}
+          {action: 'cancel', label: game.i18n.localize('SWFFG.Cancel')}
         ]
       });
     }

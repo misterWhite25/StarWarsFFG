@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "./system-localization.mjs";
 import {cancelSummaryRenders,renderSummary,summaryDialog} from './summary-render.mjs';
 import {rollContext} from './roll-context.mjs';
 import {summaryTalents, talentDescription} from './talent-summary.js';
@@ -22,8 +23,8 @@ import {crewRolesForSkill} from './crew-role-definitions.mjs';
 import {malfunctionNavigation} from './vehicle-malfunction-engine.js';
 const scope='starwarsffg',personal=new Set(['character','minion','rival','nemesis','vehicle']),panels=new Map();
 let sessionModel, pendingSceneTokenUuid;
-const labels={ability:'Capacité',forcepower:'Pouvoir de la Force','force-upgrade':'Amélioration de la Force',signatureability:'Capacité signature'};
-const kinds={passive:'Passif',maneuver:'Manœuvre',reaction:'Broutille / réaction',action:'Action',manual:'Résolution manuelle'};
+const labels={get ability(){return localizeSystem("SWFFG.UI.Operations.Ability");},get forcepower(){return localizeSystem("SWFFG.UI.Operations.ForcePower");},get 'force-upgrade'(){return localizeSystem("SWFFG.UI.Operations.ForceUpgrade");},get signatureability(){return localizeSystem("SWFFG.UI.Operations.SignatureAbility");}};
+const kinds={get passive(){return localizeSystem("SWFFG.UI.Talent.Passive");},get maneuver(){return localizeSystem("SWFFG.UI.Operations.Maneuver");},get reaction(){return localizeSystem("SWFFG.UI.Operations.Incidental");},action:'Action',get manual(){return localizeSystem("SWFFG.UI.Operations.ManualResolution");}};
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const number=value=>Math.max(0,Number(value)||0);
 const playerOwned=actor=>game.users.some(user=>!user.isGM&&actor.testUserPermission(user,'OWNER'));
@@ -40,7 +41,7 @@ export function npcRoster({includePlayers=false}={}) {
     crews.set(ship.actorId, crew);
     for (const member of crew) boarded.add(member.actor_id);
   }
-  const add=(token,participant=null)=>{const actor=token?.actor;if(!actor||!personal.has(actor.type)||token.getFlag(scope,'npcInitiativeShadow')&&boarded.has(actor.id)||(!includePlayers&&playerOwned(actor))||seen.has(token.uuid))return;seen.add(token.uuid);entries.push({key:token.uuid,name:token.name,actor,token,participant,mode:'ground',group:actor.type==='minion'?'Groupe de sbires':actor.type==='nemesis'?'Némésis':actor.type==='rival'?'Rival':'Personnage'});};
+  const add=(token,participant=null)=>{const actor=token?.actor;if(!actor||!personal.has(actor.type)||token.getFlag(scope,'npcInitiativeShadow')&&boarded.has(actor.id)||(!includePlayers&&playerOwned(actor))||seen.has(token.uuid))return;seen.add(token.uuid);entries.push({key:token.uuid,name:token.name,actor,token,participant,mode:'ground',group:actor.type==='minion'?localizeSystem("SWFFG.UI.Operations.MinionGroup"):actor.type==='nemesis'?localizeSystem("SWFFG.UI.Operations.Nemesis"):actor.type==='rival'?'Rival':localizeSystem("SWFFG.UI.Operations.Character")});};
   for(const participant of game.combat?.combatants??[])add(participant.token,participant);
   for(const token of canvas.scene?.tokens??[])add(token);
   let participants;
@@ -79,10 +80,10 @@ function targets(entry){return entry.mode==='space'?(board().ships??[]).filter(s
 function choiceForItem(item){return {kind:item.type==='forcepower'||item.type==='signatureability'?'force':'weapon',id:item.id,type:item.type,name:item.name};}
 function currentEntry(model){return npcRoster(model).find(entry=>entry.key===model.selected);}
 function reasonFor(entry,choice){
-  if(!entry)return 'Sélectionnez un PNJ.';
+  if(!entry)return localizeSystem("SWFFG.UI.Operations.SelectNpc");
   const reason=npcTurnReason(entry);if(reason)return reason;
   if(entry.mode==='space'){
-    const used=characterActionState(board().ships,entry.actor.id,board().round);if(!game.user.isGM&&(used.action||used.ended))return 'Action déjà utilisée ou tour terminé.';
+    const used=characterActionState(board().ships,entry.actor.id,board().round);if(!game.user.isGM&&(used.action||used.ended))return localizeSystem("SWFFG.UI.Operations.ActionSpentOrEnded");
     if(choice?.kind==='space-action')return actionRoleReason(entry.vehicle,entry.actor.id,choice.id);
     if(choice?.kind==='ship-weapon')return actionRoleReason(entry.vehicle,entry.actor.id,'attack');
   }
@@ -95,13 +96,13 @@ async function nativeGroundRoll(entry,choice,difficulty) {
   else {
     const data=rollContext(actor,{tokenUuid:entry.token?.uuid});
     if(choice.kind==='force'){
-      const item=actor.items.get(choice.id);if(!item)throw Error('Ce pouvoir n’existe plus.');
+      const item=actor.items.get(choice.id);if(!item)throw localizedSystemError("SWFFG.UI.Operations.PowerMissing");
       const force=Math.max(0,number(actor.system.stats.forcePool?.max)-number(actor.system.stats.forcePool?.value));
-      if(!force)throw Error('Aucun dé de Force disponible.');
+      if(!force)throw localizedSystemError("SWFFG.UI.Operations.NoForceDice");
       builder=await DiceHelpers.displayRollDialog(data,new DicePoolFFG({force}),item.name,item.name,item);
     }else {
       const skill=actor.system.skills?.[choice.id],characteristic=actor.system.characteristics?.[skill?.characteristic];
-      if(!skill||!characteristic)throw Error('Compétence introuvable.');
+      if(!skill||!characteristic)throw localizedSystemError("SWFFG.UI.Operations.SkillMissing");
       const combat=skill.type==='Combat'||skill.combat===true||['Brawl','Melee','Lightsaber','Gunnery','Ranged: Heavy','Ranged: Light'].includes(choice.id);
       builder=await DiceHelpers.rollSkillDirect(skill,characteristic,difficulty,data,undefined,undefined,{actor,skillKey:choice.id,nonAttack:!combat});
     }
@@ -109,17 +110,17 @@ async function nativeGroundRoll(entry,choice,difficulty) {
   return attachNpcBudget(builder,entry);
 }
 async function execute(model,choice,entry) {
-  if(!choice)throw Error('Choisissez une compétence, une arme ou une action.');
+  if(!choice)throw localizedSystemError("SWFFG.UI.Operations.ChooseSkillWeaponAction");
   const reason=reasonFor(entry,choice);if(reason)throw Error(reason);
   const {targetId,sector,difficulty}=model;
   if(entry.mode==='space'){
     const ship=board().ships.find(ship=>ship.id===entry.ship.id);
     if(choice.kind==='ship-weapon'){
-      const weapon=entry.vehicle.items.get(choice.id),member=weaponMember(entry,weapon);if(!member)throw Error('Cette arme n’est pas accessible à ce poste.');
+      const weapon=entry.vehicle.items.get(choice.id),member=weaponMember(entry,weapon);if(!member)throw localizedSystemError("SWFFG.UI.Operations.StationWeaponForbidden");
       return openCombatRoll(ship,member,{weapon,targetId,sector});
     }
     if(choice.kind==='space-action'){
-      if(choice.id==='attack')throw Error('Choisissez une arme de vaisseau.');
+      if(choice.id==='attack')throw localizedSystemError("SWFFG.UI.Operations.ChooseShipWeapon");
       const def=ACTIONS.find(a=>a.id===choice.id),request={shipId:ship.id,version:ship.version,crewId:entry.actor.id,combatAction:choice.id,targetId,sector};
       if (def.barrage) {
         const {performBarrage} = await import('../space-combat/barrage-dialog.mjs');
@@ -128,9 +129,9 @@ async function execute(model,choice,entry) {
       }
       if(def.skills||choice.id==='repairCritical'){
         const body=document.createElement('div');
-        if(def.skills)body.innerHTML=`<label>Compétence<select name="skill">${def.skills.map(key=>`<option value="${esc(key)}">${esc(skillLabel(entry.actor,key))}</option>`).join('')}</select></label>`;
-        else body.innerHTML=`<label>Dégât critique<select name="critical">${[...entry.vehicle.items].filter(i=>i.type==='criticaldamage').map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select></label>`;
-        const result=await foundry.applications.api.DialogV2.wait({window:{title:def.label},content:body,rejectClose:false,buttons:[{action:'confirm',label:'Effectuer l’action',callback:(_event,button)=>({skill:button.form.elements.skill?.value,criticalId:button.form.elements.critical?.value})},{action:'cancel',label:'Annuler',callback:()=>null}]});if(!result)return;Object.assign(request,result);
+        if(def.skills)body.innerHTML=`<label>${localizeSystem("SWFFG.UI.Pdf.Skill")}<select name="skill">${def.skills.map(key=>`<option value="${esc(key)}">${esc(skillLabel(entry.actor,key))}</option>`).join('')}</select></label>`;
+        else body.innerHTML=`<label>${localizeSystem("SWFFG.UI.Operations.CriticalHit")}<select name="critical">${[...entry.vehicle.items].filter(i=>i.type==='criticaldamage').map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select></label>`;
+        const result=await foundry.applications.api.DialogV2.wait({window:{title:def.label},content:body,rejectClose:false,buttons:[{action:'confirm',label:localizeSystem("SWFFG.UI.Operations.PerformAction"),callback:(_event,button)=>({skill:button.form.elements.skill?.value,criticalId:button.form.elements.critical?.value})},{action:'cancel',label:localizeSystem("SWFFG.Cancel"),callback:()=>null}]});if(!result)return;Object.assign(request,result);
       }
       return command('combat',request);
     }
@@ -140,29 +141,29 @@ async function execute(model,choice,entry) {
 function weaponMember(entry,weapon){if(!weapon)return null;return weaponCrewCandidates(weapon,crewRoster(entry.vehicle).filter(m=>m.actor_id===entry.actor.id),crewRolesForSkill(entry.vehicle,weapon.system.skill?.value),malfunctionNavigation(entry.vehicle))[0];}
 async function manualAbility(entry,catalogueEntry){
   const kind=npcAbilityKind(catalogueEntry),reaction=kind==='reaction'||kind==='passive';
-  const body=document.createElement('div');body.innerHTML=`<p>Résolvez les effets décrits dans le catalogue. Les effets rédigés en texte libre ne sont pas appliqués automatiquement.</p><label>Type d’utilisation<select name="kind"><option value="action">Action</option><option value="maneuver">Manœuvre</option><option value="reaction">Broutille / réaction</option></select></label><label>Stress personnel à payer<input type="number" name="strain" min="0" max="99" value="0"></label>`;
+  const body=document.createElement('div');body.innerHTML=`<p>${localizeSystem("SWFFG.UI.Operations.ResolveCatalogManually")}</p><label>${localizeSystem("SWFFG.UI.Operations.UseType")}<select name="kind"><option value="action">Action</option><option value="maneuver">${kinds.maneuver}</option><option value="reaction">${localizeSystem("SWFFG.UI.Operations.Incidental")}</option></select></label><label>${localizeSystem("SWFFG.UI.Operations.PayPersonalStrain")}<input type="number" name="strain" min="0" max="99" value="0"></label>`;
   body.querySelector('[name=kind]').value=reaction?'reaction':kind==='maneuver'?'maneuver':'action';
-  const chosen=await foundry.applications.api.DialogV2.wait({window:{title:catalogueEntry.name},content:body,rejectClose:false,buttons:[{action:'use',label:'Confirmer l’utilisation',callback:(_event,button)=>({kind:button.form.elements.kind.value,strain:number(button.form.elements.strain.value)})},{action:'cancel',label:'Annuler',callback:()=>null}]});if(!chosen)return;
+  const chosen=await foundry.applications.api.DialogV2.wait({window:{title:catalogueEntry.name},content:body,rejectClose:false,buttons:[{action:'use',label:localizeSystem("SWFFG.UI.Operations.ConfirmUse"),callback:(_event,button)=>({kind:button.form.elements.kind.value,strain:number(button.form.elements.strain.value)})},{action:'cancel',label:localizeSystem("SWFFG.Cancel"),callback:()=>null}]});if(!chosen)return;
   const reason=npcTurnReason(entry,{reaction:chosen.kind==='reaction',maneuver:chosen.kind==='maneuver'});if(reason)throw Error(reason);
-  if(chosen.strain&&entry.actor.type==='minion')throw Error('Un groupe de sbires ne peut pas payer de stress personnel.');
+  if(chosen.strain&&entry.actor.type==='minion')throw localizedSystemError("SWFFG.UI.Operations.MinionsCannotPayStrain");
   if(chosen.kind==='maneuver'&&entry.token){const state=stateFor(entry.token);await requestMovementCommand({kind:'other',tokenUuid:entry.token.uuid,context:state.context,revision:state.revision,payment:'strain'});}
   const transaction=chosen.kind==='action'?await reserveNpcAction(entry,initiativeStamp()):null;
   try{if(chosen.strain){const resource=entry.actor.type==='rival'?'wounds':'strain';await entry.actor.update({['system.stats.'+resource+'.value']:number(entry.actor.system.stats[resource]?.value)+chosen.strain});}}
   catch(error){await restoreNpcAction(transaction);throw error;}
-  await ChatMessage.create({speaker:ChatMessage.getSpeaker({actor:entry.actor,token:entry.token}),content:`<p>${esc(entry.name)} : ${esc(catalogueEntry.name)} (${esc(kinds[chosen.kind])}${chosen.strain?', '+chosen.strain+' stress':''}). Effets résolus par le MJ.</p>`,whisper:[game.user.id]});
+  await ChatMessage.create({speaker:ChatMessage.getSpeaker({actor:entry.actor,token:entry.token}),content:`<p>${esc(entry.name)} : ${esc(catalogueEntry.name)} (${esc(kinds[chosen.kind])}${chosen.strain?', '+chosen.strain+" " + localizeSystem("SWFFG.UI.Operations.Strain"):''}). Effets résolus par le MJ.</p>`,whisper:[game.user.id]});
 }
 function headerHtml(model){
-  return `<div class="nc-toolbar nc-filter"><input type="search" data-npc-field="search" aria-label="Filtrer les PNJ" placeholder="Rechercher un personnage" value="${esc(model.search)}"></div>`;
+  return `<div class="nc-toolbar nc-filter"><input type="search" data-npc-field="search" aria-label="${localizeSystem("SWFFG.UI.Operations.FilterNpcs")}" placeholder="${localizeSystem("SWFFG.UI.Operations.FindCharacter")}" value="${esc(model.search)}"></div>`;
 }
 function rosterTypeBadge(actor){
   const type=actor.type,quantity=actor.system.quantity;
-  const label=type==='minion'?(number(quantity?.value)===1?'Sbire : 1':'Sbires : '+number(quantity?.value)):{character:'Personnage',rival:'Rival',nemesis:'Némésis',vehicle:'Véhicule'}[type]??type;
-  const title=type==='minion'?number(quantity?.value)+' sbire(s) présent(s) sur '+number(quantity?.max):label;
+  const label=type==='minion'?localizeSystem("SWFFG.UI.Operations.MinionRosterCount", {count:number(quantity?.value)}):{character:localizeSystem("SWFFG.UI.Operations.Character"),rival:'Rival',nemesis:localizeSystem("SWFFG.UI.Operations.Nemesis"),vehicle:localizeSystem("SWFFG.UI.Operations.Vehicle")}[type]??type;
+  const title=type==='minion'?localizeSystem("SWFFG.UI.Operations.MinionRosterStatus", {count:number(quantity?.value), total:number(quantity?.max)}):label;
   return `<small class="nc-roster-type" data-npc-type="${esc(type)}" title="${esc(title)}">${esc(label)}</small>`;
 }
 function adversaryBadge(actor){
   const rank=npcAdversaryRank(actor,game.settings.get(scope,'adversaryItemName'));
-  return rank?`<small class="nc-roster-adversary" title="Rang du talent Adversaire : ${rank}">Adversaire <span>${rank}</span></small>`:'';
+  return rank?`<small class="nc-roster-adversary" title="${esc(localizeSystem("SWFFG.UI.Operations.AdversaryRank", {rank}))}">${localizeSystem("SWFFG.UI.Operations.Adversary")} <span>${rank}</span></small>`:'';
 }
 function rosterSide(entry){
   const disposition = npcDisposition(entry);
@@ -194,23 +195,23 @@ function rosterHtml(model,groups,entry){
     ? `<optgroup label="Neutres / camp masqué">${neutral.map(option).join('')}</optgroup>` : '');
   const camp=entry&&npcCampInfo(entry);
   const favorite=entry&&favorites.has(entry.key);
-  const favoriteLabel=favorite?'Retirer des favoris':'Ajouter aux favoris';
+  const favoriteLabel=favorite?localizeSystem("SWFFG.UI.Operations.RemoveFavorite"):localizeSystem("SWFFG.UI.Operations.AddFavorite");
   const star=entry?`<button type="button" data-npc-favorite="${esc(entry.key)}" aria-pressed="${favorite}"
     aria-label="${favoriteLabel}" title="${favoriteLabel}"><i class="${favorite?'fa-solid':'fa-regular'} fa-star" aria-hidden="true"></i></button>`:'';
-  const status=!entry?'':hasActed(game.combat,entry.participant)?'Action utilisée'
-    :entry.participant?.isDefeated?'Neutralisé':entry.participant?'Dans l’initiative':'Hors initiative';
+  const status=!entry?'':hasActed(game.combat,entry.participant)?localizeSystem("SWFFG.UI.Operations.ActionSpent")
+    :entry.participant?.isDefeated?localizeSystem("SWFFG.UI.Operations.Incapacitated"):entry.participant?'Dans l’initiative':localizeSystem("SWFFG.UI.Operations.OutsideInitiative");
   const meta=entry?`<div class="nc-picker-meta nc-person" data-npc-camp="${esc(camp.key)}"><img src="${esc(entry.token?.texture?.src??entry.actor.img)}" alt="">
     ${rosterTypeBadge(entry.actor)}${adversaryBadge(entry.actor)}<small class="nc-roster-camp">${esc(camp.label)}</small><small>${status}</small></div>`:'';
   const listId=model.panelId+'-roster-'+model.side;
-  return `<h3>PNJ et équipages</h3><nav class="nc-roster-tabs" role="tablist" aria-label="Camps du combat">${[['allies','Joueurs et alliés'],['enemies','Ennemis']].map(([side,label])=>`<button type="button" role="tab" class="nc-side-tab" data-npc-side="${side}" id="${esc(model.panelId)}-side-${side}" aria-selected="${model.side===side}" aria-controls="${esc(model.panelId)}-roster-${side}" tabindex="${model.side===side?0:-1}">${label} <span>(${groups[side].length})</span></button>`).join('')}</nav><label class="nc-roster-filter"><span>Afficher</span><select data-npc-roster-filter aria-label="Filtrer les personnages affichés">${rosterFilters.map(([key,label])=>`<option value="${key}" ${filter===key?'selected':''}>${label}</option>`).join('')}</select></label>
+  return `<h3>${localizeSystem("SWFFG.UI.Operations.NpcsAndCrew")}</h3><nav class="nc-roster-tabs" role="tablist" aria-label="${localizeSystem("SWFFG.UI.Operations.CombatSides")}">${[['allies',localizeSystem("SWFFG.UI.Operations.PlayersAndAllies")],['enemies','Ennemis']].map(([side,label])=>`<button type="button" role="tab" class="nc-side-tab" data-npc-side="${side}" id="${esc(model.panelId)}-side-${side}" aria-selected="${model.side===side}" aria-controls="${esc(model.panelId)}-roster-${side}" tabindex="${model.side===side?0:-1}">${label} <span>(${groups[side].length})</span></button>`).join('')}</nav><label class="nc-roster-filter"><span>Afficher</span><select data-npc-roster-filter aria-label="${localizeSystem("SWFFG.UI.Operations.FilterCharacters")}">${rosterFilters.map(([key,label])=>`<option value="${key}" ${filter===key?'selected':''}>${label}</option>`).join('')}</select></label>
     <div id="${esc(listId)}" role="tabpanel" aria-labelledby="${esc(model.panelId)}-side-${model.side}">
-      <div class="nc-picker"><select data-npc-roster-select aria-label="Personnage" title="${esc(entry?.name)}" ${options?'':'disabled'}>
-        ${options||'<option>Aucun personnage</option>'}</select>${star}</div>${meta}
+      <div class="nc-picker"><select data-npc-roster-select aria-label="${localizeSystem("SWFFG.UI.Operations.Character")}" title="${esc(entry?.name)}" ${options?'':'disabled'}>
+        ${options||`<option>${localizeSystem("SWFFG.UI.Operations.NoCharacter")}</option>`}</select>${star}</div>${meta}
     </div>`;
 }
 function statsHtml(entry){
   const stats=entry.actor.system.stats??{},fields=[['wounds','Blessures'],['strain','Stress'],['soak','Encaissement']];
-  const defence=stats.defence&&(number(stats.defence.melee)||number(stats.defence.ranged))?`<label class="nc-defence">Défense<span class="nc-defence-values"><span class="nc-defence-value"><strong>${number(stats.defence.melee)}</strong><small>Mêlée</small></span><span class="nc-defence-value"><strong>${number(stats.defence.ranged)}</strong><small>Distance</small></span></span></label>`:'';
+  const defence=stats.defence&&(number(stats.defence.melee)||number(stats.defence.ranged))?`<label class="nc-defence">${localizeSystem("SWFFG.UI.Operations.Defense")}<span class="nc-defence-values"><span class="nc-defence-value"><strong>${number(stats.defence.melee)}</strong><small>${localizeSystem("SWFFG.UI.Operations.Melee")}</small></span><span class="nc-defence-value"><strong>${number(stats.defence.ranged)}</strong><small>Distance</small></span></span></label>`:'';
   return `<div class="nc-stats">${fields.filter(([key])=>stats[key]&&(key!=='strain'||number(stats.strain.max)>0)).map(([key,label])=>`<label>${label}${['wounds','strain'].includes(key)?`<span><input type="number" min="0" data-npc-resource="${key}" value="${number(stats[key].value)}"> / ${number(stats[key].max)}</span>`:`<strong>${esc(stats[key].value??0)}</strong>`}</label>`).join('')}${defence}</div>`;
 }
 function commandCatalogue(actor){return npcCatalogue(actor).filter(item=>['ability','forcepower','force-upgrade','signatureability'].includes(item.type));}
@@ -221,18 +222,18 @@ function catalogueRank(item){
 function catalogueItemHtml(item){
   const type=item.type,kind=npcAbilityKind(item),rank=catalogueRank(item);
   const actions=[
-    ['forcepower','signatureability'].includes(type)?button('Préparer le pouvoir','power',`data-key="${esc(item.key)}"`):'',
-    ['ability','force-upgrade','signatureability'].includes(type)&&kind!=='passive'?button('Résoudre un effet manuel','manual',`data-key="${esc(item.key)}"`):''
+    ['forcepower','signatureability'].includes(type)?button(localizeSystem("SWFFG.UI.Operations.PreparePower"),'power',`data-key="${esc(item.key)}"`):'',
+    ['ability','force-upgrade','signatureability'].includes(type)&&kind!=='passive'?button(localizeSystem("SWFFG.UI.Operations.ResolveManual"),'manual',`data-key="${esc(item.key)}"`):''
   ].join('');
   return `<article class="nc-catalogue-card" data-npc-catalogue="${esc(item.key)}">
     <header class="nc-capability-heading"><span class="nc-catalogue-title">${esc(item.name)}</span><span class="nc-catalogue-tags"><span class="nc-catalogue-kind" data-kind="${kind}">${esc(kinds[kind])}</span>${rank!==null?`<span class="nc-catalogue-rank">${esc(game.i18n.format('SWFFG.UI.Talent.RankNumber',{rank}))}</span>`:''}</span></header>
-    <div class="nc-catalogue-body">${item.source?`<small class="nc-catalogue-source">${esc(item.source)}</small>`:''}<div class="nc-description" data-npc-description="${esc(item.key)}"></div><div class="nc-item-buttons">${actions}</div>${item.system.quantity!==undefined?`<small class="nc-catalogue-quantity">Quantité : ${esc(item.system.quantity?.value??item.system.quantity)}</small>`:''}</div>
+    <div class="nc-catalogue-body">${item.source?`<small class="nc-catalogue-source">${esc(item.source)}</small>`:''}<div class="nc-description" data-npc-description="${esc(item.key)}"></div><div class="nc-item-buttons">${actions}</div>${item.system.quantity!==undefined?`<small class="nc-catalogue-quantity">${localizeSystem("SWFFG.UI.Operations.QuantityColon")} ${esc(item.system.quantity?.value??item.system.quantity)}</small>`:''}</div>
   </article>`;
 }
 function catalogueHtml(model,entry,all=commandCatalogue(entry.actor)){
   const query=normalizeNpc(model.catalogueSearch),filtered=all.filter(item=>!query||normalizeNpc(item.name+item.source+(labels[item.type]??item.type)).includes(query));
   const types=[...new Set(filtered.map(e=>e.type))];
-  return `<section class="nc-catalogue"><input type="search" aria-label="Rechercher dans le catalogue" data-npc-field="catalogueSearch" placeholder="Pouvoir, capacité..." value="${esc(model.catalogueSearch)}">${types.map(type=>{
+  return `<section class="nc-catalogue"><input type="search" aria-label="${localizeSystem("SWFFG.UI.Operations.SearchCatalog")}" data-npc-field="catalogueSearch" placeholder="${localizeSystem("SWFFG.UI.Operations.SearchPower")}" value="${esc(model.catalogueSearch)}">${types.map(type=>{
     const items=filtered.filter(item=>item.type===type);
     return `<section class="nc-category" data-npc-category="${esc(type)}"><h3 class="nc-capability-category"><span>${esc(labels[type]??type)}</span><span class="nc-category-count">${items.length}</span></h3>${items.map(catalogueItemHtml).join('')}</section>`;
   }).join('')}</section>`;
@@ -323,25 +324,25 @@ async function loadCombatReference(detail,actor) {
 }
 
 function controlsHtml(model,entry,main){
-  if(!entry)return '<p>Sélectionnez un personnage.</p>';
-  if(entry.actor.type==='vehicle')return `<header class="nc-actor-title"><h3>${esc(entry.name)}</h3>${button('<i class="fa-solid fa-address-card" aria-hidden="true"></i> Fiche Combat','combat-sheet','class="nc-combat-sheet"')}</header>`;
+  if(!entry)return `<p>${localizeSystem("SWFFG.UI.Operations.SelectCharacter")}</p>`;
+  if(entry.actor.type==='vehicle')return `<header class="nc-actor-title"><h3>${esc(entry.name)}</h3>${button(`<i class="fa-solid fa-address-card" aria-hidden="true"></i> ${localizeSystem("SWFFG.UI.Operations.CombatSheet")}`,'combat-sheet','class="nc-combat-sheet"')}</header>`;
   const actor=entry.actor,availableTargets=targets(entry),reason=npcTurnReason(entry),weapons=[...actor.items].filter(i=>i.type==='weapon'&&!isPossession(i)&&i.system.equippable?.equipped===true),shipWeapons=entry.mode==='space'?[...entry.vehicle.items].filter(i=>i.type==='shipweapon'&&weaponMember(entry,i)):[];
-  const weaponButton=(item,cmd)=>button(esc(item.name),cmd,`data-item="${item.id}" ${item.flags?.starwarsffg?.inventoryLocation==='possession'?'disabled title="Objet non porté"':''}`);
-  return `<header class="nc-actor-title"><h3>${esc(entry.name)}</h3>${button('<i class="fa-solid fa-address-card" aria-hidden="true"></i> Fiche Combat','combat-sheet','class="nc-combat-sheet"')}</header>${statsHtml(entry)}<div class="nc-roll-config">${entry.mode==='space'?`<label>Cible<select data-npc-field="targetId"><option value="">Choisir un vaisseau</option>${availableTargets.map(t=>`<option value="${esc(t.id)}" ${model.targetId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label><label>Secteur<select data-npc-field="sector">${Object.entries(SECTORS).map(([key,label])=>`<option value="${key}" ${model.sector===key?'selected':''}>${label}</option>`).join('')}</select></label>`:availableTargets.length?`<span class="nc-target">Cible : ${esc(availableTargets.map(t=>t.name).join(', '))}</span>`:''}</div>${weapons.length||shipWeapons.length?`<h3>Armes</h3><div class="nc-command-grid">${weapons.map(item=>weaponButton(item,'weapon')).join('')}${shipWeapons.map(item=>weaponButton(item,'ship-weapon')).join('')}</div>`:''}${entry.mode==='space'?`<h3>Actions à bord</h3><div class="nc-command-grid">${ACTIONS.filter(def=>def.id!=='attack'&&(!def.minSize||entry.ship.silhouette>=def.minSize)&&!actionRoleReason(entry.vehicle,actor.id,def.id)).map(def=>button(esc(def.label),'space-action',`data-id="${def.id}"`)).join('')}${button('Vaisseau et manœuvres','ship')}</div>`:''}<h3>Compétences principales</h3><div class="nc-main-skills">${main.map(([key])=>button(`<span class="nc-skill-name">${esc(skillLabel(actor,key))}</span><span class="roll-button dice-pool nc-skill-pool"></span>`,'skill',`class="nc-skill" data-ability="${esc(key)}" title="Préparer ${esc(skillLabel(actor,key))}"`)).join('')}</div>${reason?`<p class="nc-note nc-turn-reason">${esc(reason)}</p>`:''}${combatReferencesHtml(actor)}${commandCatalogue(actor).length
-    ? '<div class="nc-summary-actions">'+button('<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Pouvoirs et capacités','powers-summary')+'</div>'
+  const weaponButton=(item,cmd)=>button(esc(item.name),cmd,`data-item="${item.id}" ${item.flags?.starwarsffg?.inventoryLocation==='possession'?`disabled title="${esc(localizeSystem("SWFFG.UI.Operations.ItemNotCarried"))}"`:''}`);
+  return `<header class="nc-actor-title"><h3>${esc(entry.name)}</h3>${button(`<i class="fa-solid fa-address-card" aria-hidden="true"></i> ${localizeSystem("SWFFG.UI.Operations.CombatSheet")}`,'combat-sheet','class="nc-combat-sheet"')}</header>${statsHtml(entry)}<div class="nc-roll-config">${entry.mode==='space'?`<label>Cible<select data-npc-field="targetId"><option value="">${localizeSystem("SWFFG.UI.Operations.SelectShip")}</option>${availableTargets.map(t=>`<option value="${esc(t.id)}" ${model.targetId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label><label>Secteur<select data-npc-field="sector">${Object.entries(SECTORS).map(([key,label])=>`<option value="${key}" ${model.sector===key?'selected':''}>${label}</option>`).join('')}</select></label>`:availableTargets.length?`<span class="nc-target">Cible : ${esc(availableTargets.map(t=>t.name).join(', '))}</span>`:''}</div>${weapons.length||shipWeapons.length?`<h3>Armes</h3><div class="nc-command-grid">${weapons.map(item=>weaponButton(item,'weapon')).join('')}${shipWeapons.map(item=>weaponButton(item,'ship-weapon')).join('')}</div>`:''}${entry.mode==='space'?`<h3>${localizeSystem("SWFFG.UI.Operations.OnboardActions")}</h3><div class="nc-command-grid">${ACTIONS.filter(def=>def.id!=='attack'&&(!def.minSize||entry.ship.silhouette>=def.minSize)&&!actionRoleReason(entry.vehicle,actor.id,def.id)).map(def=>button(esc(def.label),'space-action',`data-id="${def.id}"`)).join('')}${button(localizeSystem("SWFFG.UI.Operations.ShipManeuvers"),'ship')}</div>`:''}<h3>${localizeSystem("SWFFG.UI.Operations.PrimarySkills")}</h3><div class="nc-main-skills">${main.map(([key])=>button(`<span class="nc-skill-name">${esc(skillLabel(actor,key))}</span><span class="roll-button dice-pool nc-skill-pool"></span>`,'skill',`class="nc-skill" data-ability="${esc(key)}" title="${esc(localizeSystem("SWFFG.UI.Operations.PrepareSkill", {skill:skillLabel(actor,key)}))}"`)).join('')}</div>${reason?`<p class="nc-note nc-turn-reason">${esc(reason)}</p>`:''}${combatReferencesHtml(actor)}${commandCatalogue(actor).length
+    ? '<div class="nc-summary-actions">'+button(`<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ${localizeSystem("SWFFG.UI.Operations.PowersAndAbilities")}`,'powers-summary')+'</div>'
     : ''}`;
 }
 async function enrichDescription(details,entry){
   const holder=details.querySelector('.nc-description');if(!holder||holder.dataset.loaded)return;holder.dataset.loaded='true';
   const unwrap=value=>typeof value==='object'?value?.value:value;
   const parts=[...new Set([unwrap(entry.system.description),entry.system.longDesc,entry.system.desc].filter(value=>typeof value==='string'&&value.trim()))];
-  const facts=[];for(const [key,label] of [['damage','Dégâts'],['crit','Critique'],['range','Portée'],['soak','Encaissement'],['defence','Défense'],['encumbrance','Encombrement'],['hardpoints','Points d’accroche'],['special','Propriétés'],['quantity','Quantité'],['required_force_rating','Valeur de Force requise']]){
+  const facts=[];for(const [key,label] of [['damage',localizeSystem("SWFFG.UI.Operations.Damage")],['crit','Critique'],['range',localizeSystem("SWFFG.UI.Operations.Range")],['soak','Encaissement'],['defence',localizeSystem("SWFFG.UI.Operations.Defense")],['encumbrance','Encombrement'],['hardpoints','Points d’accroche'],['special',localizeSystem("SWFFG.UI.Operations.Qualities")],['quantity',localizeSystem("SWFFG.UI.Operations.Quantity")],['required_force_rating',localizeSystem("SWFFG.UI.Operations.RequiredForceRating")]]){
     const value=unwrap(entry.system[key]);if(value!==undefined&&value!==null&&value!=='')facts.push([label,value]);
   }
   if(entry.system.ammo)facts.push(['Munitions',number(entry.system.ammo.value)+' / '+number(entry.system.ammo.max)]);
-  if(entry.system.equippable?.value)facts.push(['Équipé',entry.system.equippable.equipped?'Oui':'Non']);
-  if(entry.system.active!==undefined)facts.push(['Modification active',entry.system.active?'Oui':'Non']);
-  const html=await foundry.applications.ux.TextEditor.enrichHTML(parts.join('<hr>')||'<p>Aucune description enregistrée.</p>',{secrets:true,async:true});
+  if(entry.system.equippable?.value)facts.push([localizeSystem("SWFFG.UI.Operations.Equipped"),entry.system.equippable.equipped?localizeSystem("SWFFG.UI.Operations.Yes"):localizeSystem("SWFFG.UI.Operations.No")]);
+  if(entry.system.active!==undefined)facts.push([localizeSystem("SWFFG.UI.Operations.ActiveModification"),entry.system.active?localizeSystem("SWFFG.UI.Operations.Yes"):localizeSystem("SWFFG.UI.Operations.No")]);
+  const html=await foundry.applications.ux.TextEditor.enrichHTML(parts.join('<hr>')||`<p>${localizeSystem("SWFFG.UI.Operations.NoDescription")}</p>`,{secrets:true,async:true});
   if(!holder.isConnected)return;
   holder.innerHTML=`${facts.length?'<dl class="nc-item-facts">'+facts.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')+'</dl>':''}<div class="nc-description-text">${html}</div>`;
 }
@@ -405,7 +406,7 @@ function render(panel,model,{force=false,rosterOnly=false}={}){
     const card=root.querySelector('[data-scroll="card"]');
     const editor=model.integration?.modifierEditor;
     if(editor&&!root.contains(editor)){
-      const section=document.createElement('section');section.className='nc-more nc-modifier-details';section.setAttribute('aria-label','Bonus et malus');section.innerHTML='<h3>Bonus et malus</h3>';section.append(editor);root.querySelector('.nc-card').append(section);
+      const section=document.createElement('section');section.className='nc-more nc-modifier-details';section.setAttribute('aria-label',localizeSystem("SWFFG.UI.Operations.RollModifiers"));section.innerHTML=`<h3>${localizeSystem("SWFFG.UI.Operations.RollModifiers")}</h3>`;section.append(editor);root.querySelector('.nc-card').append(section);
     }
     if(!rosterOnly||switched||model.cardHtml===null){
         const main=entry&&entry.actor.type!=='vehicle'?principalSkills(entry):[];
@@ -434,7 +435,7 @@ function render(panel,model,{force=false,rosterOnly=false}={}){
           void DiceHelpers.addSkillDicePool({data:entry.actor.system},row).then(()=>{
             const sources=preview.querySelector('.tooltip2');
             if(!sources){
-              row.title='Préparer '+row.querySelector('.nc-skill-name').textContent;
+              row.title=localizeSystem("SWFFG.UI.Operations.Prepare") + " "+row.querySelector('.nc-skill-name').textContent;
               return;
             }
             const list=document.createElement('ul');
@@ -472,7 +473,7 @@ async function showNpcPowers(panel,model,entry){
     const right=bounds.right+8,left=right+width<=innerWidth?right:Math.max(0,bounds.left-width-8);
     if(!current())return;
     sheet._npcPowerSummary=summaryDialog({
-      classes:['starwarsffg','themed','nc-powers-dialog'],window:{title:'Pouvoirs et capacités - '+entry.name,resizable:true},
+      classes:['starwarsffg','themed','nc-powers-dialog'],window:{title:localizeSystem("SWFFG.UI.Operations.PowersTitle", {name:entry.name}),resizable:true},
       position:{width,left,top:Math.max(0,Math.min(bounds.top,innerHeight-200))},content:wrapper,
       buttons:[{action:'close',label:game.i18n.localize('SWFFG.ButtonClose')}]
     });
@@ -495,11 +496,11 @@ async function showNpcPowers(panel,model,entry){
 
 async function waitForMap(){
   for(let i=0;i<300;i++){if(!canvas.loading)return;await new Promise(resolve=>setTimeout(resolve,50));}
-  throw Error('La carte est encore en cours de chargement.');
+  throw localizedSystemError("SWFFG.UI.Operations.MapLoading");
 }
 async function handle(panel,model,cmd,element){
   const entry=currentEntry(model);
-  if(!entry)throw Error('Sélectionnez un PNJ.');
+  if(!entry)throw localizedSystemError("SWFFG.UI.Operations.SelectNpc");
   if(cmd==='weapon'||cmd==='ship-weapon'){const item=(cmd==='ship-weapon'?entry.vehicle:entry.actor).items.get(element.dataset.item);await execute(model,{...choiceForItem(item),kind:cmd},entry);return;}
   if(cmd==='space-action'){const def=ACTIONS.find(a=>a.id===element.dataset.id);await execute(model,{kind:'space-action',id:def.id,name:def.label},entry);return;}
   if(cmd==='power'){const item=npcCatalogue(entry.actor).find(e=>e.key===element.dataset.key);await execute(model,choiceForItem(entry.actor.items.get(item.itemId)),entry);return;}
@@ -512,7 +513,7 @@ async function handle(panel,model,cmd,element){
     sheet.bringToFront();return;
   }
   if(cmd==='focus'){if(entry.mode==='space'){await handle(panel,model,'ship',element);}else{await waitForMap();if(canvas.scene?.id!==entry.token.parent.id)await entry.token.parent.view();await waitForMap();
-      if(!canvas.ready||canvas.scene?.id!==entry.token.parent.id)throw Error('La carte de ce pion n’est pas disponible.');
+      if(!canvas.ready||canvas.scene?.id!==entry.token.parent.id)throw localizedSystemError("SWFFG.UI.Operations.TokenMapMissing");
       canvas.tokens.activate();entry.token.object?.control({releaseOthers:true});const point=entry.token.getCenterPoint();
       const sidebar=document.querySelector('#sidebar-content.expanded')?.getBoundingClientRect();
       const targetX=(sidebar?.left??innerWidth)/2;
@@ -521,7 +522,7 @@ async function handle(panel,model,cmd,element){
   if(cmd==='ship'){
     let app=foundry.applications.instances.get('ffg-space-combat');
     if(!app?.rendered){document.querySelector('[data-open-space-combat]')?.click();for(let i=0;i<100;i++){await new Promise(resolve=>setTimeout(resolve,50));app=foundry.applications.instances.get('ffg-space-combat');if(app?.rendered)break;}}
-    if(!app?.rendered)throw Error('Ouvrez la carte spatiale depuis les commandes de scène.');app.camera={...app.camera,x:entry.ship.x,y:entry.ship.y};await app.selectShip(entry.ship.id);return;
+    if(!app?.rendered)throw localizedSystemError("SWFFG.UI.Operations.OpenSpaceMap");app.camera={...app.camera,x:entry.ship.x,y:entry.ship.y};await app.selectShip(entry.ship.id);return;
   }
   if(cmd==='manual'){await manualAbility(entry,npcCatalogue(entry.actor).find(e=>e.key===element.dataset.key));return;}
 
@@ -604,7 +605,7 @@ function refresh(affected=()=>true){
   },120);
 }
 if(typeof Hooks!=='undefined'){
-  Hooks.once('init',()=>game.settings.register(scope,'npcAutoInitiative',{name:'Attribuer automatiquement les créneaux d’initiative',hint:'Attribue chaque créneau au personnage qui l’a obtenu. L’icône d’échange du suivi permet de changer l’attribution sans modifier le jet.',scope:'world',config:true,type:Boolean,default:true}));
+  Hooks.once('init',()=>game.settings.register(scope,'npcAutoInitiative',{name:localizeSystem("SWFFG.UI.Operations.AutoSlots"),hint:localizeSystem("SWFFG.UI.Operations.AutoSlotsHint"),scope:'world',config:true,type:Boolean,default:true}));
   Hooks.once('ready',()=>{installNpcInitiative();installNpcCamps();stylesheet();});
   for(const name of ['updateCombat','createCombatant','deleteCombatant','updateCombatant','updateToken','createToken','deleteToken','canvasReady','targetToken','updateUser'])Hooks.on(name,()=>refresh());
   Hooks.on('updateActor',actor=>refresh(model=>model.entries?.some(entry=>entry.actor===actor||entry.actor.id===actor.id||entry.vehicle?.id===actor.id)));
@@ -623,7 +624,7 @@ if(typeof Hooks!=='undefined'){
   });
   Hooks.on('renderCombatTracker',(tracker,html)=>{
     if(!game.user.isGM)return;const root=html?.querySelector?html:html?.[0];if(!root)return;
-    const header=root.querySelector('.combat-tracker-header')??root.querySelector('.combat-tracker');if(header&&!root.querySelector('[data-npc-open]')){const btn=document.createElement('button');btn.type='button';btn.dataset.npcOpen='';btn.className='npc-open-command';btn.textContent='Pilotage PNJ';btn.addEventListener('click',()=>openNpcCommand());header.prepend(btn);}
-    for(const row of root.querySelectorAll('li.combatant[data-slot-index]')){if(row.querySelector('[data-npc-quick]'))continue;const combat=tracker.viewed,slot=combat?.turns[Number(row.dataset.slotIndex)],id=combat?.getSlotClaims?.(combat.round,slot?.id)??slot?.id,participant=combat?.combatants.get(row.dataset.combatantId||row.dataset.altId)??combat?.combatants.get(id);if(!participant?.actor)continue;const btn=document.createElement('button');btn.type='button';btn.dataset.npcQuick='';btn.className='npc-slot-change';btn.title='Commandes de ce personnage';btn.setAttribute('aria-label',btn.title);btn.innerHTML='<i class="fa-solid fa-bolt" aria-hidden="true"></i>';btn.addEventListener('click',event=>{event.stopPropagation();void openNpcCommand(participant.token?.uuid);});(row.querySelector('.combatant-controls')??row).append(btn);}
+    const header=root.querySelector('.combat-tracker-header')??root.querySelector('.combat-tracker');if(header&&!root.querySelector('[data-npc-open]')){const btn=document.createElement('button');btn.type='button';btn.dataset.npcOpen='';btn.className='npc-open-command';btn.textContent=localizeSystem("SWFFG.UI.Operations.NpcControl");btn.addEventListener('click',()=>openNpcCommand());header.prepend(btn);}
+    for(const row of root.querySelectorAll('li.combatant[data-slot-index]')){if(row.querySelector('[data-npc-quick]'))continue;const combat=tracker.viewed,slot=combat?.turns[Number(row.dataset.slotIndex)],id=combat?.getSlotClaims?.(combat.round,slot?.id)??slot?.id,participant=combat?.combatants.get(row.dataset.combatantId||row.dataset.altId)??combat?.combatants.get(id);if(!participant?.actor)continue;const btn=document.createElement('button');btn.type='button';btn.dataset.npcQuick='';btn.className='npc-slot-change';btn.title=localizeSystem("SWFFG.UI.Operations.CharacterControls");btn.setAttribute('aria-label',btn.title);btn.innerHTML='<i class="fa-solid fa-bolt" aria-hidden="true"></i>';btn.addEventListener('click',event=>{event.stopPropagation();void openNpcCommand(participant.token?.uuid);});(row.querySelector('.combatant-controls')??row).append(btn);}
   });
 }

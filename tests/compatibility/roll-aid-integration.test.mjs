@@ -1,3 +1,4 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
@@ -12,17 +13,17 @@ test('real roll builder adds aid once, consumes on posting and restores it on fa
    user:{id:'p',isGM:false,character:{uuid:'Actor.pc'},getFlag:()=>aid,setFlag:async(_s,_k,v)=>{aid=v;}},settings:{get:()=>false},i18n:await systemI18n('fr'),actors:{get:()=>actor},messages:{get:()=>({getFlag:()=>({entries:[{id:'e',kind:'aid',recipient:'p'}]})})},
    ffg:{RollFFG:class {async toMessage(data){if(fail)throw Error('posting failed');messages.push(data);}}}
  }});
- const selection=new vm.SourceTextModule(await read('helpers/weapon-selection.js'),{context});await selection.link(()=>{});await selection.evaluate();
- const customRules=new vm.SourceTextModule(await read('helpers/custom-rules.js'),{context});await customRules.link(()=>{});await customRules.evaluate();
- const picker=new vm.SourceTextModule(await read('helpers/token-target-picker.js'),{context});await picker.link(()=>{});await picker.evaluate();
- const vehicleGroups=new vm.SourceTextModule(await read('helpers/vehicle-minion-group.mjs'),{context});await vehicleGroups.link(()=>{});await vehicleGroups.evaluate();
- const helper=new vm.SourceTextModule(await read('helpers/combat-actions.js'),{context});await helper.link(spec=>spec.endsWith('vehicle-minion-group.mjs')?vehicleGroups:spec.includes('token-target-picker')?picker:spec.includes('custom-rules')?customRules:selection);await helper.evaluate();
+ const selection=new vm.SourceTextModule(await read('helpers/weapon-selection.js'),{context});await linkWithSystemLocalization(selection, context, ()=>{});await selection.evaluate();
+ const customRules=new vm.SourceTextModule(await read('helpers/custom-rules.js'),{context});await linkWithSystemLocalization(customRules, context, ()=>{});await customRules.evaluate();
+ const picker=new vm.SourceTextModule(await read('helpers/token-target-picker.js'),{context});await linkWithSystemLocalization(picker, context, ()=>{});await picker.evaluate();
+ const vehicleGroups=new vm.SourceTextModule(await read('helpers/vehicle-minion-group.mjs'),{context});await linkWithSystemLocalization(vehicleGroups, context, ()=>{});await vehicleGroups.evaluate();
+ const helper=new vm.SourceTextModule(await read('helpers/combat-actions.js'),{context});await linkWithSystemLocalization(helper, context, spec=>spec.endsWith('vehicle-minion-group.mjs')?vehicleGroups:spec.includes('token-target-picker')?picker:spec.includes('custom-rules')?customRules:selection);await helper.evaluate();
  const pilotage=await loadSystemModule('helpers/pilotage-mj.js',context,{
   'helpers/pilotage-assets.mjs':{setupPilotageAssets(){}},
   'helpers/pilotage-tabs.mjs':{setupPilotageTabs(){}}
  });
- const gm=new vm.SourceTextModule(await read('helpers/gm-difficulty.js'),{context});await gm.link(()=>pilotage);await gm.evaluate();
- const talents=new vm.SourceTextModule(await read('helpers/roll-talents.js'),{context});await talents.link(()=>{});await talents.evaluate();
+ const gm=new vm.SourceTextModule(await read('helpers/gm-difficulty.js'),{context});await linkWithSystemLocalization(gm, context, ()=>pilotage);await gm.evaluate();
+ const talents=new vm.SourceTextModule(await read('helpers/roll-talents.js'),{context});await linkWithSystemLocalization(talents, context, ()=>{});await talents.evaluate();
  // Load the real new rule dependencies. Creating integrated crew is outside
  // this ordinary character roll, so fail loudly if that boundary is crossed.
  const integrated=await loadSystemModule('helpers/integrated-crew.mjs',context,{
@@ -30,11 +31,11 @@ test('real roll builder adds aid once, consumes on posting and restores it on fa
  });
  const adversary=await loadSystemModule('helpers/target-adversary.mjs',context);
  const builder=new vm.SourceTextModule(await read('dice/roll-builder.js'),{context});
- const information=new vm.SyntheticModule(['renderSkillInformation'],function(){this.setExport('renderSkillInformation',()=>{});},{context});await information.link(()=>{});await information.evaluate();
- const setbacks=new vm.SourceTextModule(await read('helpers/setback-removal.mjs'),{context});await setbacks.link(()=>{});await setbacks.evaluate();
+ const information=new vm.SyntheticModule(['renderSkillInformation'],function(){this.setExport('renderSkillInformation',()=>{});},{context});await linkWithSystemLocalization(information, context, ()=>{});await information.evaluate();
+ const setbacks=new vm.SourceTextModule(await read('helpers/setback-removal.mjs'),{context});await linkWithSystemLocalization(setbacks, context, ()=>{});await setbacks.evaluate();
  // This noncombat Pilot check has no target UI. Keep its boundary explicit.
- const targets=new vm.SyntheticModule(['activateRollTargets','closeRollTargets'],function(){this.setExport('activateRollTargets',()=>{});this.setExport('closeRollTargets',()=>{});},{context});await targets.link(()=>{});await targets.evaluate();
- const form=new vm.SyntheticModule(['FormApplicationV2'],function(){this.setExport('FormApplicationV2',class {activateListeners(){}});},{context});await form.link(()=>{});await form.evaluate();
+ const targets=new vm.SyntheticModule(['activateRollTargets','closeRollTargets'],function(){this.setExport('activateRollTargets',()=>{});this.setExport('closeRollTargets',()=>{});},{context});await linkWithSystemLocalization(targets, context, ()=>{});await targets.evaluate();
+ const form=new vm.SyntheticModule(['FormApplicationV2'],function(){this.setExport('FormApplicationV2',class {activateListeners(){}});},{context});await linkWithSystemLocalization(form, context, ()=>{});await form.evaluate();
  const probability=await loadSystemModule('helpers/probability-estimator.mjs',context);
  const preview=await loadSystemModule('helpers/probability-preview.mjs',context);
  const dependencies={
@@ -45,7 +46,7 @@ test('real roll builder adds aid once, consumes on posting and restores it on fa
   '../helpers/weapon-selection.js':selection,'../helpers/combat-actions.js':helper,
   '../applications/form-application-v2.js':form,'../helpers/probability-estimator.mjs':probability,'../helpers/probability-preview.mjs':preview
  };
- await builder.link(spec=>{assert.ok(dependencies[spec],'Unexpected roll-builder import: '+spec);return dependencies[spec];});await builder.evaluate();
+ await linkWithSystemLocalization(builder, context, spec=>{assert.ok(dependencies[spec],'Unexpected roll-builder import: '+spec);return dependencies[spec];});await builder.evaluate();
  const app=new builder.namespace.default({document:actor,actor:{_id:'pc'}},{boost:0,renderDiceExpression:()=> '1db'},'test','SWFFG.SkillsNameAthletics');
  await app.getData();await app.getData();assert.equal(app.dicePool.boost,1);assert.equal(aid.pending.length,1);
  app._initializeInputs=()=>{};app._activateInputs=()=>{};let click;

@@ -1,3 +1,4 @@
+import {localizeSystem} from "../helpers/system-localization.mjs";
 import {captureCombatRefresh,refreshCombatStats} from '../helpers/combat-sheet-refresh.mjs';
 import {activateVehicleDefenseImage} from '../helpers/vehicle-defense-image.mjs';
 import {activateVehicleMinionGroup} from '../helpers/vehicle-minion-ui.mjs';
@@ -95,7 +96,7 @@ export class ActorSheetFFGV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _onDrop(event) {
     if(this.actor.flags?.starwarsffg?.npcVehicle?.version===1){
       let data;try{data=JSON.parse(event.dataTransfer.getData('text/plain'));}catch { /* Non-JSON drops continue through the standard drop handlers. */ }
-      if(['Actor','Token'].includes(data?.type)){ui.notifications.warn('Ce véhicule PNJ utilise des postes simplifiés. Choisissez un véhicule indépendant pour affecter des personnages.');return;}
+      if(['Actor','Token'].includes(data?.type)){ui.notifications.warn(localizeSystem("SWFFG.UI.Operations.SimplifiedStations"));return;}
     }
     if(await dropVehicleOwner(this,event))return;
     return super._onDrop(event);

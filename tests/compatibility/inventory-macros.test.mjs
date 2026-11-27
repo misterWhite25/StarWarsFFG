@@ -1,3 +1,4 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import {systemI18n} from '../system-i18n.mjs';
 import {loadSystemModule} from '../load-system-module.mjs';
 const frI18n=await systemI18n('fr');
@@ -12,7 +13,7 @@ async function helpers(actor, warnings) {
  const crew=new vm.SyntheticModule(['resolveCrewActor','integratedCrewVehicle','integratedCrewGroupSignature'],function(){this.setExport('resolveCrewActor',value=>context.game.actors.get(typeof value==='string'?value:value?.actor_id??value?.actorId));this.setExport('integratedCrewVehicle',()=>null);this.setExport('integratedCrewGroupSignature',()=>null);},{context});
  const rollContextModule=await loadSystemModule('helpers/roll-context.mjs',context);
  const module=new vm.SourceTextModule(await read('helpers/dice-helpers.js'),{context});
- await module.link(specifier=>specifier.includes('roll-context')?rollContextModule:specifier.includes('integrated-crew')?crew:specifier.includes('vehicle-minion-group')?groups:specifier.includes('roll-target-start')?targetStart:new vm.SyntheticModule(specifier.includes('ground-movement-state')?['groundAttackDifficulty','groundAttackRange']:specifier.includes('weapon-selection')?['supportsWeaponSelection','missingAccurateBoost','prepareRememberedWeapon']:specifier.includes('pool.js')?['DicePoolFFG']:['default'],function(){
+ await linkWithSystemLocalization(module, context, specifier=>specifier.includes('roll-context')?rollContextModule:specifier.includes('integrated-crew')?crew:specifier.includes('vehicle-minion-group')?groups:specifier.includes('roll-target-start')?targetStart:new vm.SyntheticModule(specifier.includes('ground-movement-state')?['groundAttackDifficulty','groundAttackRange']:specifier.includes('weapon-selection')?['supportsWeaponSelection','missingAccurateBoost','prepareRememberedWeapon']:specifier.includes('pool.js')?['DicePoolFFG']:['default'],function(){
   if(specifier.includes('ground-movement-state')){this.setExport('groundAttackDifficulty',()=>undefined);this.setExport('groundAttackRange',()=>null);}
   else if(specifier.includes('weapon-selection')){this.setExport('supportsWeaponSelection',()=>false);this.setExport('missingAccurateBoost',()=>0);this.setExport('prepareRememberedWeapon',()=>{});}
   else if(specifier.includes('pool.js'))this.setExport('DicePoolFFG',class{constructor(data){Object.assign(this,data);}upgrade(){}});

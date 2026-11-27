@@ -1,3 +1,4 @@
+import {localizedSystemError} from "./system-localization.mjs";
 const scope='starwarsffg',flag='vehicleMinionGroup';
 export const DEFAULT_VEHICLE_GROUP_SKILLS=['Piloting: Space','Piloting: Planetary','Gunnery'];
 const normalize=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'');
@@ -41,17 +42,17 @@ export function applyVehicleMinionSkills(data,vehicle){
 
 export function requireLivingVehicleGroup(vehicle){
   const group=vehicleMinionGroup(vehicle);
-  if(group.enabled&&!group.alive)throw Error('Ce groupe ne possède plus aucun véhicule en état de combattre.');
+  if(group.enabled&&!group.alive)throw localizedSystemError("SWFFG.UI.Operations.GroupOutOfCombat");
   return group;
 }
 
 export async function setVehicleMinionGroup(vehicle,options={}){
   const previous=vehicle?.flags?.[scope]?.[flag]??{},enabled=options.enabled,count=options.count??previous.count??1,skillKeys=options.skillKeys??previous.skillKeys??DEFAULT_VEHICLE_GROUP_SKILLS;
-  if(!globalThis.game?.user?.isGM||vehicle?.type!=='vehicle'||vehicle.pack||!vehicle.isOwner)throw Error('Seul le MJ peut configurer un groupe de véhicules du monde.');
-  if(typeof enabled!=='boolean'||!Number.isInteger(Number(count))||Number(count)<1||Number(count)>100)throw Error('Choisissez entre 1 et 100 véhicules.');
-  if(!Array.isArray(skillKeys)||skillKeys.length>30||skillKeys.some(key=>typeof key!=='string'||!key.trim()||key.length>100))throw Error('Compétences de groupe invalides.');
+  if(!globalThis.game?.user?.isGM||vehicle?.type!=='vehicle'||vehicle.pack||!vehicle.isOwner)throw localizedSystemError("SWFFG.UI.Operations.GroupGMOnly");
+  if(typeof enabled!=='boolean'||!Number.isInteger(Number(count))||Number(count)<1||Number(count)>100)throw localizedSystemError("SWFFG.UI.Operations.GroupCount");
+  if(!Array.isArray(skillKeys)||skillKeys.length>30||skillKeys.some(key=>typeof key!=='string'||!key.trim()||key.length>100))throw localizedSystemError("SWFFG.UI.Operations.GroupInvalidSkills");
   const hull=Number(vehicle.system?.stats?.hullTrauma?.max);
-  if(enabled&&(!Number.isFinite(hull)||hull<=0))throw Error('Renseignez un seuil de coque individuel supérieur à zéro.');
+  if(enabled&&(!Number.isFinite(hull)||hull<=0))throw localizedSystemError("SWFFG.UI.Operations.IndividualHullThreshold");
   await vehicle.setFlag(scope,flag,{version:1,enabled,count:Number(count),skillKeys:[...new Set(skillKeys)]});
   return vehicleMinionGroup(vehicle);
 }
@@ -65,7 +66,7 @@ export function vehicleGroupRepairValue(vehicle,proposed){
 /** One critical adds precisely one member's hull threshold, with safe before/after undo data. */
 export function vehicleMinionCriticalChange(vehicle){
   const group=requireLivingVehicleGroup(vehicle);
-  if(!group.enabled||group.hullPerVehicle<=0)throw Error('Ce véhicule ne forme pas un groupe de sbires valide.');
+  if(!group.enabled||group.hullPerVehicle<=0)throw localizedSystemError("SWFFG.UI.Operations.InvalidMinionVehicle");
   return {actor:vehicle.uuid,path:'system.stats.hullTrauma.value',before:group.damage,after:group.damage+group.hullPerVehicle+(group.damage===0?Math.min(1,group.hullPerVehicle):0)};
 }
 

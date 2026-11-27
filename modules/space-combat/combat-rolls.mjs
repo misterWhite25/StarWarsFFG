@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {BARRAGES,barrageConfiguration} from './barrage-rules.mjs';
 import {resolveCrewActor,resolveCrewDocument,integratedCrewVehicle} from '../helpers/integrated-crew.mjs';
 import {requireLivingVehicleGroup,vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
@@ -33,7 +34,7 @@ export async function rollCombatCheck({ship,vehicle,actor,key,difficulty,user,la
   requireLivingVehicleGroup(vehicle);
   let pool=get_dice_pool(actor,key,new DicePoolFFG({difficulty}));
   pool.upgrade(pool.upgrades);
-  if(piloting)pilotModifiers(pool,ship,vehicle,terrain,{assist:label!=="Assister pilotage"});
+  if(piloting)pilotModifiers(pool,ship,vehicle,terrain,{assist:label!==localizeSystem("SWFFG.UI.SpaceCombat.Copilot")});
   pool=effectivePool(pool);
   const crew={name:vehicle.name,img:vehicle.img,crew_card:true,role:label};
   const roll=new game.ffg.RollFFG(pool.renderDiceExpression()||"0",{crew},pool,label);
@@ -57,11 +58,11 @@ class CombatRollBuilder extends RollBuilderFFG {
   async _reserveRollResources(transaction) {
     const context=this.spaceCombat;
     const vehicle=game.actors.get(context.ship.actorId);requireLivingVehicleGroup(vehicle);
-    if(context.groupSignature!==groupSignature(vehicle))throw Error('L’effectif du groupe a changé. Rouvrez le jet pour recalculer les dés.');
+    if(context.groupSignature!==groupSignature(vehicle))throw localizedSystemError("SWFFG.UI.SpaceCombat.GroupChanged");
     const current=board().ships.find(s=>s.id===context.ship.id);
     const target=board().ships.find(s=>s.id===context.target?.id);
     if(current?.version!==context.ship.version||target?.version!==context.target?.version)
-      throw Error("Le combat a changé. Rouvrez le jet pour recalculer les effets.");
+      throw localizedSystemError("SWFFG.UI.SpaceCombat.CombatRollChanged");
     if(context.attack) {
       const weapon=vehicle.items.get(this.roll.item?.id);
       const profile=shipWeaponAttackProfile({...current,spaceShip:vehicle.system.spaceShip},weapon,target.silhouette);
@@ -90,38 +91,38 @@ class CombatRollBuilder extends RollBuilderFFG {
 }
 
 export async function openCombatRoll(ship,member,{weapon,targetId,sector,terrain=0,barrage}={}) {
-  if(board().round===0)throw Error("Le combat est terminé. Le MJ doit commencer un nouveau combat.");
+  if(board().round===0)throw localizedSystemError("SWFFG.UI.SpaceCombat.CombatEnded");
   // Read the authoritative current counter instead of a rendered card snapshot.
   ship=board().ships.find(entry=>entry.id===ship.id);
   const vehicle=game.actors.get(ship?.actorId),actor=resolveCrewActor(member,vehicle);
   requireLivingVehicleGroup(vehicle);
   const current=vehicle&&vehicleCrew(vehicle).find(m=>m.actor_id===member.actor_id&&m.role===member.role);
-  if(!current||!controlsCrewMember(current))throw Error("Ce poste n’est pas accessible à votre personnage.");
+  if(!current||!controlsCrewMember(current))throw localizedSystemError("SWFFG.UI.SpaceCombat.StationForbidden");
   const reason=initiativeReason(current);if(reason)throw Error(reason);
   const turn=characterActionState(board().ships,member.actor_id,board().round);
-  if(!game.user.isGM&&(turn.action||turn.ended))throw Error("Ce personnage a déjà utilisé son action ou terminé son tour.");
+  if(!game.user.isGM&&(turn.action||turn.ended))throw localizedSystemError("SWFFG.UI.SpaceCombat.TurnAlreadyUsed");
   const attack=!!weapon;
   if(attack){const reason=actionRoleReason(vehicle,member.actor_id,"attack");if(reason)throw Error(reason);}
-  if(!attack&&!game.user.isGM&&!isNavigationRole(current))throw Error("Ce jet de pilotage est réservé au pilote et au copilote.");
+  if(!attack&&!game.user.isGM&&!isNavigationRole(current))throw localizedSystemError("SWFFG.UI.SpaceCombat.PilotingRoleRestriction");
   const target=board().ships.find(entry=>entry.id===targetId&&entry.id!==ship.id);
   const barrageData=barrage?barrageConfiguration(ship,vehicle,BARRAGES.find(action=>action.id===barrage.id),{...barrage,weaponId:weapon?.id}):null;
-  if(barrageData&&!isGunnerRole(current))throw Error("Les barrages sont réservés aux artilleurs.");
-  if(barrageData?.id==="concentratedBarrage"&&target?.silhouette<5)throw Error("Le barrage concentré exige une cible de gabarit 5 ou plus.");
+  if(barrageData&&!isGunnerRole(current))throw localizedSystemError("SWFFG.UI.SpaceCombat.GunnersOnly");
+  if(barrageData?.id==="concentratedBarrage"&&target?.silhouette<5)throw localizedSystemError("SWFFG.UI.SpaceCombat.ConcentratedTarget");
   let key=pilotSkill(vehicle,game.settings.get("starwarsffg","skilltheme"));
   let pool,attackProfile;
   const crew={name:vehicle.name,img:vehicle.img,crew_card:true,role:current.role};
   let guided=false;
   if(attack) {
-    if(!target)throw Error("Choisissez un vaisseau cible pour préparer le tir.");
+    if(!target)throw localizedSystemError("SWFFG.UI.SpaceCombat.ChooseAttackTarget");
     weapon=vehicle.items.get(weapon.id);
     key=weapon?.system.skill?.value;
     const malfunctions=malfunctionNavigation(vehicle);
-    if(malfunctions.disabledWeapons.includes(weapon?.id))throw Error("Cette arme est hors service.");
-    if(!weapon||!weaponCrewCandidates(weapon,[current],crewRolesForSkill(vehicle,key),malfunctions).length)throw Error("Cette arme est indisponible à ce poste.");
+    if(malfunctions.disabledWeapons.includes(weapon?.id))throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponDisabled");
+    if(!weapon||!weaponCrewCandidates(weapon,[current],crewRolesForSkill(vehicle,key),malfunctions).length)throw localizedSystemError("SWFFG.UI.SpaceCombat.WeaponUnavailableAtStation");
     const range=rangeBetween(ship,target);
     const allowed=weaponRangeIndex(weapon);
-    const band=["Proche","Courte","Moyenne","Longue","Extrême"].indexOf(range.band);
-    if(allowed>=0&&band>allowed)throw Error("La cible est hors de portée de cette arme.");
+    const band=range.index;
+    if(allowed>=0&&band>allowed)throw localizedSystemError("SWFFG.UI.SpaceCombat.TargetOutOfRange");
     attackProfile=shipWeaponAttackProfile({...ship,spaceShip:vehicle.system.spaceShip},weapon,target.silhouette);
     const {difficulty}=attackProfile;
     pool=get_dice_pool(actor,key,new DicePoolFFG({difficulty,setback:malfunctions.weaponSetbacks[weapon.id]??0}));
@@ -140,8 +141,8 @@ export async function openCombatRoll(ship,member,{weapon,targetId,sector,terrain
   const rollId=foundry.utils.randomID();
   const marker={shipId:ship.id,crewId:actor.id,rollId,...(barrageData?{barrage:barrageData}:{})};
   const item=weapon?weapon.clone({"flags.starwarsffg.spaceCombatRoll":marker,"flags.starwarsffg.uuid":weapon.uuid},{keepId:true}):{crew,flags:{starwarsffg:{spaceCombatRoll:marker}}};
-  const builder=new CombatRollBuilder(data,pool,barrageData?barrageData.label:attack?"Tir - "+weapon.name:"Test de pilotage",key,item,
-    attack?"Combat spatial contre "+game.actors.get(target.actorId)?.name:"Combat spatial");
+  const builder=new CombatRollBuilder(data,pool,barrageData?barrageData.label:attack?localizeSystem("SWFFG.UI.SpaceCombat.ShotTitle", {name:weapon.name}):localizeSystem("SWFFG.UI.SpaceCombat.PilotingCheck"),key,item,
+    attack?localizeSystem("SWFFG.UI.SpaceCombat.TargetFlavor", {name:game.actors.get(target.actorId)?.name ?? target.name}):localizeSystem("SWFFG.UI.SpaceCombat.Title"));
   builder.roll.crew=crew;builder.roll.combatMode="vehicle";
   builder.spaceCombat={groupSignature:groupSignature(vehicle),ship:structuredClone(ship),target:target&&structuredClone(target),member:current,attack,attackProfile,sector,guided,rollId,barrage:barrageData,initiative:initiativeStamp()};
   return builder.render(true);

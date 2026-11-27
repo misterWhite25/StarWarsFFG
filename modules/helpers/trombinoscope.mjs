@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "./system-localization.mjs";
 import {createSharedWindowSession} from './shared-window-session.mjs';
 import {renderSharedWindowControls} from './shared-window-controls.mjs';
 
@@ -60,7 +61,7 @@ function draw(entry) {
   t.setAttribute('y',r+17); t.setAttribute('text-anchor','middle'); g.append(t);return g;
 }
 class Trombinoscope extends foundry.applications.api.ApplicationV2 {
-  static DEFAULT_OPTIONS = {id:'ffg-trombinoscope',window:{title:'Trombinoscope',resizable:true,icon:'fa-solid fa-address-book'},position:{width:1080,height:760}};
+  static DEFAULT_OPTIONS = {id:'ffg-trombinoscope',window:{title:"SWFFG.UI.Operations.PortraitBoard",resizable:true,icon:'fa-solid fa-address-book'},position:{width:1080,height:760}};
   camera = origin();
   selected = null;
   editing = false;
@@ -75,7 +76,7 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
     header.append(heading);
     panel.append(header);
     if (!entry) {
-      const hint = html('p', 'Cliquez sur un pion pour afficher sa note.');
+      const hint = html('p', localizeSystem("SWFFG.UI.Operations.PortraitClick"));
       hint.className = 'ffg-trombi-note-text';
       panel.append(hint);
       return;
@@ -84,14 +85,14 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
     const close = html('button');
     close.type = 'button';
     close.className = 'icon fa-solid fa-xmark';
-    close.title = 'Fermer la note';
+    close.title = localizeSystem("SWFFG.UI.Operations.CloseNote");
     close.setAttribute('aria-label', close.title);
     close.addEventListener('click', dismiss);
     header.append(close);
 
     const note = typeof entry.note === 'string' ? entry.note : '';
     if (!game.user.isGM) {
-      const text = html('p', note || 'Aucune note pour ce pion.');
+      const text = html('p', note || localizeSystem("SWFFG.UI.Operations.NoTokenNote"));
       text.className = 'ffg-trombi-note-text';
       panel.append(text);
       return;
@@ -103,9 +104,9 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
     input.id = 'ffg-trombi-note-input';
     label.htmlFor = input.id;
     input.rows = 8;
-    input.placeholder = 'Ajouter une note pour ce pion…';
+    input.placeholder = localizeSystem("SWFFG.UI.Operations.AddTokenNote");
     input.value = this.noteDrafts.get(entry.id) ?? note;
-    const submit = html('button', 'Enregistrer la note');
+    const submit = html('button', localizeSystem("SWFFG.UI.Operations.SaveNote"));
     submit.type = 'submit';
     let pending = false;
     const updateSubmit = () => { submit.disabled = pending || input.value.trim() === note; };
@@ -145,7 +146,7 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
     const root = html('section');
     root.className='ffg-trombi';
     const nav=html('nav');
-    const board=svg('svg',{role:'img','aria-label':'Trombinoscope','class':'ffg-trombi-board',preserveAspectRatio:'xMidYMid meet'});
+    const board=svg('svg',{role:'img','aria-label':localizeSystem("SWFFG.UI.Operations.PortraitBoard"),'class':'ffg-trombi-board',preserveAspectRatio:'xMidYMid meet'});
     const stage = html('div');
     stage.className = 'ffg-trombi-stage';
     const panel = html('aside');
@@ -183,23 +184,23 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
     action('Vue d’ensemble',()=>updateCamera(origin()),!canNavigate());
     if(game.user.isGM) {
       action(this.editing?'Terminer':'Modifier',()=>{this.editing=!this.editing;this.marking=false;return refresh();});
-      const marker=action('Croix rouge',()=>{this.marking=!this.marking;this.editing=false;return refresh();});
+      const marker=action(localizeSystem("SWFFG.UI.Operations.RedCross"),()=>{this.marking=!this.marking;this.editing=false;return refresh();});
       marker.setAttribute('aria-pressed',String(this.marking));
-      marker.title='Ajouter ou retirer la croix de décès sur un portrait';
-      action(session?.state.open?'Arrêter le partage':'Vue partagée',()=>session.request(session.state.open?'close':'open',{view:this.camera}));
+      marker.title=localizeSystem("SWFFG.UI.Operations.ToggleDeathCross");
+      action(session?.state.open?localizeSystem("SWFFG.UI.Operations.StopSharing"):localizeSystem("SWFFG.UI.Operations.SharedView"),()=>session.request(session.state.open?'close':'open',{view:this.camera}));
       if(this.editing){
-        action('Ajouter les jetons sélectionnés',async()=>{
+        action(localizeSystem("SWFFG.UI.Operations.AddSelectedTokens"),async()=>{
           const selection=canvas.tokens?.controlled?.filter(token=>token.actor)??[];
-          if(!selection.length)return ui.notifications.info('Sélectionnez un ou plusieurs jetons sur la table.');
+          if(!selection.length)return ui.notifications.info(localizeSystem("SWFFG.UI.Operations.SelectSceneTokens"));
           await save(a=>{selection.forEach((token,i)=>a.push({id:uuid(),type:'actor',uuid:token.actor.uuid,name:token.document.name,img:token.document.texture.src||token.actor.img,
             x:clamp(Math.round(this.camera.x+this.camera.w/2)+(i%8)*120,50,boardWidth-50),y:clamp(Math.round(this.camera.y+this.camera.h/2)+Math.floor(i/8)*140,50,boardHeight-75),r:50}));});
         });
-        action('Ajouter un libellé',async()=>{const name=(await this.textPrompt('Ajouter un libellé',''))?.trim();if(name)await save(a=>a.push({type:'label',id:uuid(),name,x:Math.round(this.camera.x+this.camera.w/2),y:Math.round(this.camera.y+this.camera.h/2),color:'#dec892',size:40}));});
+        action(localizeSystem("SWFFG.UI.Operations.AddLabel"),async()=>{const name=(await this.textPrompt(localizeSystem("SWFFG.UI.Operations.AddLabel"),''))?.trim();if(name)await save(a=>a.push({type:'label',id:uuid(),name,x:Math.round(this.camera.x+this.camera.w/2),y:Math.round(this.camera.y+this.camera.h/2),color:'#dec892',size:40}));});
         const chosen=entries().find(e=>e.id===this.selected);
         if(chosen){
           action('Renommer',async()=>{const name=(await this.textPrompt('Renommer',chosen.name))?.trim();if(name)await save(a=>{const e=a.find(v=>v.id===chosen.id);if(e)e.name=name;});});
-          if(chosen.type==='actor')action(chosen.dead?'Retirer la croix rouge':'Ajouter la croix rouge',()=>toggleCross(chosen.id));
-          action('Retirer du tableau',()=>save(a=>{const i=a.findIndex(e=>e.id===chosen.id);if(i>=0)a.splice(i,1);this.noteDrafts.delete(chosen.id);this.selected=null;}));
+          if(chosen.type==='actor')action(chosen.dead?localizeSystem("SWFFG.UI.Operations.RemoveRedCross"):localizeSystem("SWFFG.UI.Operations.AddRedCross"),()=>toggleCross(chosen.id));
+          action(localizeSystem("SWFFG.UI.Operations.RemoveFromBoard"),()=>save(a=>{const i=a.findIndex(e=>e.id===chosen.id);if(i>=0)a.splice(i,1);this.noteDrafts.delete(chosen.id);this.selected=null;}));
         }
         for(const preset of presets.values())action('Ajouter '+preset.name,async()=>{
           const incoming=await preset.load();await save(a=>{const ids=new Set(a.map(e=>e.id));for(const e of incoming)if(!ids.has(e.id))a.push(e);});
@@ -207,8 +208,8 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
       }
     }
     root.append(nav);
-    if(this.marking)root.append(html('p','Cliquez sur un portrait pour ajouter ou retirer sa croix de décès. Cliquez de nouveau sur « Croix rouge » pour terminer.'));
-    if(this.editing)root.append(html('p','Glissez un acteur du répertoire, du compendium ou un jeton de la table sur le tableau. Sélectionnez un élément pour le modifier ou faites-le glisser pour le déplacer.'));
+    if(this.marking)root.append(html('p',localizeSystem("SWFFG.UI.Operations.RedCrossHelp")));
+    if(this.editing)root.append(html('p',localizeSystem("SWFFG.UI.Operations.PortraitDropHelp")));
     stage.append(board, panel);
     root.append(stage);
     redraw();
@@ -275,7 +276,7 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
     return root;
   }
   async textPrompt(title,initial){
-    return foundry.applications.api.DialogV2.prompt({window:{title},content:'<label>Libellé <input name="label" maxlength="120" required></label>',render:(_event,dialog)=>{const input=dialog.element.querySelector('input');input.value=initial;input.focus();input.select();},ok:{label:'Enregistrer',callback:(_e,b)=>b.form.elements.label.value},rejectClose:false});
+    return foundry.applications.api.DialogV2.prompt({window:{title},content:`<label>${localizeSystem("SWFFG.UI.Operations.Label")} <input name="label" maxlength="120" required></label>`,render:(_event,dialog)=>{const input=dialog.element.querySelector('input');input.value=initial;input.focus();input.select();},ok:{label:localizeSystem("SWFFG.UI.Operations.Save"),callback:(_e,b)=>b.form.elements.label.value},rejectClose:false});
   }
   _replaceHTML(result,content){content.replaceChildren(result);}
   async _onClose(options){
@@ -288,19 +289,19 @@ class Trombinoscope extends foundry.applications.api.ApplicationV2 {
 function openBoard(){if(!enabled())return;app??=new Trombinoscope();return app.render({force:true});}
 function pilotage(){
   if(!session||!enabled())return;
-  renderSharedWindowControls('trombinoscope',{title:'Trombinoscope',shared:session.state.open,open:session.state.open,ownerId:session.state.navigatorId,ownerLabel:'Navigation',ownerAria:'Responsable du trombinoscope',
+  renderSharedWindowControls('trombinoscope',{title:localizeSystem("SWFFG.UI.Operations.PortraitBoard"),shared:session.state.open,open:session.state.open,ownerId:session.state.navigatorId,ownerLabel:'Navigation',ownerAria:localizeSystem("SWFFG.UI.Operations.PortraitOwner"),
     onModeChange:on=>session.request(on?'open':'close',{view:app?.camera||origin()}),onOwnerChange:target=>session.request('handoff',{target}),refresh:pilotage});
 }
 Hooks.once('init',()=>{
   const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('../../styles/trombinoscope.css',import.meta.url).href;document.head.append(css);
-  game.settings.register(scope,'enableTrombinoscope',{name:'Activer le trombinoscope',hint:'Affiche le bouton du trombinoscope dans la barre de gauche.',scope:'world',config:true,type:Boolean,default:false,requiresReload:true});
+  game.settings.register(scope,'enableTrombinoscope',{name:"SWFFG.UI.Operations.EnablePortraitBoard",hint:"SWFFG.UI.Operations.EnablePortraitBoardHint",scope:'world',config:true,type:Boolean,default:false,requiresReload:true});
   game.settings.register(scope,'trombinoscopeEntries',{scope:'world',config:false,type:Array,default:[],onChange:()=>{if(app?.rendered)app.render({force:true});}});
 });
 Hooks.on('renderSceneControls',(_app,htmlRoot)=>{
   if(!enabled())return;const root=htmlRoot?.[0]??htmlRoot;
   const menu=root?.querySelector('#scene-controls-layers > menu, [data-application-part="layers"] > menu, menu');
   if(!menu||menu.querySelector('[data-trombinoscope]'))return;
-  const li=html('li'),btn=html('button');btn.type='button';btn.dataset.trombinoscope='';btn.className='ui-control icon fa-solid fa-address-book';btn.title='Trombinoscope';btn.setAttribute('aria-label','Trombinoscope');btn.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openBoard();});li.append(btn);menu.append(li);
+  const li=html('li'),btn=html('button');btn.type='button';btn.dataset.trombinoscope='';btn.className='ui-control icon fa-solid fa-address-book';btn.title=localizeSystem("SWFFG.UI.Operations.PortraitBoard");btn.setAttribute('aria-label',localizeSystem("SWFFG.UI.Operations.PortraitBoard"));btn.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openBoard();});li.append(btn);menu.append(li);
 });
 Hooks.on('renderPilotageMJ',pilotage);
 Hooks.once('ready',async()=>{
@@ -308,7 +309,7 @@ Hooks.once('ready',async()=>{
   Hooks.callAll('starwarsffgTrombinoscopePresets',presets);
   let wasShared=false,navigatorId=null,painting=Promise.resolve();
   session=createSharedWindowSession({scope,stateKey:'trombinoscopeSession',requestKey:'trombinoscopeRequest',initialView:true,sanitizeView:view,
-    validateRequest:({user,request})=>{if(request.action==='open'&&!user.isGM)throw Error('Seul le MJ peut lancer le partage.');},
+    validateRequest:({user,request})=>{if(request.action==='open'&&!user.isGM)throw localizedSystemError("SWFFG.UI.Operations.GMShareOnly");},
     validateState:(user,s)=>s.writerId===user.id&&(user.isGM||game.users.activeGM?.id===user.id),
     onState:s=>{painting=painting.catch(warn).then(async()=>{if(s.open){app??=new Trombinoscope();app.camera=view(s.view);if(!wasShared||!app.rendered||s.navigatorId!==navigatorId)await openBoard();else app.follow?.(app.camera);}else if(wasShared&&app?.rendered)await app.close();wasShared=s.open;navigatorId=s.navigatorId;pilotage();});return painting;},onError:warn});
   await session.start();

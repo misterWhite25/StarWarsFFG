@@ -378,7 +378,7 @@ export default class RollBuilderFFG extends FormApplicationV2 {
     if (ammoEnabled && (!Number.isFinite(before) || before <= 0)) throw new Error(game.i18n.localize("SWFFG.UI.Dice.ThisWeaponHasNoAmmunition"));
     let actor = this.roll.data?.document;
     if (typeof actor?.getEmbeddedCollection !== 'function' && (this.roll.data?.documentUuid ?? actor?.uuid)) actor = resolveCrewDocument(this.roll.data.documentUuid ?? actor.uuid)??await fromUuid(this.roll.data.documentUuid ?? actor.uuid);
-    const integratedVehicle=integratedCrewVehicle(actor);if(integratedVehicle){requireLivingVehicleGroup(integratedVehicle);if(this.roll.data.integratedCrewGroup&&this.roll.data.integratedCrewGroup!==integratedCrewGroupSignature(actor))throw Error('L’effectif du groupe a changé. Rouvrez le jet pour recalculer les dés.');}
+    const integratedVehicle=integratedCrewVehicle(actor);if(integratedVehicle){requireLivingVehicleGroup(integratedVehicle);if(this.roll.data.integratedCrewGroup&&this.roll.data.integratedCrewGroup!==integratedCrewGroupSignature(actor))throw Error(game.i18n.localize("SWFFG.UI.SpaceCombat.GroupChanged"));}
     const effects = actor?.getEmbeddedCollection?.('ActiveEffect');
     const once = (effects?.contents ?? []).filter(effect => effect.system?.duration === 'once');
     if (once.length) {

@@ -1,3 +1,4 @@
+import {localizedSystemError} from "../helpers/system-localization.mjs";
 import {aboardRoster,crewActor} from './crew-access.mjs';
 import {ensureCombatScene} from './scene-document.mjs';
 import {ensureNpcInitiativeSkills} from '../helpers/npc-vehicle.mjs';
@@ -52,7 +53,7 @@ async function participantToken(scene,entry,index){
 
 /** Populate a dedicated encounter without rolling, starting, or deleting another encounter. */
 export async function prepareSpaceEncounter(state){
-  if(!game.user.isGM)throw Error('Seul le MJ peut préparer la rencontre spatiale.');
+  if(!game.user.isGM)throw localizedSystemError("SWFFG.UI.SpaceCombat.PrepareEncounterGMOnly");
   for(const actorId of new Set(state.ships.map(ship=>ship.actorId)))await ensureNpcInitiativeSkills(game.actors.get(actorId));
   const entries=encounterParticipants(state.ships);if(!entries.length)return null;
   const scene=game.scenes.get(await ensureCombatScene());

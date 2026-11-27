@@ -64,7 +64,7 @@ function stat(doc,parent,label,value,note=''){
 function itemStats(item){
  const s=item.system??{},rows=[];
  const inventory=['weapon','armour','gear','shipweapon'].includes(item.type);
- for(const [key,label]of [['damage','SWFFG.UI.Equipment.Damage'],['crit','SWFFG.UI.Equipment.Critical'],['range','SWFFG.UI.Equipment.Range'],['skill','SWFFG.SkillsName'],['soak','SWFFG.Soak'],['defence','SWFFG.Defense'],['quantity','SWFFG.UI.Equipment.Quantity'],['encumbrance','SWFFG.Encumbrance'],['price','SWFFG.Price'],['rarity','SWFFG.Rarity'],['severity','SWFFG.Severity'],['magnitude','SWFFG.MotivationMagnitude']]){
+ for(const [key,label]of [['damage','SWFFG.UI.Equipment.Damage'],['crit','SWFFG.UI.Equipment.Critical'],['range','SWFFG.UI.Equipment.Range'],['skill','SWFFG.SkillsName'],['soak','SWFFG.Soak'],['defence','SWFFG.Defense'],['quantity','SWFFG.UI.Equipment.Quantity'],['encumbrance','SWFFG.Encumbrance'],['price','SWFFG.ItemsPrice'],['rarity','SWFFG.ItemsRarity'],['severity','SWFFG.Severity'],['magnitude','SWFFG.MotivationMagnitude']]){
   if(!inventory&&!['severity','magnitude'].includes(key))continue;
   if(s[key]===undefined)continue;
   let value=scalar(s[key]);
@@ -88,7 +88,7 @@ export async function buildCharacterPrintDocument(actor,doc,{base=window.locatio
  header.append(identity);const portrait=validUrl(actor.img,base);if(portrait){const img=element(doc,'img',undefined,'portrait'+(portrait.endsWith('/mystery-man.svg')?' placeholder':''));img.src=portrait;img.alt=actor.name;header.append(img);}summary.append(header);root.append(summary);
  const traits=element(doc,'div',undefined,'traits');for(const [key,data]of Object.entries(system.characteristics??{}))stat(doc,traits,l(data.label??CONFIG.FFG.characteristics?.[key]?.label??key),scalar(data));summary.append(traits);
  const stats=element(doc,'div',undefined,'stats');
- const statLabels={wounds:'SWFFG.Wounds',strain:'SWFFG.Strain',soak:'SWFFG.Soak',defence:'SWFFG.Defense',encumbrance:'SWFFG.Encumbrance',credits:'SWFFG.DescriptionCredits',forcePool:'SWFFG.ForcePool',medical:'SWFFG.Medical'};
+ const statLabels={wounds:'SWFFG.Wounds',strain:'SWFFG.Strain',soak:'SWFFG.Soak',defence:'SWFFG.Defense',encumbrance:'SWFFG.Encumbrance',credits:'SWFFG.DescriptionCredits',forcePool:'SWFFG.ForcePool',medical:'SWFFG.UI.Medical.Healing'};
  for(const [key,data]of Object.entries(system.stats??{})){
   if(!Object.hasOwn(statLabels,key)&&!data?.label)continue;
   if(key==='defence'){stat(doc,stats,textLabel(statLabels[key]),(data.melee??0)+' / '+(data.ranged??0),textLabel('SWFFG.DefenseMelee')+' / '+textLabel('SWFFG.DefenseRanged'));continue;}

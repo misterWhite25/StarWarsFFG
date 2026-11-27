@@ -1,3 +1,4 @@
+import {localizedSystemError} from "./system-localization.mjs";
 import {rollContext} from './roll-context.mjs';
 import {resolveCrewActor,integratedCrewVehicle,integratedCrewGroupSignature} from './integrated-crew.mjs';
 import {requireLivingVehicleGroup} from './vehicle-minion-group.mjs';
@@ -381,7 +382,7 @@ export function get_dice_pool(actor_id, skill_name, incoming_roll) {
   const parsed_skill_name = Object.hasOwn(skills, skill_name) ? skill_name : convert_skill_name(skill_name);
   const skill = skills[parsed_skill_name];
   const characteristic = actor?.system?.characteristics?.[skill?.characteristic];
-  if (!skill || !characteristic) throw new Error("La compétence ou sa caractéristique est indisponible sur cette fiche.");
+  if (!skill || !characteristic) throw localizedSystemError("SWFFG.UI.Operations.SkillRollUnavailable");
 
   const dicePool = new DicePoolFFG({
     ability: Math.max(characteristic.value, skill.rank) + incoming_roll.ability - (Math.min(characteristic.value, skill.rank) + incoming_roll.proficiency),

@@ -24,7 +24,7 @@ test('one critical destroys one craft at every boundary and an empty group canno
     const data=vehicle(before),alive=vehicleMinionGroup(data).alive,change=vehicleMinionCriticalChange(data);data.system.stats.hullTrauma.value=change.after;
     assert.equal(vehicleMinionGroup(data).alive,alive-1,String(before));
   }
-  assert.throws(()=>requireLivingVehicleGroup(vehicle(19)),/plus aucun véhicule/);assert.throws(()=>vehicleMinionCriticalChange(vehicle(19)));
+  assert.throws(()=>requireLivingVehicleGroup(vehicle(19)),{message: "SWFFG.UI.Operations.GroupOutOfCombat"});assert.throws(()=>vehicleMinionCriticalChange(vehicle(19)));
 });
 test('configuration preserves cumulative damage and rejects invalid or unauthorized writes',async()=>{
   globalThis.game={user:{isGM:true}};const data=vehicle(10);data.setFlag=async(_scope,_flag,value)=>{data.flags.starwarsffg.vehicleMinionGroup=value;};

@@ -21,7 +21,7 @@ test('native repair transaction keeps two destroyed craft and rolls difficulty f
 });
 test('a destroyed group cannot act but remains resettable by the GM',async()=>{
   const f=await fixture(19);
-  await assert.rejects(f.executeCombat(f.state,f.ship,{crewId:'mechanic',combatAction:'repairHull'},{isGM:true}),/plus aucun véhicule/);
+  await assert.rejects(f.executeCombat(f.state,f.ship,{crewId:'mechanic',combatAction:'repairHull'},{isGM:true}),{message: "SWFFG.UI.Operations.GroupOutOfCombat"});
   const result=await f.executeCombat(f.state,f.ship,{crewId:'mechanic',combatAction:'resetEncounter'},{isGM:true});assert.equal(result.updates.length,0);
 });
 
@@ -31,5 +31,5 @@ test('minion maneuvers plan hull damage instead of invisible mechanical strain',
   assert.equal(result.updates.length,1);assert.equal(result.updates[0].path,'system.stats.hullTrauma.value');assert.equal(result.updates[0].before,0);assert.equal(result.updates[0].after,2);
 });
 test('minion groups cannot spend an action repairing a nonexistent strain counter',async()=>{
-  const f=await fixture(0);await assert.rejects(f.executeCombat(f.state,f.ship,{crewId:'mechanic',combatAction:'repairStrain'},{isGM:true}),/pas de stress/);
+  const f=await fixture(0);await assert.rejects(f.executeCombat(f.state,f.ship,{crewId:'mechanic',combatAction:'repairStrain'},{isGM:true}),{message: "SWFFG.UI.SpaceCombat.MinionsCannotRepairStrain"});
 });

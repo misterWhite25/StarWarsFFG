@@ -1,3 +1,4 @@
+import {localizeSystem} from "./system-localization.mjs";
 import {vehicleMinionGroup,setVehicleMinionGroup,vehicleMinionCriticalChange} from './vehicle-minion-group.mjs';
 
 const el=(tag,css,text)=>{const node=document.createElement(tag);if(css)node.className=css;if(text!==undefined)node.textContent=String(text);return node;};
@@ -24,7 +25,7 @@ function drawMinionCards(sheet){
   const quantities=block(game.i18n.localize('SWFFG.MinionQuantity'));
   const count=el('input');count.type='number';count.min='1';count.max='100';count.step='1';count.value=String(state.count);count.disabled=!editable;count.dataset.vehicleMinionCount='';
   count.setAttribute('aria-label',game.i18n.localize('SWFFG.MinionQuantityMax'));
-  if(!vehicle.isToken)count.title='Effectif du modèle. Chaque pion posé sur la scène conserve ensuite son propre groupe.';
+  if(!vehicle.isToken)count.title=localizeSystem("SWFFG.UI.Operations.ModelMinionCount");
   const alive=el('input');alive.type='text';alive.value=String(state.alive);alive.disabled=true;alive.dataset.vehicleMinionAlive='';alive.setAttribute('aria-label',game.i18n.localize('SWFFG.MinionQuantityAlive'));
   label(quantities,game.i18n.localize('SWFFG.MinionQuantityMax'),count);label(quantities,game.i18n.localize('SWFFG.MinionQuantityAlive'),alive);
   const eliminate=block(game.i18n.localize('SWFFG.Actors.Sheets.Token.KillMinion.Label'));
@@ -43,7 +44,7 @@ function drawMinionCards(sheet){
   });
   for(const [id,text,icons]of [['one','SWFFG.Actors.Sheets.Token.KillMinion.KillMinion',['fa-skull-crossbones']],['all','SWFFG.Actors.Sheets.Token.KillMinion.KillGroup',['fa-skull-crossbones','fa-person','fa-skull-crossbones']]]){
     const button=el('button','ffg-vehicle-minion-eliminate');button.type='button';button.dataset.vehicleMinionEliminate=id;
-    button.title=button.ariaLabel=id==='one'?'Éliminer un appareil du groupe':'Éliminer tous les appareils du groupe';
+    button.title=button.ariaLabel=id==='one'?localizeSystem("SWFFG.UI.Operations.EliminateOne"):localizeSystem("SWFFG.UI.Operations.EliminateAll");
     button.disabled=!editable||!state.alive||state.hullPerVehicle<=0;
     for(const icon of icons){const glyph=el('i','fa-solid '+icon);glyph.setAttribute('aria-hidden','true');button.append(glyph);}
     button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();void perform(async()=>{

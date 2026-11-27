@@ -12,9 +12,9 @@ async function load(skill='Ranged: Light',journals){
  }}}}});
  const mapping=new vm.SourceTextModule(await readFile(root+'skill-reference-mapping.js','utf8'),{context});await mapping.link(()=>{});await mapping.evaluate();
  const module=new vm.SourceTextModule(await readFile(root+'skill-information-ui.js','utf8'),{context});
- await module.link(spec=>spec.includes('mapping')?mapping:new vm.SyntheticModule(spec.includes('pilotage-core')?['adjacentPlacement']:['skillDescriptor','skillDescription'],function(){
+ await module.link(spec=>spec.includes('mapping')?mapping:new vm.SyntheticModule(spec.includes('pilotage-core')?['adjacentPlacement']:['skillDescriptor','skillDescription','referenceMatchesLocale'],function(){
   if(spec.includes('pilotage-core'))this.setExport('adjacentPlacement',()=>({left:500,top:30,width:600}));
-  else{this.setExport('skillDescriptor',()=>skill?{key:skill,label:skill}:null);this.setExport('skillDescription',async()=>{seen.descriptions++;return {html:'<p>DESCRIPTION_SEULE</p>'};});}
+  else{this.setExport('referenceMatchesLocale',()=>true);this.setExport('skillDescriptor',()=>skill?{key:skill,label:skill}:null);this.setExport('skillDescription',async()=>{seen.descriptions++;return {html:'<p>DESCRIPTION_SEULE</p>'};});}
  },{context}));await module.evaluate();
  const appRoot=element();appRoot.ownerDocument={};const builder={element:element(),roll:{combatMode:'personal'},dicePool:{boost:1,difficulty:2},setPosition(){}};
  return {api:module.namespace,seen,builder,appRoot};

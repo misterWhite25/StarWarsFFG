@@ -1,3 +1,4 @@
+import {localizeSystem} from "./system-localization.mjs";
 const scope = 'starwarsffg';
 const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
 const bands=['Short','Medium','Long','Extreme'];
@@ -63,8 +64,8 @@ const baseDamage=item=>{const d=item?.system?.damage??{};return Number(d.adjuste
 export function talentRank(actor,names){const keys=names.map(normalize);return (actor?.talentList??[]).filter(talent=>keys.includes(normalize(talent.name))&&actor?.items?.get?.(talent.itemId)?.system?.active!==false).reduce((sum,talent)=>sum+(talent.isRanked?Math.max(0,Number(talent.rank)||0):1),0);}
 export function talentCostAccount(actor){
  if(actor?.type==='minion')return null;
- const strain=actor?.system?.stats?.strain;if(strain&&Number(strain.max)>0)return {path:'system.stats.strain.value',stat:strain,label:'stress'};
- const wounds=actor?.system?.stats?.wounds;if(actor?.type==='rival'&&wounds)return {path:'system.stats.wounds.value',stat:wounds,label:'blessures (coût de stress du Rival)'};
+ const strain=actor?.system?.stats?.strain;if(strain&&Number(strain.max)>0)return {path:'system.stats.strain.value',stat:strain,label:localizeSystem("SWFFG.UI.Operations.Strain")};
+ const wounds=actor?.system?.stats?.wounds;if(actor?.type==='rival'&&wounds)return {path:'system.stats.wounds.value',stat:wounds,label:localizeSystem("SWFFG.UI.Operations.RivalWoundCost")};
  return null;
 }
 const talentCostAccountLabel=actor=>{const account=talentCostAccount(actor);return !account?game.i18n.localize("SWFFG.UI.Talent.RollExtra041"):account.path==='system.stats.wounds.value'?game.i18n.localize("SWFFG.UI.Talent.RollExtra042"):game.i18n.localize("SWFFG.UI.Talent.RollExtra043");};
