@@ -20,7 +20,7 @@ function buildSettings(root) {
   </div>
   <p class="pilotage-note">${game.i18n.localize("SWFFG.UI.Pilotage.DiceClickHint")}</p>
   <div class="pilotage-difficulty-footer"><label class="pilotage-enable"><span>${game.i18n.localize("SWFFG.UI.Pilotage.UseForAllRolls")}</span><input type="checkbox" name="pilotage-enabled" ${config.enabled?'checked':''}></label>
-  <div class="gm-dice-preview" aria-label="${game.i18n.localize("SWFFG.UI.Pilotage.PreparedDice")}" aria-live="polite"></div><button type="button" class="pilotage-primary" data-pilotage-save-difficulty>${game.i18n.localize("SWFFG.UI.Pilotage.ApplyDifficulty")}</button></div>
+  <div class="gm-dice-preview" aria-label="${game.i18n.localize("SWFFG.UI.Pilotage.PreparedDice")}" aria-live="polite"></div><button type="button" class="pilotage-primary" data-pilotage-save-difficulty><img class="pilotage-difficulty-icon" src="systems/starwarsffg/images/dice/starwars/threat-white.png" alt="" width="18" height="18"> ${game.i18n.localize("SWFFG.UI.Pilotage.ApplyDifficulty")}</button></div>
   <button type="button" data-pilotage-request-roll><i class="fa-solid fa-dice" aria-hidden="true"></i> ${game.i18n.localize("SWFFG.UI.RollRequests.Request")}</button>
   <p class="pilotage-note">${game.i18n.localize("SWFFG.UI.Pilotage.IndividualSetbackHint")}</p>
  </section>

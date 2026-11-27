@@ -907,10 +907,6 @@
   margin: 16px 0;
   min-width: 0;
 }
-.application.starwarsffg.sheet.actor.v2 .ffg-basic-biography h3 {
-  font-size: 16px;
-  margin: 0 0 8px;
-}
 .application.starwarsffg.sheet.actor.v2 .ffg-basic-biography .editor {
   height: 260px;
   min-height: 220px;
@@ -926,6 +922,11 @@
   border: 1px solid #8886;
   border-radius: 4px;
   text-align: justify;
+}
+.application.starwarsffg.sheet.actor.v2 .ffg-basic-biography .ffg-basic-section-heading + .biography-editor {
+  padding: 12px;
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
 }
 .application.starwarsffg.sheet.actor.v2 .ffg-basic-biography .popout-editor-button {
   display: block !important;
@@ -981,8 +982,8 @@
   text-align: justify;
 }
 
-/* Biography uses the same header treatment as the basic information tables. */
-.application.starwarsffg.sheet.actor.v2 .ffg-basic-biography h3 {
+/* Keep the vehicle description headings aligned with the basic information tables. */
+.application.starwarsffg.sheet.actor.v2 .ffg-basic-biography > h3 {
   margin: 0;
   padding: 7px 9px;
   background: #405164;
@@ -1172,32 +1173,6 @@ button.ffg-gm-difficulty.ui-control:not(:disabled)::before {
 .application.starwarsffg.sheet.actor.v2.rival .tab.general .resource.full {
   width: calc(100% - 8px);
   margin-top: 14px;
-}
-.application.starwarsffg.sheet.actor.v2.rival .ffg-rival-motivations {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-.application.starwarsffg.sheet.actor.v2.rival .ffg-rival-motivations :is(th, td) {
-  padding: 7px;
-  vertical-align: top;
-  overflow-wrap: anywhere;
-}
-.application.starwarsffg.sheet.actor.v2.rival .ffg-rival-motivations th {
-  background: #405164;
-  color: #fff;
-  font-weight: 400;
-  font-size: 12px;
-}
-.application.starwarsffg.sheet.actor.v2.rival .ffg-rival-motivations :is(input, textarea) {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-.application.starwarsffg.sheet.actor.v2.rival .ffg-rival-motivations textarea {
-  min-height: 70px;
-  resize: vertical;
-  text-align: justify;
 }
 
 .application.starwarsffg.sheet.actor.v2.rival .tab.general .block-editor {

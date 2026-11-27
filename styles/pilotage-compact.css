@@ -46,6 +46,25 @@
   border-color: var(--pilotage-active);
   color: white;
 }
+.ffg-pilotage-settings [data-pilotage-save-difficulty] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #6a3438;
+  border-color: #8d575b;
+  color: #fff7ef;
+  font-weight: 600;
+}
+.ffg-pilotage-settings [data-pilotage-save-difficulty]:hover:not(:disabled) {
+  background: #7d4249;
+}
+.ffg-pilotage-settings .pilotage-difficulty-icon {
+  display: block;
+  flex: none;
+  border: 0;
+  object-fit: contain;
+}
 :is(body.theme-dark .ffg-pilotage-settings:not(.theme-light), .ffg-pilotage-settings.theme-dark) [data-pilotage-request-roll] {
   background: #704b23;
   border: 1px solid #bd9457;

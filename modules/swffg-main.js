@@ -235,6 +235,7 @@ Hooks.once("init", async function () {
 
   $("head").append('<link href="systems/starwarsffg/styles/v14-sheets.css" rel="stylesheet" type="text/css" media="all">');
   $("head").append('<link href="systems/starwarsffg/styles/space-chat.css" rel="stylesheet" type="text/css" media="all">');
+  $("head").append('<link href="systems/starwarsffg/styles/character-creator.css" rel="stylesheet" type="text/css" media="all">');
 
   /**
    * Register default XP spend notification
@@ -971,32 +972,45 @@ Hooks.on("renderChatInput", (app, _html, _data) => {
 
 Hooks.on("renderActorDirectory", (app, html) => {
   annotateNpcDirectory(app, html);
-  if (app.id === "actors") {
-    const wizardId = "ffgCharacterWizard";
-    if (!document.querySelector(`#${wizardId}`)) {
-      const wizardButtonIcon = document.createElement("i");
-      wizardButtonIcon.classList.add("fa-solid", "fa-wand-magic-sparkles");
+  if (app.id !== "actors") return;
+  const actions = html.querySelector(".header-actions.action-buttons");
+  if (!actions || actions.querySelector("#ffgCharacterWizard")) return;
 
-      const wizardButtonText = document.createElement("span");
-      wizardButtonText.textContent = game.i18n.localize("SWFFG.CharacterCreator.Entry.Button");
+  const manual = actions.querySelector('[data-action="createEntry"] span');
+  if (manual) manual.textContent = game.i18n.localize("SWFFG.CharacterCreator.Entry.Manual");
 
-      const wizardButton = document.createElement("button");
-      wizardButton.id = wizardId;
-      wizardButton.type = "button";
-      wizardButton.classList.add("activate-wizard");
-      wizardButton.appendChild(wizardButtonIcon);
-      wizardButton.appendChild(wizardButtonText);
-
-      const folderElement = html.querySelector(".header-actions.action-buttons");
-      folderElement.appendChild(wizardButton);
-
-      wizardButton.onclick = async function () {
-        ui.notifications.info(game.i18n.localize("SWFFG.CharacterCreator.Entry.Loading"));
-        const create = new CharacterCreator();
-        create.render(true);
-      }
-    }
+  const icon = document.createElement("i");
+  icon.className = "fa-solid fa-wand-magic-sparkles";
+  icon.setAttribute("aria-hidden", "true");
+  const label = document.createElement("span");
+  label.textContent = game.i18n.localize("SWFFG.CharacterCreator.Entry.Button");
+  const button = document.createElement("button");
+  button.id = "ffgCharacterWizard";
+  button.type = "button";
+  button.className = "activate-wizard";
+  if (!game.modules.get("swffg-compendium-bilingual-steelers-core_rule")?.active) {
+    const reason = game.i18n.localize("SWFFG.CharacterCreator.Entry.CoreRequired");
+    button.disabled = true;
+    button.title = reason;
+    button.setAttribute("aria-description", reason);
   }
+  button.append(icon, label);
+  actions.append(button);
+  if (button.disabled) return;
+  button.addEventListener("click", async () => {
+    const existing = [...foundry.applications.instances.values()].find(instance => instance instanceof CharacterCreator);
+    if (existing) return existing.bringToFront();
+    if (!game.users.some(user => user.isGM && user.active)) {
+      return ui.notifications.error(game.i18n.localize("SWFFG.CharacterCreator.Checks.GM"));
+    }
+    button.disabled = true;
+    try {
+      ui.notifications.info(game.i18n.localize("SWFFG.CharacterCreator.Entry.Loading"));
+      await new CharacterCreator().render({force: true});
+    } finally {
+      button.disabled = false;
+    }
+  });
 });
 
 const openDataImporter=lazyApplication(()=>import('./importer/data-importer.js'));

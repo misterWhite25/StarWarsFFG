@@ -1,4 +1,14 @@
-<div class="wizard-footer">
-  <div class="btn">{{localize 'SWFFG.UI.Actor.WizardBack'}}</div><div class="btn">{{localize 'SWFFG.UI.Actor.WizardForward'}}</div>
-  {{localize 'SWFFG.UI.Actor.WizardStarting'}} {{{ json data.starting }}}<br>
-</div>
+<footer class="wizard-step-navigation">
+  <button type="button" data-action="moveCreationStep" data-direction="back">
+    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    {{localize 'SWFFG.UI.Actor.WizardBack'}}
+  </button>
+  <button type="button" data-action="moveCreationStep" data-direction="forward">
+    <span>{{localize 'SWFFG.UI.Actor.WizardForward'}} <small data-wizard-next-label></small></span>
+    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+  </button>
+  <button type="button" class="create-actor" data-action="createWizardActor" hidden>
+    {{localize 'SWFFG.CharacterCreator.review.Confirm'}}
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
+  </button>
+</footer>

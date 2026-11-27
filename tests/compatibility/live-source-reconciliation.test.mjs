@@ -15,6 +15,8 @@ async function wizardFixture(api) {
     fromUuid:async uuid=>({uuid,type:'species',system:{startingXP:100}}),$:value=>({data:()=>value}),
     ui:{notifications:{warn(){},error(){}}},foundry:{applications:{api:{ApplicationV2:class{},HandlebarsApplicationMixin:C=>C},ux:{TextEditor:{enrichHTML:async value=>value}}}}});
   const {CharacterCreator}= (await loadSystemModule('helpers/character-creator.js',context,{
+    'items/item-sheet-ffg-v2.js':{ItemSheetFFGV2:class{}},
+    'popout-editor.js':{default:class{}},
     'applications/legacy-dialog-v2.js':{LegacyDialogV2:class{}},
     'helpers/effects.js':{default:{}},
     'helpers/actor-helpers.js':{xpLogEarn:async()=>events.push('earn'),xpLogSpend:async()=>events.push('spend')},
@@ -23,10 +25,10 @@ async function wizardFixture(api) {
   })).namespace;
   const wizard=new CharacterCreator();
   wizard.render=()=>events.push('wizard-render');
-  wizard.calcCredits=async()=>({available:0});
-  wizard.calcObligation=async()=>({key:'morality',available:50});
-  const actor={id:'new',items:[],system:{},flags:{},
+  wizard.close=async()=>{};
+  const actor={id:'new',items:[],system:{skills:{}},flags:{},
     async setFlag(scope,key,value){events.push('managed');this.flags[key]=value;},
+    getFlag(_scope,key){return this.flags[key];},
     async unsetFlag(scope,key){events.push('unmanaged');delete this.flags[key];},
     async update(){events.push('update');},async createEmbeddedDocuments(){events.push('items');},
     sheet:{render(){events.push('sheet-render');}}};
@@ -77,6 +79,7 @@ test('species XP bonus is optional, added once, and must be a safe integer',asyn
 
 test('species preflight can stop final creation before an actor or socket request is created',async()=>{
   const {wizard,game,events}=await wizardFixture({validateWizard:async()=>false});
+  Object.assign(wizard.data.selected, {species:{},career:{},specialization:{}});
   assert.equal(await wizard.createActorShim(),false);
   game.user.isGM=false;
   assert.equal(await wizard.createActorShim(),false);
@@ -114,11 +117,11 @@ test('species preview and final actor stay managed until synchronization has com
 
 test('creation preview and final sheet both receive paid trees and motivation documents',async()=>{
   const {wizard,actor}=await wizardFixture();
-  const item=name=>({name,uuid:`Item.${name}`});
-  wizard.data.selected.specialization=item('Primary');
+  const item=(name,type)=>({name,type,uuid:'Item.'+name, toObject(){return {name,type,system:{talents:{},upgrades:{}}};}});
+  wizard.data.selected.specialization=item('Primary','specialization');
   wizard.data.selected.motivations.push({item:item('Cause')});
-  wizard.data.purchases.xp.specializations.push({item:item('Secondary'),cost:20});
-  wizard.data.purchases.xp.forcePowers.push({item:item('Influence'),cost:10});
+  wizard.data.purchases.xp.specializations.push({item:item('Secondary','specialization'),cost:20});
+  wizard.data.purchases.xp.forcePowers.push({item:item('Influence','forcepower'),cost:10});
   const batches=[];
   actor.createEmbeddedDocuments=async(type,documents)=>{
     assert.equal(type,'Item');
@@ -131,16 +134,16 @@ test('creation preview and final sheet both receive paid trees and motivation do
 });
 
 test('refunding a Force upgrade keeps other purchases and their XP costs',async()=>{
-  const {wizard,context}=await wizardFixture();
-  const power={name:'Influence',system:{upgrades:{upgrade0:{islearned:true}}},
-    updateSource(changes){this.system.upgrades.upgrade0.islearned=changes['system.upgrades.upgrade0.islearned'];}};
+  const {wizard}=await wizardFixture();
+  const power={name:'Influence',uuid:'Item.influence',type:'forcepower',
+    toObject(){return {type:this.type,system:{upgrades:{upgrade0:{name:'Upgrade',visible:true,cost:5,islearned:false}}}};}};
   wizard.data.selected.species={system:{startingXP:100}};
   wizard.data.purchases.xp.forcePowers=[{item:power,cost:10}];
-  wizard.data.purchases.xp.talents=[{specName:'Influence',key:'upgrade0',cost:5},{specName:'Healer',key:'talent1',cost:15}];
+  wizard.data.purchases.xp.talents=[{tree:power.uuid,specName:'Influence',key:'upgrade0',cost:5},{specName:'Healer',key:'talent1',cost:15}];
   wizard.showCharacterStatusShim=async()=>{};
-  context.$=dataset=>({data:key=>dataset[key]});
-  await wizard.handleForcePowerTalentPurchase({currentTarget:{target:'upgrade0',forcepower:'Influence',cost:5}});
-  assert.equal(power.system.upgrades.upgrade0.islearned,false);
+  assert.equal(wizard.draftTree(power).system.upgrades.upgrade0.islearned,true);
+  await wizard.handleForcePowerTalentPurchase({currentTarget:{dataset:{target:'upgrade0',tree:power.uuid}}});
+  assert.equal(wizard.draftTree(power).system.upgrades.upgrade0.islearned,false);
   assert.deepEqual(Array.from(wizard.data.purchases.xp.talents,purchase=>purchase.specName),['Healer']);
   assert.equal(wizard.calcXp().available,75);
 });
@@ -206,4 +209,83 @@ test('combat modifier editor enables assignment for the selected scene token onl
   assert.equal(fields.get('[data-pilotage-assign]').disabled,false);
   editor.onSelect(null);
   assert.equal(fields.get('[data-pilotage-assign]').disabled,true);
+});
+
+
+test('each game line saves its own starting stat and clears bonuses from the previous line', async () => {
+  const {wizard, actor, context} = await wizardFixture();
+  const {characterCreator} = (await loadSystemModule('config/ffg-character-creator.js', context)).namespace;
+  context.CONFIG.FFG = {characterCreator};
+  Object.assign(wizard.data.initial, {duty: 20, obligation: 10, morality: 50});
+  const updates = [];
+  actor.update = async update => updates.push(update);
+  for (const [line, choice, stat, expected, credits, xp] of [
+    ['fad', '21_plus_morality', 'morality', 71, 0, 0],
+    ['aor', '5xp', 'duty', 15, 0, 5],
+    ['eote', '2k_credits', 'obligation', 20, 2500, 0],
+  ]) {
+    wizard.selectRules(line);
+    assert.equal(wizard.calcCredits().available, 0);
+    assert.equal(wizard.calcXp().available, 0);
+    assert.ok(wizard.startingBonusForHTML().some(option => option.value === choice));
+    wizard.selectStartingBonus(choice);
+    assert.equal(wizard.calcCredits().available, credits);
+    assert.equal(wizard.calcXp().available, xp);
+    await wizard.createActor(actor.id);
+    assert.equal(updates.findLast(update => update.system)?.system[stat]?.value, expected);
+  }
+});
+
+test('equipment purchases use the current budget and final confirmation checks it again', async () => {
+  const {wizard, context, events} = await wizardFixture();
+  Object.assign(wizard.data.selected, {species: {}, career: {}, specialization: {}});
+  wizard.data.grants.gm.credits = 500;
+  const item = {type: 'gear', system: {price: {value: 300}}};
+  context.fromUuid = async () => item;
+  wizard.showCharacterStatusShim = async () => {};
+  const click = {currentTarget: 'Item.gear'};
+  await Promise.all([wizard.handleCreditPurchase(click), wizard.handleCreditPurchase(click)]);
+  assert.equal(wizard.data.purchases.credits.length, 1);
+  assert.equal(wizard.calcCredits().available, 200);
+  item.system.price.value = -10;
+  await wizard.handleCreditPurchase(click);
+  assert.equal(wizard.calcCredits().available, 200);
+  wizard.data.grants.gm.credits = 100;
+  assert.equal(await wizard.createActorShim(), false);
+  assert.ok(!events.includes('create'));
+});
+
+test('two characteristic clicks on the same preview cannot buy rank five twice', async () => {
+  const {wizard, context, events} = await wizardFixture();
+  Object.assign(wizard.data.selected, {species: {system: {startingXP: 100}}, career: {}, specialization: {}});
+  wizard.tempActor = {system: {characteristics: {Brawn: {value: 4}}}};
+  wizard.showCharacterStatusShim = async () => {};
+  context.$ = dataset => ({data: key => dataset[key]});
+  const click = {currentTarget: {target: 'Brawn', direction: 'increase', value: 4}};
+  await Promise.all([wizard.handleCharacteristicModify(click), wizard.handleCharacteristicModify(click)]);
+  const purchases = wizard.data.purchases.xp.characteristics;
+  assert.deepEqual(Array.from(purchases, purchase => purchase.value), [5]);
+  assert.equal(wizard.calcXp().available, 50);
+  purchases.push({...purchases[0]});
+  assert.equal(await wizard.createActorShim(), false);
+  assert.ok(!events.includes('create'));
+});
+
+test('refunding the last specialization granting a career skill updates its price and remaining XP', async () => {
+  const {wizard, actor} = await wizardFixture();
+  const specialization = {name: 'Mechanic', type: 'specialization', uuid: 'Item.mechanic', system: {careerSkills: {first: 'Mechanics'}},
+    toObject() {return {name: this.name, type: this.type, system: {...this.system, talents: {}}};}};
+  wizard.data.selected.species = {system: {startingXP: 100}};
+  const xp = wizard.data.purchases.xp;
+  xp.specializations.push({item: specialization, cost: 20});
+  xp.skills.push({key: 'Mechanics', value: 1, cost: 5});
+  actor.system.skills.Mechanics = {rank: 0, careerskill: true};
+  actor.createEmbeddedDocuments = async (_type, items) => {
+    actor.system.skills.Mechanics.careerskill = items.some(item => item.system.careerSkills?.first === 'Mechanics');
+  };
+  wizard.showCharacterStatusShim = () => wizard.showCharacterStatus(actor.id);
+  assert.equal(wizard.calcXp().available, 75);
+  await wizard.removeTreePurchase('specializations', specialization.uuid);
+  assert.equal(xp.skills[0].cost, 10);
+  assert.equal(wizard.calcXp().available, 90);
 });

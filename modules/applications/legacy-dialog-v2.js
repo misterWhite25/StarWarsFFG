@@ -46,6 +46,9 @@ export class LegacyDialogV2 extends DialogV2 {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
+    for (const button of this.element.querySelectorAll('button[data-action]')) {
+      if (this._legacyConfig.buttons?.[button.dataset.action]?.disabled) button.disabled = true;
+    }
     return this._legacyConfig.render?.($(this.element));
   }
 

@@ -12,9 +12,11 @@ async function fixture(lang){
  const chain={on(){return this;},off(){return this;},next(){return this;},show(){return this;},find(){return this;},each(){return this;}};
  const game={i18n,user:{name:'R2-D2',isGM:true},users:[{active:true,isGM:true}],settings:{get:()=>0},socket:{on(){}},modules:new Map()};
  const context=vm.createContext({game,DataTable,SlimSelect,$:()=>chain,CONFIG:{FFG:{}},ui:{notifications:{warn:message=>warnings.push(message)}}});
- context.foundry={applications:{api:{ApplicationV2:Base,HandlebarsApplicationMixin:C=>C}}};
+ context.foundry={utils:{escapeHTML:value=>value},applications:{api:{ApplicationV2:Base,HandlebarsApplicationMixin:C=>C}}};
  const {CharacterCreator}=(await loadSystemModule('helpers/character-creator.js',context,{
-  'applications/legacy-dialog-v2.js':{LegacyDialogV2:class{}},'helpers/effects.js':{default:{}},
+  'items/item-sheet-ffg-v2.js':{ItemSheetFFGV2:class{}},
+    'popout-editor.js':{default:class{}},
+    'applications/legacy-dialog-v2.js':{LegacyDialogV2:class{}},'helpers/effects.js':{default:{}},
   'helpers/actor-helpers.js':{xpLogEarn(){},xpLogSpend(){}},'helpers/dice-helpers.js':{default:{}},
   'actors/actor-sheet-ffg.js':{sortDataBy(){},addIfNotExist(){}},
  })).namespace;
@@ -23,27 +25,34 @@ async function fixture(lang){
 
 for(const lang of ['en','fr']){
  test(`${lang}: wizard table and select controls are localized while shop filters retain their identifiers`,async()=>{
-  const f=await fixture(lang);await f.wizard._onRender({},{});
-  assert.equal(f.tables.length,7);assert.equal(f.selects.length,4);
+  const f=await fixture(lang);
+  const section={querySelector:id=>id};
+  for (const id of ['culture','hook','force_attitude','startingBonus']) f.wizard.createStepSelect(section,id,null,()=>{});
+  f.wizard.createGearTable(section);
+  assert.equal(f.tables.length,1);assert.equal(f.selects.length,4);
   for(const {options}of f.tables){
    assert.equal(options.language.search,lang==='en'?'Search:':'Rechercher :');
    assert.match(options.language.info,/_START_/);assert.match(options.language.info,/_END_/);assert.match(options.language.info,/_TOTAL_/);
-   assert.match(options.language.lengthMenu,/_MENU_/);
    assert.equal(options.language.paginate.next,lang==='en'?'Next':'Suivante');
   }
   for(const selector of f.selects)assert.equal(selector.settings.searchPlaceholder,lang==='en'?'Search':'Rechercher');
   assert.deepEqual(f.selects.map(selector=>selector.select),['#culture','#hook','#force_attitude','#startingBonus']);
   const buttons=f.tables.find(table=>table.selector==='#buy_gear').options.layout.topStart.buttons;
-  assert.deepEqual(Array.from(buttons,button=>button.text),['SWFFG.ItemsWeapons','SWFFG.ItemsArmor','SWFFG.ItemsGear','TYPES.Item.itemattachment','TYPES.Item.itemmodifier'].map(f.i18n.localize));
+  assert.deepEqual(Array.from(buttons,button=>button.text.replace(/^.*<\/i> /,'')),['SWFFG.ItemsWeapons','SWFFG.ItemsArmor','SWFFG.ItemsGear','TYPES.Item.itemattachment','TYPES.Item.itemmodifier'].map(f.i18n.localize));
   const filters=[];
-  for(const button of buttons){const dt={column:()=>({visible(){},search:value=>({draw(){filters.push(value);}})})};await button.action(null,dt);}
+  for (const button of buttons) {
+   const set = {attr(){}};
+   const group = {active(){return this;},nodes(){return set;},node(){return set;}};
+   const dt = {column:()=>({visible(){},search:value=>({draw(){filters.push(value);}})}),columns:{adjust(){}},buttons:()=>group,button:()=>group};
+   await button.action(null,dt);
+  }
   assert.deepEqual(filters,['weapon','armour','gear','itemattachment','itemmod']);
-  assert.deepEqual(Array.from(f.CharacterCreator.TABS.primary.tabs,tab=>tab.id),['rules','background','startingBonus','obligation','species','career','xp_spend','gear','motivation','review']);
-  assert.equal(f.i18n.localize(f.CharacterCreator.TABS.primary.tabs[0].label),lang==='en'?'Rules':'Règles');
+  assert.deepEqual(Array.from(f.CharacterCreator.TABS.primary.tabs,tab=>tab.id),['background','species','career','specialization','xp_spend','motivation','gear','review']);
+  assert.equal(f.i18n.localize(f.CharacterCreator.TABS.primary.tabs[0].label),lang==='en'?'Background and Starting Choices':'Historique et choix de départ');
  });
 
  test(`${lang}: wizard obligation label is translated separately from its storage key`,async()=>{
-  const f=await fixture(lang);f.wizard.compendiumData={cached:true};f.wizard.startingBonusForHTML=()=>[];
+  const f=await fixture(lang);f.wizard.tabGroups={primary:'background'};f.wizard.compendiumData={availableBackgrounds:{}};f.wizard.startingBonusForHTML=()=>[];
   const context=await f.wizard._prepareContext();
   assert.equal(context.obligationKey,'morality');assert.equal(context.obligationLabel,lang==='en'?'Morality':'Moralité');
  });

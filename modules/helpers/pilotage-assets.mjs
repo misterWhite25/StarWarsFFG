@@ -142,7 +142,7 @@ export function renderPilotageAssetsField(sheet){
    try{await actor.setFlag(SYSTEM,INCLUDED,checked);}catch(error){ui.notifications.error(error.message);}
    finally{if(sheet.rendered)renderPilotageAssetsField(sheet);}
   });
-  const market=tab.querySelector('.ffg-market-participant');if(market)market.after(field);else tab.prepend(field);
+  tab.append(field);
  }
  const input=field.querySelector('input');input.checked=isPilotageAssetsIncluded(actor);input.disabled=!game.user.isGM||!sheet.isEditable;
 }

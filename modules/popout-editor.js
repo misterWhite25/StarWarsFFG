@@ -31,7 +31,7 @@ export default class PopoutEditor extends FormApplicationV2 {
   /** @override */
   getData() {
     // Get current value
-    let attr = foundry.utils.getProperty(this.object.system, this.attribute.replace('data.', ''));
+    const attr = foundry.utils.getProperty(this.object.system, this.attribute.replace(/^(data|system)\./, ''));
 
     // Return data
     return {
@@ -40,31 +40,32 @@ export default class PopoutEditor extends FormApplicationV2 {
     };
   }
 
+  /** @override */
+  activateListeners(html) {
+    super.activateListeners(html);
+    html.find('prose-mirror[name="value"]').off('save.ffgPopout').on('save.ffgPopout', () => {
+      if (this.form?.isConnected) this.form.requestSubmit();
+    });
+  }
+
   /* -------------------------------------------- */
 
   /** @override */
-  _updateObject(event, formData) {
-    const updateData = {};
-    updateData[`${this.attribute}`] = formData.value;
-
-    // Update the object
-    this.object.update(
-        migrateDataToSystem(updateData)
-    );
-
-    this.close();
+  async _updateObject(_event, formData) {
+    await this.object.update(migrateDataToSystem({[this.attribute]: formData.value}));
+    await this.close();
   }
 
   /**
    * Renders the dice symbols based on strings
    * @param  {String} string
    */
-  static async renderDiceImages(str, actorData) {
+  static async renderDiceImages(str, actorData, {secrets = true} = {}) {
     let html = normalizeBoldTags(str);
 
     html = this.replaceRollTags(html, actorData);
     try {
-      html = await foundry.applications.ux.TextEditor.implementation.enrichHTML(html, { secrets: true, documents: true, async: false });
+      html = await foundry.applications.ux.TextEditor.implementation.enrichHTML(html, { secrets, documents: true, async: false });
     } catch (err) {
       // ignore the message below, it means that we already created an entity link (this could be part of an editor text)
       if (err.message !== "An Entity subclass must configure the EntityCollection it belongs to.") {

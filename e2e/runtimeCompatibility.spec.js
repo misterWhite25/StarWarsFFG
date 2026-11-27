@@ -158,6 +158,42 @@ test('runtime: item sheets prepare without traversing circular Document referenc
   expect(failures).toEqual([]);
 });
 
+test('runtime: an observer sees only the public and revealed parts of a character biography', async ({page, browser}) => {
+  test.slow();
+  const context = await browser.newContext({storageState: {cookies: [], origins: []}});
+  let actorId;
+  try {
+    actorId = await page.evaluate(async () => {
+      const player = game.users.getName('Player2');
+      const biography = '<p>Public passage</p><section class="secret"><p>Private passage</p></section>'
+        + '<section class="secret revealed"><p>Revealed passage</p></section>';
+      const actor = await Actor.create({name: 'Biography visibility QA', type: 'character', system: {biography},
+        ownership: {[player.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER}}, {renderSheet: false});
+      return actor.id;
+    });
+    const renderBiography = async (client, id) => {
+      const sheetId = await client.evaluate(async id => {
+        const sheet = game.actors.get(id).sheet;
+        await sheet.render({force: true});
+        return sheet.id;
+      }, id);
+      return client.locator('[id="' + sheetId + '"] .ffg-basic-biography .biography-editor');
+    };
+    const ownerBio = await renderBiography(page, actorId);
+    await expect(ownerBio).toContainText('Private passage');
+    const player = await context.newPage();
+    await joinPlayer(player);
+    expect(await player.evaluate(id => game.actors.get(id).testUserPermission(game.user, 'OBSERVER', {exact: true}), actorId)).toBe(true);
+    const observerBio = await renderBiography(player, actorId);
+    await expect(observerBio).toContainText('Public passage');
+    await expect(observerBio).toContainText('Revealed passage');
+    await expect(observerBio).not.toContainText('Private passage');
+  } finally {
+    await context.close();
+    if (actorId) await page.evaluate(id => game.actors.get(id)?.delete(), actorId);
+  }
+});
+
 test('runtime: player and GM see the correct roll content, including after reload', async ({ page, browser }) => {
   test.setTimeout(150_000);
   // Override Playwright's project storageState: the player must get a new server session.

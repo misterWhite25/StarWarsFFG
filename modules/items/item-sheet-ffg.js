@@ -391,7 +391,10 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       }
       case "motivation": {
         this.position.height = 545;
-        data.data.motivationTypes = CONFIG.FFG.characterCreator.motivationTypes;
+        const choices = Object.values(CONFIG.FFG.characterCreator.motivationTypes);
+        const current = data.item.system.type;
+        if (!choices.some(choice => choice.value === current)) choices.push({value: current ?? '', label: current || 'SWFFG.CareerSkills.None'});
+        data.data.motivationTypes = choices;
         break;
       }
       default:

@@ -71,7 +71,7 @@
 }
 
 /* Compact slate headings, shared across skills and equipment tables. */
-.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet) {
+.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet,.ffg-rival-sheet,.ffg-nemesis-sheet) {
   --ffg-sheet-blue:#415a68;
   --ffg-sheet-burgundy:#6a3438;
   --ffg-sheet-rule:#75838a55;
@@ -80,7 +80,7 @@
   --ffg-table-heading-muted:#345362;
   --ffg-table-heading-rule:#7397a8;
 }
-:is(body.theme-dark .application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet):not(.theme-light),.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet).theme-dark) {
+:is(body.theme-dark .application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet,.ffg-rival-sheet,.ffg-nemesis-sheet):not(.theme-light),.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet,.ffg-rival-sheet,.ffg-nemesis-sheet).theme-dark) {
   --ffg-sheet-burgundy:#6a4148;
   --ffg-sheet-rule:#7d929c66;
   --ffg-table-heading:linear-gradient(110deg,#466b7d,#3b5869);
@@ -112,13 +112,13 @@
   color:var(--ffg-table-heading-ink);
   font-weight:600;
 }
-.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet) .window-content .sheet-body .tab[data-tab] :is(.items .items-header,table.ffg-basic-table thead,.ffg-basic-biography>h3) {
+.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet) .window-content .sheet-body .tab[data-tab] :is(.items .items-header,table.ffg-basic-table thead:not(.ffg-motivation-columns),.ffg-basic-biography>h3) {
   background:var(--ffg-table-heading);
   color:var(--ffg-table-heading-ink);
   border-radius:5px;
   border-bottom:1px solid var(--ffg-table-heading-rule);
 }
-.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet) .window-content .sheet-body .tab[data-tab] table.ffg-basic-table thead :is(tr,th,a,i),
+.application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet) .window-content .sheet-body .tab[data-tab] table.ffg-basic-table thead:not(.ffg-motivation-columns) :is(tr,th,a,i),
 .application.starwarsffg.sheet.actor.v2:is(.ffg-character-sheet,.ffg-vehicle-sheet) .window-content .sheet-body .tab[data-tab] .items .items-header :is(a,i) {
   background:transparent;
   color:var(--ffg-table-heading-ink);
@@ -505,8 +505,71 @@
 .application.starwarsffg.sheet.actor.v2.ffg-character-sheet .tab[data-tab=items]>.item-values .ffg-credit-balances input {font-size:20px;}
 .application.starwarsffg.sheet.actor.v2.ffg-character-sheet .ffg-credit-balances output {font-size:15px;}
 
+/* Section headings and their actions use the same colors as the sheet tables. */
+.application.starwarsffg.sheet.actor.v2 .ffg-basic-section-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:25px;
+  padding:2px 9px;
+  border-bottom:1px solid var(--ffg-table-heading-rule,#7397a8);
+  border-radius:5px 5px 0 0;
+  background:var(--ffg-table-heading,linear-gradient(110deg,#a9c2ce,#bed1da));
+  color:var(--ffg-table-heading-ink,#233f4f);
+}
+.application.starwarsffg.sheet.actor.v2 .ffg-basic-section-heading > h3 {
+  margin:0;
+  border:0;
+  color:inherit;
+  font-family:inherit;
+  font-size:12px;
+  font-weight:400;
+  line-height:18px;
+  text-shadow:none;
+}
+.application.starwarsffg.sheet.actor.v2 button.ffg-basic-heading-action {
+  display:inline-grid;
+  place-items:center;
+  width:22px;
+  min-height:20px;
+  padding:0;
+  margin:0;
+  border:0;
+  border-radius:3px;
+  background:transparent;
+  color:inherit;
+  font-size:12px;
+  line-height:1;
+  cursor:pointer;
+}
+.application.starwarsffg.sheet.actor.v2 button.ffg-basic-heading-action:is(:hover,:focus-visible) {
+  background:color-mix(in srgb,currentColor 14%,transparent);
+}
+.application.starwarsffg.sheet.actor.v2 button.ffg-basic-heading-action:focus-visible {
+  outline:1px solid currentColor;
+  outline-offset:1px;
+}
+.ffg-motivation-list button:is(.edit-item,.remove-item) {width:auto;min-height:26px;padding:2px 6px;}
+.ffg-motivation-list .morality-controls {white-space:nowrap;}
+.ffg-motivation-list .ffg-motivation-description {text-align:justify;overflow-wrap:anywhere;}
+.ffg-motivation-list textarea {width:100%;min-height:3em;resize:vertical;}
+.application.starwarsffg.sheet.actor.v2 .ffg-motivation-list :is(thead.ffg-motivation-columns, thead.ffg-motivation-columns tr, thead.ffg-motivation-columns th) {
+  background:none;
+  color:var(--ffg-stat-ink,inherit);
+}
+.application.starwarsffg.sheet.actor.v2 .ffg-motivation-list .ffg-motivation-columns {
+  border-bottom:1px solid var(--ffg-table-heading-rule,#7397a8);
+}
+.ffg-narrative-dialog .dialog-content {overflow:auto;}
+.ffg-narrative-dialog .ffg-narrative-manual {margin:0;padding:0;border:0;}
+.ffg-narrative-dialog .ffg-narrative-field {display:grid;gap:4px;margin-bottom:10px;}
+.ffg-narrative-dialog :is(.ffg-narrative-field,.ffg-narrative-manual)[hidden] {display:none;}
+.ffg-narrative-dialog textarea {width:100%;resize:vertical;}
+.ffg-narrative-error {color:var(--color-level-error,#a42a38);text-align:justify;}
+
 /* Market participation belongs with the actor's basic information. */
-.application.starwarsffg.sheet.actor.v2 .ffg-market-participant {margin:0 0 12px;padding:10px 12px;border:1px solid var(--ffg-stat-border,#aebcc3);border-radius:5px;background:var(--ffg-stat-surface,transparent);}
+.application.starwarsffg.sheet.actor.v2 .ffg-market-participant {margin:12px 0 10px;padding:10px 12px;border:1px solid var(--ffg-stat-border,#aebcc3);border-radius:5px;background:var(--ffg-stat-surface,transparent);}
 .application.starwarsffg.sheet.actor.v2 .ffg-market-participant label {display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;}
 .application.starwarsffg.sheet.actor.v2 .ffg-market-participant input[type=checkbox] {flex:none;width:16px;height:16px;margin:0;}
 .application.starwarsffg.sheet.actor.v2 .ffg-market-participant-note {margin:6px 0 0;font-size:11px;line-height:1.45;font-style:italic;text-align:justify;color:var(--ffg-stat-muted,inherit);}

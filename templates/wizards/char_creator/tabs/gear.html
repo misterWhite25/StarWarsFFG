@@ -1,83 +1,108 @@
+{{#*inline "wizardGearIdentity"}}
+  <div class="wizard-gear-identity">
+    <span class="wizard-gear-portrait" aria-hidden="true">
+      <i class="fa-solid {{icon}}"></i>
+      {{#if portrait}}<img src="{{portrait}}" alt="" loading="lazy" decoding="async">{{/if}}
+    </span>
+    <div class="wizard-gear-name">
+      {{#if item.pill}}{{{item.pill}}}{{else}}{{item.name}}{{/if}}
+    </div>
+    {{#if portrait}}
+      <button type="button" class="wizard-gear-zoom" data-action="previewGearImage" data-source="{{item.uuid}}"
+        title="{{localize 'SWFFG.ViewEquipmentImage'}}" aria-label="{{localize 'SWFFG.ViewEquipmentImage'}} : {{item.name}}">
+        <i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i>
+      </button>
+    {{/if}}
+  </div>
+{{/inline}}
 <section
   class='tab gear {{tab.cssClass}}'
   data-group='primary'
   data-tab='gear'
 >
-  <div class="form-group">
-    <label>{{ localize "SWFFG.CharacterCreator.Wizard.Credits.Label" }}</label>
+  <div class="wizard-gear">
+    <p class="wizard-gear-intro">{{localize "SWFFG.CharacterCreator.Wizard.Credits.Label"}}</p>
+    {{#if purchasedGear.length}}
     <table id="purchased_gear">
+      <caption>{{localize "SWFFG.CharacterCreator.tables.labels.PurchasedGear"}}</caption>
       <thead><tr>
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Cancel" }}</td>
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Name" }}</td>
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Price" }}</td>
+        <th scope="col" class="wizard-gear-controls">{{localize "SWFFG.CharacterCreator.tables.labels.Cancel"}}</th>
+        <th scope="col">{{localize "SWFFG.CharacterCreator.tables.labels.Name"}}</th>
+        <th scope="col" class="wizard-gear-number">{{localize "SWFFG.CharacterCreator.tables.labels.Price"}}</th>
       </tr></thead>
       <tbody>
-      {{#each data.purchases.credits as |purchase| }}
+      {{#each purchasedGear as |purchase|}}
       <tr>
-        <td><i class="fas fa-trash credit-refund" data-name="{{ purchase.item.name }}" data-tooltip="{{ localize "SWFFG.CharacterCreator.tooltips.purchases.cancel" }}"></i></td>
-        <td>
-          <img src="{{ item.img }}"/>
-          {{#if purchase.item.pill}}
-            {{{ purchase.item.pill }}}
-          {{else}}
-            {{ purchase.item.name }}
-          {{/if}}
+        <td class="wizard-gear-controls">
+          <button type="button" class="wizard-choose wizard-gear-action credit-refund" data-name="{{purchase.item.name}}"
+            aria-label="{{localize 'SWFFG.CharacterCreator.tooltips.purchases.cancel'}} {{purchase.item.name}}"
+            data-tooltip="{{localize 'SWFFG.CharacterCreator.tooltips.purchases.cancel'}}">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
         </td>
-        <td>{{ purchase.cost }}</td>
+        <td>{{> wizardGearIdentity purchase}}</td>
+        <td class="wizard-gear-number wizard-gear-price">{{purchase.price}}</td>
       </tr>
       {{/each }}
       </tbody>
     </table>
-    <hr>
+    {{/if}}
     <table id="buy_gear">
       <thead>
       <tr>
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Type" }}</td> <!-- 0: all -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Buy" }}</td> <!-- 1: all -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Name" }}</td> <!-- 2: all -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Price" }}</td> <!-- 3: weapon, armour, gear, attachment  -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Damage" }}</td> <!-- 4: weapon only -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.CritRating" }}</td> <!-- 5: weapon only -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Rarity" }}</td> <!-- 6: weapon, armour, gear, attachment -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Encumbrance" }}</td> <!-- 7: weapon, armour, gear -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.HardPoints" }}</td> <!-- 8: weapon, armour, attachment -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Skill" }}</td> <!-- 9: weapon only -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Range" }}</td> <!-- 10: weapon only -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Qualities" }}</td> <!-- 11: weapon, armour, gear, attachment -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Defense" }}</td> <!-- 12: armour -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Soak" }}</td> <!-- 13: armour -->
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Type" }}</td> <!-- 14: attachment, mod -->
+        <th scope="col">{{localize "SWFFG.CharacterCreator.tables.labels.Type"}}</th> <!-- 0: category filter -->
+        <th scope="col" class="wizard-gear-controls" data-dt-order="disable">{{localize "SWFFG.CharacterCreator.tables.labels.Buy"}}</th>
+        <th scope="col" class="wizard-gear-item">{{localize "SWFFG.CharacterCreator.tables.labels.Name"}}</th>
+        <th scope="col" class="wizard-gear-number wizard-gear-price">{{localize "SWFFG.CharacterCreator.tables.labels.Price"}}</th>
+        <th scope="col" class="wizard-gear-number">{{localize "SWFFG.CharacterCreator.tables.labels.Damage"}}</th>
+        <th scope="col" class="wizard-gear-number">{{localize "SWFFG.CharacterCreator.tables.labels.CritRating"}}</th>
+        <th scope="col" class="wizard-gear-number wizard-gear-rarity">{{localize "SWFFG.CharacterCreator.tables.labels.Rarity"}}</th>
+        <th scope="col" class="wizard-gear-number">{{localize "SWFFG.CharacterCreator.tables.labels.Encumbrance"}}</th>
+        <th scope="col" class="wizard-gear-number">{{localize "SWFFG.CharacterCreator.tables.labels.HardPoints"}}</th>
+        <th scope="col" class="wizard-gear-skill">{{localize "SWFFG.CharacterCreator.tables.labels.Skill"}}</th>
+        <th scope="col" class="wizard-gear-range">{{localize "SWFFG.CharacterCreator.tables.labels.Range"}}</th>
+        <th scope="col">{{localize "SWFFG.CharacterCreator.tables.labels.Qualities"}}</th>
+        <th scope="col" class="wizard-gear-number wizard-gear-defense">{{localize "SWFFG.CharacterCreator.tables.labels.Defense"}}</th>
+        <th scope="col" class="wizard-gear-number wizard-gear-soak">{{localize "SWFFG.CharacterCreator.tables.labels.Soak"}}</th>
+        <th scope="col">{{localize "SWFFG.CharacterCreator.tables.labels.Type"}}</th>
       </tr>
       </thead>
       <tbody>
-        {{#each items as |item| }}
+        {{#each gearCatalogue as |row|}}
         <tr>
-          <td>{{ item.type }}</td>
-          <td><i class="fa-solid fa-cart-shopping credit-spend" data-source="{{ item.uuid }}" data-type="{{ item.type }}" data-tooltip="{{ localize "SWFFG.CharacterCreator.tables.buttons.purchase" }}"></i></td>
+          <td>{{row.item.type}}</td>
+          <td class="wizard-gear-controls">
+            <button type="button" class="wizard-choose wizard-gear-action credit-spend" data-source="{{row.item.uuid}}" data-type="{{row.item.type}}" {{#unless row.affordable}}disabled{{/unless}}
+              aria-label="{{localize 'SWFFG.CharacterCreator.tables.buttons.purchase'}} {{row.item.name}}"
+              data-tooltip="{{localize 'SWFFG.CharacterCreator.tables.buttons.purchase'}}">
+              <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+            </button>
+          </td>
+          <td>{{> wizardGearIdentity row}}</td>
+          <td class="wizard-gear-number wizard-gear-price" data-order="{{row.numbers.price.order}}">{{row.numbers.price.label}}</td>
+          <td class="wizard-gear-number" data-order="{{row.numbers.damage.order}}">
+            {{#if (eq row.numbers.damage.order "")}}
+              <span class="wizard-gear-missing" title="{{localize 'SWFFG.UI.Actor.CreationNotSpecified'}}">-</span>
+            {{else}}{{row.numbers.damage.label}}{{/if}}
+          </td>
+          <td class="wizard-gear-number" data-order="{{row.numbers.crit.order}}">{{row.numbers.crit.label}}</td>
+          <td class="wizard-gear-number" data-order="{{row.numbers.rarity.order}}">{{row.numbers.rarity.label}}</td>
+          <td class="wizard-gear-number" data-order="{{row.numbers.encumbrance.order}}">{{row.numbers.encumbrance.label}}</td>
+          <td class="wizard-gear-number" data-order="{{row.numbers.hardpoints.order}}">{{row.numbers.hardpoints.label}}</td>
+          <td class="wizard-gear-skill">{{row.skill}}</td>
+          <td class="wizard-gear-range">{{row.range}}</td>
           <td>
-            <img src="{{ item.img }}"/>
-            {{#if item.pill}}
-              {{{ item.pill }}}
-            {{else}}
-              {{ item.name }}
+            {{#if row.qualities.length}}
+              <ul class="wizard-gear-qualities" role="list">
+                {{#each row.qualities as |quality|}}
+                  <li class="wizard-gear-quality" {{#if quality.description}}data-tooltip="{{quality.description}}" data-tooltip-class="wizard-gear-tooltip"{{/if}}>{{quality.name}}</li>
+                {{/each}}
+              </ul>
             {{/if}}
           </td>
-          <td>{{ item.system.price.value }}</td>
-          <td>{{ item.system.damage.value }}</td>
-          <td>{{ item.system.crit.value}}</td>
-          <td>{{ item.system.rarity.value }}<!--TODO: include restricted flag?--></td>
-          <td>{{ item.system.encumbrance.value }}</td>
-          <td>{{ item.system.hardpoints.value }}</td>
-          <td>{{ item.system.skill.value }}</td>
-          <td>{{ item.system.range.value }}</td>
-          <td>
-            {{#each item.system.itemmodifier as |quality| }}
-              <div class="item-pill hover-tooltip" data-tooltip="{{ quality.system.description }}">{{ quality.name }}</div>
-            {{/each }}
-          </td>
-          <td>{{ item.system.defence.value }}</td>
-          <td>{{ item.system.soak.value }}</td>
-          <td>{{ item.system.type }}</td>
+          <td class="wizard-gear-number" data-order="{{row.numbers.defence.order}}">{{row.numbers.defence.label}}</td>
+          <td class="wizard-gear-number" data-order="{{row.numbers.soak.order}}">{{row.numbers.soak.label}}</td>
+          <td class="wizard-gear-type">{{row.type}}</td>
         </tr>
         {{/each }}
       </tbody>

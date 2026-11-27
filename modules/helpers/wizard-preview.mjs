@@ -13,7 +13,7 @@ export function updateWizardPreview(player, sessionId, removeOnly = false) {
     return Actor.create({
       name: `temp actor - ${player.name}`,
       type: "character",
-      flags: {starwarsffg: {wizardPreviewOwner: player.id, wizardId: sessionId}},
+      flags: {starwarsffg: {wizardPreviewOwner: player.id, wizardId: sessionId, speciesWizardManaged: true}},
       ownership: {[player.id]: foundry.CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER},
     }, {renderSheet: false});
   });

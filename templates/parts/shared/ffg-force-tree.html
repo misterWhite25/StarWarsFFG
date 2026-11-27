@@ -1,0 +1,99 @@
+<div class="talent-grid ffg-force-grid {{#unless data.isEditing}}talent-disable-edit{{/unless}}">
+  <section class="ffg-force-card ffg-force-base">
+    <div class="talent-background ffg-book-node">
+      <div class="talent-header">
+        {{#if isOwned}}<i class="fa-solid fa-square-check ffg-force-base-mark" aria-hidden="true"></i>{{/if}}
+        <h3 class="talent-name">{{localize 'SWFFG.ForceBasicPower'}}</h3>
+      </div>
+      <div class="talent-body">
+        <div class="popout-editor" data-target="data.description" data-label="{{item.name}}">
+          {{#unless isReadOnly}}<div class="popout-editor-button"><i class="fas fa-edit"></i></div>{{/unless}}
+          {{{data.renderedDesc}}}
+        </div>
+      </div>
+    </div>
+    <div class="ffg-book-cost">
+      {{localize 'SWFFG.ForceTree.Cost'}}
+      {{#if data.isEditing}}
+        <input name="data.base_cost" type="text" inputmode="numeric" value="{{item.system.base_cost}}" data-dtype="String" aria-label="{{localize 'SWFFG.XPCost'}}" />
+      {{else}}
+        {{item.system.base_cost}}
+      {{/if}}
+      {{localize 'SWFFG.DescriptionXP'}}
+    </div>
+  </section>
+
+  {{#each data.upgrades as |upgrade key|}}
+    <div class="talent-block talent-upgrade force-power ffg-force-card {{#unless upgrade.visible}}talent-hidden{{/unless}}"
+         {{#unless ../wizardTree}}id="{{key}}"{{/unless}} data-upgrade-key="{{key}}"
+         data-cost="{{upgrade.cost}}" data-span="{{upgrade.sizeInt}}" data-base-item-name="{{../item.name}}"
+         data-top-links="{{#each upgrade.topLinks}}{{#if active}}{{number}} {{/if}}{{/each}}"
+         data-link-right="{{#if upgrade.links-right}}true{{else}}false{{/if}}"
+         style="grid-column: {{upgrade.bookColumn}} / span {{upgrade.sizeInt}}; grid-row: {{upgrade.bookRow}}">
+      <div class="talent-background ffg-book-node">
+        <div class="talent-header">
+          {{#if ../wizardTree}}
+            <input type="checkbox" class="forcePower-talent-purchase" aria-label="{{upgrade.name}}"
+              data-tree="{{../wizardTree}}" data-target="{{key}}"
+              {{#if upgrade.islearned}}checked{{/if}}
+              {{#unless (or upgrade.islearned upgrade.canPurchase)}}disabled{{/unless}}>
+          {{else}}
+            <input type="checkbox" name="data.upgrades.{{key}}.islearned" data-dtype="Boolean" aria-label="{{upgrade.name}}"
+              {{#if (or upgrade.islearned upgrade.automatic)}}checked{{/if}}
+              {{#if (or ../isReadOnly (and ../isOwned (not ../canEditOwnedTree)))}}disabled{{/if}}>
+          {{/if}}
+          <div class="talent-name" data-name="{{upgrade.name}}">
+            {{#if ../data.isEditing}}
+              <input name="data.upgrades.{{key}}.name" type="text" value="{{upgrade.name}}" placeholder="{{localize 'SWFFG.ForceUpgradeName'}}" />
+            {{else}}
+              {{upgrade.name}}
+            {{/if}}
+          </div>
+          {{#if upgrade.canBuy}}
+            <button type="button" class="ffg-purchase ffg-power-upgrade" data-buy-action="forcepower-upgrade" data-upgrade-id="{{key}}" title="{{localize 'SWFFG.Actors.Sheets.Purchase.ConfirmPurchase'}}" aria-label="{{localize 'SWFFG.Actors.Sheets.Purchase.ConfirmPurchase'}}"><i class="fa-regular fa-circle-up" aria-hidden="true"></i></button>
+          {{/if}}
+        </div>
+        <div class="talent-body">
+          <div class="popout-editor" data-target="data.upgrades.{{key}}.description" data-value="data.upgrades.{{key}}.enrichedDescription" data-label="{{upgrade.name}}">
+            {{#unless ../isReadOnly}}<div class="popout-editor-button"><i class="fas fa-edit"></i></div>{{/unless}}
+            {{{upgrade.enrichedDescription}}}
+          </div>
+        </div>
+        {{#if ../data.isEditing}}
+          <div class="ffg-force-tools">
+            <span class="talent-modifiers">
+              <button class="talent-action" type="button" data-itemid="{{key}}" title="{{localize 'SWFFG.UI.Item.Modifiers'}}" aria-label="{{localize 'SWFFG.UI.Item.Modifiers'}}"><i class="fas fa-cog" aria-hidden="true"></i></button>
+            </span>
+            {{#if upgrade.canCombine}}<button class="talent-action" type="button" data-action="combine" data-key="{{key}}" title="{{localize 'SWFFG.CombineBox'}}" aria-label="{{localize 'SWFFG.CombineBox'}}"><i class="fas fa-compress-alt" aria-hidden="true"></i></button>{{/if}}
+            {{#if upgrade.canSplit}}<button class="talent-action" type="button" data-action="split" data-key="{{key}}" title="{{localize 'SWFFG.SplitBox'}}" aria-label="{{localize 'SWFFG.SplitBox'}}"><i class="fas fa-expand-alt" aria-hidden="true"></i></button>{{/if}}
+          </div>
+        {{/if}}
+      </div>
+      <div class="ffg-book-cost">
+        {{localize 'SWFFG.ForceTree.Cost'}}
+        {{#if ../data.isEditing}}
+          <input name="data.upgrades.{{key}}.cost" type="text" inputmode="numeric" value="{{upgrade.cost}}" data-dtype="String" aria-label="{{localize 'SWFFG.XPCost'}}" />
+        {{else}}
+          {{upgrade.cost}}
+        {{/if}}
+        {{localize 'SWFFG.DescriptionXP'}}
+      </div>
+      {{#unless ../wizardTree}}
+        <input name="data.upgrades.{{key}}.size" type="hidden" value="{{upgrade.size}}" data-dtype="String" />
+        <input name="data.upgrades.{{key}}.visible" type="hidden" value="{{upgrade.visible}}" data-dtype="Boolean" />
+        <div class="ffg-force-link-controls" {{#unless ../data.isEditing}}hidden{{/unless}}>
+          {{#each upgrade.topLinks as |link|}}
+            {{#if upgrade.canLinkTop}}
+              <button class="talent-action {{#if link.active}}talent-connector{{/if}}" type="button" data-action="link-top" data-key="{{key}}" data-linknumber="{{link.number}}" aria-pressed="{{#if link.active}}true{{else}}false{{/if}}" aria-label="{{localize 'SWFFG.ForceTree.LinkUp'}} {{link.number}}"><i class="fas fa-arrow-up" aria-hidden="true"></i></button>
+            {{/if}}
+            <input name="data.upgrades.{{key}}.links-top-{{link.number}}" type="hidden" value="{{link.active}}" data-dtype="Boolean" />
+          {{/each}}
+          {{#if upgrade.canLinkRight}}
+            <button class="talent-action {{#if upgrade.links-right}}talent-connector{{/if}}" type="button" data-action="link-right" data-key="{{key}}" aria-pressed="{{#if upgrade.links-right}}true{{else}}false{{/if}}" aria-label="{{localize 'SWFFG.ForceTree.LinkRight'}}"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+          {{/if}}
+          <input name="data.upgrades.{{key}}.links-right" type="hidden" value="{{upgrade.links-right}}" data-dtype="Boolean" />
+        </div>
+      {{/unless}}
+    </div>
+  {{/each}}
+</div>

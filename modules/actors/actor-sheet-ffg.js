@@ -2,7 +2,7 @@ import {forcePowerPurchaseOptions} from "../helpers/force-power-purchases.mjs";
 import {actorSheetData,actorSheetContext} from '../helpers/actor-sheet-data.mjs';
 import {enrichedSheetText} from '../helpers/sheet-text-cache.mjs';
 import {rollContext} from '../helpers/roll-context.mjs';
-import {actorItemDescriptions} from '../helpers/item-view-data.mjs';
+import {actorItemDescriptions, legacyMotivations} from '../helpers/item-view-data.mjs';
 import {resolveCrewActor} from '../helpers/integrated-crew.mjs';
 import {isHomesteadType,actorSheetType} from '../helpers/actor-types.mjs';
 import {crewRoleDefinitions,crewRoleDefinition,crewRolesForSkill} from "../helpers/crew-role-definitions.mjs";
@@ -264,9 +264,17 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
 
     data.token = this.token;
     data.items = this.actor.items;
-    data.itemDescriptions = this.actor.type === 'character' && !this._ffgCombatMode
-      ? await actorItemDescriptions(data.items, this.actor, (description, actor) => PopoutEditor.renderDiceImages(description, actor))
-      : {};
+    const showsMotivations = ['character', 'rival', 'nemesis'].includes(this.actor.type) && CONFIG.FFG.theme === 'starwars';
+    const motivationLabels = new Map(Object.values(CONFIG.FFG.characterCreator?.motivationTypes ?? {}).map(option => [option.value.toLowerCase(), option.label]));
+    data.motivations = showsMotivations ? data.items.filter(item => item.type === 'motivation').map(item => ({
+      id: item.id, name: item.name, type: motivationLabels.get(String(item.system.type).toLowerCase()) ?? item.system.type ?? ''
+    })) : [];
+    data.legacyMotivations = showsMotivations ? legacyMotivations(data.data.general) : [];
+    const narrativeItems = this.actor.type === 'character'
+      ? data.items : data.items.filter(item => showsMotivations && item.type === 'motivation');
+    data.itemDescriptions = this._ffgCombatMode ? {}
+      : await actorItemDescriptions(narrativeItems, this.actor, (description, actor) =>
+        PopoutEditor.renderDiceImages(description, actor, {secrets: actor.isOwner}));
 
     if (options?.action === "update" && this.object.compendium) {
       data.item = foundry.utils.mergeObject(data.actor, options.data);
@@ -311,10 +319,13 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
         if (data.data.stats.credits?.value > 999) {
           data.data.stats.credits.value = data.data.stats.credits.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
-        data.data.enrichedBio = this._ffgCombatMode&&!data.limited?'':await enrichedSheetText(this.actor,this.actor.system.biography,{secrets:!data.limited});
+        data.data.enrichedBio = this._ffgCombatMode && !data.limited ? ''
+          : await enrichedSheetText(this.actor, this.actor.system.biography, {secrets: this.actor.isOwner});
         data.data.general.enrichedNotes = this._ffgCombatMode&&!data.limited?'':await enrichedSheetText(this.actor,this.actor.system.general?.notes) || "";
         data.data.general.enrichedFeatures = this._ffgCombatMode&&!data.limited?'':await enrichedSheetText(this.actor,this.actor.system.general?.features) || "";
         data.maxAttribute = game.settings.get("starwarsffg", "maxAttribute");
+        data.obligationSubtypes = Object.fromEntries(Object.values(CONFIG.FFG.characterCreator.obligationSubTypes)
+          .map(({value, label}) => [value, label]));
         data.obligationItems = {
           obligations: data.items.filter(i => i.system?.type === "obligation"),
           duties: data.items.filter(i => i.system?.type === "duty"),
@@ -473,7 +484,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     html.find(".popout-editor").on("mouseout", (event) => {
       $(event.currentTarget).find(".popout-editor-button").hide();
     });
-    html.find(".popout-editor .popout-editor-button").on("click", this._onPopoutEditor.bind(this));
+    html.find(".popout-editor .popout-editor-button, [data-popout-editor]").on("click", this._onPopoutEditor.bind(this));
 
     // V2 supplies the context it just rendered. V1 listeners prepare it once for all rows.
     const skills = html.find(".skill").filter((_,row)=>row.dataset.ffgSkillPreview!=="ready");
@@ -1388,31 +1399,19 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
       }
     });
 
-    html.find(".add-obligation").on("click", async (event) => {
+    html.find("[data-add-narrative-item]").on("click", async (event) => {
       event.preventDefault();
-      const itemData = {
-        name: "new Obligation",
-        type: "obligation",
-        system: {
-          type: "obligation",
-          description: "Newly-created obligation",
-          magnitude: 0,
-        },
-      };
-      await this.actor.createEmbeddedDocuments("Item", [itemData]);
-    });
-
-    html.find(".add-motivation").on("click", async (event) => {
-      event.preventDefault();
-      const itemData = {
-        name: "new Motivation",
-        type: "motivation",
-        system: {
-          type: "Ambition",
-          description: "Newly-created motivation",
-        },
-      };
-      await this.actor.createEmbeddedDocuments("Item", [itemData]);
+      if (!this.isEditable || !this.actor.isOwner) return;
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        const {addActorNarrativeItem} = await import("../helpers/actor-narrative-items.mjs");
+        await addActorNarrativeItem(this, button.dataset.addNarrativeItem);
+      } catch (error) {
+        ui.notifications.error(error.message);
+      } finally {
+        button.disabled = false;
+      }
     });
 
     html.find(".add-background").on("click", async (event) => {
@@ -2190,7 +2189,7 @@ export class ActorSheetFFG extends foundry.appv1.sheets.ActorSheet {
     const windowLeft = parseInt(parentPosition.left, 10);
     const windowTop = parseInt(parentPosition.top, 10);
 
-    const title = a.dataset.label ? `Editor for ${this.object.name}: ${label}` : `Editor for ${this.object.name}`;
+    const title = [game.i18n.localize("SWFFG.Editor.Title"), this.object.name, label].filter(Boolean).join(" - ");
 
     new PopoutEditor(this.object, {
       name: key,

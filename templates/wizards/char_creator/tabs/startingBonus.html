@@ -8,7 +8,7 @@
       <div class="background-content">
         <label for="startingBonus">{{ localize "SWFFG.CharacterCreator.startingBonus.Label" }}</label>
         <select class="" id="startingBonus" name="startingBonus">
-          <option data-placeholder="true"></option>
+          <option value="">{{localize "SWFFG.CharacterCreator.startingBonus.None"}}</option>
           {{#each startingBonusesRadio as |startingBonus|}}
             <option value="{{startingBonus.value}}">{{localize startingBonus.label}}</option>
           {{/each }}

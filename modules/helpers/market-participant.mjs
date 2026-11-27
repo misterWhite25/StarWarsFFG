@@ -18,7 +18,9 @@ export function renderMarketParticipant(sheet){
   const label=document.createElement('label'),text=document.createElement('span'),input=document.createElement('input'),note=document.createElement('p');
   text.textContent=game.i18n.localize("SWFFG.UI.Equipment.MarketParticipant.ParticipateInTheIntergalacticMarket");
   input.type='checkbox';input.dataset.marketParticipant='';
-  label.append(text,input);note.className='ffg-market-participant-note';field.append(label,note);tab.prepend(field);
+  label.append(text,input);note.className='ffg-market-participant-note';field.append(label,note);
+  const overviewField=tab.querySelector('.ffg-pilotage-assets-field');
+  if(overviewField)overviewField.before(field);else tab.append(field);
   input.addEventListener('change',async event=>{
    event.stopPropagation();
    if(!marketEnabled()||!game.user.isGM||!sheet.isEditable){renderMarketParticipant(sheet);return;}

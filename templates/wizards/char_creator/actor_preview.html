@@ -1,98 +1,117 @@
+{{#*inline "wizardXpTreeSummary"}}
+  <summary class="wizard-xp-tree-summary">
+    <span class="wizard-xp-tree-icon" aria-hidden="true"><i class="fa-solid {{icon}}"></i></span>
+    <span class="wizard-xp-tree-name">{{name}}</span>
+    <i class="fa-solid fa-chevron-right wizard-xp-tree-chevron" aria-hidden="true"></i>
+  </summary>
+{{/inline}}
 <div class="actor_summary">
-  <div class="characteristics grid grid-6col">
-    {{#each actor.system.characteristics as |chrData chrName| }}
-      <div class="characteristic-item flex-group-center">
-        {{#if (gt chrData.value 0) }}
-        <i class="far fa-minus-square" data-action="characteristic-control" data-direction="decrease" data-target="{{ chrName }}" data-value="{{ chrData.value }}"></i>
-        {{/if }}
-        {{#if (lt chrData.value 6) }}
-        <i class="far fa-plus-square" data-action="characteristic-control" data-direction="increase" data-target="{{ chrName }}" data-value="{{ chrData.value }}"></i>
-        {{/if }}
-        <div class="characteristic">
-          <div class="characteristic-value">
-            <input type="number" value="{{ chrData.value }}" disabled="">
-          </div>
-        </div>
-        <div class="characteristic-label">
-          {{ chrName }}
-        </div>
-      </div>
-    {{/each }}
-  </div>
   <div class="stats container flex-group-center">
-    <!-- wounds -->
-    <div class="attribute">
-      <div class="block-background">
-        <div class="block-title">
-          {{localize 'SWFFG.Wounds'}}
-        </div>
-        <div class="block-attribute">
-          <div class="block-value">
-            <input type="number" value="{{ actor.system.stats.wounds.max }}" disabled="">
+    {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.Wounds" fields=(array
+      (object name="data.stats.wounds.max" value=actor.system.stats.wounds.max type="Number" label="SWFFG.Threshold" disabled=true)
+      (object name="data.stats.wounds.value" value=actor.system.stats.wounds.value type="Number" label="SWFFG.Current" disabled=true)
+    ))}}
+    {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.Strain" fields=(array
+      (object name="data.stats.strain.max" value=actor.system.stats.strain.max type="Number" label="SWFFG.Threshold" disabled=true)
+      (object name="data.stats.strain.value" value=actor.system.stats.strain.value type="Number" label="SWFFG.Current" disabled=true)
+    ))}}
+    {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="single" title="SWFFG.Soak" type="Number" name="data.stats.soak.value" value=actor.system.stats.soak.value disabled=true)}}
+    {{> "systems/starwarsffg/templates/parts/shared/ffg-block.html" (object blocktype="split" title="SWFFG.Defense" fields=(array
+      (object name="data.stats.defence.melee" value=actor.system.stats.defence.melee type="Number" label="SWFFG.DefenseMelee" disabled=true)
+      (object name="data.stats.defence.ranged" value=actor.system.stats.defence.ranged type="Number" label="SWFFG.DefenseRanged" disabled=true)
+    ))}}
+  </div>
+
+  <div class="characteristics grid">
+    {{#each characteristicRows as |stat|}}
+      <div class="characteristic-item flex-group-center" data-ability="{{stat.id}}">
+        <div class="wizard-characteristic-adjustment">
+          <button class="wizard-characteristic-button" type="button" data-action="characteristic-control" data-direction="decrease" data-target="{{stat.id}}" data-value="{{stat.value}}" aria-label="{{localize 'SWFFG.CharacterCreator.Entry.DecreaseCharacteristic' name=stat.label}}" {{#unless stat.canDecrease}}disabled{{/unless}}>
+            <i class="fa-solid fa-minus" aria-hidden="true"></i>
+          </button>
+          <div class="characteristic">
+            <div class="characteristic-value">
+              <input type="number" value="{{stat.value}}" aria-label="{{stat.label}}" disabled>
+            </div>
           </div>
+          <button class="wizard-characteristic-button" type="button" data-action="characteristic-control" data-direction="increase" data-target="{{stat.id}}" data-value="{{stat.value}}" aria-label="{{localize 'SWFFG.CharacterCreator.Entry.IncreaseCharacteristic' name=stat.label}}" {{#unless stat.canIncrease}}disabled{{/unless}}>
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
         </div>
+        <div class="characteristic-label">{{stat.label}}</div>
       </div>
-    </div>
-    <!-- strain -->
-    <div class="attribute">
-      <div class="block-background">
-        <div class="block-title">
-          {{localize 'SWFFG.Strain'}}
-        </div>
-        <div class="block-attribute">
-          <div class="block-value">
-            <input type="number" value="{{ actor.system.stats.strain.max }}" disabled="">
-          </div>
-        </div>
-      </div>
-    </div>
+    {{/each}}
   </div>
 
   <div class="skills">
     <div class="skills skills-container">
       {{> "systems/starwarsffg/templates/wizards/char_creator/preview/skills.html" (
-        object skillsList=skillsList actor=actor mode="purchase" purchases=combinedPurchases combinedPurchases=combinedPurchases
+        object skillsList=skillsList characteristics=characteristics mode="purchase" purchases=combinedPurchases combinedPurchases=combinedPurchases
       )}}
     </div>
   </div>
 
-  <div class="specializations">
-    <div class="specialization specialization-container">
-      {{ data.selected.specialization.name }}
-    </div>
-    <div class="specialization-summary" style="display: none;">
-      {{> "systems/starwarsffg/templates/wizards/char_creator/preview/specialization.html" (
-        object specialization=data.selected.specialization purchased=false
-      )}}
-    </div>
-    <div class="specialization">
-      {{#each data.purchases.xp.specializations as |purchase|}}
-        <div class="specialization-purchased specialization-container">
-          {{ purchase.item.name }}
-          <i class="fas fa-trash specialization-remove remove-purchase" data-name="{{ purchase.item.name }}"></i>
-        </div>
-        <div class="specialization-summary" style="display: none;">
-          {{> "systems/starwarsffg/templates/wizards/char_creator/preview/specialization.html" (
-            object specialization=purchase.item purchased=true
-          )}}
-        </div>
-      {{/each }}
-    </div>
-  </div>
+  <section class="specializations wizard-xp-panel">
+    <header class="wizard-xp-panel-header">
+      <h3><i class="fa-solid fa-diagram-project" aria-hidden="true"></i>{{localize "SWFFG.Specializations"}}</h3>
+      <button type="button" class="wizard-xp-buy purchase-specialization">
+        <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+        {{localize "SWFFG.CharacterCreator.buttons.specialization.purchase"}}
+      </button>
+    </header>
+    {{#if draftSpecialization}}
+      <div class="wizard-xp-tree">
+        <details data-sync="xp-tree-{{draftSpecialization.uuid}}">
+          {{> wizardXpTreeSummary name=draftSpecialization.name icon="fa-diagram-project"}}
+          <div class="wizard-xp-tree-content">
+            {{> "systems/starwarsffg/templates/wizards/char_creator/preview/specialization.html" (
+              object specialization=draftSpecialization purchased=false
+            )}}
+          </div>
+        </details>
+      </div>
+    {{/if}}
+    {{#each draftSpecializations as |tree|}}
+      <div class="wizard-xp-tree">
+        <details data-sync="xp-tree-{{tree.uuid}}">
+          {{> wizardXpTreeSummary name=tree.name icon="fa-diagram-project"}}
+          <div class="wizard-xp-tree-content">
+            {{> "systems/starwarsffg/templates/wizards/char_creator/preview/specialization.html" (
+              object specialization=tree purchased=true
+            )}}
+          </div>
+        </details>
+        <button type="button" class="wizard-xp-remove specialization-remove" data-tree="{{tree.uuid}}"
+          aria-label="{{localize 'SWFFG.UI.Item.Delete'}} {{tree.name}}" data-tooltip="{{localize 'SWFFG.UI.Item.Delete'}}">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i>
+        </button>
+      </div>
+    {{/each}}
+  </section>
 
-  <div class="forcePowers">
-    <div class="forcePower">
-      {{#each data.purchases.xp.forcePowers as |purchase|}}
-        <div class="forcePower-purchased forcePower-container">
-          <div class="forcePower-name">{{ purchase.item.name }}</div>
-          <i class="fas fa-trash forcePower-remove remove-purchase" data-name="{{ purchase.item.name }}"></i>
-        </div>
-        <div class="forcePower-summary" style="display: none;">
-          {{> "systems/starwarsffg/templates/wizards/char_creator/preview/forcepower.html" (
-            object forcePower=purchase.item purchased=true
-          )}}
-        </div>
-      {{/each }}
-    </div>
-  </div>
+  <section class="forcePowers wizard-xp-panel">
+    <header class="wizard-xp-panel-header">
+      <h3><i class="fa-solid fa-bolt" aria-hidden="true"></i>{{localize "SWFFG.ForcePowers"}}</h3>
+      <button type="button" class="wizard-xp-buy purchase-forcePower">
+        <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+        {{localize "SWFFG.CharacterCreator.buttons.forcePower.purchase"}}
+      </button>
+    </header>
+    {{#each draftForcePowers as |tree|}}
+      <div class="wizard-xp-tree">
+        <details data-sync="xp-tree-{{tree.uuid}}">
+          {{> wizardXpTreeSummary name=tree.name icon="fa-bolt"}}
+          <div class="wizard-xp-tree-content">
+            {{> "systems/starwarsffg/templates/wizards/char_creator/preview/forcepower.html" (
+              object forcePower=tree purchased=true
+            )}}
+          </div>
+        </details>
+        <button type="button" class="wizard-xp-remove forcePower-remove" data-tree="{{tree.uuid}}"
+          aria-label="{{localize 'SWFFG.UI.Item.Delete'}} {{tree.name}}" data-tooltip="{{localize 'SWFFG.UI.Item.Delete'}}">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i>
+        </button>
+      </div>
+    {{/each}}
+  </section>
 </div>
