@@ -16,8 +16,8 @@ export default class Talents {
   static async Import(xml, zip) {
     try {
       const base = JXON.xmlToJs(xml);
-      let items = base?.Talents?.Talent;
-      if (items?.length) {
+      const items = ImportHelpers.xmlRecords(base?.Talents?.Talent);
+      if (items.length) {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Talents`);
@@ -84,22 +84,7 @@ export default class Talents {
               data.data.attributes = foundry.utils.mergeObject(data.data.attributes, dieModifiers.attributes);
             }
 
-            // populate tags
-            try {
-              if (Array.isArray(item.Categories.Category)) {
-                for (const tag of item.Categories.Category) {
-                  data.data.metadata.tags.push(tag.toLowerCase());
-                }
-              } else {
-                data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
-              }
-            } catch {
-              
-            }
-            if (item?.Type) {
-              // the "type" can be useful as a tag as well
-              data.data.metadata.tags.push(item.Type.toLowerCase());
-            }
+            data.data.metadata.tags.push(...ImportHelpers.importTags(item.Categories?.Category, item.Type));
 
             let imgPath = await ImportHelpers.getImageFilename(zip, "Talent", "", data.flags.starwarsffg.ffgimportid);
             if (imgPath) {

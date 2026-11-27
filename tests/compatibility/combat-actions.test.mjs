@@ -1,3 +1,4 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import {systemI18n} from '../system-i18n.mjs';
 const frI18n=await systemI18n('fr');
 import assert from 'node:assert/strict';
@@ -12,8 +13,8 @@ async function load(){
  const selection=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/weapon-selection.js',import.meta.url),'utf8'),{context});await selection.link(()=>{});await selection.evaluate();
  const customRules=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/custom-rules.js',import.meta.url),'utf8'),{context});await customRules.link(()=>{});await customRules.evaluate();
  const picker=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/token-target-picker.js',import.meta.url),'utf8'),{context});await picker.link(()=>{});await picker.evaluate();
- const vehicleGroups=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context});await vehicleGroups.link(()=>{});await vehicleGroups.evaluate();
- const mod=new vm.SourceTextModule(source,{context});await mod.link(specifier=>specifier.endsWith('vehicle-minion-group.mjs')?vehicleGroups:specifier.endsWith('token-target-picker.js')?picker:specifier.endsWith('custom-rules.js')?customRules:selection);await mod.evaluate();return {api:mod.namespace,entries,setFlags:value=>{flags=value;},flags:()=>flags};
+ const vehicleGroups=new vm.SourceTextModule(await readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context});await linkWithSystemLocalization(vehicleGroups, context, ()=>{});await vehicleGroups.evaluate();
+ const mod=new vm.SourceTextModule(source,{context});await linkWithSystemLocalization(mod, context, specifier=>specifier.endsWith('vehicle-minion-group.mjs')?vehicleGroups:specifier.endsWith('token-target-picker.js')?picker:specifier.endsWith('custom-rules.js')?customRules:selection);await mod.evaluate();return {api:mod.namespace,entries,setFlags:value=>{flags=value;},flags:()=>flags};
 }
 test('post-roll damage never heals, supports soak/pierce and vehicle scale',async()=>{
  const {api}=await load();

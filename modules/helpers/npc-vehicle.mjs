@@ -1,16 +1,28 @@
+import {localizeSystem, localizedSystemError} from "./system-localization.mjs";
 import {planAutoCrew,AUTO_CREW_QUALITIES} from './auto-crew-model.mjs';
 import {vehicleGroupSkillRank} from './vehicle-minion-group.mjs';
 const scope='starwarsffg';
-const collections=()=>{const rows=[];rows.contents=rows;rows.get=id=>undefined;return rows;};
+const collections=()=>{const rows=[];rows.contents=rows;rows.get=()=>undefined;return rows;};
 const labels={pilot:'Pilote',copilot:'Copilote',gunner:'Artilleur',engineer:'Mécanicien',operator:'Technicien',commander:'Commandant',astromech:'Astromech',support:'Passagers'};
 export const NPC_INITIATIVE_SKILLS=['Cool','Vigilance'];
 const initiativeDefaults=()=>Object.fromEntries(NPC_INITIATIVE_SKILLS.map(key=>[key,{ability:2,rank:0}]));
 export const NPC_VEHICLE_SKILLS=['Piloting: Space','Piloting: Planetary','Gunnery','Computers','Mechanics','Leadership',...NPC_INITIATIVE_SKILLS];
+const stationLabels = {...Object.fromEntries(
+  ["pilot", "copilot", "gunner", "engineer", "operator", "astromech"].map(kind => [kind, "SWFFG.AutoCrew.Role." + kind])
+), commander: "SWFFG.UI.Operations.Commander", support: "SWFFG.UI.Operations.Passengers"};
+
+function npcStationName(post) {
+  const original = labels[post.kind];
+  const key = stationLabels[post.kind];
+  if (!key || !original || typeof post.name !== "string" || (post.name !== original && !post.name.startsWith(original + " - "))) return post.name;
+  return localizeSystem(key) + post.name.slice(original.length);
+}
+
 const stats={ 'Piloting: Space':'Agility','Piloting: Planetary':'Agility',Gunnery:'Agility',Computers:'Intellect',Mechanics:'Intellect',Leadership:'Presence',Cool:'Presence',Vigilance:'Willpower'};
 const skillLabels={'Piloting: Space':'PilotingSpace','Piloting: Planetary':'PilotingPlanetary',Gunnery:'Gunnery',Computers:'Computers',Mechanics:'Mechanics',Leadership:'Leadership',Cool:'Cool',Vigilance:'Vigilance'};
 export const npcVehicle=vehicle=>vehicle?.flags?.[scope]?.npcVehicle?.version===1;
 export function npcVehicleData(vehicle,{type='rival',quality='standard',groupSize=1,astromech='auto'}={}){
-  if(!['minion','rival','nemesis'].includes(type)||!AUTO_CREW_QUALITIES[quality])throw Error('Profil de véhicule PNJ invalide.');
+  if(!['minion','rival','nemesis'].includes(type)||!AUTO_CREW_QUALITIES[quality])throw localizedSystemError("SWFFG.UI.Operations.NpcVehicleInvalid");
   const plan=planAutoCrew({name:vehicle.name,system:vehicle.system,items:vehicle.items,flags:{}},{quality,astromech},()=>null,[]);
   const planned=[...plan.stations];if(Number(vehicle.system?.stats?.silhouette?.value)>=4)planned.push({key:'commander',kind:'commander',role:'Commandant',passenger:true});
   const posts=planned.filter(post=>!post.passenger||!supportKinds.has(post.kind));
@@ -78,21 +90,24 @@ export function copyNpcVehicle(vehicle){
   for(const id of Object.keys(config.stations))stations['-='+id]=null;
   return {['flags.'+scope+'.npcVehicle.stations']:stations,['flags.'+scope+'.npcVehicle.stationAliases']:Object.fromEntries(Object.entries(config.stationAliases??{}).map(([old,target])=>[old,ids.get(target)??target])),['flags.'+scope+'.crew']:crew,['flags.'+scope+'.vehicleDeck.passengers']:passengers,['flags.'+scope+'.vehicleDeck.positions']:positions};
 }
-function locate(value,vehicle){
+function locate(value,vehicleHint){
   let id=typeof value==='string'?value:value?.actor_id??value?.actorId??value?.id;
   const match=String(id??'').match(/^(.*)\.NpcStation\.([^.]+)$/);
-  if(match){vehicle=globalThis.fromUuidSync?.(match[1]);id=match[2];}
-  if(!vehicle&&value?.vehicle_uuid)vehicle=globalThis.fromUuidSync?.(value.vehicle_uuid);
-  if(!vehicle&&value?.vehicle_id)vehicle=game.actors.get(value.vehicle_id);
+  const vehicleReference=match ? globalThis.fromUuidSync?.(match[1]) : vehicleHint;
+  const vehicle=vehicleReference
+    || (value?.vehicle_uuid && globalThis.fromUuidSync?.(value.vehicle_uuid))
+    || (value?.vehicle_id && game.actors.get(value.vehicle_id));
+  if(match)id=match[2];
   if(vehicle&&npcVehicle(vehicle)){const config=vehicle.flags[scope].npcVehicle;id=config.stationAliases?.[id]??id;if(config.stations[id])return {vehicle,id};}
   if(vehicle)return null;
   for(const candidate of game.actors??[])if(npcVehicle(candidate)){const config=candidate.flags[scope].npcVehicle,found=config.stationAliases?.[id]??id;if(config.stations[found])return {vehicle:candidate,id:found};}
   return null;
 }
 /** A small skill account, never a native Actor document or a hidden character sheet. */
-export function npcStationActor(value,vehicle=null){
-  const found=locate(value,vehicle);if(!found)return null;
-  vehicle=found.vehicle;const id=found.id,post=vehicle.flags[scope].npcVehicle.stations[id],config=vehicle.flags[scope].npcVehicle;
+export function npcStationActor(value,vehicleHint=null){
+  const found=locate(value,vehicleHint);if(!found)return null;
+  const {vehicle,id}=found;
+  const config=vehicle.flags[scope].npcVehicle,post=config.stations[id];
   const skills={},characteristics={Agility:{value:2},Intellect:{value:2},Presence:{value:2},Willpower:{value:2}};
   for(const [key,pool]of Object.entries({...initiativeDefaults(),...post.skills})){
     const group=vehicleGroupSkillRank(vehicle,key,{groupskill:config.type==='minion'&&pool.rank>0}),rank=config.type==='minion'?group??0:pool.rank;
@@ -101,17 +116,17 @@ export function npcStationActor(value,vehicle=null){
     skills[key]={rank,characteristic,label:game.i18n.localize('SWFFG.SkillsName'+skillLabels[key]),groupskill:config.type==='minion',boost:0,setback:0};
   }
   const system={skills,characteristics,stats:{strain:{value:post.strain??0,max:0},wounds:{value:0,max:0},soak:{value:0},defence:{melee:0,ranged:0}}};
-  const empty=collections(),actor={id,_id:id,uuid:vehicle.uuid+'.NpcStation.'+id,name:post.name,type:config.type,documentName:'Actor',system,flags:{starwarsffg:{...post.flags,autoCrew:{kind:post.kind}}},items:empty,effects:empty,talentList:[],overrides:{},img:'icons/svg/d20.svg',hasPlayerOwner:false,isOwner:game.user.isGM,visible:vehicle.visible,_npcStation:{vehicle,id},_integratedCrew:{vehicle,id,kind:post.kind,station:post.station},
+  const name=npcStationName(post),empty=collections(),actor={id,_id:id,uuid:vehicle.uuid+'.NpcStation.'+id,name,type:config.type,documentName:'Actor',system,flags:{starwarsffg:{...post.flags,autoCrew:{kind:post.kind}}},items:empty,effects:empty,talentList:[],overrides:{},img:'icons/svg/d20.svg',hasPlayerOwner:false,isOwner:game.user.isGM,visible:vehicle.visible,_npcStation:{vehicle,id},_integratedCrew:{vehicle,id,kind:post.kind,station:post.station},
     testUserPermission:user=>!!user?.isGM,getEmbeddedCollection:()=>empty,
     getFlag:(s,key)=>key.split('.').reduce((data,k)=>data?.[k],actor.flags[s]),
-    toObject:()=>({_id:id,name:post.name,type:config.type,system,flags:actor.flags,items:[],effects:[]}),
+    toObject:()=>({_id:id,name,type:config.type,system,flags:actor.flags,items:[],effects:[]}),
     toJSON:()=>({uuid:actor.uuid,_id:id,name:actor.name}),
     update:async changes=>{
-      if(!game.user.isGM)throw Error('Seul le MJ peut modifier les postes PNJ.');
+      if(!game.user.isGM)throw localizedSystemError("SWFFG.UI.Operations.NpcStationGMOnly");
       const updates={};for(const [key,next]of Object.entries(changes)){
         if(key==='system.stats.strain.value')updates['flags.'+scope+'.npcVehicle.stations.'+id+'.strain']=next;
         else if(key.startsWith('flags.starwarsffg.'))updates['flags.'+scope+'.npcVehicle.stations.'+id+'.flags.'+key.slice(18)]=next;
-        else throw Error('Ce poste PNJ contient uniquement des compétences.');
+        else throw localizedSystemError("SWFFG.UI.Operations.NpcStationSkillsOnly");
       }
       await vehicle.update(updates);return npcStationActor({actor_id:id},vehicle);
     }
@@ -121,7 +136,7 @@ export function npcStationActor(value,vehicle=null){
   return actor;
 }
 export async function removeNpcStation(vehicle,id){
-  if(!game.user.isGM)throw Error('Seul le MJ peut modifier les postes PNJ.');
+  if(!game.user.isGM)throw localizedSystemError("SWFFG.UI.Operations.NpcStationGMOnly");
   await vehicle.update({['flags.'+scope+'.npcVehicle.stations.-='+id]:null,['flags.'+scope+'.crew']:(vehicle.flags[scope].crew??[]).filter(member=>member.actor_id!==id),['flags.'+scope+'.vehicleDeck.passengers.-=a'+id]:null});
 }
 const pending=new Map();

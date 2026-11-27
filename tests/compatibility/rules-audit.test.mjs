@@ -1,3 +1,4 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import {loadActorModule,loadSystemModule} from '../load-system-module.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -16,6 +17,7 @@ test('carried and worn armour counts all copies and respects adjusted zero',asyn
  armour.system.equippable.equipped=true;armour.system.encumbrance.adjusted=0;actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,0);
  armour.system.quantity.value=0;delete armour.system.encumbrance.adjusted;actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,0);
  actor.items=[{type:'gear',system:{encumbrance:{value:4,adjusted:2},quantity:{value:3}}}];actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,6);
+ actor.items=[{type:'shipattachment',system:{encumbrance:{value:5,adjusted:0},quantity:{value:1}}}];actor._calculateDerivedValues(actor);assert.equal(actor.system.stats.encumbrance.value,5);
 });
 test('minions fall only above each threshold and incomplete groups stay finite',async()=>{
  const ActorFFG=await actorClass();const actor=new ActorFFG();actor.items=[];
@@ -39,7 +41,7 @@ test('skill and situational setback removals add together',async()=>{
  const crew=new vm.SyntheticModule(['resolveCrewActor','integratedCrewVehicle','integratedCrewGroupSignature'],function(){this.setExport('resolveCrewActor',id=>context.game.actors.get(id));this.setExport('integratedCrewVehicle',()=>null);this.setExport('integratedCrewGroupSignature',()=>null);},{context});
  const rollContextModule=await loadSystemModule('helpers/roll-context.mjs',context);
  const mod=new vm.SourceTextModule(await read('helpers/dice-helpers.js'),{context});
- await mod.link(spec=>spec.includes('roll-context')?rollContextModule:spec.includes('integrated-crew')?crew:spec.includes('vehicle-minion-group')?groups:spec.includes('roll-target-start')?targetStart:spec.includes('ground-movement-state')?new vm.SyntheticModule(['groundAttackDifficulty','groundAttackRange'],function(){this.setExport('groundAttackDifficulty',()=>undefined);this.setExport('groundAttackRange',()=>null);},{context}):spec.includes('weapon-selection')?selection:spec.endsWith('/pool.js')?pool:new vm.SyntheticModule(['default'],function(){this.setExport('default',class {});},{context}));await mod.evaluate();
+ await linkWithSystemLocalization(mod, context, spec=>spec.includes('roll-context')?rollContextModule:spec.includes('integrated-crew')?crew:spec.includes('vehicle-minion-group')?groups:spec.includes('roll-target-start')?targetStart:spec.includes('ground-movement-state')?new vm.SyntheticModule(['groundAttackDifficulty','groundAttackRange'],function(){this.setExport('groundAttackDifficulty',()=>undefined);this.setExport('groundAttackRange',()=>null);},{context}):spec.includes('weapon-selection')?selection:spec.endsWith('/pool.js')?pool:new vm.SyntheticModule(['default'],function(){this.setExport('default',class {});},{context}));await mod.evaluate();
  const result=mod.namespace.get_dice_pool('actor','Pilot',new pool.namespace.DicePoolFFG({remsetback:2,difficulty:1,challenge:2}));
  assert.equal(result.remsetback,3);assert.equal(result.ability,1);assert.equal(result.proficiency,2);assert.equal(result.challenge,2);
 });

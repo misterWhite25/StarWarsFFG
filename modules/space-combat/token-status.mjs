@@ -1,3 +1,4 @@
+import {localizeSystem} from "../helpers/system-localization.mjs";
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 function value(number) {
   if(number==null||number===""||!Number.isFinite(Number(number)))return null;
@@ -7,7 +8,10 @@ export function tokenStatus(ship,vehicle=globalThis.game?.actors?.get(ship.actor
   const headingValue=Number(ship.heading);
   const heading=Number.isFinite(headingValue)?(headingValue%360+360)%360:0;
   const compass=((90-heading)%360+360)%360;
-  const direction=["Est","Nord-est","Nord","Nord-ouest","Ouest","Sud-ouest","Sud","Sud-est"][Math.round(heading/45)%8];
+  const directions = ["SWFFG.UI.SpaceCombat.East", "SWFFG.UI.SpaceCombat.NorthEast",
+    "SWFFG.UI.SpaceCombat.North", "SWFFG.UI.SpaceCombat.NorthWest", "SWFFG.UI.SpaceCombat.West",
+    "SWFFG.UI.SpaceCombat.SouthWest", "SWFFG.UI.SpaceCombat.South", "SWFFG.UI.SpaceCombat.SouthEast"];
+  const direction = localizeSystem(directions[Math.round(heading / 45) % directions.length]);
   const hull=vehicle?.system?.stats?.hullTrauma;
   const group=vehicleMinionGroup(vehicle),damage=value(hull?.value),maximum=value(group.enabled?group.totalHull:hull?.max),threshold=maximum>0?maximum:null;
   const ratio=damage!==null&&threshold>0?Math.min(1,damage/threshold):null;

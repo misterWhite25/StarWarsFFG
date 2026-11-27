@@ -8,31 +8,32 @@ import { ensureActiveEffectsV14 } from "./migration/active-effects-v14.js";
  * @returns {Promise<void>}
  */
 export async function handleUpdate() {
+  if (!game.user?.isGM || game.users.activeGM?.id !== game.user.id) return false;
   const effectReport = await ensureActiveEffectsV14();
   if (effectReport) {
     CONFIG.logger.log("Foundry v14 Active Effect migration", effectReport);
     if (effectReport.failed.length) {
       ui.notifications.error(game.i18n.format("SWFFG.Migration.ActiveEffectsFailed", {count: effectReport.failed.length}), {permanent: true});
-      return;
+      return false;
     }
     if (effectReport.lockedPacks.length) CONFIG.logger.warn("Skipped locked or external compendiums", effectReport.lockedPacks);
   }
   const registeredVersion = game.settings.get("starwarsffg", "systemMigrationVersion");
   const runningVersion = game.system.version;
   if (registeredVersion !== runningVersion) {
-    await handleMigration(registeredVersion, runningVersion);
+    await handleMigration(registeredVersion);
     await sendChanges(runningVersion);
     await game.settings.set("starwarsffg", "systemMigrationVersion", runningVersion);
   }
+  return true;
 }
 
 /**
  * Handles migration logic for the system
  * @param oldVersion - version previously run (from the settings)
- * @param newVersion - version currently running (from game.system.version)
  * @returns {Promise<void>}
  */
-async function handleMigration(oldVersion, _newVersion) {
+async function handleMigration(oldVersion) {
   // Tonio uses an independent 0.x version sequence, not the upstream 1.x schema.
   // Only upstream worlds should run these historical conversions.
   const upstreamVersion = parseFloat(oldVersion);
@@ -61,7 +62,7 @@ async function sendChanges(newVersion) {
     style: CONST.CHAT_MESSAGE_STYLES.OTHER,
     content: html,
   };
-  ChatMessage.create(messageData);
+  await ChatMessage.create(messageData);
 }
 
 /**
@@ -75,7 +76,7 @@ async function warnTheme() {
       style: CONST.CHAT_MESSAGE_STYLES.OTHER,
       content: game.i18n.localize("SWFFG.UI.Root.UnsupportedTheme"),
     };
-    ChatMessage.create(messageData);
+    await ChatMessage.create(messageData);
   }
 }
 
@@ -98,46 +99,12 @@ async function migrateTo1_901() {
  * @returns {Promise<void>}
  */
 async function migrateTo1_906() {
-  // specializations
-  let compendiums = [];
-  for (const compendium of game.settings.get("starwarsffg", "specializationCompendiums").split(",")) {
-    if (compendium.includes("starwarsffg.")) {
-      compendiums.push(compendium.replace("starwarsffg.", "world."));
-    } else {
-      compendiums.push(compendium);
-    }
+  const settings = ["specializationCompendiums", "signatureAbilityCompendiums", "forcePowerCompendiums", "talentCompendiums"];
+  for (const key of settings) {
+    const before = game.settings.get("starwarsffg", key);
+    const after = before.split(",").map(id => id.replace("starwarsffg.", "world.")).join(",");
+    if (after !== before) await game.settings.set("starwarsffg", key, after);
   }
-  game.settings.set("starwarsffg", "specializationCompendiums", compendiums.join(","));
-  // signature abilities
-  compendiums = [];
-  for (const compendium of game.settings.get("starwarsffg", "signatureAbilityCompendiums").split(",")) {
-    if (compendium.includes("starwarsffg.")) {
-      compendiums.push(compendium.replace("starwarsffg.", "world."));
-    } else {
-      compendiums.push(compendium);
-    }
-  }
-  game.settings.set("starwarsffg", "signatureAbilityCompendiums", compendiums.join(","));
-  // force powers
-  compendiums = [];
-  for (const compendium of game.settings.get("starwarsffg", "forcePowerCompendiums").split(",")) {
-    if (compendium.includes("starwarsffg.")) {
-      compendiums.push(compendium.replace("starwarsffg.", "world."));
-    } else {
-      compendiums.push(compendium);
-    }
-  }
-  game.settings.set("starwarsffg", "forcePowerCompendiums", compendiums.join(","));
-  // talents
-  compendiums = [];
-  for (const compendium of game.settings.get("starwarsffg", "talentCompendiums").split(",")) {
-    if (compendium.includes("starwarsffg.")) {
-      compendiums.push(compendium.replace("starwarsffg.", "world."));
-    } else {
-      compendiums.push(compendium);
-    }
-  }
-  game.settings.set("starwarsffg", "talentCompendiums", compendiums.join(","));
 }
 
 /**
@@ -416,7 +383,7 @@ async function migrateTo1907() {
         ui.notifications.warn(game.i18n.format("SWFFG.UI.Root.ItemMigrationFailed", {name: item.name}));
       }
     }
-  } catch (e) {
+  } catch {
     ui.notifications.error(game.i18n.localize("SWFFG.UI.Root.LegacyMigrationFailed"));
     
   }

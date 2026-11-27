@@ -1,22 +1,19 @@
-<div class="wizard-header">
-  {{#if data.selected.species.name}}
-    {{ data.selected.species.name }}
-  {{ else }}
-    {{localize 'SWFFG.UI.Actor.NoSpeciesSelected'}}
+<header class="wizard-header">
+  <div class="wizard-progress" aria-live="polite">
+    <span data-wizard-step></span>
+    <h2 data-wizard-heading></h2>
+    <progress value="0" aria-label="{{localize 'SWFFG.CharacterCreator.Entry.Progress'}}"></progress>
+  </div>
+  <dl class="wizard-budget">
+    <div><dt>XP</dt><dd>{{ availableXp }} <small>/ {{ totalXp }}</small></dd></div>
+    <div><dt>{{localize 'SWFFG.DescriptionCredits'}}</dt><dd>{{ availableCredits }} <small>/ {{ totalCredits }}</small></dd></div>
+    <div><dt>{{ obligationLabel }}</dt><dd>{{ availableObligation }}</dd></div>
+  </dl>
+  {{#if data.selected.species}}
+    <ul class="wizard-selection">
+      <li>{{ data.selected.species.name }}</li>
+      {{#if data.selected.career}}<li>{{ data.selected.career.name }}</li>{{/if}}
+      {{#if data.selected.specialization}}<li>{{ data.selected.specialization.name }}</li>{{/if}}
+    </ul>
   {{/if}}
-  /
-  {{#if data.selected.career.name}}
-    {{ data.selected.career.name }}
-  {{ else }}
-    {{localize 'SWFFG.UI.Actor.NoCareerSelected'}}
-  {{/if}}
-  /
-  {{#if data.selected.specialization.name}}
-    {{ data.selected.specialization.name }}
-  {{ else }}
-    {{localize 'SWFFG.UI.Actor.NoSpecializationSelected'}}
-  {{/if}}
-  <br>
-  XP: {{ availableXp }} / {{ totalXp }}, {{localize 'SWFFG.DescriptionCredits'}}: {{ availableCredits }} / {{ totalCredits }},
-  {{ obligationLabel }}: {{ availableObligation }}
-</div>
+</header>

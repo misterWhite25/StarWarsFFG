@@ -3,7 +3,7 @@
 .pilotage-mj-dialog .pilotage-shared-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}
 .pilotage-mj-dialog .pilotage-shared-window h3{font-family:inherit;font-size:15px;font-weight:650;line-height:1.2;margin:0;border:0}
 .pilotage-mj-dialog .pilotage-shared-heading label{display:flex;align-items:center;gap:6px;margin:0;font-size:12px;white-space:nowrap}
-.pilotage-mj-dialog .pilotage-shared-owner{display:grid;grid-template-columns:85px minmax(0,1fr);align-items:center;gap:8px;font-size:12px}
+.pilotage-mj-dialog .pilotage-shared-owner{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:8px;font-size:12px}
 .pilotage-mj-dialog .pilotage-shared-owner select{width:100%;max-width:380px;min-width:0}
 .pilotage-mj-dialog .pilotage-shared-hint{grid-column:1/-1;font-size:11px;line-height:1.35;margin:0;color:var(--color-text-secondary);text-align:justify}
 .pilotage-mj-dialog .pilotage-columns h3{font-size:18px;line-height:1.3}
@@ -20,21 +20,26 @@
 .pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading{display:contents}
 .pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading h3{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
 .pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading label{justify-self:start;font-size:11px;gap:5px}
-.pilotage-mj-dialog.pilotage-modern .pilotage-shared-owner{grid-template-columns:70px minmax(0,1fr);gap:6px;font-size:11px;min-width:0}
+.pilotage-mj-dialog.pilotage-modern .pilotage-shared-owner{grid-template-columns:minmax(0,1fr);gap:6px;font-size:11px;min-width:0}
 .pilotage-mj-dialog.pilotage-modern .pilotage-shared-owner select{height:28px;min-height:28px;font-size:11px}
 .pilotage-mj-dialog.pilotage-modern .pilotage-shared-status{font-size:11px;line-height:1.3}
 .pilotage-mj-dialog.pilotage-modern .pilotage-shared-hint{padding:6px 10px;margin:0;font-size:10px;line-height:1.4;text-align:justify}
-.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement:not([hidden]){grid-template-columns:minmax(0,1fr) auto;gap:7px 10px;padding:10px}
+.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement:not([hidden]){grid-template-columns:minmax(0,1fr);gap:7px 10px;padding:10px}
 .pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-heading{grid-column:1;grid-row:1;margin:0}
 .pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-heading h3{font-size:13px}
-.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-ranges{grid-column:2;grid-row:1;width:auto;min-height:28px;margin:0;padding:3px 7px;font-size:11px}
 .pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-switch{grid-column:1 / -1;grid-row:2}
 @container pilotage-views (max-width:540px){
   .pilotage-mj-dialog.pilotage-modern .pilotage-shared-window{grid-template-columns:minmax(0,1fr) auto;gap:4px 8px}
   .pilotage-mj-dialog.pilotage-modern .pilotage-shared-heading label{justify-self:end}
-  .pilotage-mj-dialog.pilotage-modern .pilotage-shared-owner{grid-column:1 / -1;grid-template-columns:70px minmax(0,1fr)}
+  .pilotage-mj-dialog.pilotage-modern .pilotage-shared-owner{grid-column:1 / -1;grid-template-columns:minmax(0,1fr)}
 }
 @container pilotage-views (max-width:340px){
   .pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-heading{grid-column:1 / -1}
-  .pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-ranges{grid-column:1 / -1;grid-row:3;width:100%}
 }
+
+.pilotage-mj-dialog.pilotage-modern .pilotage-views-content .pilotage-movement-limit{grid-column:1 / -1;display:flex;align-items:center;gap:6px;margin:0;font-size:12px;cursor:pointer}
+.pilotage-mj-dialog .pilotage-movement-limit[hidden]{display:none}
+.pilotage-mj-dialog .pilotage-movement-limit input{flex:none;margin:0;width:16px;height:16px}
+
+/* The selector already identifies the responsible user; keep only its accessible label. */
+.pilotage-mj-dialog .pilotage-shared-owner > span:not(.pilotage-shared-status){display:none}

@@ -1,3 +1,12 @@
+@at-root .combat-sidebar li.combatant .roll {
+  display: block;
+  width: 40px;
+  height: var(--sidebar-item-height);
+  background: url(../../../icons/svg/d20.svg) no-repeat 50% 50%;
+  background-size: 32px;
+  margin: 0 0.5em;
+}
+
 #combat-tracker {
   .slot-Friendly {
     background: rgba(21, 87, 134, 0.3);

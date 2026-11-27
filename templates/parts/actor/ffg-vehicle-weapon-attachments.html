@@ -19,6 +19,7 @@
           <div class="skill-label rollable roll-button-weapon starwarsffg item-rollable" style="background-image: url('{{ item.img }}')" data-item-id="{{ item.id }}"></div>
         </div>
         {{item.name}}
+        {{#if item.flags.starwarsffg.antiFighter}}<span class="ffg-anti-fighter-badge" title="{{localize 'SWFFG.ShipWeapon.AntiFighterHint'}}">{{localize "SWFFG.ShipWeapon.AntiFighter"}}</span>{{/if}}
       </div>
       <div>{{#if (eq item.system.firingarc.fore true)}}{{localize "SWFFG.VehicleFiringArcForward"}}{{/if}} {{#if (eq item.system.firingarc.aft true)}}{{localize "SWFFG.VehicleFiringArcAft"}}{{/if}} {{#if (eq item.system.firingarc.port true)}}{{localize "SWFFG.VehicleFiringArcPort"}}{{/if}} {{#if (eq item.system.firingarc.starboard true)}}{{localize "SWFFG.VehicleFiringArcStarboard"}}{{/if}} {{#if (eq item.system.firingarc.dorsal true)}}{{localize "SWFFG.VehicleFiringArcDorsal"}}{{/if}} {{#if (eq item.system.firingarc.ventral true)}}{{localize "SWFFG.VehicleFiringArcVentral"}}{{/if}}</div>
       <div>{{item.system.damage.value}} {{#if (and (ne item.system.damage.value item.system.damage.adjusted) (or (gt item.system.damage.adjusted.length 0) (gt item.system.damage.adjusted 0)))}}({{item.system.damage.adjusted}}){{/if}}</div>

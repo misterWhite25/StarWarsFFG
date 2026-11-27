@@ -1,3 +1,4 @@
+import {localizedSystemError} from "../helpers/system-localization.mjs";
 import {command} from "./board.mjs";
 import {combatScene} from "./scene-document.mjs";
 
@@ -20,7 +21,7 @@ async function canvasReady() {
     });
     timer=setTimeout(()=>{
       Hooks.off("canvasReady",hook);
-      reject(Error("La scène est encore en cours de chargement. Réessayez après son affichage."));
+      reject(localizedSystemError("SWFFG.UI.SpaceCombat.CombatSceneLoading"));
     },20000);
   });
 }
@@ -35,7 +36,7 @@ export async function enterCombatScene() {
     await canvasReady();
     let scene=combatScene();
     if(!scene)scene=game.scenes.get(await command("scene"));
-    if(!scene)throw Error("La scène de combat spatial est indisponible.");
+    if(!scene)throw localizedSystemError("SWFFG.UI.SpaceCombat.MissingCombatScene");
     if(!current) {
       const prior=savedReturn();
       current=prior?.combatId===scene.id?prior:{
@@ -44,7 +45,7 @@ export async function enterCombatScene() {
       sessionStorage.setItem(storageKey(),JSON.stringify(current));
     }
     await scene.view();
-    if(canvas.scene?.id!==scene.id)throw Error("La scène de combat spatial n’a pas pu être affichée.");
+    if(canvas.scene?.id!==scene.id)throw localizedSystemError("SWFFG.UI.SpaceCombat.OpenCombatSceneFailed");
   } finally {switching=false;}
 }
 export async function leaveCombatScene() {
@@ -61,7 +62,7 @@ export async function leaveCombatScene() {
     if(!scene)scene=game.scenes.find(item=>item.id!==previous.combatId&&(game.user.isGM||item.navigation));
     if(scene) {
       await scene.view();
-      if(canvas.scene?.id!==scene.id)throw Error("La scène précédente n’a pas pu être réaffichée.");
+      if(canvas.scene?.id!==scene.id)throw localizedSystemError("SWFFG.UI.SpaceCombat.RestoreSceneFailed");
       if(scene.id===previous.sceneId&&previous.position)canvas.pan(previous.position);
     } else if(canvas.scene)await canvas.scene.unview();
     current=null;

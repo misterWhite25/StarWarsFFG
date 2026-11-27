@@ -45,12 +45,25 @@ export function skillDescriptor(builder){
   const raw=builder.weaponContext?.skillKey??builder.roll.skillName??builder.roll.item?.system?.skill?.value;
   if(!raw)return null;
   const actor=builder.roll.data?.document??game.actors.get(builder.roll.data?.actor?._id);
+  return describeSkill(raw, actor);
+}
+
+export function describeSkill(raw, actor) {
   const actorSkills=actor?.system?.skills??{};
   const names=[raw,game.i18n.localize(raw)].map(normalize);
   const match=Object.entries({...standardSkills,...actorSkills}).find(([key,data])=>[key,data.value,data.label,game.i18n.localize(data.label??key)].some(value=>names.includes(normalize(value))));
   const key=match?.[0]??raw,data=match?.[1]??{};
   return {key,label:game.i18n.localize(data.label??key),data:actorSkills[key]??data};
 }
+export function referenceMatchesLocale(journal, page, lang = game.i18n.lang) {
+  const language = [page, journal].flatMap(document => [
+    document?.flags?.starwarsffg?.language,
+    document?.flags?.["swffg-compendium-bilingual"]?.language,
+    document?.flags?.["swffg-reference-tables-fr"]?.language
+  ]).find(value => typeof value === "string" && value.trim());
+  return !language || language.split("-")[0].toLowerCase() === lang?.split("-")[0].toLowerCase();
+}
+
 const readable=html=>Boolean(String(html??'').replace(/<[^>]*>/g,'').trim())&&!/Dataset did not have a description/i.test(String(html));
 export async function skillDescription(skill){
   if(readable(skill.data.description))return {html:skill.data.description,source:game.i18n.localize('SWFFG.UI.SkillInformation.CharacterSource')};
@@ -59,7 +72,7 @@ export async function skillDescription(skill){
   const matches=name=>names.some(value=>normalize(name)===normalize(value));
   const fromJournal=journal=>{
     if(!journal.testUserPermission(game.user,'OBSERVER'))return null;
-    const page=journal.pages.find(page=>page.type==='text'&&page.testUserPermission(game.user,'OBSERVER')&&(matches(page.name)||matches(journal.name))&&readable(page.text?.content));
+    const page=journal.pages.find(page=>page.type==='text'&&page.testUserPermission(game.user,'OBSERVER')&&referenceMatchesLocale(journal,page)&&(matches(page.name)||matches(journal.name))&&readable(page.text?.content));
     return page?{html:page.text.content,source:journal.name,secrets:page.isOwner}:null;
   };
   for(const journal of game.journal){const result=fromJournal(journal);if(result)return result;}

@@ -234,7 +234,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
         await enrichTreeDescriptions(this.item,Array.from({length:20},(_,x)=>data.data.talents[`talent${x}`]));
         for (let x = 0; x < 20; x++) {
           const treeTalent = data.data.talents[`talent${x}`];
-          treeTalent.bookActivation = bookPresentation.bookActivation(treeTalent,game.i18n.lang);
+          treeTalent.bookActivation = bookPresentation.bookActivation(treeTalent);
           treeTalent.displayName = treePresentation.talentTitle(treeTalent.name);
           treeTalent.textVerified = treeTalent.verification?.status === 'verified';
           treeTalent.enrichedDescription = treePresentation.treeTalentDescription(treeTalent, treeTalent.enrichedDescription, treeNames);
@@ -391,7 +391,10 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       }
       case "motivation": {
         this.position.height = 545;
-        data.data.motivationTypes = CONFIG.FFG.characterCreator.motivationTypes;
+        const choices = Object.values(CONFIG.FFG.characterCreator.motivationTypes);
+        const current = data.item.system.type;
+        if (!choices.some(choice => choice.value === current)) choices.push({value: current ?? '', label: current || 'SWFFG.CareerSkills.None'});
+        data.data.motivationTypes = choices;
         break;
       }
       default:
@@ -984,7 +987,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             ffgTempItemIndex: itemIndex,
             ffgIsTemp: true,
             ffgParent: this.object.flags,
-            ffgParentApp: this.appId, // TODO: check if this is needed
           }
         },
         ownership: {
@@ -1001,8 +1003,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
               ffgTempItemType: itemType,
               ffgTempItemIndex: itemIndex,
               ffgIsTemp: true,
-              ffgUuid: this.object.uuid, // TODO: check if this is needed (needed when item on actor)
-              ffgIsOwned: this.object.isEmbedded, // TODO: check if this is needed (needed when item on actor)
+              ffgUuid: this.object.uuid,
+              ffgIsOwned: this.object.isEmbedded,
             }
           },
           ownership: {
@@ -1075,9 +1077,8 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
             ffgTempItemIndex: -1,                       // index of the added item within the parent
             ffgParent: this.object.flags.starwarsffg,   // flags from the parent
             ffgIsTemp: true,                            // this is a temporary item
-            ffgUuid: this.object.uuid,                  // UUID for the parent (if available) TODO: check if this is needed
-            ffgParentApp: this.appId,                   // not sure what this is x.x
-            ffgIsOwned: this.object.isEmbedded,         // if this is within an actor TODO: check if this is needed
+            ffgUuid: this.object.uuid,                  // resolves the parent item, including embedded items
+            ffgIsOwned: this.object.isEmbedded,         // selects the controls for actor-owned items
           }
         },
         system: {
@@ -1502,8 +1503,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
   _updateObject(event, formData) {
     if(this.actor && !this.actor?.verifyEditModeIsNotEnabled()) return;
 
-    const itemUpdate = ItemHelpers.itemUpdate.bind(this);
-    itemUpdate(event, formData);
+    return ItemHelpers.itemUpdate.call(this, event, formData);
   }
 
   /**
@@ -1738,7 +1738,7 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
     if (!itemObject) return;
 
     if (itemObject.type === "talent") {
-      itemObject = await ItemHelpers.uniqueAttrs(itemObject, specialization);
+      itemObject = await ItemHelpers.uniqueAttrs(itemObject);
       $(li).find(`input[name='data.talents.${talentId}.name']`).val(itemObject.name);
       $(li).find(`input[name='data.talents.${talentId}.activation']`).val(itemObject.system.activation.value);
       $(li).find(`input[name='data.talents.${talentId}.activationLabel']`).val(itemObject.system.activation.label);
@@ -1866,10 +1866,11 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
               // mark the mods as active so they transfer to the parent item
               mod.system.active = true;
             }
-            itemObject = await ItemHelpers.uniqueAttrs(itemObject, this.object);
+            itemObject = await ItemHelpers.uniqueAttrs(itemObject);
             items.push(itemObject);
           } else {
             ui.notifications.warn(game.i18n.format("SWFFG.UI.Item.NotEnoughHardpoints", {remaining: this.object.system.hardpoints.adjusted}));
+            return;
           }
           break;
         }
@@ -1882,7 +1883,6 @@ export class ItemSheetFFG extends foundry.appv1.sheets.ItemSheet {
       foundry.utils.setProperty(formData, `data.${itemObject.type}`, items);
 
       await obj.update(formData);
-      // TODO: this happens even if there isn't enough HP (meaning the item gets rejected)
       if (rankOnlyUpdate) {
         await ItemHelpers.syncAEStatus(this.object, this.object.effects);
       } else {

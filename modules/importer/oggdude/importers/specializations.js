@@ -15,9 +15,8 @@ export default class Specializations {
 
   static async Import(zip) {
     try {
-      const files = Object.values(zip.files).filter((file) => {
-        return !file.dir && file.name.split(".").pop() === "xml" && file.name.includes("/Specializations/");
-      });
+      const files = ImportHelpers.xmlFiles(zip, "Specializations");
+      const talentsByKey = new Map();
       let totalCount = files.length;
       let currentCount = 0;
 
@@ -60,39 +59,32 @@ export default class Specializations {
 
             // process career skills
             let currentSkill = 0;
-            if (item?.CareerSkills && item.CareerSkills?.Key) {
-              item.CareerSkills.Key.forEach((skillKey) => {
-                let skill = CONFIG.temporary.skills[skillKey];
-                if (skill) {
-                  data.system.careerSkills[`careerSkill${currentSkill}`] = skill;
-                  currentSkill++;
-                }
-              });
+            for (const skillKey of [].concat(item.CareerSkills?.Key ?? [])) {
+              const skill = CONFIG.temporary.skills[skillKey];
+              if (skill) data.system.careerSkills[`careerSkill${currentSkill++}`] = skill;
             }
 
             if (item?.Universal) {
               data.system.universal = item.Universal === 'true';
             }
 
-            for (let i = 0; i < item.TalentRows.TalentRow.length; i += 1) {
-              const row = item.TalentRows.TalentRow[i];
-
-              let index = 0;
-              for (const talentKey of row.Talents.Key) {
-                let rowTalent = {};
-
-                let talentItem = await ImportHelpers.findCompendiumEntityByImportId("Item", talentKey, undefined, "talent", false);
+            const rows = ImportHelpers.xmlRecords(item.TalentRows?.TalentRow);
+            for (const [i, row] of rows.entries()) {
+              const directions = ImportHelpers.xmlRecords(row.Directions?.Direction);
+              const keys = [].concat(row.Talents?.Key ?? []);
+              for (const [index, talentKey] of keys.entries()) {
+                let talentItem = talentsByKey.get(talentKey);
                 if (!talentItem) {
-                  talentItem = ImportHelpers.findEntityByImportId("items", talentKey);
+                  talentItem = await ImportHelpers.findCompendiumEntityByImportId("Item", talentKey, undefined, "talent")
+                    ?? ImportHelpers.findEntityByImportId("items", talentKey);
+                  if (!talentItem) throw new Error(`Missing talent ${talentKey} for specialization ${item.Name}`);
+                  talentsByKey.set(talentKey, talentItem);
                 }
 
-                const originalAttributes = foundry.utils.deepClone(talentItem.system.attributes);
-                for (const attribute of Object.keys(originalAttributes)) {
-                  const nk = new Date().getTime();
-                  talentItem.system.attributes[`attr${nk}`] = foundry.utils.deepClone(originalAttributes[attribute]);
-                  delete talentItem.system.attributes[attribute];
-                  // ensure further keys have a new entry
-                  await new Promise(r => setTimeout(r, 1));
+                const rowTalent = {};
+                rowTalent.attributes = {};
+                for (const attribute of Object.values(talentItem.system.attributes ?? {})) {
+                  rowTalent.attributes[ImportHelpers.attributeKey()] = foundry.utils.deepClone(attribute);
                 }
 
                 rowTalent.name = talentItem.name;
@@ -106,40 +98,22 @@ export default class Specializations {
                 rowTalent.canLinkTop = true;
                 rowTalent.canLinkRight = true;
                 rowTalent.itemId = talentItem._id;
-                rowTalent.attributes = talentItem.system.attributes;
                 rowTalent.longDesc = "";
 
-                if (row.Directions.Direction[index].Up && row.Directions.Direction[index].Up === "true") {
+                if (directions[index]?.Up === "true") {
                   rowTalent["links-top-1"] = true;
                 }
 
-                if (row.Directions.Direction[index].Right && row.Directions.Direction[index].Right === "true") {
+                if (directions[index]?.Right === "true") {
                   rowTalent["links-right"] = true;
                 }
 
                 const talentIndex = `talent${i * 4 + index}`;
-                data.system.talents[talentIndex] = foundry.utils.deepClone(rowTalent);
-
-                index++;
+                data.system.talents[talentIndex] = rowTalent;
               }
             }
 
-            // populate tags
-            try {
-              if (Array.isArray(item.Categories.Category)) {
-                for (const tag of item.Categories.Category) {
-                  data.system.metadata.tags.push(tag.toLowerCase());
-                }
-              } else {
-                data.system.metadata.tags.push(item.Categories.Category.toLowerCase());
-              }
-            } catch {
-              
-            }
-            if (item?.Type) {
-              // the "type" can be useful as a tag as well
-              data.system.metadata.tags.push(item.Type.toLowerCase());
-            }
+            data.system.metadata.tags.push(...ImportHelpers.importTags(item.Categories?.Category, item.Type));
 
             let imgPath = await ImportHelpers.getImageFilename(zip, "Specialization", "", data.flags.starwarsffg.ffgimportid);
             if (imgPath) {

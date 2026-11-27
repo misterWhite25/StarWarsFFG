@@ -22,6 +22,13 @@ export function careerSkillChoices(skills={}){
   return Object.fromEntries([['(none)',{value:'(none)',label:'SWFFG.CareerSkills.None'}],...Object.entries(skills).map(([key,skill])=>[key,{value:skill.value,label:skill.label}])]);
 }
 
+export function legacyMotivations(general) {
+  return Object.entries(general ?? {})
+    .filter(([slot, entry]) => /^motivation\d+$/.test(slot) &&
+      [entry?.category, entry?.type, entry?.description].some(value => typeof value === 'string' && value.trim()))
+    .map(([slot, {category, type, description}]) => ({slot, category, type, description}));
+}
+
 const descriptionTypes=new Set(['duty','obligation','morality','motivation','background']);
 export async function actorItemDescriptions(items,actor,render){
   const descriptions=Object.create(null);

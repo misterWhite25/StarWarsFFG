@@ -173,37 +173,7 @@
       </div>
       <div>
         {{#if (eq this.FFG.theme "starwars")}}
-        <div class="resource full">
-          <div class="attribute flex-group-center">
-            <div class="block-background">
-              <div class="block-title">
-                {{localize "SWFFG.Motivations"}}
-              </div>
-              <div class="block-attribute">
-                <table class="ffg-rival-motivations">
-                  <colgroup><col style="width:25%"><col style="width:25%"><col style="width:50%"></colgroup>
-                  <thead><tr>
-                    <th>{{localize "SWFFG.MotivationCategory"}}</th>
-                    <th>{{localize "SWFFG.MotivationType"}}</th>
-                    <th>{{localize "SWFFG.MotivationDescription"}}</th>
-                  </tr></thead>
-                  <tbody>
-                    <tr>
-                      <td><input type="text" name="data.general.motivation1.category" value="{{data.general.motivation1.category}}" data-dtype="String" /></td>
-                      <td><input type="text" name="data.general.motivation1.type" value="{{data.general.motivation1.type}}" data-dtype="String" /></td>
-                      <td class="motivation description"><textarea name="data.general.motivation1.description">{{data.general.motivation1.description}}</textarea></td>
-                    </tr>
-                    <tr>
-                      <td><input type="text" name="data.general.motivation2.category" value="{{data.general.motivation2.category}}" data-dtype="String" /></td>
-                      <td><input type="text" name="data.general.motivation2.type" value="{{data.general.motivation2.type}}" data-dtype="String" /></td>
-                      <td class="motivation description"><textarea name="data.general.motivation2.description">{{data.general.motivation2.description}}</textarea></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+        {{> "systems/starwarsffg/templates/parts/actor/ffg-motivations.html"}}
         {{else}}
 
         <div class="grid grid-2col genesys">

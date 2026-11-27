@@ -25,8 +25,8 @@ test('opening a token sheet resolves the permanent setting to its source actor',
   assert.equal(campSourceActor({id:'gone',isToken:true,parent:{actorId:'gone'}}),null);
 });
 test('players and invalid choices cannot write a permanent camp',async()=>{
-  let f=fixture({gm:false});await assert.rejects(setActorCamp(f.actor,-1),/Seul le MJ/);assert.equal(f.updates.length,0);
-  f=fixture();for(const invalid of [-2,2,'1',NaN])await assert.rejects(setActorCamp(f.actor,invalid),/Allié, Neutre ou Ennemi/);assert.equal(f.updates.length,0);
+  let f=fixture({gm:false});await assert.rejects(setActorCamp(f.actor,-1),{message: "SWFFG.UI.Operations.CampGMOnly"});assert.equal(f.updates.length,0);
+  f=fixture();for(const invalid of [-2,2,'1',NaN])await assert.rejects(setActorCamp(f.actor,invalid),{message:"SWFFG.UI.Operations.ChooseCamp"});assert.equal(f.updates.length,0);
 });
 test('editing a compendium actor never touches unrelated world copies sharing its id',async()=>{
   const f=fixture({pack:'source.npcs'});await setActorCamp(f.actor,-1);assert.equal(f.actor.prototypeToken.disposition,-1);assert.equal(f.tokens.find(t=>t.id==='one').disposition,1);

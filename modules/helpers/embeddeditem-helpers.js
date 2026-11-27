@@ -9,26 +9,17 @@ export default class EmbeddedItemHelpers {
    * @returns {Promise<*>}
    */
   static async _getRealItem(temporaryItem) {
-    // NOTE: If data is no-op update, there was previous logic here to not populate parents. We think that's dead, but leaving a note to be removed before commit in case that turned out to be important.
-    // https://github.com/StarWarsFoundryVTT/StarWarsFFG/blob/3721dd62caeb7b18e3b9907dfb5ec0342e4dd3ac/modules/helpers/embeddeditem-helpers.js#L14-L16
-
-    // NOTE: Previously, only add the ffgParent from flags to parents if NOT in the compendium. Don't think we want or need that anymore.
-    // https://github.com/StarWarsFoundryVTT/StarWarsFFG/blob/3721dd62caeb7b18e3b9907dfb5ec0342e4dd3ac/modules/helpers/embeddeditem-helpers.js#L17-L20
-
     let flags = temporaryItem.flags.starwarsffg;
-    let flagHierarchy = [flags];
-    let uuid;
-    if (flags.ffgUuid) {
-        flagHierarchy = [flags];
-        uuid = flags.ffgUuid;
-    }
+    const flagHierarchy = [flags];
+    let uuid = flags.ffgUuid;
     while (flags.ffgParent) {
-      if (Object.values(flags.ffgParent).length === 0) {
-        // TODO: We think this code path is dead, but being paranoid for now. Should clean-up later.
-        ui.notifications.warn(game.i18n.localize("SWFFG.UI.Equipment.MissingParent"));
-        CONFIG.logger.error("FFG parent is empty");
+      const parentFlags = flags.ffgParent.starwarsffg;
+      if (!parentFlags) {
+        const message = game.i18n.localize("SWFFG.UI.Equipment.MissingParent");
+        ui.notifications.warn(message);
+        throw new Error(message);
       }
-      flags = flags.ffgParent.starwarsffg;
+      flags = parentFlags;
       if (Object.keys(flags).includes("ffgUuid")) {
         uuid = flags.ffgUuid;
       }
@@ -41,7 +32,6 @@ export default class EmbeddedItemHelpers {
       throw new Error(game.i18n.localize("SWFFG.UI.Equipment.MissingParentIdentity"));
     }
 
-    // TODO: we do not currently resolve items within compendiums
     let realItem;
     if (uuid) {
       realItem = await fromUuid(uuid);
@@ -57,7 +47,6 @@ export default class EmbeddedItemHelpers {
   }
 
   static async updateRealObject(temporaryItem, data) {
-    // TODO: drop parents once the refactor is done
     const {realItem, flagHierarchy: parents} = await EmbeddedItemHelpers._getRealItem(temporaryItem);
     // Legacy worlds and old form submissions may still contain `-=key` markers.
     // Remove those markers while rebuilding the current data so they are never persisted again.
@@ -94,7 +83,7 @@ export default class EmbeddedItemHelpers {
           {},
       );
     }
-    // TODO: we don't check for compendiums here, either (and we may need to)
+    // Follow the recorded parent chain to the nested item being edited.
     let dataPointer = realItem;
     
     let reconstruct = [];

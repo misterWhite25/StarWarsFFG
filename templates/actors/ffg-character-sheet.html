@@ -202,7 +202,11 @@
               <th scope="col">{{localize "SWFFG.MotivationMagnitude"}}</th>
               <th scope="col">{{localize "SWFFG.MotivationDescription"}}</th>
                 <th scope="col" class="ffg-basic-table-controls">
-                  <a class="add-obligation" aria-label="{{localize 'SWFFG.Obligations'}}"><i class="fa-light fa-square-plus"></i></a>
+                  {{#if editable}}
+                    <button type="button" class="add-obligation ffg-basic-heading-action" data-add-narrative-item="obligation" aria-label="{{localize 'SWFFG.UI.Actor.AddObligation'}}" title="{{localize 'SWFFG.UI.Actor.AddObligation'}}">
+                      <i class="fa-light fa-square-plus" aria-hidden="true"></i>
+                    </button>
+                  {{/if}}
                 </th>
               </tr>
             </thead>
@@ -213,7 +217,7 @@
                       <td>{{ item.name }}</td>
                       <td>
                         {{#if (eq item.system.type "morality") }}
-                          {{ item.system.subtype }}
+                          {{#with (lookup ../obligationSubtypes item.system.subtype)}}{{localize this}}{{else}}{{item.system.subtype}}{{/with}}
                         {{ else }}
                           {{ item.system.magnitude }}
                         {{/if }}
@@ -232,35 +236,7 @@
       </section>
       <div>
         {{#if (eq this.FFG.theme "starwars")}}
-        <section class="ffg-basic-table-block">
-          <table class="ffg-basic-table">
-            <thead>
-              <tr>
-                <th scope="col" class="ffg-basic-table-category">{{localize "SWFFG.Motivations"}}</th>
-              <th scope="col">{{localize "SWFFG.MotivationType"}}</th>
-              <th scope="col">{{localize "SWFFG.MotivationDescription"}}</th>
-                <th scope="col" class="ffg-basic-table-controls">
-                  <a class="add-motivation" aria-label="{{localize 'SWFFG.Motivations'}}"><i class="fa-light fa-square-plus"></i></a>
-                </th>
-              </tr>
-            </thead>
-<tbody>
-                    {{#each items as |item|}}
-                    {{#if (eq item.type "motivation")}}
-                    <tr>
-                      <td>{{ item.name }}</td>
-                      <td>{{ item.system.type }}</td>
-                      <td>{{{lookup ../itemDescriptions item.id}}}</td>
-                      <td class="morality-controls">
-                        <a class="edit-item" data-id="{{id}}"><i class="fas fa-edit"></i></a>
-                        <a class="remove-item" data-id="{{id}}"><i class="fas fa-trash"></i></a>
-                      </td>
-                    </tr>
-                    {{/if}}
-                    {{/each }}
-                  </tbody>
-          </table>
-        </section>
+        {{> "systems/starwarsffg/templates/parts/actor/ffg-motivations.html"}}
         {{else}}
 
         <div class="grid grid-2col genesys">
@@ -297,11 +273,15 @@
         </section>
       </div>
       <section class="ffg-basic-biography">
-        <h3>{{localize "SWFFG.TabBiography"}}</h3>
-        <div class="biography-editor popout-editor" data-target="system.biography" data-label="{{localize 'SWFFG.TabBiography'}}">
-          {{#if editable}}<button type="button" class="popout-editor-button" aria-label="{{localize 'SWFFG.TabBiography'}}"><i class="fas fa-edit"></i></button>{{/if}}
-          {{{data.enrichedBio}}}
-        </div>
+        <header class="ffg-basic-section-heading" data-target="system.biography" data-label="{{localize 'SWFFG.TabBiography'}}">
+          <h3>{{localize "SWFFG.TabBiography"}}</h3>
+          {{#if editable}}
+            <button type="button" class="ffg-basic-heading-action" data-popout-editor aria-label="{{localize 'SWFFG.UI.Actor.EditBiography'}}" title="{{localize 'SWFFG.UI.Actor.EditBiography'}}">
+              <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+            </button>
+          {{/if}}
+        </header>
+        <div class="biography-editor">{{{data.enrichedBio}}}</div>
       </section>
     </div>
 

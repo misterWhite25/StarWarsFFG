@@ -1,3 +1,5 @@
+import {actorDirectoryGroup} from "../helpers/actor-directory-group.mjs";
+import {npcVehicle} from "../helpers/npc-vehicle.mjs";
 import {advanceCombatRound,endShipCombat,expireEffects} from "./combat-rules.mjs";
 
 function trackedSpaceCombat(){
@@ -22,12 +24,24 @@ export function sameInitiative(left,right=initiativeStamp()) {
 }
 // Initiative is informational: ownership and action costs are checked by the command engine.
 export function initiativeReason() { return ""; }
-export function initiativeLabel(context=initiativeContext(),user=globalThis.game?.user) {
-  if(!context.tracked)return "Initiative libre";
-  if(!context.started)return "En attente du début du combat Foundry";
-  if(!context.actor)return "Créneau à réclamer dans le suivi d’initiative";
-  return "Tour de "+(!user?.isGM&&context.participant.hidden?"l’adversaire":context.actor.name);
+export function initiativeLabel(context, user = game.user) {
+  const {started, slot, participant} = context;
+  if (!started || !slot || context.combat.turn == null) return "";
+  const localize = key => game.i18n.localize("SWFFG.CombatTurn." + key);
+  const actor = participant?.actor;
+  if (actor && (actorDirectoryGroup(actor) === "npcs" || npcVehicle(actor))) return localize("GM");
+  const visible = participant ?? slot;
+  if (!user.isGM && (visible.hidden || visible.token?.hidden || visible.visible === false)) {
+    return localize("Hidden");
+  }
+  if (participant) {
+    return game.i18n.format("SWFFG.CombatTurn.Named", {name: participant.name});
+  }
+  if (slot.disposition === CONST.TOKEN_DISPOSITIONS.FRIENDLY) return localize("Allied");
+  if (slot.disposition === CONST.TOKEN_DISPOSITIONS.HOSTILE) return localize("Enemy");
+  return localize("Unclaimed");
 }
+
 
 // Native initiative advances rounds; turns within one round never reset ship counters.
 export function synchronizeInitiative(state,context=initiativeContext()) {
@@ -59,9 +73,9 @@ export function synchronizeInitiative(state,context=initiativeContext()) {
     if(previous?.combatId===combatId) {
       Object.assign(ship,{startSpeed:ship.speed,destination:{x:ship.x,y:ship.y},desiredHeading:ship.heading,turn:0,movementSpent:0,movementTurnSpent:0});
       advanceCombatRound(ship,round-1);
-    }
-    else if(previous)ship=endShipCombat(ship);
-    else if(ship.combat) {
+    } else if(previous) {
+      return {...endShipCombat(ship),version:version+1};
+    } else if(ship.combat) {
       for(const turn of Object.values(ship.combat.turns??{}))turn.round=round;
       for(const effect of ship.combat.effects??[])if(Number.isFinite(effect.expiresRound))effect.expiresRound+=round-oldRound;
       ship.combat.reservations={};

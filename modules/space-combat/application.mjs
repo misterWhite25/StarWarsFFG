@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {renderScheduler} from '../helpers/render-scheduler.mjs';
 import {actorAffectsSpaceCombat,combatAffectsSpaceCombat} from './refresh-policy.mjs';
 import { board, command, registerBoard, shipAppearance } from "./board.mjs";
@@ -13,9 +14,9 @@ import {canSelectShip,crewRoster,isNavigationRole,controlsCrewMember} from "./cr
 import {maneuverCost,maneuverCostLabel} from "./combat-rules.mjs";
 import {initiativeContext,initiativeStamp,initiativeReason} from "./initiative.mjs";
 
-const title = "Combat spatial";
+const title = "SWFFG.UI.SpaceCombat.Title";
 const initialCamera = () => ({ x: 0, y: 0, width: 24 });
-const fmt = value => Number(value).toLocaleString("fr-FR", { maximumFractionDigits: 2 });
+const fmt = value => Number(value).toLocaleString(globalThis.game?.i18n?.lang, { maximumFractionDigits: 2 });
 function escape(value) {
   return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
@@ -32,9 +33,9 @@ let app;
 function courseText(ship,draft,choosingDirection=false) {
   const planned={...ship,destination:draft.destination},plan=previewFlight(planned),hex=nearestHex(plan.end);
   const ready=draft.destinationChosen&&!choosingDirection;
-  return {arrival:draft.destinationChosen?`Destination : hexagone ${hex.q} ; ${hex.r} · ${fmt(plan.distance)} / ${fmt(movementRadius(ship))} u pour cette manœuvre.`:"Aucune destination choisie.",
-    flightStatus:ready?"À valider":"À vous de jouer",
-    instruction:ready?"2. Validez pour déplacer le vaisseau et dépenser la manœuvre.":"1. Cliquez sur un hexagone dans le cercle de déplacement sur la carte."};
+  return {arrival:draft.destinationChosen?localizeSystem("SWFFG.UI.SpaceCombat.DestinationReadout", {q:hex.q, r:hex.r, distance:fmt(plan.distance), limit:fmt(movementRadius(ship))}):localizeSystem("SWFFG.UI.SpaceCombat.NoDestination"),
+    flightStatus:ready?localizeSystem("SWFFG.UI.SpaceCombat.AwaitingConfirmation"):localizeSystem("SWFFG.UI.SpaceCombat.YourMove"),
+    instruction:ready?localizeSystem("SWFFG.UI.SpaceCombat.FlightConfirmStep"):localizeSystem("SWFFG.UI.SpaceCombat.FlightSelectStep")};
 }
 
 class SpaceCombat extends foundry.applications.api.ApplicationV2 {
@@ -81,11 +82,11 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
     const member=this.flightMember,cost=member&&maneuverCost(ship,member.actor_id,board().round,true),disabled=!cost?.available;
     return `<section class="sc-movement-form" data-flight-form>
       <p class="sc-flight-instruction" data-readout="instruction" role="status" aria-live="polite">${text.instruction}</p>
-      <div class="sc-movement-actions">${action("pickDirection","Choisir la destination","crosshairs","sc-direction-picker",disabled)}
-      ${action("plan","Valider","check","sc-primary",disabled||!draft.destinationChosen||this.choosingDirection)}${action("cancelFlight","Annuler","xmark")}</div>
+      <div class="sc-movement-actions">${action("pickDirection",localizeSystem("SWFFG.UI.SpaceCombat.ChooseDestination"),"crosshairs","sc-direction-picker",disabled)}
+      ${action("plan",localizeSystem("SWFFG.UI.SpaceCombat.Confirm"),"check","sc-primary",disabled||!draft.destinationChosen||this.choosingDirection)}${action("cancelFlight",localizeSystem("SWFFG.Cancel"),"xmark")}</div>
       <p class="sc-hint" data-readout="arrival">${text.arrival}</p>
-      <p class="sc-flight-cost">1 manœuvre · ${cost?escape(maneuverCostLabel(cost)):"poste indisponible"}</p>
-      <p class="sc-hint sc-movement-note">Trajet intermédiaire abstrait : zigzags, montées et descentes.</p>
+      <p class="sc-flight-cost">${localizeSystem("SWFFG.UI.SpaceCombat.OneManeuver")} · ${cost?escape(maneuverCostLabel(cost)):localizeSystem("SWFFG.UI.SpaceCombat.StationUnavailable")}</p>
+      <p class="sc-hint sc-movement-note">${localizeSystem("SWFFG.UI.SpaceCombat.AbstractFlight")}</p>
     </section>`;
   }
 
@@ -96,17 +97,17 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
     const root = document.createElement("div");
     root.className = "sc-console";
     root.innerHTML = `<div class="sc-workspace"><div class="sc-field">
-      <svg class="sc-plot" tabindex="0" aria-label="Carte de combat spatial"></svg>
-      <div class="sc-scene-return">${action("close","Retour à la scène","arrow-left")}</div>
-      <nav class="sc-map-overlay" aria-label="Commandes de la carte">
-        <div class="sc-map-tools">${[["zoomOut","minus","Éloigner"],["zoomIn","plus","Rapprocher"],["fit","expand","Cadrer la flotte"],["combatHelp","book-open","Aide de combat - véhicules"]].map(([cmd,glyph,label])=>`<button type="button" data-cmd="${cmd}" aria-label="${label}" title="${label}" >${icon(glyph)}</button>`).join("")}</div>
-        <details class="sc-battle-menu"><summary>Round ${board().round}
-          <label class="sc-share"><input type="checkbox" name="shared" ${sharing.shared ? "checked" : ""} ${game.user.isGM ? "" : "disabled"}>Vue partagée</label>
+      <svg class="sc-plot" tabindex="0" aria-label="${localizeSystem("SWFFG.UI.SpaceCombat.Map")}"></svg>
+      <div class="sc-scene-return">${action("close",localizeSystem("SWFFG.UI.SpaceCombat.BackToScene"),"arrow-left")}</div>
+      <nav class="sc-map-overlay" aria-label="${localizeSystem("SWFFG.UI.SpaceCombat.MapCommands")}">
+        <div class="sc-map-tools">${[["zoomOut","minus",localizeSystem("SWFFG.UI.SpaceCombat.ZoomOut")],["zoomIn","plus",localizeSystem("SWFFG.UI.SpaceCombat.ZoomIn")],["fit","expand",localizeSystem("SWFFG.UI.SpaceCombat.FitFleet")],["combatHelp","book-open",localizeSystem("SWFFG.UI.SpaceCombat.Help")]].map(([cmd,glyph,label])=>`<button type="button" data-cmd="${cmd}" aria-label="${label}" title="${label}" >${icon(glyph)}</button>`).join("")}</div>
+        <details class="sc-battle-menu"><summary>${localizeSystem("SWFFG.UI.SpaceCombat.Round")} ${board().round}
+          <label class="sc-share"><input type="checkbox" name="shared" ${sharing.shared ? "checked" : ""} ${game.user.isGM ? "" : "disabled"}>${localizeSystem("SWFFG.UI.SpaceCombat.SharedView")}</label>
           </summary>
-          ${game.user.isGM ? board().round===0?action("startCombat","Commencer un combat","play","",!board().ships.length):(nativeInitiative?'<p class="sc-initiative-note">Rounds gérés dans le suivi d’initiative Foundry.</p>':action("advance","Avancer le round","forward-step","",!board().ships.length))+action("endCombat","Mettre fin au combat","flag-checkered") : ""}
+          ${game.user.isGM ? board().round===0?action("startCombat",localizeSystem("SWFFG.UI.SpaceCombat.StartCombat"),"play","",!board().ships.length):(nativeInitiative?`<p class="sc-initiative-note">${localizeSystem("SWFFG.UI.SpaceCombat.TrackerRounds")}</p>`:action("advance",localizeSystem("SWFFG.UI.SpaceCombat.AdvanceRound"),"forward-step","",!board().ships.length))+action("endCombat",localizeSystem("SWFFG.UI.SpaceCombat.EndCombat"),"flag-checkered") : ""}
         </details>
       </nav>
-    </div><aside class="sc-side" aria-label="Vaisseau sélectionné"></aside></div>`;
+    </div><aside class="sc-side" aria-label="${localizeSystem("SWFFG.UI.SpaceCombat.SelectedShip")}"></aside></div>`;
     const side = root.querySelector(".sc-side");
     if (this.ship) {
       const card = combatCard(shipAppearance(this.ship),report,{targetId:this.targetId,onFly:member=>this.beginFlight(member),onTarget:id=>{
@@ -115,17 +116,17 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
       if (this.flightMember) {
         const navigation = document.createElement("section");
         navigation.className = "sc-flight-controls";
-        navigation.setAttribute("aria-label","Déplacement Voler / Conduire à confirmer");
+        navigation.setAttribute("aria-label",localizeSystem("SWFFG.UI.SpaceCombat.ConfirmFlight"));
         const text=courseText(this.ship,this.formDraft(this.ship),this.choosingDirection);
         navigation.dataset.stage=this.draft.destinationChosen&&!this.choosingDirection?"confirm":"destination";
-        navigation.innerHTML = `<div class="sc-flight-heading"><h4>${icon("crosshairs")} Voler / Conduire</h4><span class="sc-flight-status" data-readout="flightStatus">${text.flightStatus}</span></div>` + this.pilotPanel(this.ship);
+        navigation.innerHTML = `<div class="sc-flight-heading"><h4>${icon("crosshairs")} ${localizeSystem("SWFFG.UI.SpaceCombat.Fly")}</h4><span class="sc-flight-status" data-readout="flightStatus">${text.flightStatus}</span></div>` + this.pilotPanel(this.ship);
         card.querySelector(".sc-maneuver-buttons").after(navigation);
       }
       side.append(card);
     } else {
       const empty = document.createElement("p");
       empty.className = "sc-selection-empty";
-      empty.textContent = board().ships.length ? (game.user.isGM?"Sélectionnez un vaisseau sur la carte.":"Sélectionnez un vaisseau dont vous contrôlez un membre d’équipage.") : "Déposez une fiche de vaisseau FFG sur la carte.";
+      empty.textContent = board().ships.length ? (game.user.isGM?localizeSystem("SWFFG.UI.SpaceCombat.ChooseOnMap"):localizeSystem("SWFFG.UI.SpaceCombat.ChooseCrewShip")) : localizeSystem("SWFFG.UI.SpaceCombat.DropShip");
       side.append(empty);
     }
     root.addEventListener("click", event => {
@@ -215,10 +216,10 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
   }
 
   async dropActor(data,point) {
-    if (!game.user.isGM) throw Error("Le MJ peut déployer les vaisseaux.");
-    if (data.type !== "Actor") throw Error("Déposez une fiche de véhicule du monde.");
+    if (!game.user.isGM) throw localizedSystemError("SWFFG.UI.SpaceCombat.GMDeploy");
+    if (data.type !== "Actor") throw localizedSystemError("SWFFG.UI.SpaceCombat.DropWorldShip");
     const actor = data.uuid ? await fromUuid(data.uuid) : game.actors.get(data.id);
-    if (actor?.type !== "vehicle" || game.actors.get(actor.id) !== actor) throw Error("Déposez une fiche de véhicule du monde.");
+    if (actor?.type !== "vehicle" || game.actors.get(actor.id) !== actor) throw localizedSystemError("SWFFG.UI.SpaceCombat.DropWorldShip");
     const id = await command("add",{actorId:actor.id,...point});
     await this.selectShip(id);
   }
@@ -320,9 +321,9 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
           break;
         case "cancelFlight":await this.cancelFlight();break;
         case "plan":
-          if(!this.draft?.destinationChosen||this.choosingDirection)throw Error("Choisissez une destination sur la carte avant de valider le déplacement.");
+          if(!this.draft?.destinationChosen||this.choosingDirection)throw localizedSystemError("SWFFG.UI.SpaceCombat.DestinationBeforeConfirm");
           if (this.valid(root.querySelector('[data-flight-form]'))) {
-            if(!this.flightMember)throw Error("Choisissez Voler / Conduire pour préparer le déplacement.");
+            if(!this.flightMember)throw localizedSystemError("SWFFG.UI.SpaceCombat.ChooseFly");
             await command("combat",{...ref,combatAction:"fly",crewId:this.flightMember.actor_id,destination:this.draft.destination,secondCost:"strain"});
             this.draft=null;
             this.choosingDirection=false;this.updateCourse();
@@ -330,7 +331,7 @@ class SpaceCombat extends foundry.applications.api.ApplicationV2 {
           break;
         case "remove":
           if (!game.user.isGM || !ship) return;
-          if (await foundry.applications.api.DialogV2.confirm({window:{title:"Retirer le pion"},content:`<p>Retirer ${escape(ship.name)} du plateau de combat ?</p>`})) await command("remove",ref);
+          if (await foundry.applications.api.DialogV2.confirm({window:{title:localizeSystem("SWFFG.UI.SpaceCombat.RemoveToken")},content:`<p>${escape(localizeSystem("SWFFG.UI.SpaceCombat.RemoveConfirm", {name:ship.name}))}</p>`})) await command("remove",ref);
           break;
         case "fit": this.fit(); break;
         case "zoomIn": case "zoomOut": this.view({...this.camera,width:Math.max(4,Math.min(160,this.camera.width*(cmd === "zoomIn" ? 0.75 : 1/0.75)))}); break;
@@ -378,7 +379,9 @@ async function show() {
     throw error;
   }
 }
-const refresh = renderScheduler({isOpen:()=>!!app&&!app._refreshClosing&&(app.rendered||app.state===foundry.applications.api.ApplicationV2.RENDER_STATES.RENDERING),render:()=>app.render(),onError:report});
+const mapIsOpen = () => !!app && !app._refreshClosing &&
+  (app.rendered || app.state === foundry.applications.api.ApplicationV2.RENDER_STATES.RENDERING);
+const refresh = renderScheduler({isOpen:mapIsOpen,render:()=>app.render(),onError:report});
 const sharing = registerSharing({
   show, hide: () => app?.rendered && app.close({fromSession:true}), refresh, report
 });
@@ -392,8 +395,8 @@ function controls(html) {
   const button = document.createElement("button");
   button.type = "button"; button.className = "ui-control icon ffg-system-control";
   const shipIcon=document.createElement("span");shipIcon.className="ffg-space-control-icon";shipIcon.setAttribute("aria-hidden","true");button.append(shipIcon);
-  button.dataset.openSpaceCombat = ""; button.title = title; button.dataset.tooltip = title;
-  button.setAttribute("aria-label",title);
+  button.dataset.openSpaceCombat = ""; button.title = localizeSystem(title); button.dataset.tooltip = button.title;
+  button.setAttribute("aria-label",button.title);
   button.addEventListener("click",event => { event.preventDefault(); event.stopPropagation(); sharing.open().catch(report); });
   row.append(button); menu.append(row); syncControl();
 }
@@ -421,9 +424,12 @@ Hooks.on("canvasReady",()=>{
   if(app?.rendered&&hasCombatSceneReturn()&&!canvas.scene?.getFlag("starwarsffg","spaceCombatScene"))app.close().catch(report);
 });
 Hooks.on("ffgSpaceCombatControlsReady",refresh);
-for(const hook of ["createActor","deleteActor","updateActor"])Hooks.on(hook,actor=>{if(actorAffectsSpaceCombat(board(),actor))refresh();});
-for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant"])Hooks.on(hook,document=>{if(combatAffectsSpaceCombat(board(),document))refresh();});
-Hooks.on("updateUser",(_user,changes)=>{if(changes.role!==undefined||changes.character!==undefined)refresh();});
-for(const hook of ["createItem","updateItem","deleteItem"])Hooks.on(hook,item=>{
-  if(actorAffectsSpaceCombat(board(),item.parent))refresh();
+function refreshForActor(actor) {
+  if (mapIsOpen() && actorAffectsSpaceCombat(board(), actor)) refresh();
+}
+for(const hook of ["createActor","deleteActor","updateActor"]) Hooks.on(hook,refreshForActor);
+for(const hook of ["createCombat","updateCombat","deleteCombat","createCombatant","updateCombatant","deleteCombatant"]) Hooks.on(hook,document=>{
+  if (mapIsOpen() && combatAffectsSpaceCombat(board(), document)) refresh();
 });
+Hooks.on("updateUser",(_user,changes)=>{if(changes.role!==undefined||changes.character!==undefined)refresh();});
+for(const hook of ["createItem","updateItem","deleteItem"]) Hooks.on(hook,item=>refreshForActor(item.parent));

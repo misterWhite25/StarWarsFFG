@@ -15,8 +15,8 @@ export default class ItemAttachments {
 
   static async Import(xml) {
     const base = JXON.xmlToJs(xml);
-    let items = base?.ItemAttachments?.ItemAttachment;
-    if (items) {
+    const items = ImportHelpers.xmlRecords(base?.ItemAttachments?.ItemAttachment);
+    if (items.length) {
       let totalCount = items.length;
       let currentCount = 0;
       const packMap = {
@@ -27,7 +27,6 @@ export default class ItemAttachments {
         "vehicle": await ImportHelpers.getCompendiumPack("Item", "oggdude.VehicleAttachments"),
         "mount": await ImportHelpers.getCompendiumPack("Item", "oggdude.VehicleAttachments"),
       };
-      let pack;
       
       $(".import-progress.itemattachment").toggleClass("import-hidden");
 
@@ -35,7 +34,7 @@ export default class ItemAttachments {
         try {
           let data;
           if (Array.isArray(item.Type)) item.Type = item.Type[0];
-          if (item.Type.toLowerCase() === "vehicle") {
+          if (item.Type?.toLowerCase() === "vehicle") {
             data = ImportHelpers.prepareBaseObject(item, "shipattachment");
           } else {
             data = ImportHelpers.prepareBaseObject(item, "itemattachment");
@@ -69,13 +68,7 @@ export default class ItemAttachments {
             data.data.metadata.tags.push("itemattachment");
           }
 
-          // attempt to select the specific compendium for this type of attachment
-          if (Object.keys(packMap).includes(data.data.type)) {
-            pack = packMap[data.data.type];
-          } else {
-            // but fail back to the generic compendium
-            pack = packMap["all"];
-          }
+          const pack = Object.hasOwn(packMap, data.data.type) ? packMap[data.data.type] : packMap.all;
 
           // oggdude use "armor", but the internal mod type is "armour"
           if (data?.data?.type === "armor") data.data.type = "armour"
@@ -89,22 +82,7 @@ export default class ItemAttachments {
             if (mods?.addedMods?.itemmodifier) data.data.itemmodifier = mods.addedMods.itemmodifier;
           }
 
-          // populate tags
-          try {
-            if (Array.isArray(item.CategoryLimit.Category)) {
-              for (const tag of item.CategoryLimit.Category) {
-                data.data.metadata.tags.push(tag.toLowerCase());
-              }
-            } else {
-              data.data.metadata.tags.push(item.CategoryLimit.Category.toLowerCase());
-            }
-          } catch {
-            
-          }
-          if (item?.Type) {
-            // the "type" can be useful as a tag as well
-            data.data.metadata.tags.push(item.Type.toLowerCase());
-          }
+          data.data.metadata.tags.push(...ImportHelpers.importTags(item.CategoryLimit?.Category, item.Type));
 
           await ImportHelpers.addImportItemToCompendium("Item", data, pack);
           currentCount += 1;

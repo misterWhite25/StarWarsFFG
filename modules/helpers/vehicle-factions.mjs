@@ -1,3 +1,4 @@
+import {localizedSystemError} from "./system-localization.mjs";
 import {FACTIONS,getVehicleAffiliations,isVehicleUuid,normalizeVehicleAffiliations} from './vehicle-factions-model.mjs';
 const scope='starwarsffg',tr=key=>game.i18n.localize('SWFFG.VehicleFactions.'+key);
 // Preserve existing world settings and vehicle metadata when removing fleet generation.
@@ -8,10 +9,10 @@ function overrides(){
   try{const saved=game.settings.get(scope,AFFILIATION_OVERRIDES_SETTING);return saved&&typeof saved==='object'&&!Array.isArray(saved)?saved:{};}catch{return {};}
 }
 async function setVehicleAffiliations(entryOrUuid,factions){
-  if(!game.user.isGM)throw Error('Seul le MJ peut modifier les affiliations des modèles.');
+  if(!game.user.isGM)throw localizedSystemError("SWFFG.UI.Operations.VehicleFactionsGMOnly");
   const uuid=typeof entryOrUuid==='string'?entryOrUuid:entryOrUuid?.uuid;
-  if(!isVehicleUuid(uuid))throw Error('Référence de modèle invalide.');
-  if(!Array.isArray(factions)||factions.some(value=>!['empire','alliance','pirates','hutt','other'].includes(value)))throw Error('Choisissez des factions valides.');
+  if(!isVehicleUuid(uuid))throw localizedSystemError("SWFFG.UI.Operations.InvalidModelReference");
+  if(!Array.isArray(factions)||factions.some(value=>!['empire','alliance','pirates','hutt','other'].includes(value)))throw localizedSystemError("SWFFG.UI.Operations.ChooseFactions");
   const cleaned=normalizeVehicleAffiliations(factions);
   const task=writeQueue.catch(()=>{}).then(async()=>{
     const saved=structuredClone(overrides());saved[uuid]=cleaned;

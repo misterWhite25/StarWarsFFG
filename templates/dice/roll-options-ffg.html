@@ -1,6 +1,12 @@
 <div class="roll-builder-content">
   <div class="dice-pool-dialog">
     <div class="roll-builder-body">
+    {{#if requestedRoll}}
+    <div class="ffg-request-prompt">
+      <strong>{{localize "SWFFG.UI.RollRequests.RequestedRoll"}}</strong>
+      {{#if requestedRoll.reason}}<p>{{requestedRoll.reason}}</p>{{/if}}
+    </div>
+    {{/if}}
     <div class="dice-pool"></div>
     <div class="simulation" {{#if simDisplay }} {{ else }}style="display: none"{{/if}}>
       {{localize "SWFFG.UI.Dice.SuccessChance"}} <span id="success_chance">{{ success }}</span>

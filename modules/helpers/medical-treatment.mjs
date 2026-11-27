@@ -94,12 +94,15 @@ async function handleRequest(user,command){
  const key=user.id+':'+command.id;if(processing.has(key))return;
  const task=(async()=>{
   try{
-   let approved=false;
-   if(command.kind==='reset'&&!user.isGM){
+   const needsApproval=command.kind==='reset'&&!user.isGM;
+   let approvedCommand=command;
+   if(needsApproval){
     const target=medicalActor(command.targetUuid);if(!permitted(target,user,true))throw Error(game.i18n.localize("SWFFG.UI.Medical.ActorNotOwned"));
-    const reason=await approveReset?.(target,user,command.reason);approved=['rest','24h'].includes(reason);if(!approved)throw Error(game.i18n.localize("SWFFG.UI.Medical.ResetNotApproved"));command={...command,reason};
+    const reason=await approveReset?.(target,user,command.reason);
+    if(!['rest','24h'].includes(reason))throw Error(game.i18n.localize("SWFFG.UI.Medical.ResetNotApproved"));
+    approvedCommand={...command,reason};
    }
-   const result=await applyMedicalCommand(command,user,{resetApproved:approved});await user.setFlag(scope,'medicalResponse',{id:command.id,ok:true,result});
+   const result=await applyMedicalCommand(approvedCommand,user,{resetApproved:needsApproval});await user.setFlag(scope,'medicalResponse',{id:command.id,ok:true,result});
   }catch(error){await user.setFlag(scope,'medicalResponse',{id:command.id,ok:false,error:error.message});}
  })();processing.set(key,task);try{await task;}finally{processing.delete(key);}
 }

@@ -27,7 +27,6 @@
 
   .items-list {
     padding: 0;
-    padding-bottom: 5px;
     .item {
       line-height: 24px;
       padding: 3px 0;
@@ -127,10 +126,9 @@
   }
 }
 
-.item-medical
-{
-  height: 24px;
-  width: 48px;
+&.item-medical {
+  height: 60px;
+  width: 90px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

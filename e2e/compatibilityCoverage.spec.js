@@ -3,7 +3,16 @@
 import {test, expect} from "@playwright/test";
 import {openGame} from "../playwright/fixtures";
 
-test.beforeEach(async ({page}) => { await openGame(page); });
+test.describe.configure({timeout: 120_000});
+test.use({actionTimeout: 20_000});
+test.beforeEach(async ({page}) => {
+  // These scenarios exercise documents and application windows.
+  await page.addInitScript(() => {
+    localStorage.setItem("core.noCanvas", "true");
+    localStorage.setItem("core.maxFPS", "10");
+  });
+  await openGame(page);
+});
 
 test("legacy and native effect batches persist without losing phases, flags or FFG durations", async ({page}) => {
   const id = await page.evaluate(async () => {
@@ -19,7 +28,7 @@ test("legacy and native effect batches persist without losing phases, flags or F
   });
   try {
     await page.reload();
-    await expect(page.locator("#destinyDark")).toBeVisible({timeout: 30_000});
+    await page.waitForFunction(() => globalThis.game?.ready === true);
     const state = await page.evaluate(async id => {
       const {activeEffectNeedsMigration, migrateActiveEffectsV14} = await import("/systems/starwarsffg/modules/migration/active-effects-v14.js");
       const actor = game.actors.get(id);
@@ -54,7 +63,7 @@ test("generated owned-weapon and skill macros open working roll builders", async
     await expect(page.locator("#roll-builder")).toBeVisible();
     await page.locator("#roll-builder .roll-button .btn").click();
     await expect.poll(() => page.evaluate(id => game.messages.some(message => message.speaker.actor === id && message.rolls.length > 0), fixture.actorId)).toBe(true);
-    await page.evaluate(async () => {await Object.values(ui.windows).find(app => app.id === "roll-builder")?.close();});
+    await page.evaluate(async () => {await foundry.applications.instances.get("roll-builder")?.close();});
     await expect(page.locator("#roll-builder")).toHaveCount(0);
     skillMacroId = await page.evaluate(async data => {
       const {createFFGMacro} = await import("/systems/starwarsffg/modules/helpers/macros.js");
@@ -67,7 +76,7 @@ test("generated owned-weapon and skill macros open working roll builders", async
     await expect.poll(() => page.evaluate(id => game.messages.filter(message => message.speaker.actor === id && message.rolls.length > 0).length, fixture.actorId)).toBe(2);
   } finally {
     await page.evaluate(async ({fixture, skillMacroId}) => {
-      await Object.values(ui.windows).find(app => app.id === "roll-builder")?.close();
+      await foundry.applications.instances.get("roll-builder")?.close();
       await game.user.assignHotbarMacro(game.macros.get(fixture.previous) ?? null, 9);
       const ids = [fixture.macroId, skillMacroId].filter(id => id && game.macros.has(id));
       if (ids.length) await CONFIG.Macro.documentClass.deleteDocuments(ids);
@@ -79,25 +88,71 @@ test("generated owned-weapon and skill macros open working roll builders", async
 });
 
 test("OggDude and SWA importer windows initialize", async ({page}) => {
-  // Opening the importers is a smoke check; real dataset import remains a separate acceptance task.
   for (const [button, window] of [[".og-character", "#data-importer"], [".swa-character", "#swa-importer"]]) {
-    await page.evaluate(selector => {document.querySelector(selector)?.click();}, button);
+    await page.evaluate(() => ui.compendium.activate());
+    await page.locator(button).click();
     await expect(page.locator(window)).toBeVisible();
     if (window === "#swa-importer") {
-      await expect.poll(() => page.evaluate(() => Object.values(ui.windows).find(app => app.id === "swa-importer")?.rendered)).toBe(true);
+      await expect.poll(() => page.evaluate(() => foundry.applications.instances.get("swa-importer")?.rendered)).toBe(true);
     }
-    // Legacy header controls bind asynchronously after the window becomes visible.
-    await expect(async () => {
-      if (await page.locator(window).isVisible()) {
-        await page.locator(window).locator('[data-action="close"], .window-header .close').click({timeout: 1000});
-      }
-      await expect(page.locator(window)).not.toBeVisible({timeout: 1000});
-    }).toPass({timeout: 6000});
+    await page.locator(window).locator('.window-header [data-action="close"]').click();
+    await expect(page.locator(window)).not.toBeVisible();
+  }
+});
+
+test("partial OggDude ZIP imports one gear record and preserves unrelated packs", async ({page}) => {
+  test.setTimeout(180_000);
+  test.skip(await page.evaluate(() => game.packs.some(pack => pack.collection.startsWith("world.oggdude"))),
+    "Uses an empty OggDude collection in the test world");
+  const zip = await page.evaluate(async () => {
+    const archive = new JSZip();
+    archive.file("Data/Gear.xml", "<Gears><Gear><Key>QA_BEACON</Key><Name>QA Beacon</Name><Encumbrance>2</Encumbrance><Description>Test fixture</Description><Categories><Category>Tools</Category></Categories></Gear></Gears>");
+    return archive.generateAsync({type: "base64"});
+  });
+  const sentinel = await page.evaluate(async () => {
+    const pack = await foundry.documents.collections.CompendiumCollection.createCompendium({name: "oggdudearmor", label: "OggDude QA armor", type: "Item"});
+    const [item] = await Item.createDocuments([{name: "Unrelated armor", type: "armour"}], {pack: pack.collection});
+    return item.id;
+  });
+  try {
+    await page.evaluate(() => ui.compendium.activate());
+    await page.locator(".og-character").click();
+    const importer = page.locator("#data-importer");
+    await importer.locator("input[type=file]").setInputFiles({name: "single.zip", mimeType: "application/zip", buffer: Buffer.from(zip, "base64")});
+    await importer.locator("[data-action=loadFile]").click();
+    await importer.locator("[data-action=selectAll]").click();
+    await expect(importer.locator("input[name=imports]:checked")).toHaveCount(1);
+    await expect(importer.locator("#importGear")).toBeChecked();
+    await importer.locator("button[type=submit]").click();
+    await expect(importer).not.toBeVisible({timeout: 25_000});
+    const result = await page.evaluate(async id => {
+      const gear = (await game.packs.get("world.oggdudegear")?.getDocuments())?.[0];
+      const armor = await game.packs.get("world.oggdudearmor")?.getDocument(id);
+      return {name: gear?.name, encumbrance: gear?.system.encumbrance.value, tags: gear?.system.metadata.tags, sentinel: armor?.name};
+    }, sentinel);
+    expect(result).toMatchObject({name: "QA Beacon", encumbrance: 2, tags: expect.arrayContaining(["tools"]), sentinel: "Unrelated armor"});
+    const invalid = await page.evaluate(async () => {
+      const archive = new JSZip();
+      archive.file("Data/Gear.xml", "<Gears><Gear></Gears>");
+      return archive.generateAsync({type: "base64"});
+    });
+    await page.locator(".og-character").click();
+    await importer.locator("input[type=file]").setInputFiles({name: "invalid.zip", mimeType: "application/zip", buffer: Buffer.from(invalid, "base64")});
+    await importer.locator("[data-action=loadFile]").click();
+    await importer.locator("#importGear").check();
+    await importer.locator("button[type=submit]").click();
+    const warning = await page.evaluate(() => game.i18n.localize("SWFFG.Notifications.Import.FileLoadError"));
+    await expect(page.locator("#notifications").getByText(warning)).toBeVisible();
+    expect(await page.evaluate(async () => (await game.packs.get("world.oggdudegear").getDocuments()).map(doc => doc.name))).toEqual(["QA Beacon"]);
+    await importer.locator("[data-action=close]").click();
+  } finally {
+    await page.evaluate(async () => {
+      for (const id of ["world.oggdudearmor", "world.oggdudegear"]) await game.packs.get(id)?.deleteCompendium();
+    });
   }
 });
 
 test("creates, renders, updates, embeds, and deletes every core document subtype", async ({page}) => {
-  test.setTimeout(120_000);
   const result = await page.evaluate(async () => {
     const actorTypes = game.documentTypes.Actor.filter(type => type !== "base");
     const itemTypes = game.documentTypes.Item.filter(type => type !== "base");
@@ -156,7 +211,6 @@ test("creates, renders, updates, embeds, and deletes every core document subtype
 });
 
 test("constructs and renders every registered system sheet", async ({page}) => {
-  test.setTimeout(120_000);
   // The subtype lifecycle test above only exercises each document's default sheet, so a
   // non-default registration can break without failing anything. Construct every one.
   const result = await page.evaluate(async () => {
@@ -184,7 +238,7 @@ test("constructs and renders every registered system sheet", async ({page}) => {
             }
             const document = byType.get(type);
             try {
-              const sheet = new entry.cls(document);
+              const sheet = new entry.cls(entry.cls.prototype instanceof foundry.applications.api.ApplicationV2 ? {document} : document);
               await sheet.render(true);
               await waitForRender(sheet);
               if (!sheet.rendered) throw new Error("sheet did not reach the rendered state");
@@ -210,7 +264,6 @@ test("constructs and renders every registered system sheet", async ({page}) => {
 });
 
 test("persists sheet field edits through the form submission path", async ({page}) => {
-  test.setTimeout(120_000);
   // The document tests above write through the document API. Editing through a rendered sheet
   // goes through _updateObject and the effect helpers instead, which can fail independently.
   const result = await page.evaluate(async () => {
@@ -228,7 +281,7 @@ test("persists sheet field edits through the form submission path", async ({page
         const sheet = item.sheet;
         await sheet.render(true);
         for (let attempt = 0; attempt < 40 && !sheet.rendered; attempt += 1) await settle(100);
-        const root = sheet.element?.[0] ?? sheet.element;
+        const root = sheet.element instanceof HTMLElement ? sheet.element : sheet.element?.[0];
         const input = root?.querySelector(`input[name="${testCase.field}"]`);
         if (!input) {
           results.push({...testCase, error: "field not rendered"});
@@ -252,5 +305,52 @@ test("persists sheet field edits through the form submission path", async ({page
   for (const entry of result) {
     expect(entry.error, `${entry.type}.${entry.field}`).toBeUndefined();
     expect(entry.persisted, `${entry.type}.${entry.field} did not persist`).toBe(entry.value);
+  }
+});
+
+test("OggDude ZIP persists independent talent modifiers for single and repeated specialization slots", async ({page}) => {
+  const packs = ["world.oggdudetalents", "world.oggdudespecializations"];
+  test.skip(await page.evaluate(ids => ids.some(id => game.packs.has(id)), packs), "Requires empty test compendiums");
+  const zip = await page.evaluate(async () => {
+    const archive = new JSZip();
+    archive.file("Data/Talents.xml", "<Talents><Talent><Key>QA_TOUGH</Key><Name>QA Tough</Name><Ranked>true</Ranked><Attributes><WoundThreshold>2</WoundThreshold></Attributes></Talent></Talents>");
+    for (const [key, count] of [["SINGLE", 1], ["DOUBLE", 2]]) {
+      const row = "<Talents>" + "<Key>QA_TOUGH</Key>".repeat(count) + "</Talents><Directions>" +
+        "<Direction><Right>true</Right></Direction>".repeat(count) + "</Directions>";
+      archive.file(`Data/Specializations/${key}.xml`, `<Specialization><Key>${key}</Key><Name>${key}</Name><TalentRows><TalentRow>${row}</TalentRow></TalentRows></Specialization>`);
+    }
+    return archive.generateAsync({type:"base64"});
+  });
+  try {
+    await page.evaluate(() => ui.compendium.activate());
+    await page.locator(".og-character").click();
+    const importer = page.locator("#data-importer");
+    await importer.locator("input[type=file]").setInputFiles({name:"specializations.zip", mimeType:"application/zip", buffer:Buffer.from(zip, "base64")});
+    await importer.locator("[data-action=loadFile]").click();
+    await importer.locator("[data-action=selectAll]").click();
+    await expect(importer.locator("input[name=imports]:checked")).toHaveCount(2);
+    await importer.locator("button[type=submit]").click();
+    await expect(importer).not.toBeVisible({timeout:30_000});
+    const data = await page.evaluate(async ([talentPack, treePack]) => {
+      const [talent] = await game.packs.get(talentPack).getDocuments();
+      const keys = Object.keys(talent.system.attributes);
+      const trees = (await game.packs.get(treePack).getDocuments()).sort((a, b) => a.name.localeCompare(b.name));
+      const summary = trees.map(tree => {
+        const slots = Object.values(tree.system.talents).filter(slot => slot.name === talent.name);
+        return {name:tree.name, slots:slots.map(slot => {
+          const [id, modifier] = Object.entries(slot.attributes)[0];
+          keys.push(id);
+          return {linked:slot.itemId === talent.id, wounds:Number(modifier.value),
+            effect:tree.effects.some(effect => effect.name === id && effect.disabled)};
+        })};
+      });
+      return {summary, uniqueKeys:new Set(keys).size};
+    }, packs);
+    const slot = {linked:true, wounds:2, effect:true};
+    expect(data).toEqual({summary:[{name:"DOUBLE", slots:[slot, slot]}, {name:"SINGLE", slots:[slot]}], uniqueKeys:4});
+  } finally {
+    await page.evaluate(async ids => {
+      for (const id of ids) await game.packs.get(id)?.deleteCompendium();
+    }, packs);
   }
 });

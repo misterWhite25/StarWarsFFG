@@ -4,8 +4,13 @@
   data-tab='motivation'
 >
   <div class="motivation-container">
-    <label>{{ localize "SWFFG.CharacterCreator.Wizard.Motivation.Label" }}</label>
-    <table id="selected_motivations">
+    <div class="wizard-motivation-intro">
+      <span>{{localize "SWFFG.CharacterCreator.Wizard.Motivation.Label"}}</span>
+      <small class="wizard-setup-optional">{{localize "SWFFG.CharacterCreator.Motivation.Optional"}}</small>
+    </div>
+    {{#if data.selected.motivations.length}}
+    <h3 id="wizard-selected-motivations-title">{{localize "SWFFG.CharacterCreator.Motivation.Selected"}}</h3>
+    <table id="selected_motivations" aria-labelledby="wizard-selected-motivations-title">
       <thead><tr>
         <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Select" }}</td>
         <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Type" }}</td>
@@ -15,8 +20,8 @@
       <tbody>
       {{#each data.selected.motivations as |motivation|}}
         <tr>
-          <td><i class="fas fa-trash motivation-refund" data-name="{{ motivation.item.name }}" data-tooltip="{{ localize "SWFFG.CharacterCreator.tooltips.motivation.deselect" }}"></i></td>
-          <td>{{ motivation.item.system.type }}</td>
+          <td><button type="button" class="wizard-choose motivation-refund" data-source="{{motivation.item.uuid}}" aria-label="{{localize 'SWFFG.CharacterCreator.tooltips.motivation.deselect'}} {{motivation.item.name}}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></td>
+          <td>{{lookup ../motivationTypes motivation.item.system.type}}</td>
           <td>
             {{#if motivation.item.pill}}
               {{{ motivation.item.pill }}}
@@ -29,8 +34,10 @@
       {{/each }}
       </tbody>
     </table>
+    {{/if}}
 
-    <table id="motivations">
+    <h3 id="wizard-available-motivations-title">{{localize "SWFFG.CharacterCreator.Motivation.Available"}}</h3>
+    <table id="motivations" aria-labelledby="wizard-available-motivations-title">
       <thead><tr>
         <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Select" }}</td>
         <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Type" }}</td>
@@ -40,8 +47,8 @@
       <tbody>
       {{#each availableMotivations as |motivation|}}
         <tr>
-          <td><i class="fa-solid fa-cart-shopping motivation-spend" data-source="{{ motivation.uuid }}" data-tooltip="{{ localize "SWFFG.CharacterCreator.tooltips.motivation.select" }}"></i></td>
-          <td>{{ motivation.system.type }}</td>
+          <td><button type="button" class="wizard-choose motivation-spend" data-source="{{motivation.uuid}}" aria-label="{{localize 'SWFFG.CharacterCreator.tooltips.motivation.select'}} {{motivation.name}}" {{#if (lookup ../selectedMotivationUuids motivation.uuid)}}disabled{{/if}}><i class="fa-solid {{#if (lookup ../selectedMotivationUuids motivation.uuid)}}fa-check{{else}}fa-plus{{/if}}" aria-hidden="true"></i></button></td>
+          <td>{{lookup ../motivationTypes motivation.system.type}}</td>
           <td>
             {{#if motivation.pill}}
               {{{ motivation.pill }}}

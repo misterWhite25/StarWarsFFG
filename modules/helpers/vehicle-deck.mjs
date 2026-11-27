@@ -1,4 +1,7 @@
+import {localizeSystem, localizedSystemError} from "./system-localization.mjs";
 import {fieldsAffect,passengerFields,identityFields} from './actor-change-fields.mjs';
+import {supportsVehiclePlan} from './actor-types.mjs';
+import {renderBasePlanShortcuts,scenePlanShortcuts} from './base-plan.mjs';
 import DiceHelpers,{get_dice_pool} from './dice-helpers.js';
 import {DicePoolFFG} from '../dice/pool.js';
 import {canonicalCrewSkill} from './crew-role-definitions.mjs';
@@ -14,7 +17,7 @@ const sessions = new Map();
 const windows = new Map();
 const deck = ship => ship.getFlag(scope, flag) ?? {};
 const hasPlan = ship => Boolean(String(deck(ship).image ?? '').trim());
-const mapEnabled = ship => hasPlan(ship) && !!deck(ship).enabled;
+const mapEnabled = ship => supportsVehiclePlan(ship) && hasPlan(ship) && !!deck(ship).enabled;
 function refreshModeControl(mode,ship) {
   mode.checked=mapEnabled(ship);
   mode.disabled=!hasPlan(ship);
@@ -97,7 +100,7 @@ function point(event, image) {
 }
 async function board(ship, documents, position) {
   assertOwner(ship);
-  if(ship.flags?.starwarsffg?.npcVehicle?.version===1)throw Error('Ce véhicule PNJ utilise des postes simplifiés. Choisissez un véhicule indépendant pour affecter des personnages.');
+  if(ship.flags?.starwarsffg?.npcVehicle?.version===1)throw localizedSystemError("SWFFG.UI.Operations.SimplifiedStations");
   const aboard = roster(ship);
   const updates = {};
   for (const doc of documents) {
@@ -166,9 +169,9 @@ async function setDeckImage(ship,value) {
   await ship.update({[path+'.image']:src,...(!src?{[path+'.enabled']:false,[path+'.epoch']:foundry.utils.randomID()}:{})});
 }
 
-async function setDeckMode(ship,enabled) {
+async function setDeckMode(ship,requestedMode) {
   assertOwner(ship);
-  enabled=!!enabled;
+  const enabled=Boolean(requestedMode);
   if(enabled && !hasPlan(ship))throw Error(game.i18n.localize("SWFFG.UI.Vehicle.ChooseDeckForMap"));
   const app=windows.get(ship.id);
   if(app?._changingMode || enabled===mapEnabled(ship))return;
@@ -264,9 +267,9 @@ function passengerSkillCell(ship,member,key){
   const mayRoll=actor=>!!actor&&(game.user.isGM||!member.integrated&&actor.testUserPermission(game.user,'OWNER'));
   const control=button('',async()=>{
     const current=roster(ship).get(member.key),actor=current&&!current.crew?resolveCrewActor(current,ship):null;
-    if(!mayRoll(actor))throw Error('Vous ne pouvez pas lancer les compétences de ce passager.');
+    if(!mayRoll(actor))throw localizedSystemError("SWFFG.UI.Operations.PassengerRollForbidden");
     const fresh=passengerSkillKey(actor,key);
-    if(!fresh)throw Error('Cette compétence est indisponible.');
+    if(!fresh)throw localizedSystemError("SWFFG.UI.Operations.SkillUnavailable");
     return DiceHelpers.rollSkillByKey(actor,fresh);
   },'ffg-passenger-skill');
   control.dataset.passengerSkill=key;control.dataset.passengerActor=member.actorId;control.disabled=!mayRoll(actor);
@@ -296,7 +299,7 @@ function drawPassengers(app,ship) {
     const cell=el('td'),name=el('span','ffg-deck-passenger-name');
     const image=el('img');image.src=member.img;image.alt='';
     name.append(image,document.createTextNode(member.name));
-    if(member.integrated){name.dataset.integratedPassenger=member.actorId;name.tabIndex=0;name.style.cursor='pointer';name.setAttribute('role','button');name.title='Ouvrir le profil intégré';const open=()=>resolveCrewActor(member,ship)?.sheet.render({force:true});name.addEventListener('click',open);name.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();open();}});}
+    if(member.integrated){name.dataset.integratedPassenger=member.actorId;name.tabIndex=0;name.style.cursor='pointer';name.setAttribute('role','button');name.title=localizeSystem("SWFFG.UI.Operations.OpenIntegratedProfile");const open=()=>resolveCrewActor(member,ship)?.sheet.render({force:true});name.addEventListener('click',open);name.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();open();}});}
     cell.append(name);row.append(cell);
     for(const key of ['Computers','Mechanics','Leadership'])row.append(passengerSkillCell(ship,member,key));
     if(editable) {
@@ -323,7 +326,7 @@ function drawPassengers(app,ship) {
 function drawSheet(app) {
   const ship=app.actor;
   const section=app.element?.querySelector("[data-vehicle-deck-sheet]");
-  if(ship?.type==='vehicle'&&ship.isToken){drawPassengers(app,ship);return;}
+  if(ship?.type==='vehicle' && (ship.isToken || !supportsVehiclePlan(ship))){drawPassengers(app,ship);return;}
   if(!section || !isWorldShip(ship))return;
   const data=deck(ship);
   section.replaceChildren(el("h3",null,game.i18n.localize("SWFFG.UI.Vehicle.DeckPlan")));
@@ -454,6 +457,7 @@ class VehicleDeck extends foundry.applications.api.ApplicationV2 {
 }
 
 async function show(ship,shared){
+  if(!supportsVehiclePlan(ship))return;
   let app=windows.get(ship.id);
   if(!app){app=new VehicleDeck(ship);windows.set(ship.id,app);}
   if(shared)app.shared=true;
@@ -466,6 +470,7 @@ async function show(ship,shared){
 }
 export async function openVehicleDeck(ship,{shared=mapEnabled(ship)}={}) {
   if(!isWorldShip(ship))throw Error(game.i18n.localize("SWFFG.UI.Vehicle.ChooseWorldVehicle"));
+  if(!supportsVehiclePlan(ship))return;
   if(windows.get(ship.id)?._changingMode)return windows.get(ship.id);
   if(shared && mapEnabled(ship)){
     syncShip(ship);
@@ -487,7 +492,7 @@ function syncShip(ship){
   const data=deck(ship);
   if(!isWorldShip(ship)||!mapEnabled(ship)){
     sessions.get(ship.id)?.destroy();sessions.delete(ship.id);revisions.delete(ship.id);
-    if(windows.get(ship.id)?.shared)windows.get(ship.id).close({local:true}).catch(warn);
+    if(windows.has(ship.id) && (windows.get(ship.id).shared || !supportsVehiclePlan(ship)))windows.get(ship.id).close({local:true}).catch(warn);
     return;
   }
   if(revisions.get(ship.id)===data.epoch && sessions.has(ship.id))return;
@@ -527,8 +532,11 @@ function controls(){
   const menu=(market??travel)?.parentElement??host.querySelector("#scene-controls-layers > menu,menu");
   if(!menu)return;
   const space=host.querySelector("[data-open-space-combat]")?.closest("li");
-  let anchor=space?.parentElement===menu?space:market??travel;
-  const ships=game.actors.filter(ship=>isWorldShip(ship)&&mapEnabled(ship)).sort((a,b)=>a.name.localeCompare(b.name)||a.id.localeCompare(b.id));
+  const portraits=menu.querySelector("[data-trombinoscope]")?.closest("li");
+  let anchor=portraits??(space?.parentElement===menu?space:market??travel);
+  const scenePlans=scenePlanShortcuts();
+  const linked=new Set(scenePlans.map(scene=>scene.getFlag(scope,'planBase')));
+  const ships=game.actors.filter(ship=>isWorldShip(ship)&&mapEnabled(ship)&&!linked.has(ship.id)).sort((a,b)=>a.name.localeCompare(b.name)||a.id.localeCompare(b.id));
   const ids=new Set(ships.map(ship=>ship.id));
   for(const old of host.querySelectorAll("li[data-deck-ship]"))if(!ids.has(old.dataset.deckShip))old.remove();
   for(const ship of ships){
@@ -544,6 +552,7 @@ function controls(){
     else if(!row.isConnected)menu.append(row);
     anchor=row;
   }
+  renderBasePlanShortcuts(menu,anchor,scenePlans);
 }
 function schedule(){
   if(frame)return;
@@ -559,12 +568,18 @@ Hooks.once("ready",()=>{
   schedule();
 });
 Hooks.on("renderSceneControls",schedule);
+Hooks.on("createScene",schedule);
+Hooks.on("deleteScene",schedule);
+Hooks.on("updateScene",(_scene,changes)=>{
+  if(fieldsAffect(changes,["flags.starwarsffg.planBase","flags.starwarsffg.basePlanShortcut","ownership","active","name"]))schedule();
+});
+Hooks.on("createActor",actor=>{if(actor.type==="homestead")schedule();});
 Hooks.on("updateActor",(actor,changes)=>{
   if(fieldsAffect(changes,passengerFields))for(const app of foundry.applications.instances.values()){
     const vehicle=app.actor;
     if(app.rendered&&vehicle?.type==='vehicle'&&Object.values(deck(vehicle).passengers??{}).some(member=>member.actorId===actor.id))drawPassengers(app,vehicle);
   }
-  if(isWorldShip(actor)){if(fieldsAffect(changes,[path]))syncShip(actor);if(fieldsAffect(changes,[path,...identityFields]))schedule();}
+  if(isWorldShip(actor)){if(fieldsAffect(changes,[path,'system.stats.silhouette']))syncShip(actor);if(fieldsAffect(changes,[path,'system.stats.silhouette',...identityFields]))schedule();}
   for(const [id,app] of windows){
     if(!app.ship || app._changingMode || app.shared&&!mapEnabled(app.ship))continue;
     if(id===actor.id&&fieldsAffect(changes,[path,"flags.starwarsffg.crew",...identityFields]) || fieldsAffect(changes,[...identityFields,"prototypeToken"])&&roster(app.ship).has("a"+actor.id))app.render().catch(warn);

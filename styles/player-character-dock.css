@@ -1,11 +1,24 @@
-#ffg-player-characters{display:flex;flex-wrap:nowrap;justify-content:flex-end;align-items:flex-end;gap:6px;width:100%;max-height:min(190px,28dvh);overflow-y:hidden;overflow-x:hidden;flex:none;min-height:0;padding:2px;pointer-events:auto;box-sizing:border-box}
-#ffg-player-characters .ffg-player-character{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;flex:0 1 72px;min-width:0;max-width:100%;width:72px;height:auto;min-height:0;gap:0;margin:0;padding:0;overflow:hidden;border:1px solid #458c9f;border-radius:6px;background:#164c5b;color:#fff;font:11px/1.3 Arial,"Helvetica Neue",sans-serif;box-shadow:0 2px 6px #0004;cursor:pointer;text-shadow:none}
+#ffg-player-characters{display:flex;flex-direction:column;align-items:stretch;gap:2px;width:100%;max-height:min(190px,28dvh);flex:none;min-height:0;padding:2px;pointer-events:auto;box-sizing:border-box}
+#ffg-player-characters.is-floating{position:fixed;right:auto;bottom:auto;max-width:calc(100vw - 8px);margin:0;z-index:var(--z-index-ui,60)}
+#ffg-player-characters .ffg-player-character-list{display:flex;flex-wrap:nowrap;justify-content:flex-end;align-items:flex-end;gap:6px;width:100%;min-width:0;overflow:hidden;padding:1px;box-sizing:border-box}
+#ffg-player-characters .ffg-character-shortcut-handle{display:block;width:100%;height:16px;min-height:16px;flex:none;margin:0;padding:0;border:0;border-radius:4px;background:#0008;color:#ddd;font:12px/16px Arial,sans-serif;text-align:center;cursor:grab;touch-action:none;user-select:none;box-shadow:none}
+#ffg-player-characters .ffg-character-shortcut-handle:hover,#ffg-player-characters .ffg-character-shortcut-handle:focus-visible{background:#164c5be6;color:#fff;outline:1px solid #80b7cd;outline-offset:-1px}
+#ffg-player-characters .ffg-character-shortcut-handle.is-dragging{cursor:grabbing}
+#ffg-player-characters .ffg-player-character-entry{position:relative;flex:0 1 72px;min-width:0;max-width:100%;width:72px}
+#ffg-player-characters .ffg-player-character{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;min-width:0;max-width:100%;width:100%;height:auto;min-height:0;gap:0;margin:0;padding:0;overflow:hidden;border:1px solid #458c9f;border-radius:6px;background:#164c5b;color:#fff;font:11px/1.3 Arial,"Helvetica Neue",sans-serif;box-shadow:0 2px 6px #0004;cursor:pointer;text-shadow:none}
 #ffg-player-characters .ffg-player-character:hover{border-color:#80b7cd;background:#20687a;color:#fff;box-shadow:0 0 0 1px #80b7cd}
 #ffg-player-characters .ffg-player-character:focus-visible{outline:2px solid #80b7cd;outline-offset:-2px}
 #ffg-player-characters .ffg-player-character-image{display:block;width:100%;height:64px;object-fit:contain;object-position:center;border:0;border-radius:0;margin:0;background:#0003}
 #ffg-player-characters .ffg-player-character-image[hidden]{display:none}
 #ffg-player-characters .ffg-player-character-name{display:block;min-width:0;padding:4px 6px;background:#164c5b;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;text-align:center;text-shadow:none}
-#ffg-player-characters .ffg-player-character.is-collapsed{flex:0 1 auto;width:auto;max-width:100%}
+#ffg-player-characters .ffg-player-character-entry.is-collapsed{flex:0 1 auto;width:auto;max-width:100%}
+#ffg-player-characters.is-gm .ffg-player-character-list{justify-content:flex-start;overflow-x:auto}
+#ffg-player-characters.is-gm .ffg-player-character-entry{flex-shrink:0}
+#ffg-player-characters.is-gm .ffg-player-character-entry.is-collapsed{max-width:130px}
+#ffg-player-characters.is-gm .ffg-player-character-entry.is-collapsed .ffg-player-character-name{padding-right:19px}
+#ffg-player-characters .ffg-character-shortcut-remove{position:absolute;right:1px;top:1px;display:grid;place-items:center;width:17px;height:17px;min-height:0;padding:0;margin:0;border:0;border-radius:3px;background:#164c5be6;color:#fff;font:16px/1 Arial,sans-serif;box-shadow:none;opacity:0;cursor:pointer}
+#ffg-player-characters .ffg-player-character-entry:hover .ffg-character-shortcut-remove,#ffg-player-characters .ffg-player-character-entry:focus-within .ffg-character-shortcut-remove{opacity:1}
+#ffg-player-characters .ffg-character-shortcut-remove:hover,#ffg-player-characters .ffg-character-shortcut-remove:focus-visible{background:#833b36;color:#fff;outline:1px solid #fff}
 body:not(:has(#ffg-space-combat)) #chat-notifications:has(> #ffg-player-characters){grid-template-rows:minmax(0,1fr) auto auto;row-gap:6px}
 .chat-form>#ffg-player-characters{margin:0}
 /* Keep the spatial combat panel clear without changing portrait preferences. */

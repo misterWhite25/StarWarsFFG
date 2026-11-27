@@ -1,10 +1,11 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import {systemI18n} from '../system-i18n.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';
 const root=new URL('../../modules/helpers/',import.meta.url);
 const get=(o,p)=>p.split('.').reduce((v,k)=>v?.[k],o);
 function set(o,p,v){const bits=p.split('.');const last=bits.pop();let at=o;for(const b of bits)at=at[b]??={};at[last]=v;}
 async function load(name,extra={}){const game={i18n:await systemI18n('fr'),user:{id:'gm',isGM:true,targets:new Set()},actors:{contents:[]},combat:null,...extra.game};const context=vm.createContext({game,console,structuredClone,ChatMessage:{create:async d=>d,getSpeaker:()=>({})},...extra,game,foundry:{utils:{getProperty:get,deepClone:structuredClone,randomID:()=>Math.random().toString(),...extra.foundry?.utils}}});
- const cache=new Map();async function module(name){if(cache.has(name))return cache.get(name);const m=new vm.SourceTextModule(await fs.readFile(new URL(name,root),'utf8'),{context});cache.set(name,m);await m.link(async spec=>{
+ const cache=new Map();async function module(name){if(cache.has(name))return cache.get(name);const m=new vm.SourceTextModule(await fs.readFile(new URL(name,root),'utf8'),{context});cache.set(name,m);await linkWithSystemLocalization(m, context, async spec=>{
  if(spec.endsWith('space-roll-presentation.mjs'))return module('space-roll-presentation.mjs');
  if(spec.endsWith('summary-render.mjs'))return module('summary-render.mjs');
  if(spec.endsWith('vehicle-minion-group.mjs')||spec.endsWith('reviewed-talent-state.js')||spec.endsWith('legacy-text-format.js')||spec.endsWith('roll-talents.js'))return module(spec.replace('./',''));

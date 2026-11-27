@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {board} from './board.mjs';
 import {crewActor} from './crew-access.mjs';
 import {SECTORS} from './combat-rules.mjs';
@@ -5,11 +6,11 @@ import {SECTORS} from './combat-rules.mjs';
 /** Choose action-specific options without spending an action before confirmation. */
 export async function chooseCombatAction(ship,action,candidates,description) {
   const source=board().ships.find(entry=>entry.id===ship.id);
-  if(!source)throw Error('Ce vaisseau n’est plus sur la carte.');
+  if(!source)throw localizedSystemError("SWFFG.UI.SpaceCombat.ShipGone");
   const vehicle=game.actors.get(source.actorId);
-  if(!candidates.length)throw Error('Aucun membre embarqué disponible pour cette action.');
+  if(!candidates.length)throw localizedSystemError("SWFFG.UI.SpaceCombat.NoCrewForAction");
   const targets=board().ships.filter(entry=>entry.id!==source.id);
-  if(action.target&&!targets.length)throw Error('Aucun autre vaisseau à cibler sur la carte.');
+  if(action.target&&!targets.length)throw localizedSystemError("SWFFG.UI.SpaceCombat.NoOtherShip");
   const critical=action.id==='repairCritical';
   const hasSector=['boostShields','slice'].includes(action.id);
   if(!action.target&&!action.skills&&!hasSector&&!critical&&candidates.length===1)return {crewId:candidates[0].actor_id};
@@ -24,17 +25,17 @@ export async function chooseCombatAction(ship,action,candidates,description) {
     return select;
   };
   if(candidates.length>1)field('Personnage','actionCrew',candidates.map(member=>[member.actor_id,crewActor(member)?.name??member.actor_name]));
-  if(action.target)field('Vaisseau cible','actionTarget',[['','Choisir un vaisseau'],...targets.map(entry=>[entry.id,game.actors.get(entry.actorId)?.name??entry.name])]);
-  if(hasSector)field(action.id==='boostShields'?'Secteur à renforcer':'Secteur visé','actionSector',Object.entries(SECTORS));
-  if(action.skills)field('Compétence','actionSkill',[]);
-  if(critical)field('Dégât critique','actionCritical',vehicle.items.filter(item=>item.type==='criticaldamage').map(item=>[item.id,item.name]));
+  if(action.target)field(localizeSystem("SWFFG.UI.SpaceCombat.TargetShip"),'actionTarget',[['',localizeSystem("SWFFG.UI.SpaceCombat.SelectShip")],...targets.map(entry=>[entry.id,game.actors.get(entry.actorId)?.name??entry.name])]);
+  if(hasSector)field(action.id==='boostShields'?localizeSystem("SWFFG.UI.SpaceCombat.ShieldSector"):localizeSystem("SWFFG.UI.SpaceCombat.TargetSector"),'actionSector',Object.entries(SECTORS));
+  if(action.skills)field(localizeSystem("SWFFG.UI.Pdf.Skill"),'actionSkill',[]);
+  if(critical)field(localizeSystem("SWFFG.UI.SpaceCombat.CriticalHit"),'actionCritical',vehicle.items.filter(item=>item.type==='criticaldamage').map(item=>[item.id,item.name]));
   return foundry.applications.api.DialogV2.wait({
     classes:['sc-action-dialog'],window:{title:action.label},position:{width:420},modal:true,content,rejectClose:false,
-    buttons:[{action:'perform',label:'Lancer le jet',default:true,callback:(_event,button)=>{
+    buttons:[{action:'perform',label:localizeSystem("SWFFG.UI.SpaceCombat.MakeRoll"),default:true,callback:(_event,button)=>{
       const fields=button.form.elements;
       return {crewId:fields.actionCrew?.value??candidates[0].actor_id,targetId:fields.actionTarget?.value,
         sector:fields.actionSector?.value,skill:fields.actionSkill?.value,criticalId:fields.actionCritical?.value};
-    }},{action:'cancel',label:'Annuler',callback:()=>null}],
+    }},{action:'cancel',label:localizeSystem("SWFFG.Cancel"),callback:()=>null}],
     render:(_event,dialog)=>{
       const root=dialog.element,find=name=>root.querySelector('[name="'+name+'"]');
       const crew=find('actionCrew'),target=find('actionTarget'),skill=find('actionSkill'),damage=find('actionCritical');
@@ -64,10 +65,10 @@ export async function chooseCombatAction(ship,action,candidates,description) {
 
 export async function chooseDamageControl(choices){
   const content=document.createElement('div'),label=document.createElement('label'),select=document.createElement('select');
-  label.className='form-group stacked';label.textContent='Type de réparation';select.name='repairAction';select.required=true;label.append(select);content.append(label);
-  const names={repairStrain:'Stress mécanique',repairHull:'Dégâts de coque',repairCritical:'Dégât critique'};
+  label.className='form-group stacked';label.textContent=localizeSystem("SWFFG.UI.SpaceCombat.RepairType");select.name='repairAction';select.required=true;label.append(select);content.append(label);
+  const names={repairStrain:localizeSystem("SWFFG.UI.SpaceCombat.MechanicalStrain"),repairHull:localizeSystem("SWFFG.UI.SpaceCombat.HullTrauma"),repairCritical:localizeSystem("SWFFG.UI.SpaceCombat.CriticalHit")};
   for(const {definition,reason}of choices){const option=document.createElement('option');option.value=definition.id;option.textContent=names[definition.id]+(reason?' - '+reason:'');option.disabled=!!reason;select.append(option);}
   select.value=choices.find(choice=>!choice.reason)?.definition.id??'';
-  return foundry.applications.api.DialogV2.wait({classes:['sc-action-dialog'],window:{title:'Contrôle des dégâts'},position:{width:420},modal:true,content,rejectClose:false,
-    buttons:[{action:'continue',label:'Continuer',default:true,callback:(_event,button)=>button.form.elements.repairAction.value},{action:'cancel',label:'Annuler',callback:()=>null}]});
+  return foundry.applications.api.DialogV2.wait({classes:['sc-action-dialog'],window:{title:localizeSystem("SWFFG.UI.SpaceCombat.DamageControl")},position:{width:420},modal:true,content,rejectClose:false,
+    buttons:[{action:'continue',label:localizeSystem("SWFFG.UI.SpaceCombat.Continue"),default:true,callback:(_event,button)=>button.form.elements.repairAction.value},{action:'cancel',label:localizeSystem("SWFFG.Cancel"),callback:()=>null}]});
 }

@@ -1,7 +1,31 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
-test.beforeEach(async ({ page }) => {
+// Document and chat scenarios can run without a WebGL scene in software-rendered CI.
+async function configureClient(page, canvasNeeded = false) {
+  await page.addInitScript(enabled => {
+    localStorage.setItem('core.maxFPS', '10');
+    localStorage.setItem('core.noCanvas', JSON.stringify(!enabled));
+  }, canvasNeeded);
+  await page.addLocatorHandler(page.locator('.tour-center-step [data-action=exit], #tooltip.tour [data-action=exit]').first(),
+    button => button.click());
+}
+
+async function joinPlayer(page) {
+  await configureClient(page);
+  await page.goto(new URL('/join', process.env.FOUNDRY_URL).href);
+  await expect(page.locator('#main-header h1')).toHaveText(process.env.FOUNDRY_TEST_WORLD_TITLE);
+  await page.locator('#join-username').selectOption({label: 'Player2'});
+  await page.locator('#join-game-form button[name="join"]').click();
+  await page.waitForFunction(() => globalThis.game?.ready === true, null, {timeout: 60_000});
+  const save = page.getByRole('button', {name: 'Save Player Configuration', exact: true});
+  if (await save.isVisible()) await save.click();
+}
+
+test.use({actionTimeout: 20_000});
+test.describe.configure({timeout: 90_000});
+test.beforeEach(async ({ page }, testInfo) => {
+  await configureClient(page, testInfo.tags.includes('@canvas'));
   await page.addLocatorHandler(page.locator('#notifications .notification').filter({
     hasText: 'Your web browser does not have hardware acceleration enabled.',
   }), notice => notice.click());
@@ -87,7 +111,7 @@ test('runtime: character, minion, rival, nemesis and vehicle sheets persist edit
       }, type);
       ids.push(id);
     }
-    await page.reload();
+    await page.reload({waitUntil: 'domcontentloaded'});
     await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
     const saved = await page.evaluate(ids => ids.map(id => {
       const actor = game.actors.get(id);
@@ -134,6 +158,42 @@ test('runtime: item sheets prepare without traversing circular Document referenc
   expect(failures).toEqual([]);
 });
 
+test('runtime: an observer sees only the public and revealed parts of a character biography', async ({page, browser}) => {
+  test.slow();
+  const context = await browser.newContext({storageState: {cookies: [], origins: []}});
+  let actorId;
+  try {
+    actorId = await page.evaluate(async () => {
+      const player = game.users.getName('Player2');
+      const biography = '<p>Public passage</p><section class="secret"><p>Private passage</p></section>'
+        + '<section class="secret revealed"><p>Revealed passage</p></section>';
+      const actor = await Actor.create({name: 'Biography visibility QA', type: 'character', system: {biography},
+        ownership: {[player.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER}}, {renderSheet: false});
+      return actor.id;
+    });
+    const renderBiography = async (client, id) => {
+      const sheetId = await client.evaluate(async id => {
+        const sheet = game.actors.get(id).sheet;
+        await sheet.render({force: true});
+        return sheet.id;
+      }, id);
+      return client.locator('[id="' + sheetId + '"] .ffg-basic-biography .biography-editor');
+    };
+    const ownerBio = await renderBiography(page, actorId);
+    await expect(ownerBio).toContainText('Private passage');
+    const player = await context.newPage();
+    await joinPlayer(player);
+    expect(await player.evaluate(id => game.actors.get(id).testUserPermission(game.user, 'OBSERVER', {exact: true}), actorId)).toBe(true);
+    const observerBio = await renderBiography(player, actorId);
+    await expect(observerBio).toContainText('Public passage');
+    await expect(observerBio).toContainText('Revealed passage');
+    await expect(observerBio).not.toContainText('Private passage');
+  } finally {
+    await context.close();
+    if (actorId) await page.evaluate(id => game.actors.get(id)?.delete(), actorId);
+  }
+});
+
 test('runtime: player and GM see the correct roll content, including after reload', async ({ page, browser }) => {
   test.setTimeout(150_000);
   // Override Playwright's project storageState: the player must get a new server session.
@@ -141,14 +201,7 @@ test('runtime: player and GM see the correct roll content, including after reloa
   const playerPage = await playerContext.newPage();
   const ids = [];
   try {
-    await playerPage.goto(new URL('/join', process.env.FOUNDRY_URL).href);
-    await expect(playerPage.locator('#main-header h1')).toHaveText(process.env.FOUNDRY_TEST_WORLD_TITLE);
-    await playerPage.getByRole('textbox', { name: 'Select User', exact: true }).click();
-    await playerPage.getByRole('listitem').filter({ hasText: /^Player2$/ }).click();
-    await playerPage.getByRole('button', { name: 'Join Game Session', exact: true }).click();
-    await expect.poll(() => playerPage.evaluate(() => typeof game !== 'undefined' && !!game.ready).catch(() => false), { timeout: 60_000 }).toBe(true);
-    const playerConfiguration = playerPage.getByRole('button', { name: 'Save Player Configuration', exact: true });
-    if (await playerConfiguration.isVisible()) await playerConfiguration.click();
+    await joinPlayer(playerPage);
     expect(await playerPage.evaluate(() => ({ name: game.user.name, isGM: game.user.isGM })))
       .toEqual({ name: 'Player2', isGM: false });
     expect(await page.evaluate(() => game.user.isGM)).toBe(true);
@@ -164,7 +217,7 @@ test('runtime: player and GM see the correct roll content, including after reloa
       expect(playerContent, `${mode}: player visibility`).toBe(mode !== 'blind');
       expect(gmContent, `${mode}: GM visibility`).toBe(mode !== 'self');
     }
-    await playerPage.reload();
+    await playerPage.reload({waitUntil: 'domcontentloaded'});
     await expect.poll(() => playerPage.evaluate(() => typeof game !== 'undefined' && !!game.ready).catch(() => false), { timeout: 60_000 }).toBe(true);
     const visibility = await playerPage.evaluate(ids => ids.map(id => game.messages.get(id)?.isContentVisible), ids);
     expect(visibility).toEqual([true, true, false, true]);
@@ -201,7 +254,7 @@ test('runtime: Force bonuses and final-phase effects persist without double appl
         defense: actor.system.stats.defence.ranged };
     }, id);
     expect(await readStats()).toEqual({ max: 3, force: 2, defense: 2 });
-    await page.reload();
+    await page.reload({waitUntil: 'domcontentloaded'});
     await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
     expect(await readStats()).toEqual({ max: 3, force: 2, defense: 2 });
     await page.evaluate(async id => {
@@ -228,7 +281,7 @@ test('runtime: system status durations survive the v14 ActiveEffect data model',
     })).sort((a, b) => a.prepared.localeCompare(b.prepared)), id);
     const expected = [{ prepared: 'combat', saved: 'combat' }, { prepared: 'once', saved: 'once' }];
     expect(await readDurations()).toEqual(expected);
-    await page.reload();
+    await page.reload({waitUntil: 'domcontentloaded'});
     await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
     expect(await readDurations()).toEqual(expected);
     await page.evaluate(id => {
@@ -250,7 +303,7 @@ test('runtime: system status durations survive the v14 ActiveEffect data model',
   }
 });
 
-test('runtime: hidden initiative remains private and combat advances', async ({ page }) => {
+test('runtime: hidden initiative remains private and combat advances', {tag: '@canvas'}, async ({ page }) => {
   test.setTimeout(90_000);
   const created = await page.evaluate(async () => {
     const actor = await game.ffg.ActorFFG.create({ name: 'Runtime hidden combatant', type: 'character' });
@@ -311,12 +364,7 @@ test('runtime: destiny rolls and spending synchronize between player and GM', as
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] }, viewport: { width: 1440, height: 900 } });
   try {
     const player = await context.newPage();
-    await player.goto(new URL('/join', process.env.FOUNDRY_URL).href);
-    await expect(player.locator('#main-header h1')).toHaveText(process.env.FOUNDRY_TEST_WORLD_TITLE);
-    await player.getByRole('textbox', { name: 'Select User', exact: true }).click();
-    await player.getByRole('listitem').filter({ hasText: /^Player2$/ }).click();
-    await player.getByRole('button', { name: 'Join Game Session', exact: true }).click();
-    await expect.poll(() => player.evaluate(() => typeof game !== 'undefined' && !!game.ready).catch(() => false), { timeout: 60_000 }).toBe(true);
+    await joinPlayer(player);
     await page.evaluate(async () => {
       await game.settings.set('starwarsffg', 'dPoolLight', 2);
       await game.settings.set('starwarsffg', 'dPoolDark', 1);
@@ -335,6 +383,8 @@ test('runtime: destiny rolls and spending synchronize between player and GM', as
       !previousIds.includes(m.id) && m.content.includes('ffg-destiny-roll'))?.id, previous.messages);
     await expect.poll(readRequest).toBeTruthy();
     const requestId = await readRequest();
+    await player.reload({waitUntil: 'domcontentloaded'});
+    await player.waitForFunction(() => globalThis.game?.ready === true, null, {timeout: 60_000});
     await player.getByRole('tab', { name: 'Chat Messages', exact: true }).click();
     await player.locator(`[data-message-id="${requestId}"] .ffg-destiny-roll:not(#chat-notifications *)`).click({ timeout: 15_000 });
     await expect.poll(async () => {
@@ -381,4 +431,62 @@ test('runtime: skill previews use one actor sheet context per render', async ({p
     expect(result.rows).toBeGreaterThan(1);
     expect(result.hasDice).toBe(true);
   }
+});
+
+test('runtime: ground range labels follow the token through pans, zooms and range changes', {tag: '@canvas'}, async ({page}) => {
+  await page.waitForFunction(() => canvas.initialized && !canvas.loading && (!game.scenes.current || canvas.ready));
+  const result = await page.evaluate(async () => {
+    const {setGroundRangeOverlay, clearGroundRangeOverlay} = await import('/systems/starwarsffg/modules/helpers/ground-range-overlay.mjs');
+    const oldMode = game.settings.get('starwarsffg', 'enableBattlemapMovement');
+    const oldRanges = game.settings.get('starwarsffg', 'groundRangeDistances');
+    const oldScene = game.scenes.current;
+    const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    let scene, actor;
+    try {
+      await game.settings.set('starwarsffg', 'enableBattlemapMovement', true);
+      await game.settings.set('starwarsffg', 'groundRangeDistances', {contact: 1, short: 2, medium: 4, long: 6, extreme: 8});
+      actor = await Actor.create({name:'Runtime range token', type:'minion'}, {renderSheet:false});
+      scene = await Scene.create({name:'Runtime ground ranges', active:false, width:1600, height:1600, grid:{type:1, size:100, distance:1, units:'m'},
+        flags:{starwarsffg:{groundMovement:{mode:'battlemap'}}},
+        tokens:[{name:actor.name, actorId:actor.id, actorLink:true, x:600, y:600}]});
+      await scene.view();
+      const token = scene.tokens.contents[0];
+      setGroundRangeOverlay({token}, token, true);
+      await nextFrame();
+      const overlay = () => canvas.interface.children.find(child => child.name === 'ffg-ground-range-overlay');
+      const labels = () => overlay().children.flatMap(child => child.visible ? child.children.filter(text => text instanceof PIXI.Text) : []);
+      const first = labels();
+      const pixelPositions = () => labels().every(label => {
+        const screen = label.getGlobalPosition();
+        return Math.abs(screen.x - Math.round(screen.x)) < .001 && Math.abs(screen.y - Math.round(screen.y)) < .001;
+      });
+      canvas.pan({x:740, y:720, scale:1.25});
+      await nextFrame();
+      const zoom = canvas.stage.scale.x;
+      const readable = pixelPositions() && labels().every(label => Math.abs(label.parent.scale.x * zoom - 1) < .001);
+      canvas.pan({x:660, y:680, scale:zoom});
+      await nextFrame();
+      const afterPan = pixelPositions();
+      await token.update({x:800, y:900}, {animate:false});
+      await nextFrame();
+      const center = token.object.center;
+      const followed = overlay().ffgCenter.x === center.x && overlay().ffgCenter.y === center.y;
+      const retained = first.length === 4 && first.every((label, i) => labels()[i] === label);
+      await game.settings.set('starwarsffg', 'groundRangeDistances', {contact:1, short:3, medium:4, long:6, extreme:10000});
+      await nextFrame();
+      const ranges = overlay().ffgRanges.map(({distance, radiusPixels}) => [distance, radiusPixels]);
+      const visibleLabels = labels().length;
+      clearGroundRangeOverlay();
+      return {readable, afterPan, followed, retained, ranges, visibleLabels, removed:!overlay(), released:first.every(label => label.destroyed)};
+    } finally {
+      clearGroundRangeOverlay();
+      if (oldScene) await oldScene.view();
+      await scene?.delete();
+      await actor?.delete();
+      await game.settings.set('starwarsffg', 'groundRangeDistances', oldRanges);
+      await game.settings.set('starwarsffg', 'enableBattlemapMovement', oldMode);
+    }
+  });
+  expect(result).toEqual({readable:true, afterPan:true, followed:true, retained:true,
+    ranges:[[3,300],[4,400],[6,600]], visibleLabels:3, removed:true, released:true});
 });

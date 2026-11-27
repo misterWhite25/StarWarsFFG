@@ -1,3 +1,4 @@
+import {errorFromLocalization, localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {prepareSpaceEncounter} from "./encounter.mjs";
 import {vehicleTokenArtwork} from '../helpers/vehicle-token-artwork.mjs';
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
@@ -54,15 +55,15 @@ export function canPilot(ship, user = game.user) {
   return canPilotShip(ship,user);
 }
 
-function number(value, min, max, label, integer = false) {
+function number(value, min, max, labelKey, integer = false) {
   if (!Number.isFinite(value) || value < min || value > max || (integer && !Number.isInteger(value))) {
-    throw Error(label + " doit être compris entre " + min + " et " + max + ".");
+    throw localizedSystemError("SWFFG.UI.SpaceCombat.OutOfBounds", {label: {localizationKey: labelKey}, min, max});
   }
   return value;
 }
 
 function coordinate(value) {
-  return number(value, -1000000, 1000000, "La coordonnée");
+  return number(value, -1000000, 1000000, "SWFFG.UI.SpaceCombat.Coordinate");
 }
 
 function readActorNumber(value, fallback, min, max) {
@@ -72,7 +73,7 @@ function readActorNumber(value, fallback, min, max) {
 
 function createShip(command) {
   const actor = command.actorId ? game.actors.get(command.actorId) : null;
-  if (actor?.type !== "vehicle") throw Error("Choisissez une fiche de véhicule du monde.");
+  if (actor?.type !== "vehicle") throw localizedSystemError("SWFFG.UI.SpaceCombat.ChooseWorldShip");
   const stats = actor.system.stats;
   const maxSpeed = readActorNumber(stats?.speed?.max,4,0,20);
   const silhouette = readActorNumber(stats?.silhouette?.value,4,1,20);
@@ -83,15 +84,15 @@ function createShip(command) {
     name: actor.name, image: vehicleImage(actor),minionGroup:vehicleMinionGroup(actor),
     silhouette, maxSpeed, speed: initialSpeed, startSpeed: initialSpeed,
     x,y, destination:{x,y},movementMode:"individual",movementSpent:0,movementTurnSpent:0,z: coordinate(command.z ?? 0),
-    heading: number(command.heading ?? 90, 0, 360, "Le cap") % 360, turn: 0
+    heading: number(command.heading ?? 90, 0, 360, "SWFFG.UI.SpaceCombat.Heading") % 360, turn: 0
   };
 }
 
 async function apply(command, user) {
-  if (game.users.activeGM?.id !== game.user.id) throw Error("Le MJ chargé du plateau a changé. Réessayez.");
+  if (game.users.activeGM?.id !== game.user.id) throw localizedSystemError("SWFFG.UI.SpaceCombat.BoardGMChanged");
   if(command.action==="scene")return ensureCombatScene();
   if(command.action==="participants") {
-    if(!user.isGM)throw Error("Seul le MJ peut préparer la rencontre spatiale.");
+    if(!user.isGM)throw localizedSystemError("SWFFG.UI.SpaceCombat.PrepareEncounterGMOnly");
     const next=structuredClone(board());
     if(next.round===0||!next.ships.length||game.combats.has(next.encounterId))return next.encounterId??null;
     const encounter=await prepareSpaceEncounter(next);
@@ -100,9 +101,9 @@ async function apply(command, user) {
   }
   await syncInitiative();
   const next = structuredClone(board());
-  if((command.epoch??0)!==(next.epoch??0))throw Error("Le combat a changé. Vérifiez la carte avant de rejouer cette commande.");
-  if (command.round !== next.round) throw Error("Le round a changé. Vérifiez la nouvelle position.");
-  if (!["plan","combat","front"].includes(command.action) && !user.isGM) throw Error("Cette commande est réservée au MJ.");
+  if((command.epoch??0)!==(next.epoch??0))throw localizedSystemError("SWFFG.UI.SpaceCombat.StaleBoardCombat");
+  if (command.round !== next.round) throw localizedSystemError("SWFFG.UI.SpaceCombat.StaleRound");
+  if (!["plan","combat","front"].includes(command.action) && !user.isGM) throw localizedSystemError("SWFFG.UI.SpaceCombat.CommandGMOnly");
   let selected = null;
   let combatWork=null,combatShip=null;
   if (command.action === "add") {
@@ -112,39 +113,39 @@ async function apply(command, user) {
     if(next.round>0){const encounter=await prepareSpaceEncounter(next);if(encounter){next.encounterId=encounter.id;if(next.initiative?.combatId!==encounter.id)delete next.initiative;}}
     selected = ship.id;
   } else if (command.action === "advance") {
-    if(initiativeContext().started)throw Error("Avancez le round depuis le suivi d’initiative Foundry.");
-    if(next.round===0)throw Error("Commencez un nouveau combat avant d’avancer le round.");
-    if (!next.ships.length) throw Error("Placez un vaisseau avant d’avancer le round.");
+    if(initiativeContext().started)throw localizedSystemError("SWFFG.UI.SpaceCombat.AdvanceFromTracker");
+    if(next.round===0)throw localizedSystemError("SWFFG.UI.SpaceCombat.StartBeforeAdvance");
+    if (!next.ships.length) throw localizedSystemError("SWFFG.UI.SpaceCombat.PlaceBeforeAdvance");
     next.ships = next.ships.map(ship => advanceCombatRound({...ship,startSpeed:ship.speed,version:ship.version+1,
       destination:{x:ship.x,y:ship.y},desiredHeading:ship.heading,turn:0,movementSpent:0,movementTurnSpent:0},next.round));
     next.round++;
   } else if(command.action==="endCombat") {
-    if(next.round===0)throw Error("Le combat est déjà terminé.");
+    if(next.round===0)throw localizedSystemError("SWFFG.UI.SpaceCombat.AlreadyEnded");
     next.ships=next.ships.map(endShipCombat);next.round=0;next.epoch=(next.epoch??0)+1;
   } else if(command.action==="startCombat") {
-    if(next.round!==0)throw Error("Un combat est déjà en cours.");
-    if(!next.ships.length)throw Error("Placez un vaisseau avant de commencer le combat.");
+    if(next.round!==0)throw localizedSystemError("SWFFG.UI.SpaceCombat.AlreadyStarted");
+    if(!next.ships.length)throw localizedSystemError("SWFFG.UI.SpaceCombat.PlaceBeforeStart");
     next.ships=next.ships.map(endShipCombat);next.round=1;next.epoch=(next.epoch??0)+1;
     const encounter=await prepareSpaceEncounter(next);
     if(encounter){next.encounterId=encounter.id;if(next.initiative?.combatId!==encounter.id)delete next.initiative;synchronizeInitiative(next,initiativeContext(encounter));}
   } else {
     const ship = next.ships.find(item => item.id === command.shipId);
-    if (!ship) throw Error("Ce pion a quitté le plateau.");
-    if(command.action!=="front"&&ship.version!==command.version)throw Error("Le pion a changé. Vérifiez son nouvel ordre.");
+    if (!ship) throw localizedSystemError("SWFFG.UI.SpaceCombat.TokenLeft");
+    if(command.action!=="front"&&ship.version!==command.version)throw localizedSystemError("SWFFG.UI.SpaceCombat.TokenOrderChanged");
     switch (command.action) {
       case "front":
-        if(!canSelectShip(ship,user))throw Error("Vous pouvez mettre au premier plan les vaisseaux de votre équipage.");
+        if(!canSelectShip(ship,user))throw localizedSystemError("SWFFG.UI.SpaceCombat.BringOwnShipsForward");
         next.ships=bringShipToFront(next.ships,ship.id);
         break;
       case "combat":
-        if(next.round===0)throw Error("Le combat est terminé. Le MJ doit commencer un nouveau combat.");
+        if(next.round===0)throw localizedSystemError("SWFFG.UI.SpaceCombat.CombatEnded");
         combatWork=await executeCombat(next,ship,command,user);
         combatShip=ship;
         selected=combatWork.value;
         break;
       case "link": {
         const actor=game.actors.get(command.actorId);
-        if(actor?.type!=="vehicle")throw Error("Choisissez une fiche de véhicule du monde.");
+        if(actor?.type!=="vehicle")throw localizedSystemError("SWFFG.UI.SpaceCombat.ChooseWorldShip");
         ship.actorId=actor.id;
         ship.name=actor.name;
         ship.image=vehicleImage(actor);
@@ -157,7 +158,7 @@ async function apply(command, user) {
         break;
       }
       case "plan": {
-        throw Error("Utilisez la manœuvre Voler / Conduire pour déplacer ce vaisseau.");
+        throw localizedSystemError("SWFFG.UI.SpaceCombat.FlyToMove");
       }
       case "move": {
         const {x,y} = nearestHex({x:coordinate(command.x),y:coordinate(command.y)});
@@ -166,13 +167,18 @@ async function apply(command, user) {
         if(ship.destination)ship.destination={x,y};
         break;
       }
+      case "speed":
+        // GM setup changes the pawn's baseline without spending a maneuver.
+        ship.speed=number(command.speed,0,ship.maxSpeed,"SWFFG.UI.SpaceCombat.SpeedValue",true);
+        ship.startSpeed=ship.speed;
+        break;
       case "configure":
         ship.name = String(command.name || ship.name).trim().slice(0, 90) || ship.name;
-        ship.silhouette = number(command.silhouette, 1, 20, "Le gabarit", true);
-        ship.maxSpeed = number(command.maxSpeed, 0, 20, "La vitesse maximale", true);
-        ship.startSpeed = number(command.startSpeed, 0, ship.maxSpeed, "La vitesse en début de round", true);
+        ship.silhouette = number(command.silhouette, 1, 20, "SWFFG.UI.SpaceCombat.SilhouetteValue", true);
+        ship.maxSpeed = number(command.maxSpeed, 0, 20, "SWFFG.UI.SpaceCombat.MaxSpeedValue", true);
+        ship.startSpeed = number(command.startSpeed, 0, ship.maxSpeed, "SWFFG.UI.SpaceCombat.StartSpeedValue", true);
         ship.speed = ship.startSpeed;
-        ship.heading = number(command.heading, 0, 360, "Le cap") % 360;
+        ship.heading = number(command.heading, 0, 360, "SWFFG.UI.SpaceCombat.Heading") % 360;
         ship.z = coordinate(command.z);
         ship.turn = 0;
         delete ship.desiredHeading;
@@ -180,7 +186,7 @@ async function apply(command, user) {
       case "remove":
         next.ships = next.ships.filter(item => item.id !== ship.id);
         break;
-      default: throw Error("Commande de vol inconnue.");
+      default: throw localizedSystemError("SWFFG.UI.SpaceCombat.UnknownFlightCommand");
     }
     if(command.action!=="front")ship.version++;
   }
@@ -190,7 +196,7 @@ async function apply(command, user) {
   if(combatWork?.messages.length) {
     await postMessages(combatWork.messages,combatShip,user).catch(error=>{
       console.error("Star Wars FFG | Combat spatial",error);
-      ui.notifications.warn("L’action est enregistrée, mais son message n’a pas pu être publié dans la discussion.");
+      ui.notifications.warn(localizeSystem("SWFFG.UI.SpaceCombat.ChatPostFailed"));
     });
   }
   return selected;
@@ -203,7 +209,10 @@ function serialize(work) {
 }
 async function syncInitiative() {
   if(game.users.activeGM?.id!==game.user.id)return;
-  const previous=board(),next=synchronizeInitiative(structuredClone(previous));
+  const previous = board();
+  const context = initiativeContext();
+  if (context.started ? !previous.ships.length : !previous.initiative) return;
+  const next = synchronizeInitiative(structuredClone(previous), context);
   if(JSON.stringify(previous)!==JSON.stringify(next))await game.settings.set(scope,setting,next);
 }
 
@@ -245,7 +254,7 @@ export function registerBoard(refresh, report,services={}) {
       const member=aboardRoster(game.actors.get(ship.actorId)).find(entry=>entry.actor_id===marker.crewId);
       const speakerId=member?.integrated?ship.actorId:marker.crewId;
       if(message.speaker.actor!==speakerId)return;
-      ship.combat.lastRoll={label:roll.data.name??"Test de pilotage",actorId:marker.crewId,
+      ship.combat.lastRoll={label:roll.data.name??localizeSystem("SWFFG.UI.SpaceCombat.PilotingCheck"),actorId:marker.crewId,
         success:Math.max(0,Number(roll.ffg?.success)||0),advantage:Math.max(0,Number(roll.ffg?.advantage)||0),threat:Math.max(0,Number(roll.ffg?.threat)||0)};
       delete reservations[found[0]];ship.version++;
       await game.settings.set(scope,setting,next);
@@ -257,7 +266,7 @@ export function registerBoard(refresh, report,services={}) {
       const receipt = user.getFlag(scope, ackKey);
       const waiter = pending.get(receipt.id);
       if (waiter) {
-        if (receipt.error) waiter.reject(Error(receipt.error));
+        if (receipt.error) waiter.reject(errorFromLocalization(receipt.errorLocale, receipt.error));
         else waiter.resolve(receipt.selected);
       }
     }
@@ -269,24 +278,24 @@ export function registerBoard(refresh, report,services={}) {
     if (!command?.id || command.authority !== game.user.id) return;
     serialize(async () => {
       if (user.getFlag(scope, ackKey)?.id === command.id) return;
-      let selected = null, error = "";
+      let selected = null, error = "", errorLocale = null;
       try { selected = await apply(command, user); }
-      catch (failure) { error = failure.message; }
-      await user.setFlag(scope, ackKey, { id: command.id, selected, error });
+      catch (failure) { error = failure.message; errorLocale = failure.localization ?? null; }
+      await user.setFlag(scope, ackKey, { id: command.id, selected, error, errorLocale });
     }).catch(report);
   });
 }
 
 export async function command(action, values = {}) {
   const gm = game.users.activeGM;
-  if (!gm) throw Error("Un MJ doit être connecté pour enregistrer les ordres du plateau.");
+  if (!gm) throw localizedSystemError("SWFFG.UI.SpaceCombat.GMRequired");
   const payload = { action, round: board().round,epoch:board().epoch??0,initiative:initiativeStamp(), ...values };
   if (gm.id === game.user.id) return serialize(() => apply(payload, game.user));
   const id = foundry.utils.randomID();
   let timer;
   const result = new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject });
-    timer = setTimeout(() => reject(Error("Le MJ n’a pas confirmé la commande. Vérifiez le plateau.")), 10000);
+    timer = setTimeout(() => reject(localizedSystemError("SWFFG.UI.SpaceCombat.CommandTimeout")), 10000);
   });
   result.catch(() => {});
   try {

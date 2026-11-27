@@ -3,16 +3,8 @@
   data-group='primary'
   data-tab='xp_spend'
 >
-  <div>
-    <label>{{ localize "SWFFG.CharacterCreator.Wizard.XP.Label" }}</label>
-  </div>
+  <p class="wizard-xp-intro">{{localize "SWFFG.CharacterCreator.Wizard.XP.Label"}}</p>
   {{> "systems/starwarsffg/templates/wizards/char_creator/actor_preview.html" (
-    object data=data actor=tempActor mode="purchase" skillsList=skillsList combinedPurchases=combinedPurchases
+    object data=data actor=tempActor characteristicRows=characteristicRows characteristics=FFGCONFIG.characteristics mode="purchase" skillsList=skillsList combinedPurchases=combinedPurchases draftSpecialization=draftSpecialization draftSpecializations=draftSpecializations draftForcePowers=draftForcePowers
   )}}
-  <div class="actions">
-    <button type="button" class="purchase-specialization">{{ localize "SWFFG.CharacterCreator.buttons.specialization.purchase" }}</button>
-    {{# if (eq data.selected.rules "fad") }}
-    <button type="button" class="purchase-forcePower">{{ localize "SWFFG.CharacterCreator.buttons.forcePower.purchase" }}</button>
-    {{/if }}
-  </div>
 </section>

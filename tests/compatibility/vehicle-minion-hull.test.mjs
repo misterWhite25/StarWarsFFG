@@ -1,3 +1,4 @@
+import {linkWithSystemLocalization} from '../load-system-module.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -22,7 +23,7 @@ test('mechanical stress damage targets hull, preserving individual vehicles',()=
 });
 test('native token bars use group hull and suppress mechanical strain only for groups',async()=>{
  const context=vm.createContext({CONFIG:{Token:{documentClass:class{getBarAttribute(_name,{alternative}={}){return {attribute:alternative,value:4,max:10};}}}}});
- const helper=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context});await helper.link(()=>{});
+ const helper=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/vehicle-minion-group.mjs',import.meta.url),'utf8'),{context});await linkWithSystemLocalization(helper, context, ()=>{});
  const tokens=new vm.SourceTextModule(await fs.readFile(new URL('../../modules/helpers/vehicle-minion-tokens.mjs',import.meta.url),'utf8'),{context});await tokens.link(()=>helper);await tokens.evaluate();tokens.namespace.registerVehicleMinionTokens();
  const token=new context.CONFIG.Token.documentClass();token.actor=vehicle();assert.equal(token.getBarAttribute('bar1',{alternative:'stats.hullTrauma'}).max,30);assert.equal(token.getBarAttribute('bar2',{alternative:'stats.systemStrain'}),null);
  token.actor=vehicle(false);assert.equal(token.getBarAttribute('bar1',{alternative:'stats.hullTrauma'}).max,10);assert.notEqual(token.getBarAttribute('bar2',{alternative:'stats.systemStrain'}),null);

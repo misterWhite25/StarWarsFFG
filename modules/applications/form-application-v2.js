@@ -111,13 +111,20 @@ export class FormApplicationV2 extends HandlebarsApplicationMixin(ApplicationV2)
   _activateLegacyTabs(html) {
     for (const tabConfig of this.options.tabs ?? []) {
       const nav = html.find(tabConfig.navSelector);
-      nav.find("[data-tab]").off("click.ffg-v2-tabs").on("click.ffg-v2-tabs", event => {
+      const buttons = nav.find("[data-tab]");
+      const panels = html.find(`${tabConfig.contentSelector} > .tab[data-tab]`);
+      if (!buttons.length || !panels.length) continue;
+      this._selectedFormTabs ??= new Map();
+      const select = tab => {
+        this._selectedFormTabs.set(tabConfig.navSelector, tab);
+        for (const button of buttons) button.classList.toggle("active", button.dataset.tab === tab);
+        for (const panel of panels) panel.classList.toggle("active", panel.dataset.tab === tab);
+      };
+      const initial = this._selectedFormTabs.get(tabConfig.navSelector) ?? tabConfig.initial;
+      select(Array.from(buttons).some(button => button.dataset.tab === initial) ? initial : buttons[0].dataset.tab);
+      buttons.off("click.ffg-v2-tabs").on("click.ffg-v2-tabs", event => {
         event.preventDefault();
-        const tab = event.currentTarget.dataset.tab;
-        nav.find("[data-tab]").removeClass("active");
-        $(event.currentTarget).addClass("active");
-        html.find(`${tabConfig.contentSelector} > .tab[data-tab]`).removeClass("active");
-        html.find(`${tabConfig.contentSelector} > .tab[data-tab="${tab}"]`).addClass("active");
+        select(event.currentTarget.dataset.tab);
       });
     }
   }

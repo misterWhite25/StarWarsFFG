@@ -1,3 +1,4 @@
+import {localizeSystem, localizedSystemError} from "../helpers/system-localization.mjs";
 import {consolidateNpcPassengers} from '../helpers/npc-vehicle.mjs';
 import {stationWeapons,renderCrewWeapon,fireCrewWeapon} from './crew-weapons.mjs';
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
@@ -16,7 +17,7 @@ import {initiativeReason} from "./initiative.mjs";
 
 const normalize=value=>String(value??"").toLowerCase().replace(/[^a-z]/g,"");
 const pilotSkill=key=>/^(piloting|driving)/.test(normalize(canonicalCrewSkill(key)));
-const statNumber=value=>value!==null&&value!==undefined&&value!==""&&Number.isFinite(Number(value))?Number(value).toLocaleString("fr-FR"):"?";
+const statNumber=value=>value!==null&&value!==undefined&&value!==""&&Number.isFinite(Number(value))?Number(value).toLocaleString(globalThis.game?.i18n?.lang):"?";
 
 function selectableWeapons(vehicle,member) {
   if(actionRoleReason(vehicle,member.actor_id,"attack"))return [];
@@ -27,22 +28,22 @@ function currentMember(vehicle,member) {
 }
 async function rollSkill(ship,member,key,options) {
   const vehicle=game.actors.get(ship.actorId),current=currentMember(vehicle,member);
-  if(!current||!canSelectShip(ship)||!controlsCrewMember(current))throw Error("Vous pouvez jouer les compétences de vos membres d’équipage.");
+  if(!current||!canSelectShip(ship)||!controlsCrewMember(current))throw localizedSystemError("SWFFG.UI.SpaceCombat.OwnCrewSkills");
   const actor=resolveCrewActor(current,vehicle);
-  if(!actor?.system.skills?.[key])throw Error("Cette compétence est indisponible.");
+  if(!actor?.system.skills?.[key])throw localizedSystemError("SWFFG.UI.SpaceCombat.SkillUnavailable");
   if(normalize(canonicalCrewSkill(key))==="astrogation"&&!vehicleCrew(vehicle).some(entry=>entry.actor_id===actor.id&&["pilot","copilot"].includes(crewRoleDefinition(vehicle,entry.role)?.kind)))
-    throw Error("L’astrogation est réservée au pilote et au copilote.");
+    throw localizedSystemError("SWFFG.UI.SpaceCombat.AstrogationRoles");
   if(pilotSkill(key)) {
-    if(!game.user.isGM&&!isNavigationRole(current))throw Error("Ce jet de pilotage est réservé au pilote et au copilote.");
+    if(!game.user.isGM&&!isNavigationRole(current))throw localizedSystemError("SWFFG.UI.SpaceCombat.PilotingRoleRestriction");
     return openSelectedCombatRoll(ship,current,undefined,options);
   }
   if(normalize(key)==="gunnery") {
     const weapons=selectableWeapons(vehicle,current);
-    if(!weapons.length)throw Error("Aucune arme disponible à ce poste.");
+    if(!weapons.length)throw localizedSystemError("SWFFG.UI.SpaceCombat.StationNoWeapon");
     const roll=weapon=>openSelectedCombatRoll(ship,current,weapon,options);
     if(weapons.length===1)return roll(weapons[0]);
     const buttons=Object.fromEntries(weapons.map((weapon,index)=>["weapon"+index,{label:weapon.name,callback:()=>roll(weapon)}]));
-    return new LegacyDialogV2({title:"Choisir l’arme",content:"<p>Quelle arme utilisez-vous ?</p>",buttons}).render(true);
+    return new LegacyDialogV2({title:localizeSystem("SWFFG.UI.SpaceCombat.ChooseWeaponTitle"),content:`<p>${localizeSystem("SWFFG.UI.SpaceCombat.ChooseWeaponPrompt")}</p>`,buttons}).render(true);
   }
   const difficulty=["cool","vigilance"].includes(normalize(key))?0:2;
   return DiceHelpers.rollSkillByKey(actor,key,difficulty);
@@ -52,7 +53,7 @@ export function renderCrewSkills(ship,report,options={}) {
   const vehicle=game.actors.get(ship.actorId);
   if(vehicle?.flags?.starwarsffg?.npcVehicle?.version===1&&game.user.isGM)void consolidateNpcPassengers(vehicle).catch(report);
   const section=document.createElement("section");section.className="sc-card-section sc-crew-skills";
-  const title=document.createElement("h4");title.textContent="Équipage et passagers";section.append(title);
+  const title=document.createElement("h4");title.textContent=localizeSystem("SWFFG.UI.SpaceCombat.CrewAndPassengers");section.append(title);
   const bound=vehicleCrew(vehicle),entries=[],seen=new Set(),covered=new Set();
   const collator=new Intl.Collator('fr',{numeric:true,sensitivity:'base'});
   for(const raw of aboardRoster(vehicle)){
@@ -69,33 +70,33 @@ export function renderCrewSkills(ship,report,options={}) {
   }
   for(const weapon of vehicle.items.filter(item=>item.type==='shipweapon'&&!covered.has(item.id)))entries.push({kind:'gunner',order:2,weapon,weapons:[weapon]});
   entries.sort((a,b)=>a.order-b.order||(a.order===2?collator.compare(a.weapon?.name??a.weapons[0]?.name??'',b.weapon?.name??b.weapons[0]?.name??''):0));
-  if(!entries.length){const empty=document.createElement('p');empty.textContent='Aucun membre d’équipage affecté.';section.append(empty);return section;}
+  if(!entries.length){const empty=document.createElement('p');empty.textContent=localizeSystem("SWFFG.UI.SpaceCombat.NoAssignedCrew");section.append(empty);return section;}
   for(const entry of entries){
     const member=entry.member;
     if(!member){
       const details=document.createElement('details');details.className='sc-crew-member sc-crew-vacant';details.dataset.crewRole='gunner';details.dataset.weaponId=entry.weapon.id;
-      const summary=document.createElement('summary'),name=document.createElement('strong'),role=document.createElement('small');name.textContent=entry.weapon.name;role.textContent='Artilleur · Poste non pourvu';summary.append(name,role);details.append(summary);
+      const summary=document.createElement('summary'),name=document.createElement('strong'),role=document.createElement('small');name.textContent=entry.weapon.name;role.textContent=localizeSystem("SWFFG.UI.SpaceCombat.VacantGunner");summary.append(name,role);details.append(summary);
       details.append(renderCrewWeapon(ship,vehicle,entry.weapon,report,options));section.append(details);continue;
     }
     const assignments=[member],actor=resolveCrewActor(member,vehicle);
     const details=document.createElement("details");details.className="sc-crew-member";details.dataset.crewMember=member.actor_id;details.dataset.crewRole=entry.kind;if(entry.weapon)details.dataset.weaponId=entry.weapon.id;details.open=!game.user.isGM&&controlsCrewMember(member);
     const summary=document.createElement("summary");
-    const name=document.createElement("strong");name.textContent=member.integrated?String(actor?.name??member.actor_name??"Poste intégré").replace(vehicle.name+" - ",""):actor?.name??member.actor_name??"Membre indisponible";
+    const name=document.createElement("strong");name.textContent=member.integrated?String(actor?.name??member.actor_name??localizeSystem("SWFFG.UI.SpaceCombat.IntegratedStation")).replace(vehicle.name+" - ",""):actor?.name??member.actor_name??localizeSystem("SWFFG.UI.SpaceCombat.CrewMemberUnavailable");
     const roles=document.createElement("small");
-    roles.textContent=(member.integrated?"Intégré · ":"")+assignments.map(entry=>crewRoleDefinition(vehicle,entry.role)?.label??entry.role).join(" · ");
+    roles.textContent=(member.integrated?localizeSystem("SWFFG.AutoCrew.ProfileIntegrated")+" · ":"")+assignments.map(entry=>crewRoleDefinition(vehicle,entry.role)?.label??entry.role).join(" · ");
     if(entry.weapon){if(member.integrated)name.textContent=entry.weapon.name;else roles.textContent+=" · "+entry.weapon.name;}
     summary.append(name,roles);details.append(summary);section.append(details);
     const appendWeapons=()=>{for(const weapon of entry.weapons)details.append(renderCrewWeapon(ship,vehicle,weapon,report,options,member));};
     if(!actor||(!controlsCrewMember(member)&&!actor.testUserPermission(game.user,"OBSERVER"))) {
-      const note=document.createElement("p");note.textContent="Compétences à accès limité.";details.append(note);appendWeapons();continue;
+      const note=document.createElement("p");note.textContent=localizeSystem("SWFFG.UI.SpaceCombat.LimitedSkills");details.append(note);appendWeapons();continue;
     }
     const navigator=assignments.some(entry=>["pilot","copilot"].includes(crewRoleDefinition(vehicle,entry.role)?.kind));
     if(navigator&&!actor._npcStation) {
       const strain=actor.system.stats?.strain;
       const row=document.createElement("div");row.className="sc-crew-stress";row.dataset.crewStress=actor.id;
-      const label=document.createElement("span");label.textContent="Stress personnel";
+      const label=document.createElement("span");label.textContent=localizeSystem("SWFFG.UI.SpaceCombat.PersonalStrain");
       const value=document.createElement("strong");value.textContent=statNumber(strain?.value)+" / "+statNumber(strain?.max);
-      value.title="Stress subi / seuil";
+      value.title=localizeSystem("SWFFG.UI.SpaceCombat.CurrentStrainThreshold");
       row.append(label,value);details.append(row);
     }
     const support=assignments.some(entry=>/engineer|operator|mécanicien|mecanicien|technicien|ingénieur|ingenieur|astromech/i.test(entry.role))||['engineer','operator','astromech'].includes(actor.flags?.starwarsffg?.autoCrew?.kind);
@@ -106,9 +107,9 @@ export function renderCrewSkills(ship,report,options={}) {
     for(const [key,skill] of skills) {
       const row=document.createElement("div");row.className="sc-crew-skill";row.dataset.skill=key;row.dataset.crewActor=actor.id;
       const label=document.createElement("span");label.textContent=game.i18n.localize(skill.label??key);
-      const rank=document.createElement("span");rank.className="sc-crew-rank";rank.textContent=String(skill.rank??0);rank.title="Rang de compétence";
+      const rank=document.createElement("span");rank.className="sc-crew-rank";rank.textContent=String(skill.rank??0);rank.title=localizeSystem("SWFFG.UI.SpaceCombat.SkillRank");
       const control=document.createElement("button");control.type="button";control.className="sc-card-action sc-crew-roll";
-      control.setAttribute("aria-label","Lancer "+label.textContent+" pour "+actor.name);
+      control.setAttribute("aria-label",localizeSystem("SWFFG.UI.SpaceCombat.RollLabel") + " "+label.textContent+" pour "+actor.name);
       const navigation=assignments.find(isPilotRole)??assignments.find(isNavigationRole);
       const station=pilotSkill(key)?navigation:normalize(key)==="gunnery"?assignments.find(entry=>selectableWeapons(vehicle,entry).length):member;
       control.disabled=!controlsCrewMember(member)||(!game.user.isGM&&pilotSkill(key)&&!navigation)||(normalize(key)==="gunnery"&&!station);
@@ -121,7 +122,7 @@ export function renderCrewSkills(ship,report,options={}) {
       const pool=get_dice_pool(actor,key,new DicePoolFFG({difficulty:0}));
       const preview=pool.renderPreview();
       if(preview.querySelector("img"))control.append(preview);
-      else control.textContent="Jeter";
+      else control.textContent=localizeSystem("SWFFG.UI.SpaceCombat.Roll");
       control.addEventListener("click",event=>{
         event.preventDefault();event.stopPropagation();
         Promise.resolve().then(()=>normalize(canonicalCrewSkill(key))==="gunnery"&&entry.weapon?fireCrewWeapon(ship,vehicle,entry.weapon,options,member):rollSkill(ship,station??member,key,options)).catch(report);
@@ -130,7 +131,7 @@ export function renderCrewSkills(ship,report,options={}) {
       details.append(row);
     }
     if(!skills.length) {
-      const note=document.createElement("p");note.textContent="Aucune compétence disponible pour ce poste.";details.append(note);
+      const note=document.createElement("p");note.textContent=localizeSystem("SWFFG.UI.SpaceCombat.NoStationSkills");details.append(note);
     }
     appendWeapons();
   }

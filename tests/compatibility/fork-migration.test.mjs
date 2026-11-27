@@ -3,10 +3,10 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-async function setup(version, report = null) {
+async function setup(version, report = null, user = {id: 'gm', isGM: true}) {
   const saved = [], messages = [], errors = [];
   const context = vm.createContext({
-    game: {system: {version: '0.0.2'}, user: {id: 'gm'},
+    game: {system: {version: '0.0.2'}, user, users: {activeGM: {id: 'gm'}},
       settings: {get: (_ns, key) => key === 'systemMigrationVersion' ? version : 'mandar',
         set: async (...args) => saved.push(args)},
       i18n: {format: key => key}},
@@ -48,4 +48,13 @@ test('failed v14 effect migration still blocks version registration', async () =
   assert.equal(run.saved.length, 0);
   assert.equal(run.messages.length, 0);
   assert.equal(run.errors.length, 1);
+});
+
+test('players and secondary GMs leave world migration to the active GM', async () => {
+  for (const user of [{id: 'player', isGM: false}, {id: 'otherGM', isGM: true}]) {
+    const run = await setup('0.0.1', null, user);
+    assert.equal(await run.update(), false);
+    assert.equal(run.saved.length, 0);
+    assert.equal(run.messages.length, 0);
+  }
 });

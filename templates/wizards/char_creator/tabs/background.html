@@ -1,62 +1,131 @@
-<section
-  class='tab background {{tab.cssClass}}'
-  data-group='primary'
-  data-tab='background'
->
-  <div class="background-container">
-    <div class="background-content">
-      <label for="culture">{{ localize "SWFFG.CharacterCreator.background.Culture.Label" }}</label>
-      <select class="" id="culture" name="culture">
-        <option data-placeholder="true"></option>
-        {{#each availableBackgrounds.cultures as |culture|}}
-          <option value="{{culture.uuid}}">{{culture.name}}</option>
-        {{/each }}
-      </select>
-
-    </div>
-    <div class="background-content">
-      <label for="cultured_esc">{{ localize "SWFFG.CharacterCreator.background.Culture.Description" }}</label>
-      <div class="description" id="cultured_esc" >
-
-      </div>
-    </div>
-  </div>
-  <div class="background-container">
-    <div class="background-content">
-      <label for="hook">{{ localize "SWFFG.CharacterCreator.background.Hook.Label" }}</label>
-      <select class="" id="hook" name="hook">
-        <option data-placeholder="true"></option>
-        {{#each availableBackgrounds.hooks as |hook|}}
-          <option value="{{hook.uuid}}">{{hook.name}}</option>
-        {{/each }}
-      </select>
-
-    </div>
-    <div class="background-content">
-      <label for="hook_desc">{{ localize "SWFFG.CharacterCreator.background.Hook.Description" }}</label>
-      <div class="description" id="hook_desc" >
-
-      </div>
-    </div>
-  </div>
-  {{#if (eq data.selected.rules "fad")}}
-    <div class="background-container">
-      <div class="background-content">
-        <label for="force_attitude">{{ localize "SWFFG.CharacterCreator.background.ForceAttitude.Label" }}</label>
-        <select class="" id="force_attitude" name="force_attitude">
-          <option data-placeholder="true"></option>
-          {{#each availableBackgrounds.forceAttitudes as |fa|}}
-            <option value="{{fa.uuid}}">{{fa.name}}</option>
-          {{/each }}
+<section class="tab background {{tab.cssClass}}" data-group="primary" data-tab="background">
+  <div class="wizard-setup-panels">
+    <section class="wizard-setup-panel" aria-labelledby="wizard-history-heading">
+      <h3 id="wizard-history-heading">
+        <i class="fa-solid fa-book-open" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.StartingTraits.History"}}
+        <small class="wizard-setup-optional">{{localize "SWFFG.CharacterCreator.StartingTraits.Optional"}}</small>
+      </h3>
+      <p class="wizard-history-note">{{localize "SWFFG.CharacterCreator.background.NarrativeNote"}}</p>
+      <div class="background-content wizard-history-field">
+        <label for="culture"><i class="fa-solid fa-earth-americas" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.background.Culture.Label"}}</label>
+        <select id="culture" name="culture">
+          <option value="">{{localize "SWFFG.CharacterCreator.background.None"}}</option>
+          {{#each availableBackgrounds.cultures as |entry|}}
+            <option value="{{entry.uuid}}">{{entry.name}}</option>
+          {{/each}}
         </select>
-
+        <p class="description" id="cultured_esc" aria-live="polite">{{data.selected.background.culture.system.description}}</p>
       </div>
-      <div class="background-content">
-        <label for="force_attitude_desc">{{ localize "SWFFG.CharacterCreator.background.ForceAttitude.Description" }}</label>
-        <div class="description" id="force_attitude_desc" >
-
+      <div class="background-content wizard-history-field">
+        <label for="hook"><i class="fa-solid fa-bolt" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.background.Hook.Label"}}</label>
+        <select id="hook" name="hook">
+          <option value="">{{localize "SWFFG.CharacterCreator.background.None"}}</option>
+          {{#each availableBackgrounds.hooks as |entry|}}
+            <option value="{{entry.uuid}}">{{entry.name}}</option>
+          {{/each}}
+        </select>
+        <p class="description" id="hook_desc" aria-live="polite">{{data.selected.background.hook.system.description}}</p>
+      </div>
+      {{#if (eq data.selected.rules "fad")}}
+        <div class="background-content wizard-history-field">
+          <label for="force_attitude"><i class="fa-solid fa-star" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.background.ForceAttitude.Label"}}</label>
+          <select id="force_attitude" name="force_attitude">
+            <option value="">{{localize "SWFFG.CharacterCreator.background.None"}}</option>
+            {{#each availableBackgrounds.forceAttitudes as |entry|}}
+              <option value="{{entry.uuid}}">{{entry.name}}</option>
+            {{/each}}
+          </select>
+          <p class="description" id="force_attitude_desc" aria-live="polite">{{data.selected.background.forceAttitude.system.description}}</p>
         </div>
-      </div>
+      {{/if}}
+    </section>
+    <div class="wizard-setup-column">
+      <section class="wizard-setup-panel" aria-labelledby="wizard-traits-heading">
+        <h3 id="wizard-traits-heading">
+          <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>{{localize "SWFFG.UI.Actor.WizardTab.obligation"}}
+          <small class="wizard-setup-optional">{{localize "SWFFG.CharacterCreator.StartingTraits.Optional"}}</small>
+        </h3>
+        <details class="wizard-obligation-help" data-sync="wizard-obligation-help">
+          <summary><i class="fa-solid fa-circle-question" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpTitle"}}</summary>
+          <div class="wizard-obligation-help-body">
+            <p>{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpMeaning"}}</p>
+            <table class="wizard-obligation-points">
+              <caption>{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpStartingValues"}}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpCharacters"}}</th>
+                  <th scope="col">{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpPoints"}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">2</th><td>20</td></tr>
+                <tr><th scope="row">3</th><td>15</td></tr>
+                <tr><th scope="row">{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpFourOrFive"}}</th><td>10</td></tr>
+                <tr><th scope="row">6+</th><td>5</td></tr>
+              </tbody>
+            </table>
+            <p>{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpExample"}}</p>
+            <p>{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpInPlay"}}</p>
+            <p class="wizard-obligation-source">{{localize "SWFFG.CharacterCreator.StartingTraits.Obligation.HelpSource"}}</p>
+          </div>
+        </details>
+        <label for="starting-trait">{{localize "SWFFG.CharacterCreator.StartingTraits.Label"}}</label>
+        <div class="wizard-starting-trait-picker">
+          <select id="starting-trait" name="starting-trait">
+            <option value="">{{localize "SWFFG.CharacterCreator.background.None"}}</option>
+            {{#each startingTraitGroups as |group|}}
+              <optgroup label="{{localize group.label}}">
+                {{#each group.items as |item|}}
+                  <option value="{{item.uuid}}">{{item.name}}</option>
+                {{/each}}
+              </optgroup>
+            {{/each}}
+          </select>
+          <button type="button" class="wizard-add-starting-trait" disabled>
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.StartingTraits.Add"}}
+          </button>
+        </div>
+        <p class="wizard-starting-trait-summary description" aria-live="polite" hidden></p>
+        {{#each startingTraits as |choice|}}
+          <div class="wizard-starting-trait-entry">
+            <div><strong>{{choice.item.name}}</strong><small>{{localize choice.label}}</small></div>
+            {{#unless (eq choice.item.system.type "morality")}}
+              <label class="wizard-starting-trait-magnitude">
+                {{localize "SWFFG.CharacterCreator.Obligation.Magnitude"}}
+                <input class="wizard-starting-trait-edit" type="number" name="magnitude" value="{{choice.item.system.magnitude}}"
+                  min="0" step="1" data-index="{{@index}}">
+              </label>
+            {{/unless}}
+            <button type="button" class="wizard-remove-starting-trait" data-index="{{@index}}" aria-label="{{localize 'SWFFG.UI.Item.Delete'}} {{choice.item.name}}">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+            <details class="wizard-starting-trait-description">
+              <summary>{{localize "SWFFG.CharacterCreator.tables.labels.Description"}}</summary>
+              <textarea class="wizard-starting-trait-edit" name="description" data-index="{{@index}}"
+                aria-label="{{localize 'SWFFG.CharacterCreator.tables.labels.Description'}}">{{choice.item.system.description}}</textarea>
+            </details>
+          </div>
+        {{/each}}
+      </section>
+      <section class="wizard-setup-panel" aria-labelledby="wizard-bonus-heading">
+        <h3 id="wizard-bonus-heading">
+          <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>{{localize "SWFFG.UI.Actor.WizardTab.startingBonus"}}
+          <small class="wizard-setup-optional">{{localize "SWFFG.CharacterCreator.StartingTraits.Optional"}}</small>
+        </h3>
+        <label for="wizard-rules">{{localize "SWFFG.CharacterCreator.Wizard.Rules.GameLine"}}</label>
+        <select id="wizard-rules" name="rules">
+          {{#each creationRules as |rule|}}
+            <option value="{{rule.value}}" {{#if (eq rule.value ../data.selected.rules)}}selected{{/if}}>{{localize rule.label}}</option>
+          {{/each}}
+        </select>
+        <label for="startingBonus">{{localize "SWFFG.CharacterCreator.startingBonus.Label"}}</label>
+        <select id="startingBonus" name="startingBonus">
+          <option value="">{{localize "SWFFG.CharacterCreator.startingBonus.None"}}</option>
+          {{#each startingBonusesRadio as |entry|}}
+            <option value="{{entry.value}}">{{localize entry.label}}</option>
+          {{/each}}
+        </select>
+      </section>
     </div>
-  {{/if}}
+  </div>
 </section>

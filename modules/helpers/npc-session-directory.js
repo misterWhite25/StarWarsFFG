@@ -125,9 +125,15 @@ export function toggleSessionPin(event, button) {
   return pendingPin;
 }
 
-function configuredIcon(mapping, id) {
+function defaultFolderIcon(folder) {
+  if (folder?.type === "Scene" && (folder.flags?.[SYSTEM]?.shipPlans || folder.flags?.[SYSTEM]?.basePlans ||
+      (!folder.folder && folder.name === game.i18n.localize("SWFFG.BasePlan.Folder")))) return "location-dot";
+  return DEFAULT_ICON;
+}
+
+function configuredIcon(mapping, id, folder) {
   const slug = mapping?.[id];
-  return NPC_FOLDER_ICONS.includes(slug) ? slug : DEFAULT_ICON;
+  return NPC_FOLDER_ICONS.includes(slug) ? slug : defaultFolderIcon(folder ?? game.folders?.get(id));
 }
 
 const FOLDER_TYPES = ["Scene", "Actor", "Item", "JournalEntry", "RollTable", "Macro", "Compendium"];
@@ -202,7 +208,7 @@ function saveFolderIcon(folder, slug) {
         !folder.id || folder.collection?.get(folder.id) !== folder) return;
     const current = game.settings.get(SYSTEM, "npcFolderIcons") ?? {};
     const next = {...current};
-    if (slug === DEFAULT_ICON) delete next[folder.id];
+    if (slug === defaultFolderIcon(folder)) delete next[folder.id];
     else next[folder.id] = slug;
     if (next[folder.id] !== current[folder.id]) await game.settings.set(SYSTEM, "npcFolderIcons", next);
   });
@@ -222,7 +228,7 @@ export function registerSessionFolderSheet() {
           this.element.querySelector(".ffg-folder-icon-field")) return;
       const colorField = this.element.querySelector('[name="color"]')?.closest(".form-group");
       if (!colorField) return;
-      const selected = this.#draft ?? configuredIcon(game.settings.get(SYSTEM, "npcFolderIcons"), this.document.id);
+      const selected = this.#draft ?? configuredIcon(game.settings.get(SYSTEM, "npcFolderIcons"), this.document.id, this.document);
       colorField.after(iconField(this, selected, slug => { this.#draft = slug; }));
     }
 

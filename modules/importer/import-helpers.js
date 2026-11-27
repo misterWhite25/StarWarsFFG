@@ -15,102 +15,74 @@ export default class ImportHelpers {
    * @returns {boolean} - true if verfied, false if unable to create/verify
    */
   static async verifyPath(startingSource, path) {
+    const picker = foundry.applications.apps.FilePicker;
+    const options = {bucket: null};
     try {
-      const paths = path.split("/");
-      let currentSource = paths[0];
-
-      for (let i = 0; i < paths.length; i += 1) {
-        try {
-          if (currentSource !== paths[i]) {
-            currentSource = `${currentSource}/${paths[i]}`;
-          }
-          await foundry.applications.apps.FilePicker.createDirectory(startingSource, `${currentSource}`, { bucket: null });
-        } catch (err) {
-          
-        }
-      }
+      await picker.browse(startingSource, path, options);
+      return true;
     } catch {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Imports binary file, by extracting from zip file and uploading to path.
-   *
-   * @param  {string} path - Path to image within zip file
-   * @param  {object} zip - Zip file
-   * @param  {object} pack - Compendium Pack
-   * @returns {string} - Path to file within VTT
-   */
-  static async importImage(path, zip, pack) {
-    if (path) {
-      const serverPath = `worlds/${game.world.id}/images/packs/${pack.metadata.name}`;
-      const filename = path.replace(/^.*[\\/]/, "");
-      if (!CONFIG.temporary.images) {
-        CONFIG.temporary.images = [];
-      }
-      try {
-        if (!CONFIG.temporary.images.includes(`${serverPath}/${filename}`)) {
-          CONFIG.temporary.images.push(`${serverPath}/${filename}`);
-          await ImportHelpers.verifyPath("data", serverPath);
-          const img = await zip.file(path).async("uint8array");
-          var arr = img.subarray(0, 4);
-          var header = "";
-          for (var a = 0; a < arr.length; a++) {
-            header += arr[a].toString(16);
-          }
-          const type = Helpers.getMimeType(header);
-
-          const i = new File([img], filename, { type });
-          await Helpers.UploadFile("data", `${serverPath}`, i, { bucket: null });
+      let parent = "";
+      for (const segment of path.split("/").filter(Boolean)) {
+        parent = parent ? parent + "/" + segment : segment;
+        try {
+          await picker.createDirectory(startingSource, parent, options);
+        } catch {
+          // Existing directories can reject creation, including concurrent imports.
+          try { await picker.browse(startingSource, parent, options); }
+          catch { return false; }
         }
-
-        return `${serverPath}/${filename}`;
-      } catch {
-        CONFIG.logger.error(`Error Uploading File: ${path} to ${serverPath}`);
       }
+      return true;
     }
   }
 
-  /**
-   * Imports binary file, by extracting from zip file and uploading to path.
-   * Uploads to a different directory than the standard importer
-   *
-   * @param  {string} path - Path to image within zip file
-   * @param  {object} zip - Zip file
-   * @param  {object} pack - Compendium Pack
-   * @returns {string} - Path to file within VTT
-   */
-  static async importSilhouetteImage(path, zip, pack) {
-    if (path) {
-      const serverPath = `worlds/${game.world.id}/images/packs/${pack.metadata.name}Silhouettes`;
-      const filename = path.replace(/^.*[\\/]/, "");
-      if (!CONFIG.temporary.images) {
-        CONFIG.temporary.images = [];
-      }
-      try {
-        if (!CONFIG.temporary.images.includes(`${serverPath}/${filename}`)) {
-          CONFIG.temporary.images.push(`${serverPath}/${filename}`);
-          await ImportHelpers.verifyPath("data", serverPath);
-          const img = await zip.file(path).async("uint8array");
-          var arr = img.subarray(0, 4);
-          var header = "";
-          for (var a = 0; a < arr.length; a++) {
-            header += arr[a].toString(16);
-          }
-          const type = Helpers.getMimeType(header);
+  static importImage(path, zip, pack) {
+    return this.importPackImage(path, zip, pack.metadata.name);
+  }
 
-          const i = new File([img], filename, { type });
-          await Helpers.UploadFile("data", `${serverPath}`, i, { bucket: null });
-        }
+  static importSilhouetteImage(path, zip, pack) {
+    return this.importPackImage(path, zip, pack.metadata.name + "Silhouettes");
+  }
 
-        return `${serverPath}/${filename}`;
-      } catch {
-        CONFIG.logger.error(`Error Uploading File: ${path} to ${serverPath}`);
-      }
-    }
+  static async importPackImage(path, zip, folder) {
+    if (!path) return;
+    const directory = "worlds/" + game.world.id + "/images/packs/" + folder;
+    const filename = path.split(/[\\/]/).pop();
+    const target = directory + "/" + filename;
+    const images = CONFIG.temporary.images ??= new Map();
+    if (images.has(target)) return images.get(target);
+
+    const upload = async () => {
+      if (!globalThis.ForgeVTT?.usingTheForge && !(await this.verifyPath("data", directory))) throw Error("Cannot access " + directory);
+      const bytes = await zip.file(path).async("uint8array");
+      const header = Array.from(bytes.subarray(0, 4), byte => byte.toString(16).padStart(2, "0")).join("");
+      const file = new File([bytes], filename, {type: Helpers.getMimeType(header)});
+      const response = await Helpers.UploadFile("data", directory, file, {bucket: null});
+      if (!response?.path) throw Error("No uploaded image path");
+      return response.path;
+    };
+
+    const pending = upload().catch(error => {
+      images.delete(target);
+      CONFIG.logger.error("Error uploading " + target, error);
+    });
+    images.set(target, pending);
+    return pending;
+  }
+
+  static xmlFiles(zip, directory) {
+    return Object.values(zip.files).filter(entry => !entry.dir && entry.name.toLowerCase().endsWith(".xml")
+      && entry.name.split("/").slice(0, -1).includes(directory));
+  }
+
+  static xmlRecords(value) {
+    if (Array.isArray(value)) return value;
+    return value && typeof value === "object" ? [value] : [];
+  }
+
+  static importTags(categories, type) {
+    return [categories, type].flat().filter(tag => typeof tag === "string" && tag.length)
+      .map(tag => tag.toLowerCase());
   }
 
   /**
@@ -178,9 +150,7 @@ export default class ImportHelpers {
    * @returns {object} - Entity Object Data
    */
   static findEntityByImportId(type, id) {
-    return game.data[type].find((item) => {
-      return item.flags.starwarsffg.ffgimportid === id;
-    });
+    return game[type].find(item => item.flags?.starwarsffg?.ffgimportid === id);
   }
 
   /**
@@ -493,8 +463,6 @@ export default class ImportHelpers {
       await callback(array[index], index, array);
     }
   };
-
-  static characteristicKeyToName(_key) {}
 
   static minionTemplate = {
     name: "no name",
@@ -1255,8 +1223,8 @@ export default class ImportHelpers {
       if(comForceAbility)
       {
         let force = JSON.parse(JSON.stringify(comForceAbility));
-        // Just add all upgrades since there's no good way of mapping the NPC upgrades to their Character-sheet Counterparts
-        // todo : find a solution to this known issue.
+        // Adversary exports do not identify the corresponding nodes in the character upgrade tree.
+        // Import the full tree as learned, as described in the generated import notes.
         Object.keys(force.data.upgrades).forEach((key) => {
           force.data.upgrades[key].islearned = true;
         });
@@ -2072,14 +2040,12 @@ export default class ImportHelpers {
 
       try {
         const serverPath = `worlds/${game.world.id}/images/characters`;
-        await ImportHelpers.verifyPath("data", serverPath);
-
         const imge = characterData.Character.Portrait;
-        if (imge) {
+        if (imge && (globalThis.ForgeVTT?.usingTheForge || await ImportHelpers.verifyPath("data", serverPath))) {
           const img = this.b64toBlob(imge);
           const i = new File([img], `${characterData.Character.Key}.png`, { type: "image/png" });
-          await Helpers.UploadFile("data", serverPath, i, { bucket: null });
-          character.img = `${serverPath}/${characterData.Character.Key}.png`;
+          const response = await Helpers.UploadFile("data", serverPath, i, { bucket: null });
+          if (response?.path) character.img = response.path;
         }
       } catch (err) {
         CONFIG.logger.error(`Failed to upload character portrait.`, err);
@@ -2482,7 +2448,7 @@ export default class ImportHelpers {
         folder: compendiumFolder.id,
       });
       return game.packs.get(searchName);
-    } else {
+    } else if (pack.locked) {
       await pack.configure({locked: false});
     }
 
@@ -2604,13 +2570,16 @@ export default class ImportHelpers {
     return parentFolder;
   }
 
+  static attributeKey() {
+    return `attr${foundry.utils.randomID()}`;
+  }
+
   static processCharacteristicMod(mod) {
-    const nk = new Date().getTime();
     const modtype = "Characteristic";
     const type = ImportHelpers.convertOGCharacteristic(mod.Key);
 
     return {
-      type: `attr${nk}`,
+      type: ImportHelpers.attributeKey(),
       value: {
         mod: type,
         modtype,
@@ -2678,13 +2647,11 @@ export default class ImportHelpers {
       if (mod.Key) {
         let skill = CONFIG.temporary.skills[mod.Key];
 
-        if (skill.includes(":") && !skill.includes(": ")) {
+        if (skill?.includes(":") && !skill.includes(": ")) {
           skill = skill.replace(":", ": ");
         }
 
-        if (Object.keys(CONFIG.FFG.skills).includes(skill)) {
-          type = CONFIG.temporary.skills[mod.Key];
-        }
+        if (skill && Object.hasOwn(CONFIG.FFG.skills, skill)) type = skill;
       } else if (mod?.Skill) {
         type = mod.Skill;
       }
@@ -2695,62 +2662,28 @@ export default class ImportHelpers {
   }
 
   static async processDieMod(mod) {
-    if (!Array.isArray(mod.DieModifier)) {
-      mod.DieModifier = [mod.DieModifier];
-    }
-
-    let output = {
-      attributes: {},
-    };
-
-    await ImportHelpers.asyncForEach(mod.DieModifier, async (dieMod) => {
-      const key = `attr${new Date().getTime()}`;
-      // ensure further keys have a new entry
-      await new Promise(r => setTimeout(r, 1));
-      if (!dieMod) {
-        return;
-      } else if (dieMod.SkillKey) {
-        // this is a skill modifier
-        const skillModifier = ImportHelpers.processSkillMod({ Key: dieMod.SkillKey, ...dieMod });
-        output.attributes[key] = skillModifier.value;
-      } else if (dieMod.SkillChar) {
-        // this is a skill modifier based on characteristic (ex all Brawn skills);
-        const skillTheme = await game.settings.get("starwarsffg", "skilltheme");
-        const allSkillsLists = await game.settings.get("starwarsffg", "arraySkillList");
-        const skills = allSkillsLists.find((i) => i.id === skillTheme).skills;
-        const characteristicSkills = Object.keys(skills).filter((s) => skills[s].characteristic === ImportHelpers.convertOGCharacteristic(dieMod.SkillChar));
-
-        characteristicSkills.forEach((cs) => {
-          const skillModifier = ImportHelpers.processSkillMod({ Skill: cs, ...dieMod });
-
-          if (output.attributes[key]) {
-            output.attributes[key].value += skillModifier.value.value;
-          } else {
-            output.attributes[key] = skillModifier.value;
-          }
-        });
-      } else if (dieMod.SkillType) {
-        const skillTheme = await game.settings.get("starwarsffg", "skilltheme");
-        const allSkillsLists = await game.settings.get("starwarsffg", "arraySkillList");
-        const skills = allSkillsLists.find((i) => i.id === skillTheme).skills;
-        const characteristicSkills = Object.keys(skills).filter((s) => skills[s].type.toLowerCase() === dieMod.SkillType.toLowerCase());
-
-        characteristicSkills.forEach((cs) => {
-          const skillModifier = ImportHelpers.processSkillMod({ Skill: cs, ...dieMod });
-
-          if (output.attributes[key]) {
-            output.attributes[key].value += skillModifier.value.value;
-          } else {
-            output.attributes[key] = skillModifier.value;
-          }
-        });
+    const attributes = {};
+    let themeSkills;
+    const modifiers = Array.isArray(mod.DieModifier) ? mod.DieModifier : [mod.DieModifier];
+    for (const dieMod of modifiers) {
+      if (!dieMod) continue;
+      if (!dieMod.SkillKey && (dieMod.SkillChar || dieMod.SkillType)) {
+        if (!themeSkills) {
+          const theme = game.settings.get("starwarsffg", "skilltheme");
+          themeSkills = Object.entries(CONFIG.FFG.alternateskilllists.find(list => list.id === theme)?.skills ?? {});
+        }
+        const characteristic = ImportHelpers.convertOGCharacteristic(dieMod.SkillChar);
+        const skillType = dieMod.SkillType?.toLowerCase();
+        for (const [skill, definition] of themeSkills) {
+          const matches = dieMod.SkillChar ? definition.characteristic === characteristic : definition.type?.toLowerCase() === skillType;
+          if (matches) attributes[ImportHelpers.attributeKey()] = ImportHelpers.processSkillMod({...dieMod, Skill: skill}).value;
+        }
       } else {
-        const skillModifier = ImportHelpers.processSkillMod({ Key: dieMod.SkillKey, ...dieMod }, true);
-        output.attributes[key] = skillModifier.value;
+        const modifier = ImportHelpers.processSkillMod({Key: dieMod.SkillKey, ...dieMod}, !dieMod.SkillKey);
+        if (modifier) attributes[ImportHelpers.attributeKey()] = modifier.value;
       }
-    });
-
-    return output;
+    }
+    return {attributes};
   }
 
   static async processModsData(modifiersData) {
@@ -2859,10 +2792,9 @@ export default class ImportHelpers {
   }
 
   static async processDiceMods(obj) {
-    const nk = new Date().getTime();
     if (obj.Key === "BOOSTADD" || obj.Key === "ACCURATE") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Roll Modifiers",
           mod: "Add Boost",
           value: '1',
@@ -2870,7 +2802,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "INACCURATE" || obj.Key === "SETBACKADD") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Roll Modifiers",
           mod: "Add Setback",
           value: '1',
@@ -2878,7 +2810,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "SUCCADD") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Result Modifiers",
           mod: "Add Success",
           value: '1',
@@ -2886,7 +2818,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "THRADD") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Result Modifiers",
           mod: "Add Threat",
           value: '1',
@@ -2894,7 +2826,7 @@ export default class ImportHelpers {
       };
     } else if (obj.Key === "UPGRADEDIFF") {
       return {
-        [`attr${nk}`]: {
+        [ImportHelpers.attributeKey()]: {
           modtype: "Dice Modifiers",
           mod: "Upgrade Difficulty",
           value: '1',
@@ -2938,12 +2870,7 @@ export default class ImportHelpers {
           }
         }
 
-        const key = `attr${new Date().getTime()}`;
-        if (type) {
-          attributes[key] = { mod: type, modtype, value };
-        }
-        // ensure further keys have a new entry
-        await new Promise(r => setTimeout(r, 1));
+        if (type) attributes[ImportHelpers.attributeKey()] = { mod: type, modtype, value };
       }
     }
 
@@ -2951,40 +2878,21 @@ export default class ImportHelpers {
   }
 
   static async processCareerSkills(skills, includeRank) {
-    let attributes = {};
-    if (skills?.Key) {
-      if (!Array.isArray(skills.Key)) {
-        skills.Key = [skills.Key];
+    const attributes = {};
+    const keys = skills?.Key;
+    for (const key of Array.isArray(keys) ? keys : keys ? [keys] : []) {
+      const name = CONFIG.temporary.skills[key];
+      if (!name) {
+        CONFIG.logger.warn(`Skill ${key} was not found in the current skills list.`);
+        continue;
       }
-
-      for (const skill of skills.Key) {
-        let mod = CONFIG.temporary.skills[skill];
-        if (mod) {
-          if (mod.includes(":") && !mod.includes(": ")) {
-            mod = mod.replace(":", ": ");
-          }
-
-          if (Object.keys(CONFIG.FFG.skills).includes(mod)) {
-            const key = `attr${new Date().getTime()}`;
-            // ensure further keys have a new entry
-            await new Promise(r => setTimeout(r, 1));
-            if (mod) {
-              const modtype = "Career Skill";
-              attributes[key] = { mod, modtype, value: true };
-
-              if (includeRank) {
-                attributes[key] = { mod, modtype: "Skill Rank", value: 0 };
-              }
-            } else {
-              CONFIG.logger.warn(`Skill ${skill} was not found in the current skills list.`);
-            }
-          }
-        } else {
-          CONFIG.logger.warn(`Skill ${skill} was not found in the current skills list.`);
-        }
+      const mod = name.includes(":") && !name.includes(": ") ? name.replace(":", ": ") : name;
+      if (Object.hasOwn(CONFIG.FFG.skills, mod)) {
+        attributes[ImportHelpers.attributeKey()] = includeRank
+          ? { mod, modtype: "Skill Rank", value: 0 }
+          : { mod, modtype: "Career Skill", value: true };
       }
     }
-
     return attributes;
   }
 

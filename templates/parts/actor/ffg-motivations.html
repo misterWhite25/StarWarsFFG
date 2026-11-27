@@ -1,0 +1,56 @@
+<section class="ffg-basic-table-block ffg-motivation-list">
+  <header class="ffg-basic-section-heading">
+    <h3>{{localize "SWFFG.Motivations"}}</h3>
+    {{#if editable}}
+      <button type="button" class="add-motivation ffg-basic-heading-action" data-add-narrative-item="motivation" aria-label="{{localize 'SWFFG.UI.Actor.AddMotivation'}}" title="{{localize 'SWFFG.UI.Actor.AddMotivation'}}">
+        <i class="fa-light fa-square-plus" aria-hidden="true"></i>
+      </button>
+    {{/if}}
+  </header>
+
+  {{#if (or motivations.length legacyMotivations.length)}}
+    <table class="ffg-basic-table">
+      <thead class="ffg-motivation-columns">
+        <tr>
+          <th scope="col" class="ffg-basic-table-category">{{localize "SWFFG.MotivationName"}}</th>
+          <th scope="col">{{localize "SWFFG.MotivationType"}}</th>
+          <th scope="col">{{localize "SWFFG.MotivationDescription"}}</th>
+          <th scope="col" class="ffg-basic-table-controls" aria-label="{{localize 'SWFFG.UI.Actor.MotivationActions'}}"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each motivations as |motivation|}}
+          <tr data-motivation-id="{{motivation.id}}">
+            <td>{{motivation.name}}</td>
+            <td>{{localize motivation.type}}</td>
+            <td class="ffg-motivation-description">{{{lookup ../itemDescriptions motivation.id}}}</td>
+            <td class="morality-controls">
+              {{#if @root.editable}}
+                <button type="button" class="edit-item" data-id="{{motivation.id}}" aria-label="{{localize 'SWFFG.UI.Actor.EditMotivation'}}">
+                  <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="remove-item" data-id="{{motivation.id}}" aria-label="{{localize 'SWFFG.Delete'}}">
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+              {{/if}}
+            </td>
+          </tr>
+        {{/each}}
+        {{#each legacyMotivations as |motivation|}}
+          <tr data-legacy-motivation="{{motivation.slot}}">
+            {{#if @root.editable}}
+              <td><input type="text" name="data.general.{{motivation.slot}}.category" value="{{motivation.category}}" aria-label="{{localize 'SWFFG.MotivationCategory'}}"></td>
+              <td><input type="text" name="data.general.{{motivation.slot}}.type" value="{{motivation.type}}" aria-label="{{localize 'SWFFG.MotivationType'}}"></td>
+              <td><textarea name="data.general.{{motivation.slot}}.description" aria-label="{{localize 'SWFFG.MotivationDescription'}}">{{motivation.description}}</textarea></td>
+            {{else}}
+              <td>{{motivation.category}}</td>
+              <td>{{motivation.type}}</td>
+              <td class="ffg-motivation-description">{{motivation.description}}</td>
+            {{/if}}
+            <td></td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{/if}}
+</section>

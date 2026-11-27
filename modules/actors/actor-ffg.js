@@ -12,6 +12,39 @@ import AutomaticStats from "../helpers/automatic-stats.js";
 import { getPreparedActiveEffectChanges } from "../compatibility/active-effects.js";
 import ModifierHelpers from "../helpers/modifiers.js";
 
+// Keep the first row for each exact name. Unranked and individually configured
+// acquisitions may still produce several displayed rows with that name.
+function appendTalentRow(rows, firstByName, item) {
+  rows.push(item);
+  if (!firstByName.has(item.name)) firstByName.set(item.name, item);
+}
+
+function activationOrder(activation) {
+  if (typeof activation === "string") {
+    if (activation.includes("Active")) {
+      if (activation.includes("Out")) return 0;
+      if (activation.includes("Maneuver")) return 1;
+      if (activation.includes("Incidental")) return 2;
+      return 3;
+    }
+    if (activation.includes("Passive")) return 4;
+  }
+  return 5;
+}
+
+function sortTalentRows(rows, compareActivation) {
+  const key = CONFIG.FFG.theme === "starwars" ? "name" : "tier";
+  return rows.sort((a, b) => {
+    if (compareActivation) {
+      const order = compareActivation(a, b);
+      if (order) return order;
+    }
+    if (a[key] > b[key]) return 1;
+    if (a[key] < b[key]) return -1;
+    return 0;
+  });
+}
+
 /**
  * Extend the base Actor entity.
  * @extends {Actor}
@@ -36,14 +69,16 @@ export class ActorFFG extends Actor {
   }
 
   static async createDialog(data={},createOptions={},dialogOptions={},renderOptions={}){
-    if(!createOptions.pack&&!createOptions.parent){
-      createOptions={...createOptions,ffgVehicleCreationUI:true};
-      if(data.type==='vehicle'){
-        const choice=await chooseVehicleMode(data.name);if(!choice)return null;
-        createOptions.ffgVehicleChoice=choice;
-      }
+    if (createOptions.pack || createOptions.parent) {
+      return super.createDialog(data, createOptions, dialogOptions, renderOptions);
     }
-    return super.createDialog(data,createOptions,dialogOptions,renderOptions);
+    const worldOptions = {...createOptions, ffgVehicleCreationUI:true};
+    if (data.type === 'vehicle') {
+      const choice = await chooseVehicleMode(data.name);
+      if (!choice) return null;
+      worldOptions.ffgVehicleChoice = choice;
+    }
+    return super.createDialog(data, worldOptions, dialogOptions, renderOptions);
   }
 
   static async create(data, options) {
@@ -395,67 +430,31 @@ export class ActorFFG extends Actor {
       }
     }
 
-    // Loop through owned talent items and create the data.talentList object
-    const globalTalentList = [];
-    const talents = actorData.items.filter((item) => {
-      return item.type === "talent";
-    });
-    talents.forEach((element) => {
-      const item = {
-        name: element.name,
-        itemId: element.id,
-        description: element.system?.description,
-        activation: element.system.activation?.value,
-        activationLabel: element.system.activation?.label,
-        isRanked: element.system.ranks?.ranked,
-        source: [{ type: "talent", typeLabel: "SWFFG.Talent", name: element.name, id: element.id }],
-      };
-      if (item.isRanked) {
-        item.rank = element.system.ranks?.current;
-      } else {
-        item.rank = "N/A";
-      }
-
-      if (CONFIG.FFG.theme !== "starwars") {
-        item.tier = parseInt(element.system.tier, 10);
-      }
-
-      let index = globalTalentList.findIndex((obj) => {
-        return obj.name === item.name;
-      });
-
-      if (index < 0 || !item.isRanked) {
-        globalTalentList.push(item);
-      } else {
-        globalTalentList[index].source.push({ type: "talent", typeLabel: "SWFFG.Talent", name: element.name, id: element.id });
-        globalTalentList[index].rank += element.system.ranks?.current;
+    const rows = [];
+    const firstByName = new Map();
+    for (const talent of actorData.items) {
+      if (talent.type !== "talent") continue;
+      const source = { type: "talent", typeLabel: "SWFFG.Talent", name: talent.name, id: talent.id };
+      const ranked = talent.system.ranks?.ranked;
+      const rank = ranked ? talent.system.ranks.current : "N/A";
+      const existing = ranked && firstByName.get(talent.name);
+      if (existing) {
+        existing.source.push(source);
+        existing.rank += rank;
         if (CONFIG.FFG.theme !== "starwars") {
-          globalTalentList[index].tier = Math.abs(globalTalentList[index].rank + (parseInt(element.system.tier, 10) - 1));
+          existing.tier = Math.abs(existing.rank + (parseInt(talent.system.tier, 10) - 1));
         }
+        continue;
       }
-    });
-    if (CONFIG.FFG.theme !== "starwars") {
-      globalTalentList.sort((a, b) => {
-        let comparison = 0;
-        if (a.tier > b.tier) {
-          comparison = 1;
-        } else if (a.tier < b.tier) {
-          comparison = -1;
-        }
-        return comparison;
-      });
-    } else {
-      globalTalentList.sort((a, b) => {
-        let comparison = 0;
-        if (a.name > b.name) {
-          comparison = 1;
-        } else if (a.name < b.name) {
-          comparison = -1;
-        }
-        return comparison;
-      });
+      const row = {
+        name: talent.name, itemId: talent.id, description: talent.system.description,
+        activation: talent.system.activation?.value, activationLabel: talent.system.activation?.label,
+        isRanked: ranked, rank, source: [source]
+      };
+      if (CONFIG.FFG.theme !== "starwars") row.tier = parseInt(talent.system.tier, 10);
+      appendTalentRow(rows, firstByName, row);
     }
-    actorData.talentList = globalTalentList;
+    actorData.talentList = sortTalentRows(rows);
   }
 
   /**
@@ -464,129 +463,69 @@ export class ActorFFG extends Actor {
   _prepareCharacterData(actorData) {
     const data = actorData;
 
-    // Build complete talent list.
-
-    const specializations = actorData.items.filter((item) => {
-      return item.type === "specialization";
-    });
-
-    const linkedCharacteristicTalents = new Set(actorData.items
-      .filter(item => item.type === "talent")
-      .map(item => item.flags?.starwarsffg?.characteristicIncrease)
-      .filter(source => source?.sourceSpecializationId && source?.sourceTalentKey)
-      .map(source => `${source.sourceSpecializationId}.${source.sourceTalentKey}`));
-
-    const globalTalentList = [];
-    specializations.forEach((element) => {
-      //go through each list of talent where learned = true
-
-      const learnedTalents = Object.keys(element.system.talents).filter((key) => element.system.talents[key].islearned === true);
-
-      learnedTalents.forEach((talent) => {
-        if (linkedCharacteristicTalents.has(`${element.id}.${talent}`)) return;
-        const item = JSON.parse(JSON.stringify(element.system.talents[talent]));
-        item.firstSpecialization = element.id;
-        item.source = [{ type: "specialization", typeLabel: "SWFFG.Specialization", name: element.name, id: element.id, slot: talent }];
-        if (item.isRanked) {
-          item.rank = element.system.talents[talent]?.rank ? element.system.talents[talent].rank : 1;
-        } else {
-          item.rank = "N/A";
-        }
-        let index = globalTalentList.findIndex((obj) => {
-          return obj.name === item.name;
-        });
-
-        if (index < 0 || !item.isRanked) {
-          globalTalentList.push(item);
-        } else {
-          globalTalentList[index].source.push({ type: "specialization", typeLabel: "SWFFG.Specialization", name: element.name, id: element.id, slot: talent });
-          globalTalentList[index].rank += element.system.talents[talent]?.rank ? element.system.talents[talent].rank : 1;
-        }
-      });
-    });
-
-    const talents = actorData.items.filter((item) => {
-      return item.type === "talent";
-    });
-
-    talents.forEach((element) => {
-      const item = {
-        name: element.name,
-        itemId: element.id,
-        description: element.system?.description,
-        activation: element.system?.activation?.value,
-        activationLabel: element.system?.activation?.label,
-        isRanked: element.system?.ranks?.ranked,
-        characteristicChoice: CharacteristicIncrease.matches(element) ? CharacteristicIncrease.label(element) : null,
-        separateAcquisition: CharacteristicIncrease.matches(element),
-        source: [{
-          type: element?.flags?.starwarsffg?.fromSpecies ? "species" : "talent",
-          typeLabel: element?.flags?.starwarsffg?.fromSpecies ? "SWFFG.Species" : "SWFFG.Talent",
-          name: element.name,
-          id: element.id,
-        }],
-      };
-
-      if (item.isRanked) {
-        item.rank = element.system.ranks.current;
-      } else {
-        item.rank = "N/A";
+    const specializations = [];
+    const talents = [];
+    const linkedCharacteristicTalents = new Set();
+    for (const item of actorData.items) {
+      if (item.type === "specialization") specializations.push(item);
+      if (item.type !== "talent") continue;
+      talents.push(item);
+      const link = item.flags?.starwarsffg?.characteristicIncrease;
+      if (link?.sourceSpecializationId && link.sourceTalentKey) {
+        linkedCharacteristicTalents.add(`${link.sourceSpecializationId}.${link.sourceTalentKey}`);
       }
+    }
 
-      if (CONFIG.FFG.theme !== "starwars") {
-        item.tier = parseInt(element.system?.tier, 10);
+    const rows = [];
+    const firstByName = new Map();
+    for (const specialization of specializations) {
+      for (const [slot, talent] of Object.entries(specialization.system.talents)) {
+        if (talent.islearned !== true || linkedCharacteristicTalents.has(`${specialization.id}.${slot}`)) continue;
+        const source = { type: "specialization", typeLabel: "SWFFG.Specialization", name: specialization.name, id: specialization.id, slot };
+        const rank = talent.isRanked ? talent.rank || 1 : "N/A";
+        const existing = talent.isRanked && firstByName.get(talent.name);
+        if (existing) {
+          existing.source.push(source);
+          existing.rank += rank;
+          continue;
+        }
+        const row = JSON.parse(JSON.stringify(talent));
+        row.firstSpecialization = specialization.id;
+        row.source = [source];
+        row.rank = rank;
+        appendTalentRow(rows, firstByName, row);
       }
+    }
 
-      let index = globalTalentList.findIndex((obj) => {
-        return obj.name === item.name;
-      });
-
-      if (index < 0 || !item.isRanked || item.separateAcquisition) {
-        item.isDirectlyAdded = true;
-        globalTalentList.push(item);
-      } else {
-        globalTalentList[index].isDirectlyAdded = true;
-        globalTalentList[index].source.push({
-          type: element?.flags?.starwarsffg?.fromSpecies ? "species" : "talent",
-          typeLabel: element?.flags?.starwarsffg?.fromSpecies ? "SWFFG.Species" : "SWFFG.Talent",
-          name: element.name,
-          id: element.id,
-        });
-        globalTalentList[index].rank += element.system.ranks.current;
+    for (const talent of talents) {
+      const separateAcquisition = CharacteristicIncrease.matches(talent);
+      const species = talent.flags?.starwarsffg?.fromSpecies;
+      const source = { type: species ? "species" : "talent", typeLabel: species ? "SWFFG.Species" : "SWFFG.Talent", name: talent.name, id: talent.id };
+      const ranked = talent.system?.ranks?.ranked;
+      const rank = ranked ? talent.system.ranks.current : "N/A";
+      const existing = ranked && !separateAcquisition && firstByName.get(talent.name);
+      if (existing) {
+        existing.isDirectlyAdded = true;
+        existing.source.push(source);
+        existing.rank += rank;
         if (CONFIG.FFG.theme !== "starwars") {
-          globalTalentList[index].tier = Math.abs(parseInt(globalTalentList[index].rank) + (parseInt(element.system?.tier, 10) - 1));
+          existing.tier = Math.abs(parseInt(existing.rank) + (parseInt(talent.system?.tier, 10) - 1));
         }
+        continue;
       }
-    });
-
-    if (CONFIG.FFG.theme !== "starwars") {
-      globalTalentList.sort((a, b) => {
-        let comparison = 0;
-        if (a.tier > b.tier) {
-          comparison = 1;
-        } else if (a.tier < b.tier) {
-          comparison = -1;
-        }
-        return comparison;
-      });
-    } else {
-      globalTalentList.sort((a, b) => {
-        let comparison = 0;
-        if (a.name > b.name) {
-          comparison = 1;
-        } else if (a.name < b.name) {
-          comparison = -1;
-        }
-        return comparison;
-      });
+      const row = {
+        name: talent.name, itemId: talent.id, description: talent.system?.description,
+        activation: talent.system?.activation?.value, activationLabel: talent.system?.activation?.label,
+        isRanked: ranked, rank, source: [source], isDirectlyAdded: true, separateAcquisition,
+        characteristicChoice: separateAcquisition ? CharacteristicIncrease.label(talent) : null
+      };
+      if (CONFIG.FFG.theme !== "starwars") row.tier = parseInt(talent.system?.tier, 10);
+      appendTalentRow(rows, firstByName, row);
     }
 
-    // enable talent sorting if global to true and sheet is set to inherit or sheet is set to true.
-    if ((game.settings.get("starwarsffg", "talentSorting") && (!actorData.flags?.config?.talentSorting || actorData.flags?.config?.talentSorting === "0")) || actorData.flags?.config?.talentSorting === "1") {
-      data.talentList = globalTalentList.slice().reverse().sort(this._sortTalents);
-    } else {
-      data.talentList = globalTalentList;
-    }
+    const sorting = actorData.flags?.config?.talentSorting;
+    const group = sorting === "1" || ((!sorting || sorting === "0") && game.settings.get("starwarsffg", "talentSorting"));
+    data.talentList = sortTalentRows(rows, group ? this._sortTalents : undefined);
 
     if (data?.obligationlist && Object.keys(data.obligationlist).length > 0) {
       let obligation = 0;
@@ -696,7 +635,10 @@ export class ActorFFG extends Actor {
       try {
         // Calculate encumbrance, only if encumbrance value exists
         if (item.system?.encumbrance?.adjusted !== undefined || item.system?.encumbrance?.value !== undefined) {
-          const encumbrance = Math.max(0, Number(item.system.encumbrance.adjusted ?? item.system.encumbrance.value) || 0);
+          const {value, adjusted} = item.system.encumbrance;
+          // Ship attachments store a default adjusted zero without recalculating it.
+          const weight = item.type === "shipattachment" ? value ?? adjusted : adjusted ?? value;
+          const encumbrance = Math.max(0, Number(weight) || 0);
           const count = Math.max(0, Number(item.system.quantity?.value ?? 1) || 0);
           // Only one copy is worn; other copies remain carried at full encumbrance.
           const wornReduction = item.type === "armour" && item.system.equippable?.equipped && count > 0
@@ -721,45 +663,8 @@ export class ActorFFG extends Actor {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  // group talents
   _sortTalents(a, b) {
-    /*
-        Active (Out)
-        Active (Maneuver)
-        Active (Incidental)
-        Active
-        Passive
-    */
-    if (a.activation.includes("Active") && a.activation.includes("Out")) {
-      return -1;
-    } else if (b.activation.includes("Active") && b.activation.includes("Out")) {
-      return 1;
-    }
-    if (a.activation.includes("Active") && a.activation.includes("Maneuver")) {
-      return -1;
-    } else if (b.activation.includes("Active") && b.activation.includes("Maneuver")) {
-      return 1;
-    }
-    if (a.activation.includes("Active") && a.activation.includes("Incidental")) {
-      return -1;
-    } else if (b.activation.includes("Active") && b.activation.includes("Incidental")) {
-      return 1;
-    }
-    if (a.activation.includes("Active") && a.activation.includes("Incidental")) {
-      return -1;
-    } else if (b.activation.includes("Active") && b.activation.includes("Incidental")) {
-      return 1;
-    }
-    if (a.activation.includes("Active")) {
-      return -1;
-    } else if (b.activation.includes("Active")) {
-      return 1;
-    }
-    if (a.activation.includes("Passive")) {
-      return -1;
-    } else if (b.activation.includes("Passive")) {
-      return 1;
-    }
+    return activationOrder(a.activation) - activationOrder(b.activation);
   }
 
   /** @override **/

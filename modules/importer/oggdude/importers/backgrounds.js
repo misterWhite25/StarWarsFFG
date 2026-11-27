@@ -35,7 +35,7 @@ export default class Backgrounds {
         await delay(200);
       }
 
-      const items = base[baseKey][secondaryKey];
+      const items = ImportHelpers.xmlRecords(base[baseKey][secondaryKey]);
       if (items.length) {
         let totalCount = items.length;
         let currentCount = 0;

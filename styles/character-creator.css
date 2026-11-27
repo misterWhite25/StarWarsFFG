@@ -1,0 +1,1488 @@
+#actors .directory-header .header-actions:has(.activate-wizard) {
+  flex-wrap: wrap;
+}
+
+#actors .activate-wizard {
+  flex-basis: 100%;
+  border-color: #706547;
+}
+
+.starwarsffg.wizard.charCreator .tabs {
+  display: none;
+}
+
+.starwarsffg.wizard.charCreator .window-content {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+  min-height: 0;
+  padding: .8rem;
+  background: var(--ffg-window-background, #18222c);
+}
+
+.starwarsffg.wizard.charCreator .wizard-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .7rem 1rem;
+  padding: 1rem 1.15rem;
+  background: linear-gradient(110deg, #1c2a36, #34485b);
+  border-bottom: 2px solid #a48a5e;
+  color: #fff8ec;
+  font-family: system-ui, sans-serif;
+  font-size: .875rem;
+  font-synthesis: none;
+  line-height: 1.35;
+  letter-spacing: normal;
+  text-shadow: none;
+  text-transform: none;
+  clip-path: none;
+}
+
+.wizard-progress {
+  min-width: 0;
+}
+
+.starwarsffg.wizard.charCreator .wizard-header :is([data-wizard-step], h2, dt, dd, small, .wizard-selection li) {
+  text-shadow: none;
+}
+
+.wizard-progress [data-wizard-step] {
+  color: #ead3a9;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.wizard-progress h2 {
+  margin: .2rem 0 .4rem;
+  color: #fff8ec;
+  font-size: clamp(1.375rem, 3vw, 1.75rem);
+  font-family: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.wizard-progress progress {
+  display: block;
+  width: min(100%, 18rem);
+  height: .42rem;
+  border: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #ffffff27;
+  accent-color: #e4be81;
+}
+
+.wizard-progress progress::-webkit-progress-bar { background: #ffffff27; }
+.wizard-progress progress::-webkit-progress-value { background: #e4be81; }
+
+.wizard-budget {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .45rem;
+  margin: 0;
+}
+
+.wizard-budget > div {
+  min-width: 4.5rem;
+  padding: .45rem .65rem;
+  border: 1px solid #ffffff2e;
+  border-radius: .35rem;
+  background: #13202a80;
+  text-align: center;
+}
+
+.wizard-budget dt {
+  color: #ede0cf;
+  font-size: .8125rem;
+  font-weight: 600;
+}
+
+.starwarsffg.wizard.charCreator .wizard-budget dd {
+  margin: .15rem 0 0;
+  color: #fff8ec;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+.starwarsffg.wizard.charCreator .wizard-budget small {
+  color: #d7e1e9;
+  font-size: .8125rem;
+  font-weight: 500;
+}
+
+.wizard-selection {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wizard-selection li {
+  padding: .2rem .55rem;
+  border: 1px solid #ffffff42;
+  border-radius: .3rem;
+  background: #ffffff14;
+  font-size: .8125rem;
+  font-weight: 600;
+}
+
+.starwarsffg.wizard.charCreator .tab.active {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: .8rem 1.05rem;
+  border-radius: .35rem;
+  background: var(--ffg-panel);
+  color: var(--ffg-ink);
+}
+
+.starwarsffg.wizard.charCreator :is(p, .description, #motivations td:last-child, #selected_motivations td:last-child) {
+  text-align: justify;
+}
+
+.starwarsffg.wizard.charCreator .tab :is(label, .dt-info, .background-container .description) {
+  color: var(--ffg-muted-ink);
+  border-color: var(--ffg-line);
+}
+
+.starwarsffg.wizard.charCreator .dt-layout-row:has(> .dt-layout-cell > .dt-search) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem .75rem;
+  margin-block: .25rem .4rem;
+}
+
+.starwarsffg.wizard.charCreator .dt-layout-row:has(> .dt-layout-cell > .dt-search) + .dt-layout-table {
+  margin-block-start: 0;
+}
+
+.starwarsffg.wizard.charCreator .dt-layout-cell:has(> .dt-search) {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+  max-width: 100%;
+  margin-inline-start: auto;
+}
+
+.starwarsffg.wizard.charCreator .dt-search {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  max-width: 100%;
+  margin: 0;
+}
+
+.starwarsffg.wizard.charCreator .dt-search label {
+  flex: none;
+  margin: 0;
+  border: 0;
+  white-space: nowrap;
+}
+
+.starwarsffg.wizard.charCreator .dt-search input[type="search"] {
+  width: 9.5rem;
+  min-width: 0;
+  height: 1.75rem;
+  margin: 0;
+  border-color: var(--ffg-line);
+  background: var(--ffg-input);
+  color: var(--ffg-ink);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.starwarsffg.wizard.charCreator .tab.background .description {
+  margin: .35rem 0 0;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+.starwarsffg.wizard.charCreator .tab.background .description:empty { margin: 0; }
+
+.wizard-setup-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: .9rem;
+  align-items: start;
+}
+
+.wizard-setup-column, .wizard-setup-panel {
+  display: grid;
+  gap: .8rem;
+  min-width: 0;
+}
+
+.wizard-setup-panel {
+  padding: .85rem 1rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-top: 2px solid var(--ffg-stat-blue);
+  border-radius: .45rem;
+  background: var(--ffg-stat-surface);
+}
+
+.wizard-setup-panel h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .55rem;
+  margin: 0;
+  color: var(--ffg-ink);
+  font: 700 1rem/1.3 system-ui, sans-serif;
+  text-shadow: none;
+}
+
+.wizard-setup-panel h3 i { color: var(--ffg-link); }
+
+.wizard-setup-optional {
+  margin-inline-start: auto;
+  padding: .1rem .45rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .3rem;
+  color: var(--ffg-muted-ink);
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.starwarsffg.wizard.charCreator .wizard-setup-panel label {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ffg-ink);
+  font: 600 .875rem/1.3 system-ui, sans-serif;
+  letter-spacing: normal;
+  text-shadow: none;
+  text-transform: none;
+}
+
+.wizard-history-note {
+  margin: 0;
+  color: var(--ffg-muted-ink);
+  text-align: justify;
+}
+
+.wizard-setup-panel .wizard-history-field {
+  display: grid;
+  gap: .45rem;
+  padding: .7rem .75rem;
+  min-width: 0;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .4rem;
+  background: var(--ffg-panel);
+}
+
+.starwarsffg.wizard.charCreator .wizard-history-field label {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+
+.wizard-history-field label i {
+  width: 1rem;
+  color: var(--ffg-link);
+  text-align: center;
+}
+
+.starwarsffg.wizard.charCreator .wizard-history-field .ss-main {
+  border: 1px solid var(--ffg-line);
+  border-radius: .35rem;
+}
+
+.starwarsffg.wizard.charCreator .tab.background .wizard-history-field .description:not(:empty) {
+  margin: 0;
+  padding: .45rem .6rem;
+  border-inline-start: 2px solid var(--ffg-link);
+  border-radius: .15rem .3rem .3rem .15rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-ink);
+}
+
+.wizard-obligation-help {
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .35rem;
+  background: var(--ffg-panel);
+}
+
+.wizard-obligation-help > summary {
+  padding: .5rem .65rem;
+  color: var(--ffg-ink);
+  cursor: pointer;
+  font: 600 .875rem/1.4 system-ui, sans-serif;
+  text-shadow: none;
+}
+
+.wizard-obligation-help > summary i {
+  margin-inline: .2rem .4rem;
+  color: var(--ffg-link);
+}
+
+.wizard-obligation-help > summary:focus-visible {
+  outline: 2px solid var(--ffg-link);
+  outline-offset: -2px;
+}
+
+.wizard-obligation-help-body {
+  display: grid;
+  gap: .6rem;
+  padding: .65rem;
+  border-top: 1px solid var(--ffg-stat-border);
+  color: var(--ffg-ink);
+  font-size: .875rem;
+  line-height: 1.45;
+}
+
+.wizard-obligation-help-body p { margin: 0; text-align: justify; }
+.wizard-obligation-help-body .wizard-obligation-source { color: var(--ffg-muted-ink); font-size: .8rem; }
+.wizard-obligation-points { width: 100%; margin: 0; }
+.wizard-obligation-points caption { margin-bottom: .2rem; font-weight: 600; text-align: start; }
+.wizard-obligation-points :is(th, td) { padding: .2rem .35rem; text-align: center; }
+
+.wizard-starting-trait-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .45rem;
+  align-items: stretch;
+}
+
+.starwarsffg.wizard.charCreator .wizard-starting-trait-picker select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding-inline: .55rem;
+  border: 1px solid var(--ffg-line);
+  border-radius: .35rem;
+  background-color: var(--ffg-input);
+  color: var(--ffg-ink);
+}
+
+.starwarsffg.wizard.charCreator .wizard-starting-trait-picker button:enabled {
+  border-color: #697d8e;
+  background: #34485b;
+  color: #fff8ec;
+}
+
+.wizard-starting-trait-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: .4rem .65rem;
+  padding: .55rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .35rem;
+  background: var(--ffg-panel);
+  color: var(--ffg-ink);
+}
+
+.wizard-starting-trait-entry strong { overflow-wrap: anywhere; }
+.wizard-starting-trait-entry small { display: block; color: var(--ffg-muted-ink); }
+.wizard-starting-trait-magnitude { display: flex; align-items: center; gap: .35rem; }
+.starwarsffg.wizard.charCreator .wizard-starting-trait-magnitude input {
+  width: 3.6rem;
+  border: 1px solid var(--ffg-line);
+  background: var(--ffg-input);
+  color: var(--ffg-ink);
+  text-align: center;
+}
+
+.starwarsffg.wizard.charCreator .wizard-remove-starting-trait {
+  grid-column: 3;
+  border: 1px solid var(--ffg-line);
+  background: var(--ffg-input);
+  color: var(--ffg-link);
+}
+
+.starwarsffg.wizard.charCreator .wizard-remove-starting-trait:hover {
+  border-color: var(--ffg-link);
+}
+
+.wizard-starting-trait-description { grid-column: 1 / -1; }
+.wizard-starting-trait-description summary { cursor: pointer; color: var(--ffg-link); }
+.wizard-starting-trait-description textarea { margin-top: .35rem; }
+
+.starwarsffg.wizard.charCreator .tab :is(.ss-main, .dt-container .dt-input) {
+  background: var(--ffg-input);
+  color: var(--ffg-ink);
+  border-color: var(--ffg-line);
+}
+
+.starwarsffg.wizard.charCreator table.dataTable {
+  color: var(--ffg-ink);
+}
+
+.starwarsffg.wizard.charCreator table.dataTable tbody tr {
+  background: var(--ffg-panel);
+  border-bottom-color: var(--ffg-line);
+}
+
+.starwarsffg.wizard.charCreator table.dataTable tbody tr:nth-child(even) {
+  background: var(--ffg-window-background);
+}
+
+.starwarsffg.wizard.charCreator table.dataTable tbody tr:hover {
+  background: var(--ffg-accent-surface);
+}
+
+.starwarsffg.wizard.charCreator #specializations .wizard-specialization-talents { width: 62%; }
+
+.starwarsffg.wizard.charCreator :is(.wizard-talent-list, .wizard-gear-qualities) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.starwarsffg.wizard.charCreator :is(.wizard-talent, .wizard-gear-quality) {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  max-width: 100%;
+  margin: 0;
+  padding: .15rem .4rem;
+  border: 1px solid color-mix(in srgb, var(--ffg-line) 55%, var(--ffg-panel));
+  border-radius: .3rem;
+  background: var(--ffg-panel);
+  color: var(--ffg-ink);
+  font-size: .8rem;
+  line-height: 1.25;
+}
+
+.starwarsffg.wizard.charCreator :is(.wizard-talent, .wizard-gear-quality):hover { border-color: var(--ffg-link); }
+.starwarsffg.wizard.charCreator .wizard-talent[data-tooltip] { cursor: help; }
+.starwarsffg.wizard.charCreator .wizard-talent-name { overflow-wrap: anywhere; }
+
+.starwarsffg.wizard.charCreator .wizard-talent-count {
+  min-width: 1.35rem;
+  padding: .05rem .15rem;
+  border-radius: .2rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-link);
+  font-size: .72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+#tooltip:is(.wizard-talent-tooltip, .wizard-gear-tooltip) p { text-align: justify; }
+
+.starwarsffg.wizard.charCreator .wizard-gear {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .75rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear-intro {
+  margin: 0;
+  color: var(--ffg-muted-ink);
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear table { margin: 0; }
+
+.starwarsffg.wizard.charCreator .wizard-gear caption {
+  margin-bottom: .3rem;
+  color: var(--ffg-ink);
+  font-weight: 700;
+  text-align: left;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear tbody td {
+  padding-block: .3rem;
+  vertical-align: middle;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear :is(.wizard-gear-controls, .wizard-gear-number) {
+  width: 1%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .dt-layout-row.dt-layout-table {
+  display: block;
+  overflow-x: auto;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .dt-layout-table > .dt-layout-cell {
+  display: block;
+  width: 100%;
+}
+
+.starwarsffg.wizard.charCreator #buy_gear {
+  width: 100%;
+  min-width: 52rem;
+  table-layout: fixed;
+}
+
+.starwarsffg.wizard.charCreator #buy_gear thead :is(.wizard-gear-number, .wizard-gear-skill, .wizard-gear-range) {
+  padding-inline: .35rem .9rem;
+}
+
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-controls { width: 3.5rem; padding-inline: .35rem; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-item { width: 22%; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-number { width: 2.7rem; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-price { width: 4.2rem; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-rarity { width: 3.5rem; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-skill { width: 6.4rem; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-range { width: 4.35rem; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-defense { width: 5.25rem; }
+.starwarsffg.wizard.charCreator #buy_gear thead .wizard-gear-soak { width: 7.5rem; }
+.starwarsffg.wizard.charCreator .wizard-gear-quality { overflow-wrap: break-word; }
+
+.starwarsffg.wizard.charCreator .wizard-gear-number { font-variant-numeric: tabular-nums; }
+.starwarsffg.wizard.charCreator .wizard-gear-price { font-weight: 700; }
+.starwarsffg.wizard.charCreator .wizard-gear-missing { color: var(--ffg-muted-ink); }
+
+.starwarsffg.wizard.charCreator .wizard-gear-identity {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear-portrait {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .35rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-link);
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear-portrait img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  object-fit: contain;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear-name {
+  min-width: 0;
+  font-weight: 700;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear-name .content-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ffg-link);
+  font: inherit;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear-name .content-link i { display: none; }
+.starwarsffg.wizard.charCreator .wizard-gear-name .content-link:is(:hover, :focus-visible) { text-decoration: underline; }
+
+.starwarsffg.wizard.charCreator .wizard-gear-action {
+  display: inline-grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .dt-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .wizard-gear-category {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  min-height: 2.25rem;
+  align-items: center;
+  margin: 0;
+  padding: .4rem .75rem;
+  border: 1px solid var(--ffg-line);
+  border-radius: .35rem;
+  background: var(--ffg-input);
+  color: var(--ffg-ink);
+  clip-path: none;
+  box-shadow: none;
+  font: 600 .85rem/1.25 system-ui, sans-serif;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .wizard-gear-category > span {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .wizard-gear-category:hover {
+  border-color: var(--ffg-link);
+  background: var(--ffg-accent-surface);
+  box-shadow: none;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .wizard-gear-category:focus-visible {
+  outline: 2px solid var(--ffg-link);
+  outline-offset: 2px;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .wizard-gear-category i {
+  color: var(--ffg-link);
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .wizard-gear-category.dt-button-active {
+  border-color: var(--ffg-link);
+  background: #34485b;
+  color: #fff8ec;
+}
+
+.starwarsffg.wizard.charCreator .wizard-gear .wizard-gear-category.dt-button-active i {
+  color: inherit;
+}
+
+.starwarsffg.wizard.charCreator #species .wizard-species-select {
+  width: 1%;
+  text-align: center;
+}
+
+.starwarsffg.wizard.charCreator #species .wizard-species-identity {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: .7rem;
+  min-width: 14.5rem;
+}
+
+.starwarsffg.wizard.charCreator #species .wizard-species-portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  overflow: hidden;
+  border: 1px solid var(--ffg-line);
+  border-radius: .35rem;
+  background: var(--ffg-muted-panel);
+  color: var(--ffg-muted-ink);
+}
+
+.starwarsffg.wizard.charCreator #species .wizard-species-portrait img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+.starwarsffg.wizard.charCreator :is(#species .wizard-species-zoom, #buy_gear .wizard-gear-zoom, #purchased_gear .wizard-gear-zoom) {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #d7e1e9;
+  border-radius: .25rem;
+  background: #253747;
+  color: #fff8ec;
+  font-size: .72rem;
+}
+
+.starwarsffg.wizard.charCreator :is(#species .wizard-species-zoom, #buy_gear .wizard-gear-zoom, #purchased_gear .wizard-gear-zoom):is(:hover, :focus-visible) {
+  background: #405c73;
+  border-color: #e4be81;
+}
+
+.starwarsffg.wizard.charCreator :is(#species, #careers, #specializations) .wizard-catalogue-name {
+  min-width: 0;
+  color: var(--ffg-ink);
+  font-size: .93rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.starwarsffg.wizard.charCreator #species .wizard-species-label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+}
+
+.starwarsffg.wizard.charCreator :is(#species, #careers, #specializations) .wizard-catalogue-name .content-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ffg-link);
+  font: inherit;
+  white-space: normal;
+  overflow-wrap: inherit;
+  word-break: inherit;
+}
+
+.starwarsffg.wizard.charCreator :is(#species, #careers, #specializations) .wizard-catalogue-name .content-link i {
+  display: none;
+}
+
+.starwarsffg.wizard.charCreator :is(#species, #careers, #specializations) .wizard-catalogue-name .content-link:is(:hover, :focus-visible) {
+  text-decoration: underline;
+}
+
+.starwarsffg.wizard.charCreator #species .wizard-species-number {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.starwarsffg.wizard.charCreator #species tbody tr.wizard-species-selected {
+  background: var(--ffg-accent-surface);
+}
+
+.charCreator .tab.species .steelers-wizard-species-grants {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .55rem .75rem;
+  padding: .75rem .9rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-block-start: 2px solid var(--ffg-stat-blue);
+  border-radius: .45rem;
+  background: var(--ffg-stat-surface);
+}
+
+.charCreator .tab.species .steelers-wizard-species-grants > h3 {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin: 0;
+  color: var(--ffg-ink);
+  font: 700 1rem/1.35 system-ui, sans-serif;
+  overflow-wrap: anywhere;
+  text-shadow: none;
+}
+
+.charCreator .tab.species .steelers-wizard-species-grants > h3::before {
+  content: "\f471" / "";
+  display: grid;
+  place-items: center;
+  flex: 0 0 1.85rem;
+  height: 1.85rem;
+  border-radius: .35rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-link);
+  font: 900 .9rem/1 var(--font-awesome);
+}
+
+.charCreator .tab.species .steelers-wizard-species-grants > :is(
+  .steelers-wizard-species-rules,
+  .steelers-wizard-species-selections,
+  .steelers-wizard-species-status
+) {
+  grid-column: 1 / -1;
+}
+
+.charCreator .tab.species .steelers-wizard-species-grants > .steelers-wizard-species-status {
+  justify-self: start;
+  padding: .35rem .55rem;
+  border-radius: .3rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-ink);
+  line-height: 1.4;
+}
+
+.charCreator .tab.species .steelers-wizard-species-grants > button {
+  grid-row: 1;
+  grid-column: 2;
+  min-height: 2rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .35rem;
+  background: var(--ffg-stat-input);
+  color: var(--ffg-link);
+  font: 600 .8125rem/1.3 system-ui, sans-serif;
+}
+
+.charCreator .tab.species .steelers-wizard-species-grants > button:is(:hover, :focus-visible) {
+  border-color: var(--ffg-link);
+}
+
+.starwarsffg.wizard.charCreator .wizard-xp-intro {
+  margin: 0 0 .8rem;
+  color: var(--ffg-muted-ink);
+}
+
+.starwarsffg.wizard.charCreator .actor_summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .85rem;
+  container: wizard-actor-preview / inline-size;
+}
+
+.starwarsffg.wizard.charCreator .actor_summary .stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .5rem;
+  align-items: stretch;
+}
+
+.starwarsffg.wizard.charCreator .actor_summary .stats > .resource {
+  min-width: 0;
+  width: auto;
+  margin: 0;
+}
+
+@container wizard-actor-preview (max-width: 36rem) {
+  .starwarsffg.wizard.charCreator .actor_summary .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.starwarsffg.wizard.charCreator .actor_summary .characteristics {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.2rem), 1fr));
+  height: auto;
+  margin: 0;
+}
+
+.wizard-characteristic-adjustment {
+  display: grid;
+  grid-template-columns: 1.65rem max-content 1.65rem;
+  width: min(calc(100% - .25rem), 9rem);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.starwarsffg.wizard.charCreator .wizard-characteristic-button {
+  width: 1.65rem;
+  height: 1.65rem;
+  min-height: 0;
+  margin: 0 0 8px;
+  padding: 0;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: 4px;
+  background: var(--ffg-stat-input);
+  color: var(--ffg-stat-ink);
+  font-size: .8rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-characteristic-button:enabled:hover {
+  background: var(--ffg-accent-surface);
+}
+
+.starwarsffg.wizard.charCreator .wizard-characteristic-button:disabled {
+  color: var(--ffg-stat-muted);
+  opacity: .65;
+}
+
+.starwarsffg.wizard.charCreator .wizard-xp-panel {
+  display: grid;
+  gap: .4rem;
+  min-width: 0;
+  padding: .65rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .45rem;
+  background: var(--ffg-stat-surface);
+}
+
+.wizard-xp-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4rem .7rem;
+}
+
+.wizard-xp-panel-header h3 {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin: 0;
+  color: var(--ffg-stat-ink);
+  font: 700 .95rem/1.3 var(--font-body);
+}
+
+.wizard-xp-panel-header h3 i { color: var(--ffg-link); }
+
+.starwarsffg.wizard.charCreator .wizard-xp-panel :is(.wizard-xp-buy, .wizard-xp-remove) {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: .4rem;
+  width: auto;
+  min-height: 2rem;
+  margin: 0;
+  padding: .25rem .55rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .35rem;
+  background: var(--ffg-stat-input);
+  color: var(--ffg-stat-ink);
+  clip-path: none;
+  font: 600 .8125rem/1.2 var(--font-body);
+}
+
+.wizard-xp-panel .wizard-xp-buy i {
+  color: var(--ffg-link);
+  font-size: 1rem;
+}
+
+.wizard-xp-tree {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .35rem;
+  background: var(--ffg-panel);
+}
+
+.wizard-xp-tree details {
+  grid-area: 1 / 1 / 2 / -1;
+  min-width: 0;
+}
+
+.wizard-xp-tree-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .55rem;
+  padding: .3rem .45rem;
+  border-radius: .35rem;
+  color: var(--ffg-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wizard-xp-tree-summary::-webkit-details-marker { display: none; }
+.wizard-xp-tree-summary:hover { background: var(--ffg-accent-surface); }
+.wizard-xp-tree:has(> .wizard-xp-remove) .wizard-xp-tree-summary { padding-inline-end: 3rem; }
+
+.wizard-xp-tree-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: .3rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-link);
+  font-size: .95rem;
+}
+
+.wizard-xp-tree-name { overflow-wrap: anywhere; }
+.wizard-xp-tree-chevron { color: var(--ffg-link); }
+.wizard-xp-tree details[open] .wizard-xp-tree-chevron { transform: rotate(90deg); }
+
+.starwarsffg.wizard.charCreator .wizard-xp-panel .wizard-xp-remove {
+  z-index: 1;
+  grid-area: 1 / 2;
+  width: 2rem;
+  margin: .3rem;
+  padding: 0;
+  background: color-mix(in srgb, var(--ffg-stat-burgundy) 12%, var(--ffg-stat-input));
+  color: var(--ffg-stat-burgundy);
+  font-size: .95rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-xp-panel .wizard-xp-remove i {
+  color: inherit;
+  font-size: 1rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-xp-panel .wizard-xp-buy:hover { border-color: var(--ffg-link); }
+.starwarsffg.wizard.charCreator .wizard-xp-panel .wizard-xp-remove:hover { border-color: var(--ffg-stat-burgundy); }
+
+.wizard-xp-panel :is(button, summary):focus-visible {
+  outline: 2px solid var(--ffg-link);
+  outline-offset: 1px;
+}
+
+.wizard-xp-tree-content {
+  overflow-x: auto;
+  padding: .55rem;
+  border-top: 1px solid var(--ffg-stat-border);
+  color: var(--ffg-ink);
+}
+
+.starwarsffg .wizard-specialization-choice {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.starwarsffg .wizard-specialization-choice select {
+  width: 100%;
+}
+
+.starwarsffg .wizard-preview-specialization {
+  justify-content: center;
+  gap: .5rem;
+}
+
+.wizard-step-navigation {
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .55rem .1rem 0;
+  border-top: 1px solid #a48a5e;
+}
+
+.starwarsffg.wizard .wizard-step-navigation button {
+  width: auto;
+  min-height: 2.5rem;
+  padding-inline: .85rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation [data-direction="back"] {
+  border-color: #697d8e;
+  background: #253747;
+  color: #fff8ec;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation [data-direction="back"]:enabled:is(:hover, :focus-visible) {
+  border-color: #d8b57c;
+  background: #34485b;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation :is([data-direction="forward"], .create-actor) {
+  margin-left: auto;
+  border-color: #263849;
+  background: #34485b;
+  color: #fff8ec;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation button:disabled {
+  border-color: #505f6c;
+  background: #1d2a35;
+  color: #b1bdc8;
+  opacity: 1;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation .create-actor {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  margin-top: 0;
+  justify-content: center;
+  gap: .6rem;
+  border: 1px solid #697d8e;
+  border-radius: .35rem;
+  clip-path: none;
+  font: 600 .9rem/1.3 system-ui, sans-serif;
+  letter-spacing: normal;
+  text-shadow: none;
+  text-transform: none;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation .create-actor i {
+  flex: none;
+  color: #ead3a9;
+  font-size: 1rem;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation .create-actor:enabled:is(:hover, :focus-visible) {
+  border-color: #d8b57c;
+  background: #3e5468;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation .create-actor:focus-visible {
+  outline: 2px solid #d8b57c;
+  outline-offset: 2px;
+}
+
+.starwarsffg.wizard.charCreator .wizard-step-navigation button[hidden] { display: none; }
+.wizard-step-navigation small { display: block; color: #ead3a9; }
+.wizard-step-navigation button:disabled small { color: inherit; }
+
+.starwarsffg.wizard.charCreator .dt-paging nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .3rem;
+}
+
+.starwarsffg.wizard.charCreator .dt-paging .dt-paging-button {
+  --ffg-page-background: #fffaf2;
+  --ffg-page-border: #82909c;
+  --ffg-page-text: #293b4d;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  width: auto;
+  margin: 0;
+  padding: .25rem .65rem;
+  border: 1px solid var(--ffg-page-border);
+  border-radius: .3rem;
+  background: var(--ffg-page-background) !important;
+  clip-path: none;
+  box-shadow: none;
+  font-size: .82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* DataTables sets the pagination text color in Foundry's system layer. */
+@layer system {
+  .starwarsffg.wizard.charCreator .dt-paging .dt-paging-button {
+    color: var(--ffg-page-text) !important;
+  }
+}
+
+.starwarsffg.wizard.charCreator .dt-paging .dt-paging-button:not(.disabled, [aria-disabled="true"], .current):hover {
+  --ffg-page-background: #dfebf5;
+  --ffg-page-border: #476782;
+}
+
+.starwarsffg.wizard.charCreator .dt-paging .dt-paging-button:focus-visible {
+  outline: 2px solid #3c6e96;
+  outline-offset: 2px;
+}
+
+.starwarsffg.wizard.charCreator .dt-paging .dt-paging-button.current {
+  --ffg-page-background: #34485b;
+  --ffg-page-border: #34485b;
+  --ffg-page-text: #fff8ec;
+}
+
+.starwarsffg.wizard.charCreator .dt-paging .dt-paging-button:is(.disabled, [aria-disabled="true"]) {
+  --ffg-page-background: #e7e3db;
+  --ffg-page-border: #c6c4bd;
+  --ffg-page-text: #5d666d;
+  cursor: default;
+  opacity: 1;
+}
+
+.starwarsffg.wizard .wizard-choose {
+  width: 2rem;
+  min-height: 1.8rem;
+  border-color: #687789;
+  background: #e9edf1;
+  color: #2c4962;
+}
+
+.starwarsffg.wizard .wizard-choose:disabled {
+  border-color: #628472;
+  background: #dceae2;
+  color: #215743;
+  opacity: 1;
+}
+
+.starwarsffg.wizard.charCreator .wizard-motivation-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .55rem;
+  padding-block-end: .25rem;
+  border-bottom: 1px solid var(--ffg-line);
+}
+
+.starwarsffg.wizard.charCreator .wizard-motivation-intro > span {
+  color: var(--ffg-muted-ink);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.wizard-motivation-intro .wizard-setup-optional { margin-inline-start: 0; }
+
+.starwarsffg.wizard.charCreator .motivation-container h3 {
+  margin: 0;
+  color: var(--ffg-ink);
+  font: 600 .95rem/1.35 system-ui, sans-serif;
+  text-shadow: none;
+}
+
+.starwarsffg.wizard.charCreator .motivation-container tbody td:last-child { text-align: justify; }
+
+.starwarsffg.wizard .wizard-ranks-heading {
+  margin-top: .8rem;
+  padding: .5rem .65rem;
+  border-left: 3px solid #8f7346;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-ink);
+  font-size: .95rem;
+}
+
+.starwarsffg.wizard.charCreator:has(.tab.review.active) .wizard-selection { display: none; }
+
+.starwarsffg.wizard.charCreator .review-container {
+  display: grid;
+  gap: .85rem;
+  max-width: 72rem;
+  margin-inline: auto;
+}
+
+.wizard-review-intro {
+  margin: 0;
+  color: var(--ffg-muted-ink);
+}
+
+.wizard-review-profile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: .85rem 1rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-top: 2px solid var(--ffg-stat-blue);
+  border-radius: .45rem;
+  background: var(--ffg-stat-surface);
+}
+
+.wizard-review-portrait,
+.wizard-review-artwork-preview {
+  display: grid;
+  place-items: center;
+  width: clamp(3.5rem, 13vw, 5.25rem);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .35rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-link);
+  font-size: 1.35rem;
+}
+
+.wizard-review-portrait img,
+.wizard-review-artwork-preview img {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+[data-artwork-preview] > [hidden] { display: none; }
+
+.wizard-review-profile h3 {
+  margin: 0 0 .55rem;
+  color: var(--ffg-ink);
+  font: 700 1.1rem/1.25 var(--font-body);
+}
+
+.wizard-review-identity {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: .4rem .85rem;
+  margin: 0;
+}
+
+.wizard-review-identity dt {
+  display: block;
+  margin: 0;
+  color: var(--ffg-muted-ink);
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-shadow: none;
+}
+
+.wizard-review-identity dd {
+  margin: .15rem 0 0;
+  color: var(--ffg-ink);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.wizard-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  align-items: start;
+  gap: .75rem;
+}
+
+.wizard-review-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .4rem;
+  background: var(--ffg-stat-surface);
+}
+
+.wizard-review-card h4 {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0;
+  padding: .6rem .75rem;
+  border-bottom: 1px solid var(--ffg-stat-border);
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-ink);
+  font: 700 .88rem/1.3 var(--font-body);
+}
+
+.wizard-review-card h4 i { color: var(--ffg-link); }
+
+.wizard-review-artwork-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: .75rem;
+  padding: .75rem;
+}
+
+.wizard-review-artwork-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: .65rem;
+}
+
+.wizard-review-artwork-preview { width: 3.25rem; }
+.wizard-review-artwork-preview img { object-fit: contain; }
+
+.wizard-review-artwork-input {
+  display: grid;
+  gap: .25rem;
+  color: var(--ffg-ink);
+  font-size: .875rem;
+  font-weight: 600;
+}
+
+.wizard-review-artwork file-picker {
+  display: flex;
+  align-items: stretch;
+  gap: .3rem;
+  min-width: 0;
+}
+
+.starwarsffg.wizard.charCreator .wizard-review-artwork file-picker :is(input, button) {
+  min-height: 2rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .3rem;
+  background: var(--ffg-stat-input);
+  color: var(--ffg-ink);
+  box-shadow: none;
+}
+
+.wizard-review-artwork file-picker input { flex: 1; min-width: 0; }
+.wizard-review-artwork file-picker button { flex: none; width: 2rem; color: var(--ffg-link); }
+
+.starwarsffg.wizard.charCreator .wizard-review-artwork file-picker :is(input, button):focus-visible {
+  outline: 2px solid var(--ffg-link);
+  outline-offset: 1px;
+}
+
+.wizard-review-choices {
+  margin: 0;
+  padding: 0 .75rem;
+  list-style: none;
+}
+
+.wizard-review-choices li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .42rem 0;
+  overflow-wrap: anywhere;
+}
+
+.wizard-review-choices li + li { border-top: 1px solid var(--ffg-stat-border); }
+
+.wizard-review-value {
+  flex: none;
+  min-width: 2rem;
+  padding: .1rem .35rem;
+  border-radius: .3rem;
+  background: var(--ffg-accent-surface);
+  color: var(--ffg-link);
+  font-size: .78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.wizard-review-motivations li { display: grid; gap: .25rem; }
+.wizard-review-motivations p { margin: 0; }
+
+[data-wizard-species-review]:empty, .wizard-review-grid:empty { display: none; }
+
+.starwarsffg.wizard.charCreator .review-container .wizard-review-species {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .45rem .6rem;
+  margin: 0;
+  padding: .65rem .75rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-inline-start: 3px solid var(--ffg-stat-teal);
+  border-radius: .4rem;
+  background: var(--ffg-stat-surface);
+}
+
+.starwarsffg.wizard.charCreator .review-container .wizard-review-species[data-attention] {
+  border-inline-start-color: var(--ffg-stat-burgundy);
+  background: color-mix(in srgb, var(--ffg-stat-burgundy) 9%, var(--ffg-panel));
+}
+
+.wizard-review-species h3 {
+  margin: 0;
+  color: var(--ffg-ink);
+  font: 700 .95rem/1.35 var(--font-body);
+}
+
+.wizard-review-species[data-attention] h3 { color: var(--ffg-stat-burgundy); }
+
+.starwarsffg.wizard.charCreator .review-container .wizard-review-species button {
+  grid-row: 1;
+  grid-column: 2;
+  min-height: 1.9rem;
+  padding-inline: .65rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .3rem;
+  background: var(--ffg-stat-input);
+  color: var(--ffg-ink);
+}
+
+.starwarsffg.wizard.charCreator .review-container .wizard-review-species button:is(:hover, :focus-visible) {
+  border-color: var(--ffg-link);
+}
+
+.wizard-review-species :is(.steelers-wizard-species-rules, .steelers-wizard-species-status, .steelers-wizard-species-selections) {
+  grid-column: 1 / -1;
+}
+
+.wizard-review-species .steelers-wizard-species-status { color: var(--ffg-ink); }
+
+.starwarsffg.wizard.charCreator .review-container .wizard-review-species .steelers-wizard-species-selections ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wizard-review-species .steelers-wizard-species-selections li {
+  padding: .2rem .45rem;
+  border: 1px solid var(--ffg-stat-border);
+  border-radius: .3rem;
+  background: var(--ffg-stat-input);
+  color: var(--ffg-ink);
+  font-size: .8rem;
+}

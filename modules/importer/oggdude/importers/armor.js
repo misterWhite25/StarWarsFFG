@@ -16,8 +16,8 @@ export default class Armor {
   static async Import(xml, zip) {
     try {
       const base = JXON.xmlToJs(xml);
-      let items = base?.Armors?.Armor;
-      if (items?.length) {
+      const items = ImportHelpers.xmlRecords(base?.Armors?.Armor);
+      if (items.length) {
         let totalCount = items.length;
         let currentCount = 0;
         let pack = await ImportHelpers.getCompendiumPack("Item", `oggdude.Armor`);
@@ -74,22 +74,7 @@ export default class Armor {
               }
             }
 
-            // populate tags
-            try {
-              if (Array.isArray(item.Categories.Category)) {
-                for (const tag of item.Categories.Category) {
-                  data.data.metadata.tags.push(tag.toLowerCase());
-                }
-              } else {
-                data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
-              }
-            } catch {
-              
-            }
-            if (item?.Type) {
-              // the "type" can be useful as a tag as well
-              data.data.metadata.tags.push(item.Type.toLowerCase());
-            }
+            data.data.metadata.tags.push(...ImportHelpers.importTags(item.Categories?.Category, item.Type));
 
             // does an image exist?
             let imgPath = await ImportHelpers.getImageFilename(zip, "Equipment", "Armor", data.flags.starwarsffg.ffgimportid);

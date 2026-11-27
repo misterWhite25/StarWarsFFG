@@ -1,3 +1,5 @@
+import {CREATION_CHARACTERISTIC_MAX} from './advancement.js';
+
 export const characteristics = {Brawn:'SWFFG.CharacteristicBrawn',Agility:'SWFFG.CharacteristicAgility',Intellect:'SWFFG.CharacteristicIntellect',Cunning:'SWFFG.CharacteristicCunning',Willpower:'SWFFG.CharacteristicWillpower',Presence:'SWFFG.CharacteristicPresence'};
 export default class CharacteristicIncrease {
   static matches(item) {
@@ -14,7 +16,8 @@ export default class CharacteristicIncrease {
   static configure(data,actor,characteristic,phase) {
     if (!characteristics[characteristic] || !['creation','progression'].includes(phase)) throw new Error(game.i18n.localize("SWFFG.UI.Characteristic.InvalidCharacteristic"));
     const current=Number(actor.system.characteristics[characteristic]?.value);
-    if (!Number.isFinite(current)||current>=6) throw new Error(game.i18n.localize("SWFFG.UI.Characteristic.CharacteristicCap"));
+    const max = phase === 'creation' ? CREATION_CHARACTERISTIC_MAX : 6;
+    if (!Number.isFinite(current)||current>=max) throw new Error(game.i18n.localize("SWFFG.UI.Characteristic.CharacteristicCap"));
     const result=structuredClone(data);
     delete result._id;
     result.flags??={};result.flags.starwarsffg??={};
@@ -31,20 +34,20 @@ export default class CharacteristicIncrease {
       system:{changes},flags:{starwarsffg:{characteristicIncrease:true}}}];
     return result;
   }
-  static async choose(data,actor) {
+  static async choose(data,actor,{phase = data.flags?.starwarsffg?.characteristicIncrease?.creationTool ? 'creation' : 'progression'} = {}) {
     const root=document.createElement('div');
     const p=document.createElement('p');p.textContent=game.i18n.localize("SWFFG.UI.Characteristic.ChooseCharacteristicHint");root.append(p);
     const label=document.createElement('label');label.textContent=game.i18n.localize("SWFFG.UI.Characteristic.CharacteristicLabel");root.append(label);
     const select=document.createElement('select');select.name='characteristic';label.append(select);
     for(const [key,name] of Object.entries(characteristics)) {
       const value=Number(actor.system.characteristics[key]?.value);
-      if(!Number.isFinite(value)||value>=6) continue;
+      const max = phase === 'creation' ? CREATION_CHARACTERISTIC_MAX : 6;
+      if(!Number.isFinite(value)||value>=max) continue;
       const option=document.createElement('option');option.value=key;option.textContent=game.i18n.localize(name);select.append(option);
     }
     if(!select.options.length){ui.notifications.warn(game.i18n.localize("SWFFG.UI.Characteristic.NoCharacteristicAvailable"));return null;}
-    const custom=Boolean(data.flags?.starwarsffg?.characteristicIncrease?.creationTool);
     const choice=await foundry.applications.api.DialogV2.wait({classes:['starwarsffg','themed'],window:{title:data.name},content:root,
-      buttons:[{action:'select',label:game.i18n.localize("SWFFG.UI.Characteristic.Choose"),default:true,callback:(_event,_button,dialog)=>({characteristic:dialog.element.querySelector('[name="characteristic"]').value,phase:custom?'creation':'progression'})},{action:'cancel',type:'button',label:game.i18n.localize("SWFFG.UI.Characteristic.Cancel")}]});
+      buttons:[{action:'select',label:game.i18n.localize("SWFFG.UI.Characteristic.Choose"),default:true,callback:(_event,_button,dialog)=>({characteristic:dialog.element.querySelector('[name="characteristic"]').value,phase})},{action:'cancel',type:'button',label:game.i18n.localize("SWFFG.UI.Characteristic.Cancel")}]});
     if(!choice?.characteristic)return null;
     try{return this.configure(data,actor,choice.characteristic,choice.phase);}catch(error){ui.notifications.warn(error.message);return null;}
   }

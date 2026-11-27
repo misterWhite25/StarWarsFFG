@@ -1,0 +1,134 @@
+.ffg-pilotage-settings {
+  --pilotage-line: color-mix(in srgb, var(--color-text-primary) 20%, transparent);
+  --pilotage-fill: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
+  --pilotage-active: #526f7e;
+  padding: 8px;
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+#sidebar-content > .ffg-pilotage-settings.active { overflow: auto; }
+.ffg-pilotage-settings h2,
+.ffg-pilotage-settings h3 {
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  font-weight: 600;
+  text-shadow: none;
+  border: 0;
+}
+.ffg-pilotage-settings h2 { margin: 0 0 8px; font-size: 15px; }
+.ffg-pilotage-settings h3 { font-size: 13px; }
+.ffg-pilotage-settings :is(.pilotage-difficulty-section, .pilotage-views-content, .pilotage-difficulty-footer) {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.ffg-pilotage-settings .pilotage-views-content { margin-top: 8px; }
+.ffg-pilotage-settings :is(.pilotage-card, .pilotage-shared-windows, .ffg-shared-portraits-controls) {
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--pilotage-line);
+  border-radius: 6px;
+  background: var(--pilotage-fill);
+}
+.ffg-pilotage-settings :is(button, select) {
+  min-width: 0;
+  min-height: 28px;
+  height: auto;
+  padding: 3px 6px;
+  font: inherit;
+  line-height: 1.3;
+  color: inherit;
+}
+.ffg-pilotage-settings button[aria-pressed=true],
+.ffg-pilotage-settings .pilotage-primary {
+  background: var(--pilotage-active);
+  border-color: var(--pilotage-active);
+  color: white;
+}
+.ffg-pilotage-settings [data-pilotage-save-difficulty] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #6a3438;
+  border-color: #8d575b;
+  color: #fff7ef;
+  font-weight: 600;
+}
+.ffg-pilotage-settings [data-pilotage-save-difficulty]:hover:not(:disabled) {
+  background: #7d4249;
+}
+.ffg-pilotage-settings .pilotage-difficulty-icon {
+  display: block;
+  flex: none;
+  border: 0;
+  object-fit: contain;
+}
+:is(body.theme-dark .ffg-pilotage-settings:not(.theme-light), .ffg-pilotage-settings.theme-dark) [data-pilotage-request-roll] {
+  background: #704b23;
+  border: 1px solid #bd9457;
+  color: #fff3dc;
+}
+:is(body.theme-dark .ffg-pilotage-settings:not(.theme-light), .ffg-pilotage-settings.theme-dark) [data-pilotage-request-roll]:hover:not(:disabled) {
+  background: #895c2c;
+  border-color: #e3bb74;
+}
+.ffg-pilotage-settings .pilotage-card-heading,
+.ffg-pilotage-settings .pilotage-card-heading h3,
+.ffg-pilotage-settings .pilotage-movement-heading h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ffg-pilotage-settings [data-pilotage-difficulty-status] { color: light-dark(#a72935, #f08e98); }
+.ffg-pilotage-settings [data-pilotage-difficulty-status][data-active=true] { color: light-dark(#256e43, #78cc96); }
+.ffg-pilotage-settings .gm-dice-preview {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+}
+.ffg-pilotage-settings .gm-dice-preview:empty { display: none; }
+.ffg-pilotage-settings .gm-dice-table { width: 100%; margin: 0; }
+.ffg-pilotage-settings .gm-dice-table td { padding: 3px; }
+.ffg-pilotage-settings .pilotage-die-icon { width: 28px; text-align: center; }
+.ffg-pilotage-settings .pilotage-die-value { width: 48px; text-align: center; }
+.ffg-pilotage-settings [data-gm-die] { cursor: pointer; }
+.ffg-pilotage-settings [data-gm-count] { width: 34px; text-align: center; font-weight: 600; }
+.ffg-pilotage-settings .pilotage-difficulty-section > .pilotage-note { display: none; }
+.ffg-pilotage-settings :is(.pilotage-enable, .pilotage-movement-limit, .pilotage-shared-heading label) {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+.ffg-pilotage-settings input[type=checkbox] { flex: none; margin: 0; }
+.ffg-pilotage-settings :is(.pilotage-assets-actions, .pilotage-destination-buttons, .pilotage-movement-switch) {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.ffg-pilotage-settings .pilotage-assets-actions { padding: 0; background: none; border: 0; }
+.ffg-pilotage-settings .pilotage-shared-windows { padding-block: 0; }
+.ffg-pilotage-settings .pilotage-shared-window { padding: 6px 0; border-bottom: 1px solid var(--pilotage-line); }
+.ffg-pilotage-settings .pilotage-shared-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px; }
+.ffg-pilotage-settings .pilotage-shared-owner { display: grid; margin-top: 4px; }
+.ffg-pilotage-settings .pilotage-shared-owner > :first-child { display: none; }
+.ffg-pilotage-settings .pilotage-shared-status { font-size: 11px; font-style: italic; }
+.ffg-pilotage-settings :is(.pilotage-note, .pilotage-shared-hint) { margin: 5px 0; font-size: 11px; text-align: justify; }
+.ffg-pilotage-settings .ffg-portrait-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  margin: 0;
+}
+.ffg-pilotage-settings .ffg-portrait-toolbar > label { min-width: 0; font-size: 11px; }
+.ffg-pilotage-settings .ffg-portrait-toolbar select { width: 100%; }
+.ffg-pilotage-settings .ffg-portrait-toolbar > button { grid-column: 1 / -1; }
+.ffg-pilotage-settings .ffg-portrait-control-list:empty { display: none; }
+.ffg-pilotage-settings :is(.pilotage-movement, .pilotage-token-destination) { display: grid; gap: 6px; }
+.ffg-pilotage-settings :is(.pilotage-movement, .pilotage-movement-limit, .pilotage-note, .pilotage-shared-owner > *)[hidden] { display: none; }

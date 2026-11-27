@@ -37,7 +37,7 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
     super(options);
     this.oggdude = OggDude;
     this.importers = this.oggdude.Meta;
-    this.canImport = {};
+    this.loadedZip = null;
     this.shouldImport = {};
   }
 
@@ -53,8 +53,6 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
   async _prepareContext() {
     let data = await foundry.applications.apps.FilePicker.browse("data", "", { bucket: null, extensions: [".zip", ".ZIP"], wildcard: false });
     const files = data.files.map((file) => decodeURIComponent(file));
-
-    document.querySelectorAll('.import-progress').forEach(el => el.classList.add('import-hidden'));
 
     if (!CONFIG?.temporary) {
       CONFIG.temporary = {};
@@ -82,14 +80,12 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
       headerCloseButton.parentNode.insertBefore(debugSpan, headerCloseButton);
     }
 
-    // ApplicationV2 positions the completed render; no delayed work may outlive closing.
+    this.element.querySelector(".import-file-selector").addEventListener("change", () => this._resetSelection());
   }
 
   _importLog = [];
   _importLogger(message) {
-    let checked = false;
-    checked = Array.from(document.querySelectorAll('.debug input')).some(el => el.checked);
-    if (checked) {
+    if (this.element.querySelector(".debug input:checked")) {
       this._importLog.push(`[${new Date().getTime()}] ${message}`);
     }
     
@@ -99,96 +95,110 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
    * Enable all checkboxes for import rather than forcing the user to click them all one at a time
    * @private
    */
-  static _enableImportAll(_event, _target) {
-    document.querySelectorAll("input[type='checkbox'][name='imports']").forEach(el => el.checked = true);
+  static _enableImportAll() {
+    for (const input of this.element.querySelectorAll("input[name=imports]:enabled")) input.checked = true;
   }
 
-  static async _readFile() {
-    let selectedFile, form, file, zip;
-
-    const input = document.querySelector("#import-file");
-    selectedFile = input ? input.value : "";
-
-    if (selectedFile) {
-      // Read file on server from selector
-      zip = await fetch(`/${selectedFile}`)
-        .then(function (response) {
-          if (response.status === 200 || response.status === 0) {
-            return Promise.resolve(response.blob());
-          } else {
-            return Promise.reject(new Error(response.statusText));
-          }
-        })
-        .then(JSZip.loadAsync);
-    } else {
-      // Read local file from picker
-      form = document.querySelector("form.data-importer-window");
-      file = form?.data?.files[0];
-
-      if (typeof file !== "undefined") {
-        zip = await ImportHelpers.readBlobFromFile(file).then(JSZip.loadAsync);
-      } else {
-        ui.notifications.warn(game.i18n.localize("SWFFG.Notifications.Import.NoFileWarning"));
-        return undefined;
-      }
+  _resetSelection() {
+    this.loadedZip = null;
+    this.loadToken = null;
+    for (const input of this.element.querySelectorAll("input[name=imports]")) {
+      input.checked = false;
+      input.disabled = true;
     }
-    return zip;
+    this.element.querySelector("[data-action=selectAll]").disabled = true;
+    this.element.querySelector("button[type=submit]").disabled = true;
   }
 
-  static async _loadFile(event, target) {
-    // Reset defaults
-    const form = target.closest("form");
-    if (form) {
-      form.querySelectorAll("input[type='checkbox'][name='imports']").forEach(el => el.disabled = true);
+  async _readFile() {
+    const path = this.element.querySelector("[name=import-file]").value;
+    if (path) {
+      const response = await fetch(foundry.utils.getRoute(path));
+      if (!response.ok) throw Error(response.statusText);
+      return JSZip.loadAsync(await response.arrayBuffer());
     }
+    const file = this.element.querySelector("input[type=file]").files[0];
+    if (file) return JSZip.loadAsync(await file.arrayBuffer());
+    ui.notifications.warn(game.i18n.localize("SWFFG.Notifications.Import.NoFileWarning"));
+  }
 
+  static async _loadFile() {
+    if (this.importing) return;
+    this._resetSelection();
+    const token = this.loadToken = Symbol();
     try {
-      let zip = await DataImporter._readFile();
-      if (typeof zip === "undefined") return;
-
-      const selectAll = document.querySelector("[data-action='selectAll']");
-      if (selectAll !== null) selectAll.disabled = false;
-
+      const zip = await this._readFile();
+      if (!zip || token !== this.loadToken) return;
       for (const importer of Object.values(this.importers)) {
-        this.canImport[importer.itemName] = this._enableImportSelection(importer.displayName, importer.className, zip.files);
+        const input = this.element.querySelector("#import" + importer.className);
+        const available = importer.fileNames.every(name => this._findEntry(zip, name, importer.filesAreDir))
+          && (importer.requiredFiles ?? []).every(name => this._findEntry(zip, name, false))
+          && (importer.requiredDirectories ?? []).every(name => this._findEntry(zip, name, true));
+        input.disabled = !available;
       }
-
-      const startImport = document.querySelector("button[type='submit']")
-      if (startImport !== null) startImport.disabled = false;
-
+      this.loadedZip = zip;
+      const hasData = Boolean(this.element.querySelector("input[name=imports]:enabled"));
+      this.element.querySelector("[data-action=selectAll]").disabled = !hasData;
+      this.element.querySelector("button[type=submit]").disabled = !hasData;
     } catch (err) {
       ui.notifications.error(game.i18n.localize("SWFFG.Notifications.Import.FileLoadError"));
       console.error(err);
     }
   }
 
-  static async _startImport(_event, _form, _formData) {
-    
-    this._importLogger(`Starting import`);
+  _findEntry(zip, name, directory) {
+    const basename = name.split("/").filter(Boolean).pop();
+    if (directory) return ImportHelpers.xmlFiles(zip, basename)[0];
+    return Object.values(zip.files).find(entry => !entry.dir && entry.name.split("/").pop() === basename);
+  }
 
-    let zip = await DataImporter._readFile();
-    if (typeof zip === "undefined") {
-      this._importLogger("zip file not found, exiting!");
+  static async _startImport() {
+    const zip = this.loadedZip;
+    if (!zip) return;
+    const selected = [...this.element.querySelectorAll("input[name=imports]:enabled:checked")];
+    if (!selected.length) return;
+    const importFiles = selected.map(input => input.dataset.itemtype);
+    this.shouldImport = Object.fromEntries(importFiles.map(type => [type, true]));
+    this._importLogger("Starting import");
+    this._resetSelection();
+    this.importing = true;
+    try {
+      await this._importSelected(zip, importFiles);
+    } finally {
+      this.importing = false;
+    }
+  }
+
+  async _importSelected(zip, importFiles) {
+    const documents = new Map();
+    const replaceExisting = this.element.querySelector("#deleteExisting").checked;
+    try {
+      for (const importer of Object.values(this.importers)) {
+        if (!this.shouldImport[importer.itemName]) continue;
+        const names = importer.filesAreDir ? [] : importer.fileNames;
+        const directories = importer.filesAreDir ? importer.fileNames : (importer.requiredDirectories ?? []);
+        for (const name of [...names, ...(importer.requiredFiles ?? [])]) {
+          const entry = this._findEntry(zip, name, false);
+          const xml = ImportHelpers.stringToXml(await entry.async("text"));
+          if (xml.querySelector("parsererror")) throw Error(name);
+          documents.set(name, xml);
+        }
+        if (replaceExisting) {
+          for (const dir of directories) {
+            for (const entry of ImportHelpers.xmlFiles(zip, dir.split("/").filter(Boolean).pop())) {
+              const xml = ImportHelpers.stringToXml(await entry.async("text"));
+              if (xml.querySelector("parsererror")) throw Error(entry.name);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      ui.notifications.error(game.i18n.localize("SWFFG.Notifications.Import.FileLoadError"));
+      console.error(error);
       return;
     }
-
-    // Disable submit button to prevent double clicking
-    const startImport = document.querySelector("button[type='submit']")
-    if (startImport !== null) startImport.disabled = true;
-
-    let importFiles = Array.from(document.querySelectorAll("input[type='checkbox'][name='imports']:checked")).map(el => (
-      el.dataset.itemtype
-    ));
-
-    for (const importer of document.querySelectorAll("input[type='checkbox'][name='imports']")) {
-      const itemName = $(importer).data("itemtype");
-      this.shouldImport[itemName] = importer.checked;
-    }
-
-    if (document.querySelector("#deleteExisting").checked) {
-      for (const itemType of importFiles) {
-        await this._deleteCompendium(itemType);
-      }
+    if (replaceExisting) {
+      for (const itemType of importFiles) await this._deleteCompendium(itemType);
     }
 
     // If skills are not selected for import, pre-populate the skills cache so other importers
@@ -209,94 +219,27 @@ export default class DataImporter extends HandlebarsApplicationMixin(Application
       }
     }
 
-    for (let cur_phase = 1; cur_phase < 9; cur_phase++) {
-      this._importLogger(`Beginning import phase ${cur_phase}`);
-      const cur_phase_promises = [];
-      const cur_phase_imports = Object.values(this.importers).filter(i => i.phase === cur_phase);
-      await this.asyncForEach(cur_phase_imports, async (curImport) => {
-        if (!this.shouldImport[curImport.itemName]) {
-          this._importLogger(`Skipping unselected import of ${curImport.displayName}`);
-        } else {
-          if (curImport.filesAreDir && !["background"].includes(curImport.itemName) ) {
-            cur_phase_promises.push(
-              OggDude.Import[curImport.className](zip)
-            );
-          } else {
-            for (const curFilename of curImport.fileNames) {
-              this._importLogger(`Importing from ${curFilename}`);
-              const selectedFile = Object.values(zip.files).find(f => f.name.includes(curFilename));
-              const data = await zip.file(selectedFile.name).async("text");
-              const xmlDoc = ImportHelpers.stringToXml(data);
-
-              cur_phase_promises.push(
-                OggDude.Import[curImport.className](xmlDoc, zip)
-              );
-            }
-          }
-        }
-      });
-      await Promise.all(cur_phase_promises);
-      this._importLogger(`Done importing phase ${cur_phase}!`);
+    const selected = Object.values(this.importers).filter(importer => this.shouldImport[importer.itemName]);
+    const phases = [...new Set(selected.map(importer => importer.phase))].sort((a, b) => a - b);
+    for (const phase of phases) {
+      const group = selected.filter(importer => importer.phase === phase);
+      await Promise.all(group.map(async importer => {
+        this._importLogger(`Importing ${importer.displayName}`);
+        const run = OggDude.Import[importer.className];
+        if (importer.filesAreDir) return run(zip);
+        // Multiple files in one category can create or update the same compendium.
+        for (const name of importer.fileNames) await run(documents.get(name), zip);
+      }));
     }
     this._importLogger("Done with import!");
 
-    let checked = false;
-    checked = Array.from(document.querySelectorAll('.debug input')).some(el => el.checked);
-    if (checked) {
+    if (this.element.querySelector(".debug input:checked")) {
       foundry.utils.saveDataToFile(this._importLog.join("\n"), "text/plain", "import-log.txt");
     }
 
     CONFIG.temporary = {};
     this.close();
   }
-
-  /**
-   * Called when Load File is clicked - enables checkboxes for item types which are in the selected ZIP
-   * @param displayName - the display name of the item type we're checking for (used for logging)
-   * @param className - the class name of the item type we're checking for (used to find the input)
-   * @param files - files object for the uploaded ZIP
-   * @private
-   */
-  _enableImportSelection(displayName, className, files) {
-    const element = $(this.element).find(`#import${className}`);
-    const canEnable = this.canEnable(displayName, element, files);
-    if (canEnable) {
-      element.removeAttr("disabled");
-    }
-    return canEnable;
-  }
-
-  /**
-   * Checks if a given input should be enabled based on the presence of pre-defined files in the selected ZIP
-   * @param displayName - the display name of the input we're checking for (used for logging)
-   * @param element - input element which contains additional metadata
-   * @param zipFiles - files object for the uploaded ZIP
-   * @returns {boolean} - should this be enabled or not?
-   * @private
-   */
-  canEnable(displayName, element, zipFiles) {
-    this._importLogger(`Determining if we should enable import for ${displayName}`);
-    const fileNames = element.data("filenames").split(",");
-    const filesAreDir = element.data("filesaredir");
-    let shouldEnable = true;
-
-    for (const file of fileNames) {
-      const foundFile = Object.values(zipFiles).filter(i => i.name.includes(file) && i.dir === filesAreDir).length > 0;
-      if (!foundFile) {
-        shouldEnable = false;
-        break;
-      }
-    }
-
-    this._importLogger(`Should include outcome for ${displayName}: ${shouldEnable}`);
-    return shouldEnable;
-  }
-
-  asyncForEach = async (array, callback) => {
-    for (let index = 0; index < array.length; index += 1) {
-      await callback(array[index], index, array);
-    }
-  };
 
   async _deleteCompendium(itemType) {
     const typeToCompendium = {

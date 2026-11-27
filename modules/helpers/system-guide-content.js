@@ -29,6 +29,16 @@ export const systemGuideTours = [
         "id": "tonio",
         "title": "SWFFG.Guide.systeme.tonio.Title",
         "content": "SWFFG.Guide.systeme.tonio.Content"
+      },
+      {
+        "id": "fiches-laterales",
+        "title": "SWFFG.Guide.systeme.fiches-laterales.Title",
+        "content": "SWFFG.Guide.systeme.fiches-laterales.Content"
+      },
+      {
+        "id": "preferences",
+        "title": "SWFFG.Guide.systeme.preferences.Title",
+        "content": "SWFFG.Guide.systeme.preferences.Content"
       }
     ],
     "restricted": false,
@@ -164,6 +174,11 @@ export const systemGuideTours = [
         "id": "individuel",
         "title": "SWFFG.Guide.pilotage-mj.individuel.Title",
         "content": "SWFFG.Guide.pilotage-mj.individuel.Content"
+      },
+      {
+        "id": "demande",
+        "title": "SWFFG.Guide.pilotage-mj.demande.Title",
+        "content": "SWFFG.Guide.pilotage-mj.demande.Content"
       }
     ],
     "restricted": true,

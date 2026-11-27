@@ -1,0 +1,101 @@
+<div class="brief-panel" data-actor-id="{{character.id}}" data-token-uuid="{{tokenUuid}}">
+  {{#if gm}}
+  <select name="addActor" aria-label="{{localize "SWFFG.UI.CharacterSidebar.Add"}}" {{#unless choices.length}}disabled{{/unless}}>
+    <option value="">{{localize "SWFFG.UI.CharacterSidebar.Add"}}</option>
+    {{#each choices}}<option value="{{id}}">{{name}}</option>{{/each}}
+  </select>
+  {{/if}}
+
+  {{#if character}}
+  <div class="brief-roster">
+    <header class="brief-identity">
+      {{#if canSwitch}}
+      <button type="button" class="brief-switch" data-brief-action="switch" aria-expanded="{{pickerOpen}}" aria-controls="{{pickerId}}" title="{{localize "SWFFG.UI.CharacterSidebar.Switch"}}" aria-label="{{localize "SWFFG.UI.CharacterSidebar.Switch"}} · {{character.name}}">
+        <img src="{{character.img}}" alt="">
+        <strong>{{character.name}}</strong>
+        <span class="brief-switch-count">{{actors.length}} <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span>
+      </button>
+      {{else}}
+      <img src="{{character.img}}" alt="">
+      <strong>{{character.name}}</strong>
+      {{/if}}
+      <button type="button" data-brief-action="sheet" class="brief-icon" aria-label="{{localize "SWFFG.UI.CombatSheet.FullSheet"}}" title="{{localize "SWFFG.UI.CombatSheet.FullSheet"}}"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></button>
+      {{#if gm}}
+      <button type="button" data-brief-action="remove" class="brief-icon" aria-label="{{localize "SWFFG.UI.CharacterSidebar.Remove"}}" title="{{localize "SWFFG.UI.CharacterSidebar.Remove"}}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      {{/if}}
+    </header>
+    {{#if canSwitch}}
+    <div id="{{pickerId}}" class="brief-picker" {{#unless pickerOpen}}hidden{{/unless}}>
+      <input type="search" name="actorFilter" value="{{pickerQuery}}" autocomplete="off" aria-label="{{localize "SWFFG.UI.CharacterSidebar.Find"}}" placeholder="{{localize "SWFFG.UI.CharacterSidebar.Find"}}">
+      <div class="brief-options" role="group" aria-label="{{localize "SWFFG.UI.CharacterSidebar.Title"}}">
+        {{#each actors}}
+        <button type="button" data-brief-action="actor" data-id="{{id}}" data-search-name="{{name}}" {{#if active}}aria-current="true"{{/if}}>
+          <img src="{{img}}" alt="" loading="lazy"><span>{{name}}</span>
+          {{#if active}}<i class="fa-solid fa-check" aria-hidden="true"></i>{{/if}}
+        </button>
+        {{/each}}
+      </div>
+      <p role="status" data-picker-empty hidden>{{localize "SWFFG.UI.CharacterSidebar.NoMatch"}}</p>
+    </div>
+    {{/if}}
+  </div>
+  <dl class="brief-stats">
+    {{#each character.meters}}<div title="{{hint}}"><dt>{{label}}</dt><dd>{{value}}</dd></div>{{/each}}
+  </dl>
+  <dl class="brief-traits" aria-label="{{localize "SWFFG.UI.CombatSheet.Characteristics"}}">
+    {{#each character.traits}}<div title="{{hint}}"><dt>{{label}}</dt><dd>{{value}}</dd></div>{{/each}}
+  </dl>
+  <nav class="brief-sections" aria-label="{{localize "SWFFG.UI.CharacterSidebar.Title"}}">
+    <button type="button" data-brief-action="section" data-id="skills" aria-pressed="{{#if skills}}true{{else}}false{{/if}}">{{localize "SWFFG.Skills"}}</button>
+    <button type="button" data-brief-action="section" data-id="talents" aria-pressed="{{talents}}">{{localize "SWFFG.Talents"}}</button>
+    <button type="button" data-brief-action="section" data-id="equipment" aria-pressed="{{equipment}}" title="{{localize "SWFFG.UI.CharacterSidebar.Equipment"}}">{{localize "SWFFG.UI.Pilotage.Equipment"}}</button>
+  </nav>
+  {{#if groups.length}}
+  <input type="search" name="filter" autocomplete="off" value="{{query}}" placeholder="{{localize "SWFFG.UI.CharacterSidebar.Filter"}}" aria-label="{{localize "SWFFG.UI.CharacterSidebar.Filter"}}">
+  <div class="brief-scroll">
+    {{#each groups}}
+    <section data-brief-group>
+      <h3 {{#if @root.skills}}class="brief-skill-heading"{{/if}}><span>{{label}}</span>{{#if @root.skills}}<small>{{localize "SWFFG.SkillsRank"}}</small><small>{{localize "SWFFG.SkillsRoll"}}</small>{{/if}}</h3>
+      {{#each rows}}
+      {{#if @root.skills}}
+      <button type="button" class="brief-skill" data-search-name="{{name}}" data-brief-action="skill" data-ability="{{key}}" title="{{localize "SWFFG.UI.CombatSheet.Roll"}} · {{name}}">
+        <span>{{name}}</span><small title="{{localize "SWFFG.SkillsRank"}}">{{rank}}</small><span class="roll-button" aria-hidden="true"></span>
+      </button>
+      {{else if @root.talents}}
+      <div class="brief-talent" data-search-name="{{name}}">
+        <button type="button" data-brief-action="talent" data-id="{{id}}" aria-expanded="{{expanded}}">
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i><span>{{name}}</span>{{#if rank}}<small>{{rank}}</small>{{/if}}
+        </button>
+        {{#if expanded}}
+        <div class="brief-description">{{#if total}}<strong class="brief-meta">{{total}}</strong>{{/if}}{{{description}}}</div>
+        {{/if}}
+      </div>
+      {{else}}
+      <div class="brief-item" data-search-name="{{name}}">
+        <button type="button" data-brief-action="item" data-id="{{id}}" aria-expanded="{{expanded}}"><img src="{{img}}" alt=""><span>{{name}}{{#if summary}}<small>{{summary}}</small>{{/if}}</span></button>
+        <small class="brief-quantity" title="{{localize "SWFFG.UI.Equipment.Quantity"}}">×{{quantity}}</small>
+        {{#if weapon}}<button class="brief-icon" type="button" data-brief-action="weapon" data-id="{{id}}" title="{{localize "SWFFG.UI.CombatSheet.Roll"}} · {{name}}" aria-label="{{localize "SWFFG.UI.CombatSheet.Roll"}} · {{name}}"><i class="fa-solid fa-dice" aria-hidden="true"></i></button>{{/if}}
+        {{#if expanded}}
+        <div class="brief-description">
+          {{#if qualities}}<strong class="brief-meta">{{qualities}}</strong>{{/if}}
+          {{#if description}}{{{description}}}{{else}}{{#unless qualities}}{{localize "SWFFG.UI.CharacterSidebar.NoDescription"}}{{/unless}}{{/if}}
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      {{/each}}
+    </section>
+    {{/each}}
+    <p data-no-match hidden>{{localize "SWFFG.UI.CharacterSidebar.NoMatch"}}</p>
+  </div>
+  {{else}}
+  <p>{{#if skills}}{{localize "SWFFG.UI.SkillHotbar.NoSkills"}}{{else if talents}}{{localize "SWFFG.UI.Talent.NoneAcquired"}}{{else}}{{localize "SWFFG.UI.Pilotage.NoEquipment"}}{{/if}}</p>
+  {{/if}}
+  {{else}}
+  <p>{{#if gm}}{{localize "SWFFG.UI.CharacterSidebar.EmptyGM"}}{{else}}{{localize "SWFFG.UI.CharacterSidebar.EmptyPlayer"}}{{/if}}</p>
+  {{/if}}
+  <button type="button" class="brief-chat" data-brief-action="chat" title="{{localize "SWFFG.UI.CharacterSidebar.Chat"}}">
+    <i class="fa-solid fa-comments" aria-hidden="true"></i><span>{{localize "SWFFG.UI.CharacterSidebar.Chat"}}</span><i class="fa-solid fa-angle-right" aria-hidden="true"></i>
+  </button>
+</div>
+

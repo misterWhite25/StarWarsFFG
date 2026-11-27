@@ -110,7 +110,9 @@
   {{!-- Sheet Tab Navigation --}}
   {{> "systems/starwarsffg/templates/parts/shared/ffg-tabs.html" displayLimited=true limited=limited items=(array
       (object tab="components" label="SWFFG.VehicleTabComponents" icon="ffg-yt1300-icon" cls=classType)
-      (object tab="interior-plan" label="SWFFG.VehicleTabInteriorPlan" icon="fas fa-map" cls=classType)
+      (object tab="interior-plan" label="SWFFG.VehicleTabInteriorPlan" icon="fas fa-map" cls=classType omit=hideInteriorPlan)
+      (object tab="base-plan" label="SWFFG.BasePlan.Tab" icon="fas fa-map-location-dot" cls=classType omit=hideBasePlan)
+      (object tab="base-gallery" label="SWFFG.BaseGallery.Tab" icon="fas fa-images" cls=classType omit=hideBaseGallery)
       (object tab="items" label="SWFFG.VehicleTabCargo" icon="fas fa-toolbox" cls=classType)
       (object tab="description" label="SWFFG.VehicleOwners.Tab" icon="fa-light fa-book-open-cover" cls=classType)
       (object tab="damage" label="SWFFG.VehicleCriticalDamageAndMalfunctions" icon="fas fa-exclamation-triangle" cls=classType)
@@ -139,9 +141,12 @@
     </div>
     {{/if}}
 
+    {{> "systems/starwarsffg/templates/parts/actor/ffg-plan-gallery.html"}}
+    {{#unless hideInteriorPlan}}
     <div class="tab interior-plan" data-group="primary" data-tab="interior-plan">
       <section data-vehicle-deck-sheet></section>
     </div>
+    {{/unless}}
 
     {{!-- Cargo Tab --}}
     <div class="tab items" data-group="primary" data-tab="items">

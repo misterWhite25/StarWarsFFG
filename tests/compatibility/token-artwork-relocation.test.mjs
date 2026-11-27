@@ -9,7 +9,7 @@ test('all 450 historical system token URLs resolve to stable compendium destinat
   assert.equal(new Set(legacyTokenArtworkEntries.map(([source])=>source)).size,450);
   for(const [source,destination] of legacyTokenArtworkEntries){
     assert.match(source,/^systems\/starwarsffg\/images\/(actor-tokens|refreshed-tokens|ship-tokens)\//);
-    assert.match(destination,/^modules\/swffg-compendium-bilingual-steelers-(adversaries|starship_and_speeders)\/assets\//);
+    assert.match(destination,/^modules\/swffg-compendium-bilingual-steelers-(adversaries|starships_and_speeders)\/assets\//);
     assert.equal(vehicleTokenArtwork(source),destination);
     assert.equal(resolveLegacyTokenArtwork(source),destination);
     assert.equal(vehicleTokenArtwork(encodeURIComponent(source)),destination);
@@ -18,7 +18,7 @@ test('all 450 historical system token URLs resolve to stable compendium destinat
     assert.equal(resolveLegacyTokenArtwork(destination),destination);
   }
   assert.equal(legacyTokenArtworkEntries.filter(([,target])=>target.includes('-adversaries/')).length,80);
-  assert.equal(legacyTokenArtworkEntries.filter(([,target])=>target.includes('-starship_and_speeders/')).length,370);
+  assert.equal(legacyTokenArtworkEntries.filter(([,target])=>target.includes('-starships_and_speeders/')).length,370);
 });
 
 test('portrait aliases, French URI encoding and the TieAce alias chain resolve transitively',()=>{
@@ -102,4 +102,19 @@ test('artwork compatibility is registered before the generic-initiative conditio
   assert.ok(registration>main.indexOf('CONFIG.Actor.documentClass = ActorFFG;'));
   assert.ok(registration<main.indexOf('if (game.settings.get("starwarsffg", "useGenericSlots"))',registration));
   assert.equal(main.match(/registerVehicleTokenArtwork\(\);/g)?.length,1);
+});
+
+test('renamed starships URLs remain usable with both module generations',()=>{
+  const old='swffg-compendium-bilingual-steelers-starship_and_speeders',current='swffg-compendium-bilingual-steelers-starships_and_speeders';
+  const portrait='modules/'+current+'/starfighters-shuttles/183109796751056f.webp';
+  const previous=globalThis.game;
+  try{
+    globalThis.game={modules:new Map([[current,{}]])};
+    assert.equal(resolveLegacyTokenArtwork(portrait.replace(current,old)),portrait);
+    assert.equal(vehicleTokenArtwork(portrait.replace(current,old)),vehicleTokenArtwork(portrait));
+    const expected=vehicleTokenArtwork(portrait);
+    globalThis.game={modules:new Map([[old,{}]])};
+    assert.equal(vehicleTokenArtwork(portrait),expected.replace(current,old));
+    assert.equal(resolveLegacyTokenArtwork(portrait),portrait.replace(current,old));
+  }finally{if(previous===undefined)delete globalThis.game;else globalThis.game=previous;}
 });

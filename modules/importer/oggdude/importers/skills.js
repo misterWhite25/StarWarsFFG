@@ -17,7 +17,7 @@ export default class Skills {
     CONFIG.temporary["skills"] = {};
 
     const base = JXON.xmlToJs(xml);
-    let items = base.Skills.Skill;
+    const items = ImportHelpers.xmlRecords(base.Skills.Skill);
     let totalCount = items.length;
     let currentCount = 0;
     let pack;

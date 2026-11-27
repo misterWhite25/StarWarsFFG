@@ -1,11 +1,8 @@
-import {setupPilotageAssets} from './pilotage-assets.mjs';
-import {setupPilotageTabs} from "./pilotage-tabs.mjs";
 import {matchingModifiers,modifierTotals,modifierCounts} from './pilotage-core.js';
 
 const scope='starwarsffg',flag='pilotageModifiers';
 const enc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const trusted=markup=>Object.assign(document.createElement('div'),{innerHTML:markup});
-let dialog,selectedUuid=null;
 const locks=new Map();
 function serialize(document,work){const key=document.uuid;const promise=(locks.get(key)??Promise.resolve()).catch(()=>{}).then(work);locks.set(key,promise);return promise.finally(()=>{if(locks.get(key)===promise)locks.delete(key);});}
 const tokenByUuid=uuid=>globalThis.canvas?.scene?.tokens.find(token=>token.uuid===uuid);
@@ -82,10 +79,8 @@ async function removeModifier(subject,id){
   const actor=tokenByUuid(subject)?.actor;if(!actor)return;
   await serialize(actor,()=>actor.setFlag(scope,flag,entriesFor(actor).filter(entry=>entry.id!==id)));
 }
-function renderSelected(){
-  if(!dialog?.rendered)return;
-  const root=dialog.element,token=tokenByUuid(selectedUuid);
-  for(const row of root.querySelectorAll('[data-pilotage-token]'))row.setAttribute('aria-pressed',String(row.dataset.pilotageToken===selectedUuid));
+function renderSelected(root,selectedUuid,onRefresh){
+  const token=tokenByUuid(selectedUuid);
   root.querySelector('.pilotage-target-title').textContent=token?token.name:game.i18n.localize("SWFFG.UI.Pilotage.ChooseCharacter");
   root.querySelector('[data-pilotage-assign]').disabled=!token;
   const list=root.querySelector('.pilotage-pending');list.replaceChildren();list.classList.remove('is-empty');
@@ -98,7 +93,7 @@ function renderSelected(){
     for(const [count,color,label] of [[entry.boost,'blue',game.i18n.localize("SWFFG.UI.Pilotage.Boost")],[entry.setback,'black',game.i18n.localize("SWFFG.UI.Pilotage.Setback")]]){
       if(!count)continue;
       const badge=document.createElement('span');badge.className='pilotage-effect-die';
-      const image=document.createElement('img');image.src=`systems/starwarsffg/images/dice/starwars/${color}.png`;image.alt=label;
+      const image=document.createElement('img');image.src=`systems/starwarsffg/images/dice/starwars/${color}.png`;image.alt=label;image.width=20;image.height=20;
       badge.append(image,document.createTextNode(`+${count}`));dice.append(badge);
     }
     const skill=document.createElement('span');skill.className='pilotage-effect-skill';
@@ -106,39 +101,13 @@ function renderSelected(){
     text.append(dice,skill);
     if(entry.reason){const reason=document.createElement('span');reason.className='pilotage-effect-reason';reason.textContent=entry.reason;text.append(reason);}
     const button=document.createElement('button');button.type='button';button.textContent=game.i18n.localize("SWFFG.UI.Pilotage.Remove");
-    button.addEventListener('click',async()=>{try{await removeModifier(selectedUuid,entry.id);await refreshRows();}catch(error){ui.notifications.error(error.message);}});
+    button.addEventListener('click',async()=>{try{await removeModifier(selectedUuid,entry.id);onRefresh();}catch(error){ui.notifications.error(error.message);}});
     row.append(text,button);list.append(row);
   }
   if(!effects.length){list.classList.add('is-empty');list.textContent=game.i18n.localize("SWFFG.UI.Pilotage.NoPendingEffects");}
 }
-async function refreshRows(){if(dialog?.rendered)renderSelected();}
-function refreshDifficultyStatus(){
-  if(!dialog?.rendered)return;
-  const icon=dialog.element.querySelector('[data-pilotage-difficulty-status]');if(!icon)return;
-  const active=game.settings.get(scope,'gmDifficulty')?.enabled===true;
-  const label=active?game.i18n.localize("SWFFG.UI.Pilotage.CommonDifficultyActive"):game.i18n.localize("SWFFG.UI.Pilotage.CommonDifficultyInactive");
-  icon.dataset.active=String(active);icon.setAttribute('aria-label',label);icon.title=label;icon.setAttribute('data-tooltip',label);
-}
-export async function showPilotageMJ(config,{saveDifficulty}){
-  if(!game.user.isGM)return;
-  if(dialog?.rendered){dialog.bringToFront();await refreshRows();Hooks.callAll('renderPilotageMJ',dialog);return dialog;}
-  const dice=[['challenge',game.i18n.localize("SWFFG.UI.Pilotage.Challenge"),'red'],['difficulty',game.i18n.localize("SWFFG.UI.Pilotage.Difficulty"),'purple'],['setback',game.i18n.localize("SWFFG.UI.Pilotage.Setback"),'black']];
-  dialog=new foundry.applications.api.DialogV2({
-    classes:['starwarsffg','themed','ffg-calculation-dialog','ffg-gm-difficulty-dialog','pilotage-mj-dialog','pilotage-modern'],
-    window:{title:game.i18n.localize("SWFFG.UI.Pilotage.GMControl"),resizable:true},position:{width:Math.max(320,Math.min(860,window.innerWidth-40)),height:Math.min(800,window.innerHeight-50),left:20,top:24},
-    content:trusted(`<div class="pilotage-columns">
- <section class="pilotage-difficulty-section pilotage-card">
-  <header class="pilotage-card-heading"><i class="fa-solid fa-dice" data-pilotage-difficulty-status role="img"></i><h3>${game.i18n.localize("SWFFG.UI.Pilotage.CommonDifficulty")}</h3></header>
-  <div class="pilotage-difficulty-controls">
-   <div class="pilotage-difficulty-top"><div class="gm-dice-preview" aria-label="${game.i18n.localize("SWFFG.UI.Pilotage.PreparedDice")}" aria-live="polite"></div></div>
-   <table class="gm-dice-table"><tbody>${dice.map(([key,label,color])=>`<tr data-gm-die="${key}"><td class="pilotage-die-icon"><img src="systems/starwarsffg/images/dice/starwars/${color}.png" alt="${label}" width="20" height="20"></td><td class="pilotage-die-label">${label}</td><td class="pilotage-die-value"><button type="button" data-gm-count="${key}" aria-label="${game.i18n.format("SWFFG.UI.Pilotage.DiceCount",{dice:label})}">${config[key]}</button></td></tr>`).join('')}</tbody></table>
-  </div>
-  <p class="pilotage-note">${game.i18n.localize("SWFFG.UI.Pilotage.DiceClickHint")}</p>
-  <label class="pilotage-enable"><span>${game.i18n.localize("SWFFG.UI.Pilotage.UseForAllRolls")}</span><input type="checkbox" name="pilotage-enabled" ${config.enabled?'checked':''}></label>
-  <button type="button" class="pilotage-primary" data-pilotage-save-difficulty>${game.i18n.localize("SWFFG.UI.Pilotage.ApplyDifficulty")}</button>
-  <p class="pilotage-note">${game.i18n.localize("SWFFG.UI.Pilotage.IndividualSetbackHint")}</p>
- </section>
- <section class="pilotage-scene-section">
+export function createPilotageModifierEditor(){
+  const root=trusted(`
   <section class="pilotage-editor pilotage-card" aria-label="${game.i18n.localize("SWFFG.UI.Pilotage.PrepareModifier")}">
    <header class="pilotage-editor-heading"><h3>${game.i18n.localize("SWFFG.UI.Pilotage.BonusesAndPenalties")}</h3><strong class="pilotage-target-title"></strong></header>
    <div class="pilotage-modifier-inputs">
@@ -148,36 +117,25 @@ export async function showPilotageMJ(config,{saveDifficulty}){
    <div class="pilotage-assignment-row"><label class="pilotage-field">${game.i18n.localize("SWFFG.UI.Pilotage.Reason")} <input type="text" name="pilotage-reason" maxlength="160" placeholder="${game.i18n.localize("SWFFG.UI.Pilotage.ModifierReasonPlaceholder")}"></label>
    <label class="pilotage-field">${game.i18n.localize("SWFFG.UI.Pilotage.NextRoll")} <select name="pilotage-skill"><option value="">${game.i18n.localize("SWFFG.UI.Pilotage.AnySkill")}</option><option value="RangedLight">${game.i18n.localize("SWFFG.UI.Pilotage.RangedLight")}</option><option value="RangedHeavy">${game.i18n.localize("SWFFG.UI.Pilotage.RangedHeavy")}</option><option value="Melee">${game.i18n.localize("SWFFG.UI.Pilotage.Melee")}</option><option value="Brawl">${game.i18n.localize("SWFFG.UI.Pilotage.Brawl")}</option><option value="Gunnery">${game.i18n.localize("SWFFG.UI.Pilotage.Gunnery")}</option><option value="Medicine">${game.i18n.localize("SWFFG.UI.Pilotage.Medicine")}</option></select></label><button type="button" class="pilotage-primary" data-pilotage-assign>${game.i18n.localize("SWFFG.UI.Pilotage.AssignNextRoll")}</button></div>
    <div class="pilotage-pending" aria-live="polite"></div>
-  </section>
- </section>
-</div>`),
-    buttons:[{action:'close',label:game.i18n.localize("SWFFG.UI.Pilotage.Close")}]
-  });
-  await dialog.render({force:true});
-  const root=dialog.element;
-  setupPilotageTabs(root,{onSelect:entry=>{selectedUuid=(entry?.token??entry?.participant?.token)?.uuid??null;renderSelected();}});
-  setupPilotageAssets(root);
-  const update=()=>{
-    const preview=root.querySelector('.gm-dice-preview');preview.replaceChildren();
-    for(const [key,label,color]of dice){root.querySelector(`[data-gm-count="${key}"]`).textContent=config[key];for(let i=0;i<config[key];i++){const img=document.createElement('img');img.src=`systems/starwarsffg/images/dice/starwars/${color}.png`;img.alt=label;img.width=24;img.height=24;preview.append(img);}}
-  };
-  for(const row of root.querySelectorAll('[data-gm-die]')){row.addEventListener('click',event=>{event.preventDefault();config[row.dataset.gmDie]++;update();});row.addEventListener('contextmenu',event=>{event.preventDefault();config[row.dataset.gmDie]=Math.max(0,config[row.dataset.gmDie]-1);update();});}
-  root.querySelector('[data-pilotage-save-difficulty]').addEventListener('click',async()=>{config.enabled=root.querySelector('[name=pilotage-enabled]').checked;await saveDifficulty(config);refreshDifficultyStatus();ui.notifications.info(game.i18n.localize("SWFFG.UI.Pilotage.CommonDifficultySaved"));});
+  </section>`).firstElementChild;
+  let selectedUuid=null;
+  const refresh=()=>renderSelected(root,selectedUuid,refresh);
   root.querySelector('[data-pilotage-assign]').addEventListener('click',async()=>{
     const button=root.querySelector('[data-pilotage-assign]');button.disabled=true;
-    try{await addPilotageModifier(selectedUuid,{boost:root.querySelector('[name=pilotage-boost]').value,setback:root.querySelector('[name=pilotage-setback]').value,skill:root.querySelector('[name=pilotage-skill]').value,reason:root.querySelector('[name=pilotage-reason]').value});await refreshRows();ui.notifications.info(game.i18n.localize("SWFFG.UI.Pilotage.ModifierAssigned"));}
+    try{await addPilotageModifier(selectedUuid,{boost:root.querySelector('[name=pilotage-boost]').value,setback:root.querySelector('[name=pilotage-setback]').value,skill:root.querySelector('[name=pilotage-skill]').value,reason:root.querySelector('[name=pilotage-reason]').value});refresh();ui.notifications.info(game.i18n.localize("SWFFG.UI.Pilotage.ModifierAssigned"));}
     catch(error){ui.notifications.error(error.message);}finally{button.disabled=!tokenByUuid(selectedUuid);}
   });
-  refreshDifficultyStatus();update();await refreshRows();Hooks.callAll('renderPilotageMJ',dialog);return dialog;
+  return {
+    modifierEditor:root,
+    onSelect(entry){
+      selectedUuid=(entry?.token??entry?.participant?.token)?.uuid??null;
+      refresh();
+    }
+  };
 }
+
 if(typeof Hooks!=='undefined'){
-Hooks.on('ffgGMDifficultyChanged',refreshDifficultyStatus);
-Hooks.on('updateActor',()=>{Hooks.callAll('ffgPilotageChanged');void refreshRows();});
-Hooks.on('updateToken',()=>{Hooks.callAll('ffgPilotageChanged');void refreshRows();});
-for(const hook of ['canvasReady','createToken','deleteToken'])Hooks.on(hook,()=>{selectedUuid=tokenByUuid(selectedUuid)?selectedUuid:null;void refreshRows();});
-
-
-
+  for(const name of ['updateActor','updateToken'])Hooks.on(name,()=>Hooks.callAll('ffgPilotageChanged'));
 }
 
 const acceptingAid = new Set();

@@ -7,10 +7,10 @@ async function load(modules){
   constructor(options){seen.dialogs.push(options);this.element={getBoundingClientRect:()=>({height:300}),querySelectorAll:()=>[]};}async render(){}setPosition(){}
  }}}}});
  const module=new vm.SourceTextModule(source,{context});
- await module.link(spec=>new vm.SyntheticModule(spec.includes('mapping')?['suggestTables']:spec.includes('pilotage-core')?['adjacentPlacement']:['skillDescriptor','skillDescription'],function(){
+ await module.link(spec=>new vm.SyntheticModule(spec.includes('mapping')?['suggestTables']:spec.includes('pilotage-core')?['adjacentPlacement']:['skillDescriptor','skillDescription','referenceMatchesLocale'],function(){
   if(spec.includes('mapping'))this.setExport('suggestTables',()=>{seen.tables++;return [];});
   else if(spec.includes('pilotage-core'))this.setExport('adjacentPlacement',()=>({left:500,top:30,width:600}));
-  else{this.setExport('skillDescriptor',()=>({key:'Medicine',label:'Médecine'}));this.setExport('skillDescription',()=>{seen.descriptions++;throw Error('Unexpected description lookup');});}
+  else{this.setExport('referenceMatchesLocale',()=>true);this.setExport('skillDescriptor',()=>({key:'Medicine',label:'Médecine'}));this.setExport('skillDescription',()=>{seen.descriptions++;throw Error('Unexpected description lookup');});}
  },{context}));await module.evaluate();return {api:module.namespace,seen};
 }
 test('absent module requests installation and activation',async()=>{const {api}=await load(new Map());assert.match(api.skillCompendiumRequirement(),/installer le compendium/);});

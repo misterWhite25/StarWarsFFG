@@ -1,7 +1,9 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import {Actors, Items} from "../playwright/fixtures";
+import {Actors, Items, openGame} from "../playwright/fixtures";
 
+// Drag items between the directory and a full character or vehicle sheet.
+test.use({ viewport: { width: 1920, height: 1080 } });
 test.setTimeout(90_000);
 
 // A previous failed run may leave documents behind. Limit cleanup to names used
@@ -9,7 +11,7 @@ test.setTimeout(90_000);
 const testNames = [
   'armorActor', 'qa armor', 'qa embeddedArmorActor', 'qa armorItem', 'qa embeddedArmorAttachment', 'qa embeddedMod',
   'careerActor', 'qa career', 'qa criticalInjuryActor', 'qa criticalInjuryItem',
-  'qa forcePowerActor', 'qa forcePowerItem', 'qa gearActor', 'qa gearItem',
+  'qa forcePowerActor', 'qa forcePowerItem', 'qa gearActor', 'qa gearItem', 'qa first spec talent', 'qa second spec talent',
   'qa signatureAbilityActor', 'qa signatureAbilityItem', 'qa specActor', 'qa specItem',
   'qa speciesActor', 'qa speciesItem', 'qa talentActor', 'qa talentItem', 'qa weaponActor', 'qa weaponItem',
   'qa embeddedWeaponActor', 'qa embeddedWeaponItem', 'qa embeddedWeaponAttachment',
@@ -17,13 +19,11 @@ const testNames = [
   'qa shipWeaponItem', 'qa shipAttActor', 'qa shipAttWpn', 'qa shipAttAtt',
 ];
 test.beforeEach(async ({ page }) => {
-  // SwiftShader is intentional in WSL/CI; dismiss this specific persistent notice when it covers a control.
-  await page.addLocatorHandler(page.locator('#notifications .notification').filter({
-    hasText: 'Your web browser does not have hardware acceleration enabled.',
-  }), notice => notice.click());
-  await page.goto('/game/');
-  await expect(page.locator('#sidebar')).toBeVisible();
-  await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
+  await page.addInitScript(() => {
+    localStorage.setItem('core.noCanvas', 'true');
+    localStorage.setItem('core.maxFPS', '10');
+  });
+  await openGame(page);
   await page.evaluate(async ({ world, names }) => {
     if (!world || game.world.id !== world) throw new Error('Refusing cleanup outside the test world');
     for (const [collection, cls] of [[game.actors, game.ffg.ActorFFG], [game.items, game.ffg.ItemFFG]]) {
@@ -143,6 +143,7 @@ test('critical injury applies correctly', async ({ page }) => {
 });
 
 test('force power applies correctly', async ({ page }) => {
+  test.setTimeout(150_000);
   const actorName = "qa forcePowerActor";
   const itemName = "qa forcePowerItem";
   const fpActor = new Actors(page, actorName, "character");
@@ -194,6 +195,7 @@ test('gear applies correctly', async ({ page }) => {
 });
 
 test('signature ability applies correctly', async ({ page }) => {
+  test.setTimeout(150_000);
   const actorName = "qa signatureAbilityActor";
   const itemName = "qa signatureAbilityItem";
   const saActor = new Actors(page, actorName, "character");
@@ -220,18 +222,36 @@ test('signature ability applies correctly', async ({ page }) => {
 });
 
 test('specialization applies correctly', async ({ page }) => {
-const actorName = "qa specActor";
+  test.setTimeout(150_000);
+  const actorName = "qa specActor";
   const itemName = "qa specItem";
   const spActor = new Actors(page, actorName, "character");
   await spActor.create();
   const sp = new Items(page, itemName, "specialization");
   await sp.create();
 
-  // add a mod
-  //await sp.addDirectModifier('')
-  await sp.addTalentModifier('0', 'Skill Add Despair', 'Cool', '3');
+  // Specialization nodes wrap actual talent items. Populate two slots and choose the second one.
+  const talents = [
+    {name: 'qa first spec talent', skill: 'Cool', type: 'Skill Add Despair', slot: 'talent0'},
+    {name: 'qa second spec talent', skill: 'Perception', type: 'Skill Boost', slot: 'talent1'},
+  ];
+  for (const talent of talents) {
+    await page.evaluate(async ({name, skill, type}) => {
+      const {default: ModifierHelpers} = await import('/systems/starwarsffg/modules/helpers/modifiers.js');
+      await game.ffg.ItemFFG.create({
+        name,
+        type: 'talent',
+        system: {attributes: {testModifier: {modtype: type, mod: skill, value: 3}}},
+        effects: [{name: 'testModifier', transfer: true, system: {changes: [
+          {key: ModifierHelpers.getModKeyPath(type, skill), type: 'add', value: 3},
+        ]}}],
+      });
+    }, talent);
+    const tree = page.locator('.ffg-specialization-tree');
+    await page.locator('#items .directory-item').filter({hasText: talent.name}).dragTo(tree.locator('#' + talent.slot));
+    await expect(tree.locator('#' + talent.slot + ' .talent-name')).toHaveAttribute('data-name', talent.name);
+  }
   await sp.learnTalent('1');
-  await sp.addTalentModifier('1', 'Skill Boost', 'Perception', '3');
   await sp.closeSheet();
 
   // drag and drop onto the character
@@ -243,6 +263,9 @@ const actorName = "qa specActor";
   // clean up
   await spActor.remove();
   await sp.remove();
+  await page.evaluate(async names => {
+    await game.ffg.ItemFFG.deleteDocuments(game.items.filter(item => names.includes(item.name)).map(item => item.id));
+  }, talents.map(talent => talent.name));
 });
 
 test('species applies correctly', async ({ page }) => {
@@ -278,8 +301,7 @@ test('species applies correctly', async ({ page }) => {
   await page.getByRole('listitem').filter({ hasText: speciesItemName }).dragTo(page.locator('.character-details-table'));
   await speciesActor.checkStat('woundsMax', '11'); // brawn + wounds
   await speciesActor.checkStat('strainMax', '22'); // willpower + strain
-  // TODO: this should be passing, but is not. there's a bug where soak is not being increased by Brawn
-  //await speciesActor.checkStat('soak', '1'); // brawn
+  await speciesActor.checkStat('soak', '1'); // Brawn
   await speciesActor.checkStat('Brawn', '1');
   await speciesActor.checkStat('Agility', '2');
   await speciesActor.checkStat('Intellect', '3');
@@ -305,8 +327,9 @@ test('talent applies correctly', async ({ page }) => {
   await talent.closeSheet();
 
   // drag and drop the talent onto the character
-  await page.getByRole('listitem').filter({ hasText: itemName }).dragTo(page.locator('.character-details-table'));
-  await talentActor.checkStat('Strain', '3');
+  await page.locator('#items .directory-item').filter({ hasText: itemName }).dragTo(page.locator('.character-details-table'));
+  await page.getByRole('button', {name: 'Grant', exact: true}).click();
+  await talentActor.checkStat('strainMax', '3');
 
   // clean up
   await talentActor.remove();
@@ -328,7 +351,7 @@ test('weapon applies correctly', async ({ page }) => {
 
   // drag and drop the weapon onto the character
   await weaponActor.switchTab('gear');
-  await page.getByRole('listitem').filter({ hasText: itemName }).dragTo(page.locator('.tab.items.active'));
+  await page.locator('#items .directory-item').filter({ hasText: itemName }).dragTo(page.locator('.tab.items.active'));
   await weaponActor.checkStat('encumbranceCurrent', '5');
 
   // clean up
@@ -337,6 +360,7 @@ test('weapon applies correctly', async ({ page }) => {
 });
 
 test('embedded armor applies correctly', async ({ page }) => {
+  test.slow();
   const actorName = "qa embeddedArmorActor";
   const baseItemName = "qa armorItem";
   const attachmentName = "qa embeddedArmorAttachment";
@@ -351,11 +375,12 @@ test('embedded armor applies correctly', async ({ page }) => {
   await armorAttachment.addDirectModifier('Stat', 'Soak', '1');
   await armorAttachment.closeSheet();
   // drag the attachment to the armor
-  await page.getByRole('listitem').filter({ hasText: attachmentName }).dragTo(page.locator('.attachments.items'));
+  await armor.switchTab('modifiers');
+  await page.locator('#items .directory-item').filter({ hasText: attachmentName }).dragTo(page.locator('.attachments.items'));
   await armor.closeSheet();
   await embeddedActor.switchTab('gear');
   await embeddedActor.checkStat('soak', '0');
-  await page.getByRole('listitem').filter({ hasText: baseItemName }).dragTo(page.locator('.tab.items.active'));
+  await page.locator('#items .directory-item').filter({ hasText: baseItemName }).dragTo(page.locator('.tab.items.active'));
   await embeddedActor.checkStat('soak', '0');
 
   // okay, add the mod
@@ -365,7 +390,8 @@ test('embedded armor applies correctly', async ({ page }) => {
   await weaponMod.setRank('1');
   await weaponMod.closeSheet();
   await embeddedActor.editItem(baseItemName);
-  await page.getByRole('listitem').filter({ hasText: modName }).dragTo(page.locator('.attachments.items'));
+  await armor.switchTab('modifiers');
+  await page.locator('#items .directory-item').filter({ hasText: modName }).dragTo(page.locator('.attachments.items'));
   await armor.closeSheet();
   await embeddedActor.checkStat('defense.melee', '0');
   await embeddedActor.checkStat('defense.ranged', '0');
@@ -373,20 +399,14 @@ test('embedded armor applies correctly', async ({ page }) => {
 
   // okay, now add the mod to the attachment
   await embeddedActor.editItem(baseItemName);
-  // let the animation play out
-  await new Promise(resolve => setTimeout(resolve, 200));
-  //await armor.removeItem(attachmentName);
+  await armor.switchTab('modifiers');
   await armor.editItem(attachmentName);
-  // let the animation play out
-  await new Promise(resolve => setTimeout(resolve, 200));
   const embeddedAttachment = new Items(page, attachmentName, "itemattachment");
-  // this is a bit confusing, but 'armorAttachment' now refers to the embedded instance
-  await page.getByText('Modifications', {exact: true}).click();
-  // let the animation play out
-  await new Promise(resolve => setTimeout(resolve, 200));
-  await page.locator('.directory-item').filter({ hasText: modName }).dragTo(page.locator('.content'));
+  await page.locator('.sheet.flat_editor .tabs [data-tab="modifications"]').click();
+  await page.locator('#items .directory-item').filter({hasText: modName}).dragTo(
+    page.locator('.sheet.flat_editor .tab.modifications.active .add-modification'));
   await embeddedAttachment.enableMod('0');
-  await page.getByText('Basics', {exact: true}).click();
+  await page.locator('.sheet.flat_editor .tabs [data-tab="basics"]').click();
   await embeddedAttachment.closeSheet();
   await armor.closeSheet();
   await embeddedActor.equipItem(baseItemName);
@@ -401,6 +421,7 @@ test('embedded armor applies correctly', async ({ page }) => {
 });
 
 test('embedded weapons applies correctly', async ({ page }) => {
+  test.slow();
   const actorName = "qa embeddedWeaponActor";
   const baseItemName = "qa embeddedWeaponItem";
   const attachmentName = "qa embeddedWeaponAttachment";
@@ -417,13 +438,14 @@ test('embedded weapons applies correctly', async ({ page }) => {
   await weaponAttachment.closeSheet();
 
   // drag the attachment to the weapon
-  await page.getByRole('listitem').filter({ hasText: attachmentName }).dragTo(page.locator('.attachments.items'));
+  await weapon.switchTab('modifiers');
+  await page.locator('#items .directory-item').filter({ hasText: attachmentName }).dragTo(page.locator('.attachments.items'));
   await weapon.closeSheet();
 
   // drag the weapon to the actor
   await embeddedActor.switchTab('gear');
   await embeddedActor.checkStat('soak', '0');
-  await page.getByRole('listitem').filter({ hasText: baseItemName }).dragTo(page.locator('.tab.items.active'));
+  await page.locator('#items .directory-item').filter({ hasText: baseItemName }).dragTo(page.locator('.tab.items.active'));
   // Attachment effects stay inactive until the weapon is equipped.
   await embeddedActor.checkStat('soak', '0');
 
@@ -437,7 +459,8 @@ test('embedded weapons applies correctly', async ({ page }) => {
   // open the editor for the weapon
   await embeddedActor.editItem(baseItemName);
   // add the mod to the weapon
-  await page.getByRole('listitem').filter({ hasText: modName }).dragTo(page.locator('.attachments.items'));
+  await weapon.switchTab('modifiers');
+  await page.locator('#items .directory-item').filter({ hasText: modName }).dragTo(page.locator('.attachments.items'));
   await weapon.closeSheet();
   await embeddedActor.checkStat('defense.melee', '0');
   await embeddedActor.checkStat('defense.ranged', '0');
@@ -445,21 +468,16 @@ test('embedded weapons applies correctly', async ({ page }) => {
 
   // okay, now add the mod to the attachment
   await embeddedActor.editItem(baseItemName);
-  // let the animation play out
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await weapon.switchTab('modifiers');
   await weapon.editItem(attachmentName);
-  // let the animation play out
-  await new Promise(resolve => setTimeout(resolve, 200));
   const embeddedAttachment = new Items(page, attachmentName, "itemattachment");
-  // this is a bit confusing, but 'embeddedAttachment' now refers to the embedded instance
-  await page.getByText('Modifications', {exact: true}).click();
-  // let the animation play out
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await page.locator('.sheet.flat_editor .tabs [data-tab="modifications"]').click();
   // actually drag the mod to the attachment
-  await page.locator('.directory-item').filter({ hasText: modName }).dragTo(page.locator('.content'));
+  await page.locator('#items .directory-item').filter({hasText: modName}).dragTo(
+    page.locator('.sheet.flat_editor .tab.modifications.active .add-modification'));
   // enable the mod, as they default to being disabled
   await embeddedAttachment.enableMod('0');
-  await page.getByText('Basics', {exact: true}).click();
+  await page.locator('.sheet.flat_editor .tabs [data-tab="basics"]').click();
   await embeddedAttachment.closeSheet();
   await weapon.closeSheet();
   await embeddedActor.equipItem(baseItemName);
@@ -487,11 +505,11 @@ test('critical damage applies correctly', async ({ page }) => {
   await crit.create();
 
   // set stats on the crit
-  await crit.addDirectModifier('Vehicle Stat', 'Armor', '1');
+  await crit.addDirectModifier('Vehicle Stat', 'Armour', '1');
   await crit.closeSheet();
 
   // drag and drop the crit onto the character
-  await page.getByRole('listitem').filter({ hasText: critName }).dragTo(page.locator('.tab.components.active'));
+  await page.locator('#items .directory-item').filter({ hasText: critName }).dragTo(page.locator('.tab.components.active'));
   await critActor.checkStat('armor', '1');
 
   // clean up
@@ -514,9 +532,8 @@ test('ship attachment applies correctly', async ({ page }) => {
   await attachment.closeSheet();
 
   // drag and drop the attachment onto the character
-  await page.getByRole('listitem').filter({ hasText: attachmentName }).dragTo(page.locator('.tab.components.active'));
+  await page.locator('#items .directory-item').filter({ hasText: attachmentName }).dragTo(page.locator('.tab.components.active'));
   await attachmentActor.checkStat('encumbranceCurrent', '5');
-  await attachmentActor.switchTab('crew');
   await attachmentActor.checkStat('customizationHardPoints', '-3');
 
   // clean up
@@ -537,7 +554,7 @@ test('ship weapon applies correctly', async ({ page }) => {
   await shipWeapon.closeSheet();
 
   // drag and drop the shipWeapon onto the character
-  await page.getByRole('listitem').filter({ hasText: itemName }).dragTo(page.locator('.tab.components.active'));
+  await page.locator('#items .directory-item').filter({ hasText: itemName }).dragTo(page.locator('.tab.components.active'));
   await shipWeaponActor.checkStat('armor', '3'); // shipWeapon plus modifier
 
   // clean up
@@ -558,11 +575,12 @@ test('embedded ship weapon applies correctly', async ({ page }) => {
   await shipweaponattachment.addDirectModifier('Vehicle Stat', 'Speed', '1');
   await shipweaponattachment.closeSheet();
   // drag the attachment to the shipweapon
-  await page.getByRole('listitem').filter({ hasText: attachmentName }).dragTo(page.locator('.attachments.items'));
+  await shipweapon.switchTab('modifiers');
+  await page.locator('#items .directory-item').filter({ hasText: attachmentName }).dragTo(page.locator('.attachments.items'));
   await shipweapon.closeSheet();
-  await vehicle.checkStat('speed', '0');
-  await page.getByRole('listitem').filter({ hasText: baseItemName }).dragTo(page.locator('.tab.components.active'));
-  await vehicle.checkStat('speed', '1');
+  await expect(page.locator('.sheet.vehicle input[name="data.stats.speed.max"]')).toHaveValue('0');
+  await page.locator('#items .directory-item').filter({ hasText: baseItemName }).dragTo(page.locator('.tab.components.active'));
+  await expect(page.locator('.sheet.vehicle input[name="data.stats.speed.max"]')).toHaveValue('1');
 
   // clean up
   await vehicle.remove();

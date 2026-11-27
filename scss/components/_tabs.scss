@@ -43,7 +43,7 @@
       background-color: var(--ffg-muted-panel, #cccccc);
       &.active {
         background: var(--ffg-muted-panel, #cccccc);
-        background: linear-gradient(to right, rgba(204,204,204,1) 0%, #7da9c2 100%);
+        background-color: rgba(73, 12, 11, 0.85);
         margin-right: -10px;
       }
     }

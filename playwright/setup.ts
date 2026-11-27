@@ -21,15 +21,10 @@ async function globalSetup(config: FullConfig) {
     // Validate before joining: a GM login can itself start system data migrations.
     await expect(page.locator('#main-header h1')).toHaveText(expectedTitle);
     await expect(page.locator('#software-version')).toContainText(new RegExp(`Version ${expectedGeneration}\\b`));
-    if (expectedGeneration >= 14) {
-      await page.getByRole('textbox', { name: 'Select User', exact: true }).click();
-      await page.getByRole('listitem').filter({ hasText: /^Gamemaster$/ }).click();
-      await page.getByRole('button', { name: 'Join Game Session', exact: true }).click();
-    } else {
-      await page.locator('#join-game-form select[name="userid"]').selectOption({ label: 'Gamemaster' });
-      await page.locator('#join-game-form button[name="join"]').click();
-    }
-    await expect(page.locator('#chat-message')).toBeVisible();
+    const userSelect = page.locator('#join-game-form select[name="userid" i]');
+    await userSelect.selectOption({ label: 'Gamemaster' });
+    await page.locator('#join-game-form button[name="join"]').click();
+    await page.waitForFunction(() => (window as any).game?.ready === true, null, {timeout: 60_000});
     // the destiny tracker only exists once the system itself has booted, so it doubles as a "world is
     // ready" signal. Assert on the element rather than its text, which changes with the destiny pool.
     await expect(page.locator('#destinyDark')).toBeVisible({ timeout: 30_000 });
@@ -40,6 +35,20 @@ async function globalSetup(config: FullConfig) {
     });
     expect(loaded).toEqual({ world: expectedWorld, system: 'starwarsffg', generation: expectedGeneration, isGM: true });
 
+    // Save a returning user's preferences so startup tours do not cover controls in each new browser context.
+    await page.evaluate(async () => {
+      const game = (window as any).game;
+      const welcome = game.tours.get('core.welcome');
+      if (welcome) {
+        const progress = game.settings.get('core', 'tourProgress');
+        await game.settings.set('core', 'tourProgress', {
+          ...progress, core: {...progress.core, welcome: welcome.steps.length},
+        });
+      }
+      if (game.settings.settings.has('starwarsffg.systemGuideSeenVersion')) {
+        await game.settings.set('starwarsffg', 'systemGuideSeenVersion', game.system.version);
+      }
+    });
     await page.context().storageState({ path: storageState as string });
   } finally {
     await browser.close();

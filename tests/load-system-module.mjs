@@ -34,3 +34,11 @@ export async function loadSystemModule(path, context, mocks = {}) {
 export function loadActorModule(context) {
   return loadSystemModule('actors/actor-ffg.js', context, {'helpers/modifiers.js': {default: class {}}});
 }
+
+/** Add the system translator to fixtures with explicit dependency linkers. */
+export function linkWithSystemLocalization(module, context, link) {
+  return module.link((specifier, ...args) => {
+    if (!specifier.endsWith('/system-localization.mjs')) return link(specifier, ...args);
+    return new vm.SourceTextModule(readFileSync(new URL('helpers/system-localization.mjs', modules), 'utf8'), {context});
+  });
+}

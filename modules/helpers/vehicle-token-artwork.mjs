@@ -1,6 +1,8 @@
 import {tokenArtworkEntries,legacyTokenArtworkEntries} from './token-artwork-catalogue.mjs';
 
-const moduleAssets='modules/swffg-compendium-bilingual-steelers-starship_and_speeders/assets/';
+const oldShipsModule='swffg-compendium-bilingual-steelers-starship_and_speeders';
+const shipsModule='swffg-compendium-bilingual-steelers-starships_and_speeders';
+const moduleAssets='modules/swffg-compendium-bilingual-steelers-starships_and_speeders/assets/';
 const tieToken=moduleAssets+'tokens-20261114/241427fbe237b1e4cd419a5ee2c0.svg';
 const corvetteToken=moduleAssets+'tokens-20261114/fb697abce97fcb7face33731845b.svg';
 const decode=source=>{try{return decodeURIComponent(source);}catch{return source;}};
@@ -17,20 +19,25 @@ const replacements=aliasMap([...legacyTokenArtworkEntries,...tokenArtworkEntries
   ['modules/star-wars-all-compendia/assets/images/packs/VehicleImages/CR90.webp',corvetteToken]
 ]);
 
+function installedNamespace(source){
+  const modules=globalThis.game?.modules;
+  return modules?.has(oldShipsModule)&&!modules.has(shipsModule)?source.replaceAll(shipsModule,oldShipsModule):source;
+}
+
 function resolveAlias(source,aliases){
   if(typeof source!=='string')return source;
-  let current=source;
+  let current=source.replaceAll(oldShipsModule,shipsModule);
   const visited=new Set();
   while(!visited.has(current)){
     visited.add(current);
     const next=aliases.get(current)??aliases.get(decode(current));
-    if(next===undefined||next===current)return current;
+    if(next===undefined||next===current)return installedNamespace(current);
     current=next;
   }
-  return current;
+  return installedNamespace(current);
 }
 
-// Portrait rendering only redirects files formerly hosted by the system.
+// Portrait rendering also follows the renamed starships compendium namespace.
 export function resolveLegacyTokenArtwork(source){return resolveAlias(source,legacyAliases);}
 
 // Token rendering also recognizes known portraits, including historical alias chains.

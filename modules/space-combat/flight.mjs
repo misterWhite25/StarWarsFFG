@@ -1,3 +1,5 @@
+import {localizeSystem} from "../helpers/system-localization.mjs";
+
 // Tactical space uses +x east, +y north and degrees counterclockwise from east.
 // These calibration values belong to the vector movement house rules.
 export const DEFAULT_FLIGHT_OPTIONS = Object.freeze({
@@ -8,7 +10,10 @@ export const DEFAULT_FLIGHT_OPTIONS = Object.freeze({
   turnFactors: Object.freeze([1, 0.75, 0.5]), // Speeds 0-2, 3-4, 5+
 });
 
-const BANDS = ["Proche", "Courte", "Moyenne", "Longue", "Extrême"];
+const bandKeys = ["SWFFG.VehicleRangeClose", "SWFFG.VehicleRangeShort",
+  "SWFFG.VehicleRangeMedium", "SWFFG.VehicleRangeLong", "SWFFG.VehicleRangeExtreme"];
+
+export const spaceRangeLabel = index => localizeSystem(bandKeys[index]);
 const RAD = Math.PI / 180;
 
 function number(value, fallback = 0) {
@@ -67,13 +72,14 @@ export function tokenDiameter(silhouette) {
 export function rangeBetween(a, b, options = {}) {
   const distance = Math.hypot(number(a.x) - number(b.x), number(a.y) - number(b.y),
     number(a.z) - number(b.z));
-  return {distance, band: bandFor(distance, options)};
+  const index = rangeBandIndex(distance, options);
+  return {distance, index, band: spaceRangeLabel(index)};
 }
 
-function bandFor(distance, options) {
+function rangeBandIndex(distance, options) {
   const limits = options.rangeLimits ?? DEFAULT_FLIGHT_OPTIONS.rangeLimits;
   const index = limits.findIndex(limit => distance < limit);
-  return BANDS[index < 0 ? BANDS.length - 1 : index];
+  return index < 0 ? bandKeys.length - 1 : index;
 }
 
 function flight(ship, options) {
@@ -217,5 +223,6 @@ export function closestPass(a, b, options = {}) {
   const roundoff = 16 * Number.EPSILON * Math.max(1, measured, p.distance, q.distance);
   const limits = options.rangeLimits ?? DEFAULT_FLIGHT_OPTIONS.rangeLimits;
   const distance = limits.find(limit => Math.abs(measured - limit) <= roundoff) ?? measured;
-  return {distance, band: bandFor(distance, options), t: best.t};
+  const index = rangeBandIndex(distance, options);
+  return {distance, index, band: spaceRangeLabel(index), t: best.t};
 }

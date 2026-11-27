@@ -36,6 +36,16 @@ export function movementMode(scene=canvas.scene){
  const previous=game.settings.get(scope,'groundMovementMode');
  return enabled.includes(previous)?previous:enabled[0]??'none';
 }
+// A missing flag preserves the existing movement limits on every scene.
+export function battlemapMovementLimited(scene=globalThis.canvas?.scene){
+ return movementMode(scene)==='battlemap'&&scene?.getFlag(scope,'groundMovement')?.limitMovement!==false;
+}
+export async function setSceneMovementLimit(scene,limited){
+ if(!game.user.isGM)throw Error(game.i18n.localize("SWFFG.UI.Ground.GMOnlyMode"));
+ if(scene?.documentName!=='Scene')throw Error(game.i18n.localize("SWFFG.UI.Ground.OpenSceneToChooseMode"));
+ if(typeof limited!=='boolean')throw TypeError('Expected a boolean movement limit.');
+ await scene.update({'flags.starwarsffg.groundMovement.limitMovement':limited});
+}
 export async function migrateMovementModes(){
  if(!game.user.isGM||game.settings.get(scope,'groundMovementModesMigrated'))return;
  const enabled=enabledMovementModes();
@@ -113,13 +123,13 @@ async function execute(command,user){
  const cost=count=>{next=spend(next,count,command.payment);charge=next.strainCost;delete next.strainCost;};
  switch(command.kind){
   case 'record':case 'unrecord':{
-   if(mode!=='battlemap'||!state.tracking&&state.context.startsWith('manual:'))return state;
+   if(!battlemapMovementLimited(token.parent)||!state.tracking&&state.context.startsWith('manual:'))return state;
    if(!user.isGM&&command.native!==true)throw Error(game.i18n.localize("SWFFG.UI.Ground.NativePathRequired"));
    const distance=Number(command.distance);if(!Number.isFinite(distance)||distance<0)throw Error(game.i18n.localize("SWFFG.UI.Ground.InvalidDistance"));
    next.distance=command.kind==='unrecord'?Math.max(state.paidDistance,state.distance-distance):state.distance+distance;break;
   }
   case 'validate':{
-   if(mode!=='battlemap')throw Error(game.i18n.localize("SWFFG.UI.Ground.BattlemapValidationRequired"));
+   if(!battlemapMovementLimited(token.parent))throw Error(game.i18n.localize("SWFFG.UI.Ground.BattlemapValidationRequired"));
    const {additional}=movementQuote(state,calibration(token.parent));if(!additional)throw Error(game.i18n.localize("SWFFG.UI.Ground.NoPathToConfirm"));cost(additional);next.movePaid+=additional;next.paidDistance=state.distance;break;
   }
   case 'step':{
@@ -172,8 +182,8 @@ async function execute(command,user){
  await foundry.documents.modifyBatch(batch);return next;
 }
 export function applyMovementCommand(command,user=game.user){const task=queue.catch(()=>{}).then(()=>execute(command,user));queue=task;return task;}
-export async function requestMovementCommand(command){
- command={id:foundry.utils.randomID(),...command};
+export async function requestMovementCommand(input){
+ const command={id:foundry.utils.randomID(),...input};
  if(!game.users.activeGM||game.users.activeGM.id===game.user.id)return applyMovementCommand(command);
  let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});
  const timer=setTimeout(()=>{waiting.delete(command.id);reject(Error(game.i18n.localize("SWFFG.UI.Ground.GMTimeout")));},20000);
@@ -192,7 +202,7 @@ Hooks.on('updateUser',(user,changes,_options,author)=>{
  }
 });
 export function recordNativeMovement(token,movement,options,user){
- if((game.users.activeGM?.id??user.id)!==game.user.id||!isGroundToken(token)||movementMode(token.parent)!=='battlemap'||options.isUndo||options.ffgGroundAutomatic)return;
+ if((game.users.activeGM?.id??user.id)!==game.user.id||!isGroundToken(token)||!battlemapMovementLimited(token.parent)||options.isUndo||options.ffgGroundAutomatic)return;
  if(!stateFor(token).tracking&&stateFor(token).context.startsWith('manual:'))return;
  if(!movement.passed?.waypoints?.length)return;
  const distance=movement.passed.cost;
@@ -202,10 +212,10 @@ export function recordNativeMovement(token,movement,options,user){
  void applyMovementCommand({kind:'record',id,tokenUuid:token.uuid,context:contextFor(token),distance,native:true},user).catch(error=>ui.notifications.warn(error.message));
 }
 const historyCost=token=>(token.movementHistory??[]).reduce((sum,point)=>sum+(Number.isFinite(point.cost)?point.cost:0),0);
-function rememberHistory(token){historyCosts.set(token.uuid,{cost:historyCost(token),context:contextFor(token)});}
+function rememberHistory(token){historyCosts.set(token.uuid,{cost:historyCost(token),context:contextFor(token),limited:battlemapMovementLimited(token.parent)});}
 Hooks.on('updateToken',(token,_changes,options,userId)=>{
  const old=historyCosts.get(token.uuid),now=historyCost(token);rememberHistory(token);
- const user=game.users.get(userId);if(!user||(game.users.activeGM?.id??userId)!==game.user.id||!isGroundToken(token)||movementMode(token.parent)!=='battlemap'||!options.isUndo||!old||old.context!==contextFor(token)||old.cost<=now)return;
+ const user=game.users.get(userId);if(!user||(game.users.activeGM?.id??userId)!==game.user.id||!isGroundToken(token)||!battlemapMovementLimited(token.parent)||!options.isUndo||!old?.limited||old.context!==contextFor(token)||old.cost<=now)return;
  // Undo truncates native recorded history; its return journey has zero movement cost.
  void applyMovementCommand({kind:'unrecord',id:'undo:'+foundry.utils.randomID(),tokenUuid:token.uuid,context:contextFor(token),distance:old.cost-now,native:true},user).catch(error=>ui.notifications.warn(error.message));
 });

@@ -7,47 +7,64 @@
     <label>{{ localize "SWFFG.CharacterCreator.Wizard.Species.Label" }}</label>
     <table id="species">
       <thead><tr>
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Select" }}</td>
+        <td class="wizard-species-select" data-dt-order="disable">{{ localize "SWFFG.CharacterCreator.tables.labels.Select" }}</td>
         <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Name" }}</td>
         {{#each FFGCONFIG.characteristics as |attr attrName| }}
-          <td>
+          <td class="wizard-species-number">
             {{#with (lookup ../FFGCONFIG.characteristics [attrName])~}}
               {{localize abrev}}
             {{/with}}
           </td>
         {{/each }}
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.WoundThreshold" }}</td>
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.StrainThreshold" }}</td>
-        <td>{{ localize "SWFFG.CharacterCreator.tables.labels.XP" }}</td>
+        <td class="wizard-species-number">{{ localize "SWFFG.CharacterCreator.tables.labels.WoundThreshold" }}</td>
+        <td class="wizard-species-number">{{ localize "SWFFG.CharacterCreator.tables.labels.StrainThreshold" }}</td>
+        <td class="wizard-species-number">{{ localize "SWFFG.CharacterCreator.tables.labels.XP" }}</td>
         <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Talents" }}</td>
         <td>{{ localize "SWFFG.CharacterCreator.tables.labels.Abilities" }}</td>
       </tr></thead>
       <tbody>
       {{#each availableSpecies as |species| }}
-      <tr>
-        <td>
-          {{#if (eq ../data.selected.species.uuid species.uuid ) }} {{ else }}
-            <i class="fa-solid fa-cart-shopping species-spend" data-source="{{ species.uuid }}" data-tooltip="{{ localize "SWFFG.CharacterCreator.tables.buttons.species.select" }}"></i>
-          {{/if}}
+      <tr {{#if (eq ../data.selected.species.uuid species.uuid)}}class="wizard-species-selected"{{/if}}>
+        <td class="wizard-species-select">
+          <button type="button" class="wizard-choose species-spend" data-source="{{species.uuid}}"
+            aria-label="{{localize 'SWFFG.CharacterCreator.tables.buttons.species.select'}} {{species.name}}"
+            {{#if (eq ../data.selected.species.uuid species.uuid)}}disabled{{/if}}>
+            <i class="fa-solid {{#if (eq ../data.selected.species.uuid species.uuid)}}fa-check{{else}}fa-plus{{/if}}" aria-hidden="true"></i>
+          </button>
         </td>
         <td>
-          <img src="{{ species.img }}"/>
-          {{#if species.pill}}
-            {{{ species.pill }}}
-          {{else}}
-            {{ species.name }}
-          {{/if}}
+          <div class="wizard-species-identity">
+            <div class="wizard-species-portrait">
+              {{#with (lookup ../speciesPortraits species.uuid) as |portrait|}}
+                <img src="{{portrait}}" alt="" loading="lazy" decoding="async">
+              {{else}}
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+              {{/with}}
+            </div>
+            <div class="wizard-species-label">
+              <div class="wizard-catalogue-name">
+                {{#if species.pill}}{{{species.pill}}}{{else}}{{species.name}}{{/if}}
+              </div>
+              {{#if (lookup ../speciesPortraits species.uuid)}}
+                <button type="button" class="wizard-species-zoom" data-action="previewSpeciesPortrait"
+                  data-source="{{species.uuid}}" title="{{localize 'SWFFG.UI.Interface.EnlargeNamedPortrait' name=species.name}}"
+                  aria-label="{{localize 'SWFFG.UI.Interface.EnlargeNamedPortrait' name=species.name}}">
+                  <i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i>
+                </button>
+              {{/if}}
+            </div>
+          </div>
         </td>
         {{#each ../FFGCONFIG.characteristics as |attr attrName| }}
-          <td>
+          <td class="wizard-species-number">
             {{#with (lookup species.system.attributes [attrName])~}}
               {{ value }}
             {{/with}}
           </td>
         {{/each }}
-        <td>{{ species.system.attributes.Wounds.value }}</td>
-        <td>{{ species.system.attributes.Strain.value }}</td>
-        <td>{{ species.system.startingXP }}</td>
+        <td class="wizard-species-number">{{ species.system.attributes.Wounds.value }}</td>
+        <td class="wizard-species-number">{{ species.system.attributes.Strain.value }}</td>
+        <td class="wizard-species-number">{{ species.system.startingXP }}</td>
         <td>
           {{#each species.system.talents as |talent talentId| }}
             <div class="item-pill hover-tooltip" data-tooltip="{{ talent.system.description }}">{{ talent.name }}</div>

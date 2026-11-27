@@ -1,3 +1,5 @@
+import {localizeSystem} from "../helpers/system-localization.mjs";
+import {command} from "./board.mjs";
 import {vehicleMinionGroup} from '../helpers/vehicle-minion-group.mjs';
 import {setCombatSheetMode} from "../helpers/combat-sheet.mjs";
 import {canSelectShip} from "./crew-access.mjs";
@@ -11,7 +13,7 @@ function node(tag,className,text) {
   if(text!=null) element.textContent=String(text);
   return element;
 }
-const number=value=>Number.isFinite(Number(value))&&value!==""&&value!=null ? Number(value).toLocaleString("fr-FR") : "?";
+const number=value=>Number.isFinite(Number(value))&&value!==""&&value!=null ? Number(value).toLocaleString(globalThis.game?.i18n?.lang) : "?";
 function stat(parent,label,value) {
   const block=node("div","sc-card-stat");
   block.append(node("span","",label),node("strong","",number(value)));
@@ -46,7 +48,7 @@ function resource(parent,actor,key,label,report) {
 
 export function combatCard(ship,report,options={}) {
   const card=node("section","sc-combat-card");
-  card.setAttribute("aria-label","Fiche de combat du vaisseau sélectionné");
+  card.setAttribute("aria-label",localizeSystem("SWFFG.UI.SpaceCombat.SelectedCombatSheet"));
   card.dataset.shipId=ship.id;
   const actor=ship.actorId&&game.actors.get(ship.actorId);
   const readable=actor?.type==="vehicle"&&canSelectShip(ship);
@@ -55,7 +57,7 @@ export function combatCard(ship,report,options={}) {
   const name=node(canOpen?"a":"strong","sc-card-name",readable?actor.name:ship.name);
   if(canOpen){
     name.classList.add("sc-card-sheet-link");name.href="#";name.dataset.openShipSheet=actor.id;
-    name.title="Ouvrir la fiche du vaisseau";
+    name.title=localizeSystem("SWFFG.UI.SpaceCombat.OpenShipSheet");
     name.addEventListener("click",event=>{
       event.preventDefault();event.stopPropagation();
       Promise.resolve().then(async()=>{
@@ -66,28 +68,47 @@ export function combatCard(ship,report,options={}) {
       }).catch(report);
     });
   }
-  header.append(node("h3","","Fiche de combat"),name);
+  header.append(node("h3","",localizeSystem("SWFFG.UI.SpaceCombat.CombatSheet")),name);
   const group=actor&&vehicleMinionGroup(actor);if(group?.enabled){const count=node('small','sc-minion-count',group.alive+' / '+group.count+' appareils');count.dataset.vehicleGroupAlive=group.alive;header.append(count);}
   card.append(header);
   const mobility=node("div","sc-card-grid");
-  stat(mobility,"Gabarit",ship.silhouette);
+  stat(mobility,localizeSystem("SWFFG.UI.SpaceCombat.Silhouette"),ship.silhouette);
   const speed=node("div","sc-card-stat");
-  speed.append(node("span","","Vitesse carte"),node("strong","",number(ship.speed)+" / "+number(ship.maxSpeed)));
+  speed.append(node("span","",localizeSystem("SWFFG.UI.SpaceCombat.MapSpeed")));
+  if(game.user.isGM){
+    const values=node("div","sc-card-values"),input=node("input");
+    let savedSpeed=ship.speed;
+    input.type="number";input.min="0";input.max=String(ship.maxSpeed);input.step="1";input.required=true;
+    input.value=String(ship.speed);input.dataset.shipSpeed=ship.id;
+    input.setAttribute("aria-label",localizeSystem("SWFFG.UI.SpaceCombat.ShipMapSpeed"));
+    input.title=localizeSystem("SWFFG.UI.SpaceCombat.GMSpeedHint");
+    input.addEventListener("change",async event=>{
+      event.stopPropagation();
+      if(input.disabled||!input.isConnected)return;
+      if(!input.reportValidity()){input.value=String(savedSpeed);return;}
+      const value=input.valueAsNumber;if(value===savedSpeed)return;
+      input.disabled=true;
+      try{await command("speed",{shipId:ship.id,version:ship.version,speed:value});savedSpeed=value;}
+      catch(error){input.value=String(savedSpeed);report(error);}
+      finally{input.disabled=false;}
+    });
+    values.append(input,node("span","","/ "+number(ship.maxSpeed)));speed.append(values);
+  }else speed.append(node("strong","",number(ship.speed)+" / "+number(ship.maxSpeed)));
   mobility.append(speed);
   card.append(mobility);
   if(!readable) {
-    card.append(node("p","sc-card-note",actor ? "La fiche de ce véhicule est à accès limité." : "La fiche associée à ce pion est indisponible."));
+    card.append(node("p","sc-card-note",actor ? localizeSystem("SWFFG.UI.SpaceCombat.LimitedSheet") : localizeSystem("SWFFG.UI.SpaceCombat.MissingSheet")));
     return card;
   }
   const stats=actor.system.stats??{};
   stat(mobility,"Blindage",stats.armour?.value);
-  stat(mobility,"Maniabilité",stats.handling?.value);
-  resource(mobility,actor,"hullTrauma","Dégâts de coque",report);
-  if(!group.enabled)resource(mobility,actor,"systemStrain","Stress système",report);
+  stat(mobility,localizeSystem("SWFFG.UI.SpaceCombat.Handling"),stats.handling?.value);
+  resource(mobility,actor,"hullTrauma",localizeSystem("SWFFG.UI.SpaceCombat.HullTrauma"),report);
+  if(!group.enabled)resource(mobility,actor,"systemStrain",localizeSystem("SWFFG.UI.SpaceCombat.SystemStrain"),report);
   const shields=node("section","sc-card-section");
-  shields.append(node("h4","","Défense"));
+  shields.append(node("h4","",localizeSystem("SWFFG.UI.SpaceCombat.Defense")));
   const quadrants=node("div","sc-card-shields");
-  for(const [key,label] of [["fore","Avant"],["aft","Arrière"],["port","Bâbord"],["starboard","Tribord"]]) stat(quadrants,label,effectiveDefense(ship,actor,key));
+  for(const [key,label] of [["fore",localizeSystem("SWFFG.UI.SpaceCombat.Fore")],["aft",localizeSystem("SWFFG.UI.SpaceCombat.Aft")],["port",localizeSystem("SWFFG.UI.SpaceCombat.Port")],["starboard",localizeSystem("SWFFG.UI.SpaceCombat.Starboard")]]) stat(quadrants,label,effectiveDefense(ship,actor,key));
   shields.append(quadrants);card.append(shields);
   card.append(renderCrewSkills(ship,report,options));
   card.append(renderCombatControls(ship,report,options));

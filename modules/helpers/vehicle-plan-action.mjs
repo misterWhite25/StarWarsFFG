@@ -1,4 +1,7 @@
+import {supportsVehiclePlan} from './actor-types.mjs';
+
 export async function openVehiclePlan(sheet) {
+  if (!supportsVehiclePlan(sheet.actor)) return;
   try {
     const {openVehicleDeck} = await import('./vehicle-deck.mjs');
     await openVehicleDeck(sheet.actor,{shared:false});
@@ -8,6 +11,7 @@ export async function openVehiclePlan(sheet) {
 }
 
 export function configureVehiclePlan(sheet) {
+  if (!supportsVehiclePlan(sheet.actor)) return;
   sheet._sheetTab = 'interior-plan';
   sheet._tabs[0]?.activate('interior-plan', {triggerCallback:true});
 }

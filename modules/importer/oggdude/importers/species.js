@@ -15,9 +15,7 @@ export default class Species {
 
   static async Import(zip) {
     try {
-      const files = Object.values(zip.files).filter((file) => {
-        return !file.dir && file.name.split(".").pop() === "xml" && file.name.includes("/Species/");
-      });
+      const files = ImportHelpers.xmlFiles(zip, "Species");
       let totalCount = files.length;
       let currentCount = 0;
 
@@ -151,22 +149,7 @@ export default class Species {
               });
             }
 
-            // populate tags
-            try {
-              if (Array.isArray(item.Categories.Category)) {
-                for (const tag of item.Categories.Category) {
-                  data.data.metadata.tags.push(tag.toLowerCase());
-                }
-              } else {
-                data.data.metadata.tags.push(item.Categories.Category.toLowerCase());
-              }
-            } catch {
-              
-            }
-            if (item?.Type) {
-              // the "type" can be useful as a tag as well
-              data.data.metadata.tags.push(item.Type.toLowerCase());
-            }
+            data.data.metadata.tags.push(...ImportHelpers.importTags(item.Categories?.Category, item.Type));
 
             let imgPath = await ImportHelpers.getImageFilename(zip, "Species", "", data.flags.starwarsffg.ffgimportid);
             if (imgPath) {

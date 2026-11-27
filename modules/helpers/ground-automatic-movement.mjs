@@ -1,4 +1,4 @@
-import {movementMode,isGroundToken,stateFor,contextFor,calibration,strainPaymentField,requestMovementCommand,registerNativeMovementHandler} from './ground-movement-state.mjs';
+import {battlemapMovementLimited,isGroundToken,stateFor,contextFor,calibration,strainPaymentField,requestMovementCommand,registerNativeMovementHandler} from './ground-movement-state.mjs';
 import {spend,movementQuote} from './ground-movement-model.mjs';
 import {paymentFor} from './ground-movement-payment.mjs';
 const scope='starwarsffg',flag='groundMovementState',pending=new Map(),approvals=new Map();
@@ -14,7 +14,7 @@ function quote(token,distance){
 }
 async function executeNativeMovement(command,user){
  const token=fromUuidSync(command.tokenUuid);
- if(!isGroundToken(token)||movementMode(token.parent)!=='battlemap')throw Error(game.i18n.localize("SWFFG.UI.Ground.BattlemapInactive"));
+ if(!isGroundToken(token)||!battlemapMovementLimited(token.parent))throw Error(game.i18n.localize("SWFFG.UI.Ground.BattlemapInactive"));
  if(!user?.active||!token.actor.testUserPermission(user,'OWNER'))throw Error(game.i18n.localize("SWFFG.UI.Ground.TokenNotOwned"));
  if(!Array.isArray(command.waypoints)||!command.waypoints.length||command.waypoints.length>256)throw Error(game.i18n.localize("SWFFG.UI.Ground.InvalidPath"));
  const before=stateFor(token),raw=token.getFlag(scope,flag);
@@ -26,7 +26,7 @@ async function executeNativeMovement(command,user){
  const verify=()=>{
   if(!user.active||!token.actor.testUserPermission(user,'OWNER'))throw Error(game.i18n.localize("SWFFG.UI.Ground.TokenControlLost"));
   if(!session.prepared||operation.updates.length!==1)throw Error(game.i18n.localize("SWFFG.UI.Ground.PathRejected"));
-  if(contextFor(token)!==before.context||stateFor(token).revision!==before.revision||JSON.stringify(position(token))!==JSON.stringify(command.origin)||movementMode(token.parent)!=='battlemap')throw Error(game.i18n.localize("SWFFG.UI.Ground.TrackingChangedBeforeCommit"));
+  if(contextFor(token)!==before.context||stateFor(token).revision!==before.revision||JSON.stringify(position(token))!==JSON.stringify(command.origin)||!battlemapMovementLimited(token.parent))throw Error(game.i18n.localize("SWFFG.UI.Ground.TrackingChangedBeforeCommit"));
   const update=operation.updates[0],state=foundry.utils.mergeObject(raw??{},prop(update,'flags.'+scope+'.'+flag)??{},{inplace:false});
   if(!Object.entries(session.next).every(([key,value])=>JSON.stringify(state[key])===JSON.stringify(value)))throw Error(game.i18n.localize("SWFFG.UI.Ground.ManeuverCostChanged"));
   const merged=foundry.utils.mergeObject(token.toObject(),update,{inplace:false});
@@ -48,7 +48,7 @@ async function executeNativeMovement(command,user){
 registerNativeMovementHandler(executeNativeMovement);
 
 async function interceptMovement(token,movement,operation){
- if(operation.isUndo||operation.ffgGroundPlacement&&game.user.isGM||!isGroundToken(token)||movementMode(token.parent)!=='battlemap')return;
+ if(operation.isUndo||operation.ffgGroundPlacement&&game.user.isGM||!isGroundToken(token)||!battlemapMovementLimited(token.parent))return;
  const session=approvals.get(operation.ffgGroundAutomatic);
  if(session){if(session.tokenUuid!==token.uuid)throw Error(game.i18n.localize("SWFFG.UI.Ground.InvalidPathAuthorization"));session.movement=movement;return;}
  if(!movement.passed.waypoints.length||movementCost(movement)<=0)return;

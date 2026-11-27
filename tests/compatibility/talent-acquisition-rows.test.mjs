@@ -38,3 +38,32 @@ test('a ranked specialization talent keeps the slots of both acquisitions for it
  assert.equal(actor.talentList.length,1);
  assert.deepEqual(Array.from(actor.talentList[0].source, s=>[s.id,s.slot]),[['spec','talent3'],['spec','talent9']]);
 });
+
+test('activation grouping keeps the name order within each group and accepts missing legacy activations', async () => {
+  const context = vm.createContext({Actor:class{},CONFIG:{FFG:{theme:'starwars'}},game:{i18n,settings:{get:()=>true}}});
+  const {ActorFFG} = (await loadActorModule(context)).namespace;
+  const actor = new ActorFFG();
+  actor.items = [
+    ['Zulu', 'Passive'], ['Beta', 'Active (Maneuver)'], ['Legacy'], ['Foxtrot', 'Active (Incidental)'],
+    ['Alpha', 'Passive'], ['Romeo', 'Active (Incidental, Out of Turn)'], ['Echo', 'Active (Action)'],
+    ['Able', 'Active (Maneuver)']
+  ].map(([name,activation])=>({id:name, type:'talent', name, system:{activation:{value:activation}}}));
+  actor._prepareCharacterData(actor);
+  assert.deepEqual(Array.from(actor.talentList,row=>row.name), ['Romeo','Able','Beta','Foxtrot','Echo','Alpha','Zulu','Legacy']);
+  actor.flags = {config:{talentSorting:'2'}};
+  actor._prepareCharacterData(actor);
+  assert.deepEqual(Array.from(actor.talentList,row=>row.name), ['Able','Alpha','Beta','Echo','Foxtrot','Legacy','Romeo','Zulu']);
+});
+
+test('minion talent rows retain unranked copies, source order and the combined tier', async () => {
+  const context = vm.createContext({Actor:class{},CONFIG:{FFG:{theme:'genesys'}},game:{i18n,settings:{get:()=>false}}});
+  const {ActorFFG} = (await loadActorModule(context)).namespace;
+  const actor = new ActorFFG();
+  actor.system = {unit_wounds:{value:2},quantity:{max:3},stats:{wounds:{value:0}},skills:{}};
+  const talent = (id,name,ranked)=>({id,type:'talent',name,system:{tier:2,ranks:{ranked,current:1}}});
+  actor.items = [talent('a','Repeat',false),talent('b','Tough',true),talent('c','Repeat',false),talent('d','Tough',true)];
+  actor._prepareMinionData(actor);
+  assert.deepEqual(Array.from(actor.talentList,row=>[row.name,row.rank,row.tier,Array.from(row.source,source=>source.id)]),[
+    ['Repeat','N/A',2,['a']], ['Repeat','N/A',2,['c']], ['Tough',2,3,['b','d']]
+  ]);
+});

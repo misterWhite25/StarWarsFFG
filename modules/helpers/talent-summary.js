@@ -78,6 +78,18 @@ function acquisitionSources(talent) {
   return talent.source?.length ? talent.source : [{id:talent.itemId}];
 }
 
+export async function talentDescription(actor, talent) {
+  const owned = actor.items.get(talent.itemId);
+  const choices = talentChoiceKind(talent.name) ? acquisitionSources(talent)
+    .map(source => talentChoiceDescription(actor, source.id, source.slot ?? '_self')).join('') : '';
+  const text = talent.description || owned?.system.description || game.i18n.localize("SWFFG.UI.Talent.NoSummaryDescription");
+  const description = document.createElement('div');
+  description.innerHTML = await foundry.applications.ux.TextEditor.enrichHTML(normalizeBoldTags(text + choices), {secrets: actor.isOwner, relativeTo: actor});
+  description.querySelectorAll('.ffg-talent-source, .ffg-talent-review-status').forEach(node => node.remove());
+  description.querySelectorAll('p').forEach(node => node.style.textAlign = 'justify');
+  return description;
+}
+
 export async function showTalentSummary(sheet, refresh = false, anchor = sheet.element) {
   if (refresh && !sheet._talentSummary?.rendered) return;
   if (!refresh && sheet._talentSummary?.rendered) {
@@ -108,15 +120,9 @@ export async function showTalentSummary(sheet, refresh = false, anchor = sheet.e
     const title = append(heading, 'h3', `${talent.name}${choice}`);
     title.style.cssText = `font-size:14px;margin:0 0 4px;color:${talent.active ? 'var(--ffg-link,#354f5d)' : 'var(--ffg-ink,#582323)'}`;
     if (rank) append(title, 'span', rank).className = 'ffg-talent-summary-rank';
-    const owned = actor.items.get(talent.itemId);
     append(section, 'p', talent.active ? game.i18n.localize("SWFFG.UI.Talent.Active") : game.i18n.localize("SWFFG.UI.Talent.Passive")).style.cssText = 'margin:0 0 5px;opacity:.8';
     if (talent.total) append(section, 'p', talent.total).style.cssText = 'margin:0 0 5px;font-weight:bold';
-    const description = append(section, 'div');
-    const choices = talentChoiceKind(talent.name) ? acquisitionSources(talent)
-      .map(source => talentChoiceDescription(actor, source.id, source.slot ?? '_self')).join('') : '';
-    description.innerHTML = await foundry.applications.ux.TextEditor.enrichHTML(normalizeBoldTags((talent.description || owned?.system.description || game.i18n.localize("SWFFG.UI.Talent.NoSummaryDescription"))+choices), {secrets: actor.isOwner, relativeTo: actor});
-    description.querySelectorAll('.ffg-talent-source, .ffg-talent-review-status').forEach(node=>node.remove());
-    description.querySelectorAll('p').forEach(node=>node.style.textAlign='justify');
+    section.append(await talentDescription(actor, talent));
   }
   if(!current())return;
   if (refresh) {

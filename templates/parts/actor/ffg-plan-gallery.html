@@ -1,0 +1,48 @@
+    {{#if basePlan}}
+    <div class="tab ffg-base-plan" data-group="primary" data-tab="base-plan">
+      <div class="plan-actions">
+        {{!-- Actions stay above the full-size plan. --}}
+        {{#if basePlan.name}}
+        <a href="#" role="button" data-action="basePlan" data-plan="open"><i class="fas fa-map"></i> {{localize "SWFFG.BasePlan.Open"}}</a>
+        {{#if basePlan.gm}}
+        <button type="button" data-action="basePlan" data-plan="activate"><i class="fas fa-users"></i> {{localize "SWFFG.BasePlan.Activate"}}</button>
+        <button type="button" data-action="basePlan" data-plan="shortcut" aria-pressed="{{#if basePlan.shortcut}}true{{else}}false{{/if}}"><i class="fas fa-location-dot"></i> {{localize "SWFFG.BasePlan.Shortcut"}}</button>
+        {{#if baseGallery.images.length}}
+        <button type="button" data-action="basePlan" data-plan="arrange-gallery"><i class="fas fa-images"></i> {{localize "SWFFG.BasePlan.ArrangeGallery"}}</button>
+        {{/if}}
+        <button type="button" data-action="basePlan" data-plan="unlink">{{localize "SWFFG.BasePlan.Unlink"}}</button>
+        {{/if}}
+        {{else if basePlan.gm}}
+        <button type="button" data-action="basePlan" data-plan="create"><i class="fas fa-image"></i> {{localize "SWFFG.BasePlan.Create"}}</button>
+        <button type="button" data-action="basePlan" data-plan="link"><i class="fas fa-link"></i> {{localize "SWFFG.BasePlan.Link"}}</button>
+        {{/if}}
+      </div>
+      {{#if basePlan.image}}
+      <figure><img loading="lazy" src="{{basePlan.image}}" alt=""><figcaption>{{basePlan.caption}}</figcaption></figure>
+      {{/if}}
+    </div>
+    {{/if}}
+    {{#if baseGallery}}
+    <div class="tab ffg-base-gallery" data-group="primary" data-tab="base-gallery">
+      {{#if baseGallery.upload}}
+      <button type="button" data-action="baseGallery" data-gallery="upload"><i class="fas fa-upload"></i> {{localize "SWFFG.BaseGallery.Upload"}}</button>
+      {{/if}}
+      {{#if baseGallery.images.length}}
+      <ul class="base-gallery-grid">
+        {{#each baseGallery.images}}
+        <li>
+          <a class="base-gallery-preview" href="{{src}}" data-action="baseGallery" data-gallery="open" data-image="{{id}}" title="{{name}}">
+            <img src="{{src}}" loading="lazy" alt=""><span>{{name}}</span>
+          </a>
+          <div class="base-gallery-tools">
+            <a href="#" role="button" data-action="baseGallery" data-gallery="download" data-image="{{id}}" aria-label="{{localize 'SWFFG.BaseGallery.Download'}} · {{name}}" title="{{localize 'SWFFG.BaseGallery.Download'}}"><i class="fas fa-download"></i></a>
+            {{#if ../baseGallery.edit}}<button type="button" data-action="baseGallery" data-gallery="remove" data-image="{{id}}" aria-label="{{localize 'SWFFG.BaseGallery.Remove'}} · {{name}}" title="{{localize 'SWFFG.BaseGallery.Remove'}}"><i class="fas fa-trash"></i></button>{{/if}}
+          </div>
+        </li>
+        {{/each}}
+      </ul>
+      {{else}}
+      <p>{{localize "SWFFG.BaseGallery.Empty"}}</p>
+      {{/if}}
+    </div>
+    {{/if}}

@@ -1,3 +1,4 @@
+import {localizedSystemError} from "./system-localization.mjs";
 import {npcVehicle,npcStationActor,removeNpcStation} from './npc-vehicle.mjs';
 import {planAutoCrew,autoCrewProfile,AUTO_CREW_VERSION,passengerFromCrew} from './auto-crew-model.mjs';
 import {editVehicleCrew} from './crew-assignments.mjs';
@@ -13,12 +14,15 @@ const active=(vehicle,id)=>(vehicle?.flags?.[scope]?.crew??[]).some(member=>memb
 export function integratedCrewProfiles(vehicle){if(npcVehicle(vehicle))return Object.values(vehicle.flags.starwarsffg.npcVehicle.stations);return Object.values(vehicle?.flags?.[scope]?.[flag]?.profiles??{}).filter(profile=>active(vehicle,profile.id));}
 export function integratedCrewVehicle(actor){return actor?._integratedCrew?.vehicle??null;}
 export function integratedCrewGroupSignature(actor){const vehicle=integratedCrewVehicle(actor);if(!vehicle)return null;const group=vehicleMinionGroup(vehicle);return JSON.stringify([group.enabled,group.count,group.alive,group.hullPerVehicle]);}
-function findProfile(value,vehicle){
+function findProfile(value,fallbackVehicle){
   const id=typeof value==='string'?value:value?.actor_id??value?.actorId??value?.id;
   if(!id)return null;
-  if(value?.vehicle_id)vehicle=game.actors.get(value.vehicle_id)??vehicle;
+  const vehicle=(value?.vehicle_id ? game.actors.get(value.vehicle_id) : null)??fallbackVehicle;
   const match=String(id).match(/^Actor\.([^.]+)\.Crew\.([^.]+)(?:\.|$)/);
-  if(match){vehicle=game.actors.get(match[1]);return vehicle&&active(vehicle,match[2])&&vehicle.flags?.[scope]?.[flag]?.profiles?.[match[2]]?{vehicle,profile:vehicle.flags[scope][flag].profiles[match[2]]}:null;}
+  if(match){
+    const target=game.actors.get(match[1]),profile=target?.flags?.[scope]?.[flag]?.profiles?.[match[2]];
+    return profile&&active(target,match[2])?{vehicle:target,profile}:null;
+  }
   if(active(vehicle,id)&&vehicle?.flags?.[scope]?.[flag]?.profiles?.[id])return {vehicle,profile:vehicle.flags[scope][flag].profiles[id]};
   for(const candidate of game.actors??[])if(candidate.type==='vehicle'&&active(candidate,id)&&candidate.flags?.[scope]?.[flag]?.profiles?.[id])return {vehicle:candidate,profile:candidate.flags[scope][flag].profiles[id]};
   return null;
@@ -27,10 +31,10 @@ function serial(vehicle,fn){
   const key=vehicle.uuid,task=(pending.get(key)??Promise.resolve()).catch(()=>{}).then(fn);pending.set(key,task);
   return task.finally(()=>{if(pending.get(key)===task)pending.delete(key);});
 }
-function rawProfile(vehicle,id){const profile=vehicle.flags?.[scope]?.[flag]?.profiles?.[id];if(!profile)throw Error('Ce poste intégré n’existe plus.');return profile;}
+function rawProfile(vehicle,id){const profile=vehicle.flags?.[scope]?.[flag]?.profiles?.[id];if(!profile)throw localizedSystemError("SWFFG.UI.Operations.IntegratedStationMissing");return profile;}
 function changedData(data,changes){return foundry.utils.mergeObject(clone(data),foundry.utils.expandObject(changes),{inplace:false,applyOperators:true});}
 async function writeProfile(vehicle,id,change){
-  if(!game.user.isGM)throw Error('Seul le MJ peut gérer cet équipage intégré.');
+  if(!game.user.isGM)throw localizedSystemError("SWFFG.UI.Operations.ManageIntegratedGMOnly");
   return serial(vehicle,async()=>{
     const profile=rawProfile(vehicle,id),next=await change(clone(profile));
     await vehicle.update({[path(id)]:next});
@@ -38,7 +42,7 @@ async function writeProfile(vehicle,id,change){
     return actor??resolveCrewActor({actor_id:id,vehicle_id:vehicle.id});
   });
 }
-function bindEmbedded(actor,vehicle,profile){
+function bindEmbedded(actor){
   for(const type of ['Item','ActiveEffect'])for(const document of actor.getEmbeddedCollection(type)??[]){
     document.update=async changes=>{await actor.updateEmbeddedDocuments(type,[{_id:document.id,...changes}]);return actor.getEmbeddedCollection(type).get(document.id);};
     document.delete=async()=>{await actor.deleteEmbeddedDocuments(type,[document.id]);return document;};
@@ -47,7 +51,7 @@ function bindEmbedded(actor,vehicle,profile){
 function hydrateActor(actor,vehicle,profile){
   const raw=applyVehicleMinionSkills(clone(profile.data),vehicle);
   actor.updateSource(raw);actor.prepareData();actor._integratedCrew={vehicle,id:profile.id,kind:profile.kind,station:profile.station};
-  bindEmbedded(actor,vehicle,profile);
+  bindEmbedded(actor);
   const cached=cache.get(vehicle.uuid+':'+profile.id);if(cached)cached.signature=JSON.stringify([profile,vehicle.flags?.[scope]?.vehicleMinionGroup,vehicle.system?.stats?.hullTrauma]);
 }
 function makeActor(vehicle,profile){
@@ -58,32 +62,32 @@ function makeActor(vehicle,profile){
   actor._integratedCrew={vehicle,id:profile.id,kind:profile.kind,station:profile.station};
   actor.update=async changes=>writeProfile(vehicle,profile.id,current=>({...current,data:changedData(current.data,changes)}));
   actor.createEmbeddedDocuments=async(type,documents)=>{
-    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw Error('Document intégré non pris en charge.');
+    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw localizedSystemError("SWFFG.UI.Operations.IntegratedUnsupported");
     const added=documents.map(document=>({...clone(document),_id:document._id??foundry.utils.randomID()}));
     await writeProfile(vehicle,profile.id,current=>{current.data[field]=[...(current.data[field]??[]),...added];return current;});
     return added.map(document=>actor.getEmbeddedCollection(type).get(document._id));
   };
   actor.updateEmbeddedDocuments=async(type,updates)=>{
-    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw Error('Document intégré non pris en charge.');
+    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw localizedSystemError("SWFFG.UI.Operations.IntegratedUnsupported");
     await writeProfile(vehicle,profile.id,current=>{current.data[field]=(current.data[field]??[]).map(document=>{const update=updates.find(change=>change._id===document._id);return update?changedData(document,update):document;});return current;});
     return updates.map(document=>actor.getEmbeddedCollection(type).get(document._id));
   };
   actor.deleteEmbeddedDocuments=async(type,ids)=>{
-    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw Error('Document intégré non pris en charge.');
+    const field={Item:'items',ActiveEffect:'effects'}[type];if(!field)throw localizedSystemError("SWFFG.UI.Operations.IntegratedUnsupported");
     const removed=(actor.getEmbeddedCollection(type)?.contents??[]).filter(document=>ids.includes(document.id));
     await writeProfile(vehicle,profile.id,current=>{current.data[field]=(current.data[field]??[]).filter(document=>!ids.includes(document._id));return current;});return removed;
   };
-  actor.prepareData();bindEmbedded(actor,vehicle,profile);return actor;
+  actor.prepareData();bindEmbedded(actor);return actor;
 }
 /** Resolve normal actors and persistent, fully prepared NPC profiles stored inside a vehicle. */
-export function resolveCrewActor(value,vehicle=null){
+export function resolveCrewActor(value,vehicleHint=null){
   if(value?.documentName==='Actor')return value;
   if(value?.tokenUuid)return globalThis.fromUuidSync?.(value.tokenUuid)?.actor??null;
   const id=typeof value==='string'?value:value?.actor_id??value?.actorId??value?.id;
-  const npc=npcStationActor(value,vehicle);if(npc)return npc;
+  const npc=npcStationActor(value,vehicleHint);if(npc)return npc;
   const world=game.actors?.get(id);if(world)return world;
-  const match=findProfile(value,vehicle);if(!match)return null;
-  const {profile}=match;vehicle=match.vehicle;const key=vehicle.uuid+':'+profile.id;
+  const match=findProfile(value,vehicleHint);if(!match)return null;
+  const {profile,vehicle}=match;const key=vehicle.uuid+':'+profile.id;
   const signature=JSON.stringify([profile,vehicle.flags?.[scope]?.vehicleMinionGroup,vehicle.system?.stats?.hullTrauma]);
   const existing=cache.get(key);if(existing){if(existing.signature!==signature)hydrateActor(existing.actor,vehicle,profile);return existing.actor;}
   const actor=makeActor(vehicle,profile);cache.set(key,{actor,signature});return actor;
@@ -93,7 +97,7 @@ export function resolveCrewDocument(uuid){
   const match=String(uuid??'').match(/^(Actor\.[^.]+\.Crew\.[^.]+)(?:\.(Item|ActiveEffect)\.([^.]+))?$/);
   if(!match)return null;const actor=resolveCrewActor(match[1]);return match[2]?actor?.getEmbeddedCollection(match[2])?.get(match[3])??null:actor;
 }
-function requireVehicle(vehicle){if(!game.user.isGM||vehicle?.type!=='vehicle'||vehicle.pack||!vehicle.isOwner)throw Error('Ce réglage est réservé au MJ sur un véhicule du monde.');}
+function requireVehicle(vehicle){if(!game.user.isGM||vehicle?.type!=='vehicle'||vehicle.pack||!vehicle.isOwner)throw localizedSystemError("SWFFG.UI.Operations.WorldVehicleGMOnly");}
 function labelFor(station){return tr('Role.'+station.kind)+(station.weaponName?' - '+station.weaponName:'');}
 function supportDefinitions(vehicle,crew){
   const saved=vehicle.flags?.[scope]?.crewRoleDefinitions;
@@ -104,7 +108,7 @@ function supportDefinitions(vehicle,crew){
   return roles;
 }
 export async function completeIntegratedCrew(vehicle,options={}){
-  requireVehicle(vehicle);const actorType=options.actorType??'rival';if(!['minion','rival','nemesis'].includes(actorType))throw Error('Type d’équipage invalide.');
+  requireVehicle(vehicle);const actorType=options.actorType??'rival';if(!['minion','rival','nemesis'].includes(actorType))throw localizedSystemError("SWFFG.UI.Operations.InvalidCrewType");
   let result;
   await editVehicleCrew(vehicle,async current=>{
     const plan=planAutoCrew(vehicle,options,id=>resolveCrewActor(id,vehicle),current);
@@ -124,7 +128,7 @@ export async function completeIntegratedCrew(vehicle,options={}){
     const next=[...plan.crew,...entries.filter(entry=>!passengers['a'+entry.actor_id])],changed=[];
     try{
       if(plan.weaponUpdates.length){changed.push(...plan.weaponUpdates);await vehicle.updateEmbeddedDocuments('Item',plan.weaponUpdates.map(update=>({_id:update.id,['flags.'+scope+'.weaponCrew']:update.after})));}
-      if(JSON.stringify(vehicle.getFlag(scope,'crew')??[])!==JSON.stringify(current))throw Error('L’équipage a changé pendant sa préparation.');
+      if(JSON.stringify(vehicle.getFlag(scope,'crew')??[])!==JSON.stringify(current))throw localizedSystemError("SWFFG.UI.Operations.CrewChanged");
       await vehicle.update({['flags.'+scope+'.'+flag]:{version:1,profiles},['flags.'+scope+'.crew']:next,['flags.'+scope+'.vehicleDeck.passengers']:passengers,['flags.'+scope+'.crewRoleDefinitions']:supportDefinitions(vehicle,next)});
     }catch(error){
       for(const update of changed){const item=vehicle.items.get(update.id);if(JSON.stringify(item?.getFlag(scope,'weaponCrew'))!==JSON.stringify(update.after))continue;await item.update(update.before===undefined?{['flags.'+scope+'.-=weaponCrew']:null}:{['flags.'+scope+'.weaponCrew']:update.before});}

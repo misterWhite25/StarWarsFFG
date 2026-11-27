@@ -51,8 +51,8 @@
 :is(body.theme-dark .chat-message:not(.theme-light),.chat-message.theme-dark):has(.dice-roll) {--space-action-bg:#333e49;--space-action-ink:#e3e9ed;--space-action-line:#526570;background:#1b2028;color:#e3e9ed;border-color:#526570;}
 .chat-message:has(.dice-roll) .ffg-combat-actions {font:11px/1.45 "Barlow","Segoe UI",sans-serif;border-top-color:#9f927566!important;}
 .chat-message:has(.dice-roll) .ffg-combat-actions p {font-family:inherit;font-size:11px;line-height:1.45;margin:4px 0;text-align:justify;}
-.chat-message:has(.dice-roll) .ffg-combat-actions button {font-family:inherit;font-size:11px;line-height:1.4;min-height:28px;border:1px solid var(--space-action-line);border-radius:5px;padding:4px 8px;background:var(--space-action-bg);color:var(--space-action-ink);box-shadow:none;}
-.chat-message:has(.dice-roll) .ffg-combat-actions button:hover {filter:brightness(1.08);border-color:var(--space-action-ink);}
+.chat-message:has(.dice-roll) :is(.ffg-combat-actions,.voyage-chat-actions) button {font-family:inherit;font-size:11px;line-height:1.4;min-height:28px;border:1px solid var(--space-action-line);border-radius:5px;padding:4px 8px;background:var(--space-action-bg);color:var(--space-action-ink);box-shadow:none;}
+.chat-message:has(.dice-roll) :is(.ffg-combat-actions,.voyage-chat-actions) button:hover {filter:brightness(1.08);border-color:var(--space-action-ink);}
 
 .ffg-space-roll .ffg-force-content {margin:9px 0;}
 .ffg-space-roll .ffg-force-description,.ffg-space-roll .ffg-force-description p {font:inherit;line-height:1.5;text-align:justify;overflow-wrap:anywhere;}

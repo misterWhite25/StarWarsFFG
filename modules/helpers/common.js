@@ -38,26 +38,7 @@ export default class Helpers {
       return Helpers.ForgeUploadFile("forgevtt", path, file, options);
     }
 
-    let fd = new FormData();
-    fd.set("source", source);
-    fd.set("target", path);
-    fd.set("upload", file);
-    Object.entries(options).forEach((o) => fd.set(...o));
-
-    const request = await fetch(foundry.applications.apps.FilePicker.uploadURL, { method: "POST", body: fd });
-    if (request.status === 413) {
-      return ui.notifications.error(game.i18n.localize("FILES.ErrorTooLarge"));
-    }
-
-    const response = await request.json().catch((_err) => {
-      return {};
-    });
-    if (response.error) {
-      ui.notifications.error(response.error);
-      return false;
-    } else if (!response.path) {
-      return ui.notifications.error(game.i18n.localize("FILES.ErrorSomethingWrong"));
-    }
+    return foundry.applications.apps.FilePicker.upload(source, path, file, options, {notify: false});
   }
 
   static async ForgeUploadFile(source, path, file, _options) {

@@ -1,0 +1,83 @@
+#ffg-trombinoscope .window-content{padding:0;overflow:hidden} .ffg-trombi{display:flex;height:100%;min-height:0;flex-direction:column;background:#101519;color:#f2eee4}.ffg-trombi nav{display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding:8px;background:#25333b}.ffg-trombi nav button{width:auto;min-width:32px;padding:3px 9px;color:inherit}.ffg-trombi p{padding:4px 12px;text-align:justify;font-size:13px;margin:0}.ffg-trombi-board{width:100%;flex:1;min-height:0;touch-action:none;background:#060707;user-select:none;cursor:grab}.ffg-trombi-board g[data-key]{cursor:pointer}.ffg-trombi-board g.selected{filter:drop-shadow(0 0 9px #5bf4ff)}.ffg-trombi-board text{font-family:Arial,sans-serif;font-weight:bold;paint-order:stroke;stroke:#101111;stroke-width:1px}
+.ffg-trombi nav button[aria-pressed="true"]{background:#843b35;color:white;border-color:#ffafa4}
+
+.ffg-trombi-stage {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.ffg-trombi-stage > .ffg-trombi-board {
+  display: block;
+  width: 0;
+  height: 100%;
+  min-width: 0;
+}
+
+.ffg-trombi-note {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: min(310px, 35%);
+  overflow: auto;
+  padding: 14px;
+  border-left: 1px solid #5e737d;
+  background: #172127;
+  color: #f2eee4;
+  overflow-wrap: anywhere;
+}
+
+.ffg-trombi-note > header,
+.ffg-trombi-note > form {
+  display: flex;
+  gap: 8px;
+}
+
+.ffg-trombi-note > header {
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #5e737d;
+}
+
+.ffg-trombi-note h2 {
+  min-width: 0;
+  margin: 0;
+  color: inherit;
+  font-size: 1.15rem;
+}
+
+.ffg-trombi-note button {
+  width: auto;
+  color: inherit;
+}
+
+.ffg-trombi-note > header button {
+  flex: none;
+  width: 30px;
+  height: 30px;
+}
+
+.ffg-trombi-note > form {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.ffg-trombi-note textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 7rem;
+  padding: 8px;
+  resize: vertical;
+  border: 1px solid #5e737d;
+  background: #101519;
+  color: inherit;
+  font: inherit;
+  text-align: justify;
+}
+
+.ffg-trombi-note .ffg-trombi-note-text {
+  padding: 0;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}

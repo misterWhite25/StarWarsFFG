@@ -8,36 +8,31 @@
       "id": "welcome",
       "title": "SWFFG.Tours.EditMode.welcome.title",
       "content": "SWFFG.Tours.EditMode.welcome.content",
-      "selector": "[name=\"data.characteristics.Brawn.value\"]",
-      "position": "bottom"
+      "selector": "[name=\"data.characteristics.Brawn.value\"]"
     },
     {
       "id": "sheet-options",
-      "selector": ".ffg-sheet-options",
+      "selector": ".header-control[data-action=\"toggleControls\"]",
       "title": "SWFFG.Tours.EditMode.sheet-options.title",
-      "content": "SWFFG.Tours.EditMode.sheet-options.content",
-      "position": "bottom"
+      "content": "SWFFG.Tours.EditMode.sheet-options.content"
     },
     {
       "id": "enable-edit-mode",
       "selector": "[name=\"config.enableEditMode\"]",
       "title": "SWFFG.Tours.EditMode.enable-edit-mode.title",
-      "content": "SWFFG.Tours.EditMode.enable-edit-mode.content",
-      "position": "top"
+      "content": "SWFFG.Tours.EditMode.enable-edit-mode.content"
     },
     {
       "id": "stat-changes",
       "selector": "[name=\"data.characteristics.Brawn.value\"]",
       "title": "SWFFG.Tours.EditMode.stat-changes.title",
-      "content": "SWFFG.Tours.EditMode.stat-changes.content",
-      "position": "top"
+      "content": "SWFFG.Tours.EditMode.stat-changes.content"
     },
     {
       "id": "disable-edit-mode",
-      "selector": ".ffg-sheet-options",
+      "selector": ".header-control[data-action=\"toggleControls\"]",
       "title": "SWFFG.Tours.EditMode.disable-edit-mode.title",
-      "content": "SWFFG.Tours.EditMode.disable-edit-mode.content",
-      "position": "bottom"
+      "content": "SWFFG.Tours.EditMode.disable-edit-mode.content"
     }
   ]
 }

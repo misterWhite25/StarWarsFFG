@@ -1,162 +1,124 @@
-<section
-  class='tab review {{tab.cssClass}}'
-  data-group='primary'
-  data-tab='review'
->
-  <div class="review-container">
-    <label>{{ localize "SWFFG.CharacterCreator.Wizard.Review.Label" }}</label>
-    <div class="review-item background">
-      <span class="background status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.background" }}</b>&nbsp;
-        {{#if (or data.selected.background.culture.name data.selected.background.hook.name data.selected.background.forceAttitude.name) }}
-          <i class="fa-regular fa-circle-check state_good"></i>
-        {{ else }}
-          <i class="fa-regular fa-circle-x state_bad"></i>
-        {{/if }}
-      </span><br>
-      {{#if data.selected.background.culture.pill}}
-        {{{ data.selected.background.culture.pill }}}
-      {{else}}
-        {{ data.selected.background.culture.name }}
-      {{/if}}
-      ,
-      {{#if data.selected.background.hook.pill}}
-        {{{ data.selected.background.hook.pill }}}
-      {{else}}
-        {{ data.selected.background.hook.name }}
-      {{/if}}
-      ,
-      {{#if data.selected.background.forceAttitude.pill}}
-        {{{ data.selected.background.forceAttitude.pill }}}
-      {{else}}
-        {{ data.selected.background.forceAttitude.name }}
-      {{/if}}
+{{#*inline "wizardArtworkPreview"}}
+  <img alt="" {{#if src}}src="{{src}}"{{else}}hidden{{/if}}>
+  <i class="fa-solid {{icon}}" {{#if src}}hidden{{/if}}></i>
+{{/inline}}
+
+{{#*inline "wizardArtworkField"}}
+  <div class="wizard-review-artwork-field">
+    <div class="wizard-review-artwork-preview" data-artwork-preview="{{kind}}" aria-hidden="true">
+      {{> wizardArtworkPreview src=path icon=icon}}
     </div>
-    <div class="review-item startingBonus">
-      <span class="startingBonus status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.startingValues" }}</b>
-      </span><br>
-      {{ totalXp }} {{ localize "SWFFG.CharacterCreator.review.XP" }} {{ totalCredits }} {{ localize "SWFFG.CharacterCreator.review.credits" }}
-      {{ data.grants.bonus.morality }}, {{ data.grants.bonus.duty }}, {{ data.grants.bonus.obligation }}
-      {{ localize "SWFFG.CharacterCreator.review.morality_duty_obligation" }}
-    </div>
-    <div class="review-item obligation">
-      <span class="obligation status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.obligation" }}</b>&nbsp;
-        {{#if data.selected.obligations }}
-          <i class="fa-regular fa-circle-check state_good"></i>
-        {{ else }}
-          <i class="fa-regular fa-circle-x state_bad"></i>
-        {{/if }}
-      </span><br>
-      {{#each data.selected.obligations as |obl|}}
-        {{#if obl.pill}}
-          {{{ obl.pill }}}
-        {{else}}
-          {{ obl.name }}
-        {{/if}}
-        ({{ obl.system.magnitude }}): {{ obl.system.description }}<br>
-      {{/each }}
-    </div>
-    <div class="review-item species">
-      <span class="species status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.species" }}</b>&nbsp;
-        {{#if data.selected.species.name }}
-          <i class="fa-regular fa-circle-check state_good"></i>
-        {{ else }}
-          <i class="fa-regular fa-circle-x state_bad"></i>
-        {{/if }}
-      </span><br>
-      <img src="{{ data.selected.species.img }}" style="max-height: 64px; max-width: 64px;"/>
-      {{#if data.selected.species.pill}}
-        {{{ data.selected.species.pill }}}
-      {{else}}
-        {{ data.selected.species.name }}
-      {{/if}}
-    </div>
-    <div class="review-item career">
-      <span class="career status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.career" }} / {{ localize "SWFFG.CharacterCreator.review.specialization" }}</b>&nbsp;
-        {{#if (and data.selected.career.name data.selected.specialization.name) }}
-          <i class="fa-regular fa-circle-check state_good"></i>
-        {{ else }}
-          <i class="fa-regular fa-circle-x state_bad"></i>
-        {{/if }}
-      </span><br>
-      {{#if data.selected.career.pill}}
-        {{{ data.selected.career.pill }}}
-      {{else}}
-        {{ data.selected.career.name }}
-      {{/if}}
-      :
-      {{#if data.selected.specialization.pill}}
-        {{{ data.selected.specialization.pill }}}
-      {{else}}
-        {{ data.selected.specialization.name }}
-      {{/if}}
-    </div>
-    <div class="review-item purchase-xp">
-      <span class="purchase-xp status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.purchases.xp" }}</b>&nbsp;
-        {{#if (or
-          (gt data.purchases.xp.characteristics.length 0)
-          (gt data.purchases.xp.skills.length 0)
-        ) }}
-          <i class="fa-regular fa-circle-check state_good"></i>
-        {{ else }}
-          <i class="fa-regular fa-circle-x state_bad"></i>
-        {{/if }}
-      </span><br>
-      {{#each data.purchases.xp.characteristics as |attr| }}
-        {{ attr.key }} -> {{ attr.value }}
-      {{/each }}
-      {{#each data.purchases.xp.skills as |attr| }}
-        {{ attr.key }} -> {{ attr.value }}
-      {{/each }}
-    </div>
-    <div class="review-item purchase-credits">
-      <span class="urchase-credits status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.purchases.credits" }}</b>&nbsp;
-        {{#if data.purchases.credits }}
-          <i class="fa-regular fa-circle-check state_good"></i>
-        {{ else }}
-          <i class="fa-regular fa-circle-x state_bad"></i>
-        {{/if }}
-      </span><br>
-      <div class="review-purchases-credits">
-      {{#each data.purchases.credits as |purchase|}}
-        <img src="{{ purchase.item.img }}" style="max-height: 64px; max-width: 64px;"/>
-        {{#if purchase.item.pill}}
-          {{{ purchase.item.pill }}}
-        {{else}}
-          {{ purchase.item.name }}
-        {{/if}}
-        ({{ purchase.cost }})
-        <br>
-      {{/each }}
-      </div>
-    </div>
-    <div class="review-item motivation">
-      <span class="motivation status">
-        <b>{{ localize "SWFFG.CharacterCreator.review.motivation" }}</b>&nbsp;
-        {{#if data.selected.motivations }}
-          <i class="fa-regular fa-circle-check state_good"></i>
-        {{ else }}
-          <i class="fa-regular fa-circle-x state_bad"></i>
-        {{/if }}
-      </span><br>
-      {{#each data.selected.motivations as |motivation|}}
-        {{#if motivation.item.pill}}
-          {{{ motivation.item.pill }}}
-        {{else}}
-          {{ motivation.item.name }}
-        {{/if}}
-        : {{ motivation.item.system.description }}
-      {{/each }}
+    <div class="wizard-review-artwork-input">
+      <span>{{label}}</span>
+      <file-picker name="reviewArtwork.{{kind}}" type="image" value="{{path}}"
+        placeholder="{{localize 'SWFFG.CharacterCreator.review.ArtworkPath'}}"
+        data-wizard-artwork="{{kind}}" data-label="{{label}}"></file-picker>
     </div>
   </div>
-  <button class="create-actor" type="button">
-    {{ localize "SWFFG.CharacterCreator.review.Confirm" }}
-    <i class="fas fa-check-square"></i>
-  </button>
+{{/inline}}
+
+<section class="tab review {{tab.cssClass}}" data-group="primary" data-tab="review">
+  <div class="review-container">
+    <p class="wizard-review-intro">{{localize "SWFFG.CharacterCreator.Wizard.Review.Label"}}</p>
+    <header class="wizard-review-profile">
+      <div class="wizard-review-portrait" aria-hidden="true" data-artwork-preview="portrait" data-default-src="{{reviewSpeciesPortrait}}">
+        {{> wizardArtworkPreview src=reviewPortrait icon="fa-user"}}
+      </div>
+      <div class="wizard-review-profile-body">
+        <h3>{{localize "TYPES.Actor.character"}}</h3>
+        <dl class="wizard-review-identity">
+          <div><dt>{{localize "SWFFG.CharacterCreator.review.species"}}</dt><dd>{{data.selected.species.name}}</dd></div>
+          <div><dt>{{localize "SWFFG.CharacterCreator.review.career"}}</dt><dd>{{data.selected.career.name}}</dd></div>
+          <div><dt>{{localize "SWFFG.CharacterCreator.review.specialization"}}</dt><dd>{{data.selected.specialization.name}}</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <section class="wizard-review-card wizard-review-artwork">
+      <h4>
+        <i class="fa-solid fa-image" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.review.Artwork"}}
+        <small class="wizard-setup-optional">{{localize "SWFFG.CharacterCreator.review.ArtworkOptional"}}</small>
+      </h4>
+      <div class="wizard-review-artwork-fields">
+        {{> wizardArtworkField kind="portrait" label=(localize "SWFFG.CharacterCreator.review.ArtworkPortrait") path=data.selected.artwork.portrait icon="fa-user"}}
+        {{> wizardArtworkField kind="token" label=(localize "SWFFG.CharacterCreator.review.ArtworkToken") path=data.selected.artwork.token icon="fa-chess-pawn"}}
+      </div>
+    </section>
+
+    <div data-wizard-species-review></div>
+
+    <div class="wizard-review-grid">
+      {{#if reviewStartingRanks.length}}
+        <article class="wizard-review-card">
+          <h4><i class="fa-solid fa-chart-simple" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.Entry.StartingRanks"}}</h4>
+          <ul class="wizard-review-choices" role="list">
+            {{#each reviewStartingRanks as |skill|}}
+              <li><span>{{skill.name}}</span><span class="wizard-review-value">+{{skill.ranks}}</span></li>
+            {{/each}}
+          </ul>
+        </article>
+      {{/if}}
+
+      {{#if reviewXpPurchases.length}}
+        <article class="wizard-review-card">
+          <h4><i class="fa-solid fa-arrow-up-right-dots" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.review.purchases.xp"}}</h4>
+          <ul class="wizard-review-choices" role="list">
+            {{#each reviewXpPurchases as |purchase|}}
+              <li>
+                <span>{{purchase.name}} {{#if purchase.rank}}+{{purchase.rank}}{{/if}}</span>
+                <span class="wizard-review-value">{{purchase.cost}} XP</span>
+              </li>
+            {{/each}}
+          </ul>
+        </article>
+      {{/if}}
+
+      {{#if reviewGear.length}}
+        <article class="wizard-review-card">
+          <h4><i class="fa-solid fa-toolbox" aria-hidden="true"></i>{{localize "SWFFG.UI.Actor.WizardTab.gear"}}</h4>
+          <ul class="wizard-review-choices" role="list">
+            {{#each reviewGear as |purchase|}}
+              <li><span>{{purchase.name}}</span><span class="wizard-review-value">{{localize "SWFFG.CharacterCreator.review.creditCost" cost=purchase.cost}}</span></li>
+            {{/each}}
+          </ul>
+        </article>
+      {{/if}}
+
+      {{#if reviewBackgrounds.length}}
+        <article class="wizard-review-card">
+          <h4><i class="fa-solid fa-book-open" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.review.background"}}</h4>
+          <ul class="wizard-review-choices" role="list">
+            {{#each reviewBackgrounds as |background|}}
+              <li><span>{{background.name}}</span></li>
+            {{/each}}
+          </ul>
+        </article>
+      {{/if}}
+
+      {{#if data.selected.obligations.length}}
+        <article class="wizard-review-card">
+          <h4><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>{{localize "SWFFG.UI.Actor.WizardTab.obligation"}}</h4>
+          <ul class="wizard-review-choices" role="list">
+            {{#each data.selected.obligations as |obligation|}}
+              <li><span>{{obligation.name}}</span>{{#unless (eq obligation.system.type "morality")}}<span class="wizard-review-value">{{obligation.system.magnitude}}</span>{{/unless}}</li>
+            {{/each}}
+          </ul>
+        </article>
+      {{/if}}
+
+      {{#if data.selected.motivations.length}}
+        <article class="wizard-review-card">
+          <h4><i class="fa-solid fa-compass" aria-hidden="true"></i>{{localize "SWFFG.CharacterCreator.review.motivation"}}</h4>
+          <ul class="wizard-review-choices wizard-review-motivations" role="list">
+            {{#each data.selected.motivations as |motivation|}}
+              <li>
+                <strong>{{motivation.item.name}}</strong>
+                {{#if motivation.item.system.description}}<p>{{motivation.item.system.description}}</p>{{/if}}
+              </li>
+            {{/each}}
+          </ul>
+        </article>
+      {{/if}}
+    </div>
+  </div>
 </section>

@@ -1,13 +1,11 @@
 import {DEFAULT_GROUND_RANGES,groundRangeValues,validateGroundRanges} from './ground-range-values.mjs';
-import {calibration} from './ground-movement-model.mjs';
-import {toMetric} from './metric-distances.mjs';
 const labels={contact:"SWFFG.UI.Ground.BandContact",short:"SWFFG.UI.Ground.BandShort",medium:"SWFFG.UI.Ground.BandMedium",long:"SWFFG.UI.Ground.BandLong",extreme:"SWFFG.UI.Ground.BandExtreme"};
 const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;};
 class GroundRangeSettings extends foundry.applications.api.ApplicationV2{
  static DEFAULT_OPTIONS={classes:['starwarsffg','themed','ffg-ground-range-settings'],window:{resizable:true},position:{width:540,height:'auto'}};
- constructor({reference=false,scene=null}={}){
-  super({window:{title:reference?game.i18n.localize("SWFFG.UI.Ground.GroundDistancesTitle"):game.i18n.localize("SWFFG.UI.Ground.SettingsTitle")},position:{width:Math.min(540,innerWidth-32)}});
-  this.reference=reference||!game.user.isGM;this.scene=scene;
+ constructor(){
+  super({window:{title:game.i18n.localize("SWFFG.UI.Ground.SettingsTitle")},position:{width:Math.min(540,innerWidth-32)}});
+  this.reference=!game.user.isGM;
  }
  async _renderHTML(){
   const root=el('form','standard-form');root.addEventListener('submit',event=>{event.preventDefault();void this.save();});
@@ -23,7 +21,6 @@ class GroundRangeSettings extends foundry.applications.api.ApplicationV2{
   }
   const note=el('p','hint',game.i18n.localize("SWFFG.UI.Ground.TableConventionHint"));note.style.textAlign='justify';root.append(note);
   const values=groundRangeValues();
-  if(this.reference&&this.scene){const current=calibration(this.scene);for(const key of ['short','medium','long','extreme'])values[key]=toMetric(current[key],this.scene);const hint=el('p','hint',game.i18n.format('SWFFG.UI.Ground.SceneValuesHint',{name:this.scene.name}));hint.style.textAlign='justify';root.append(hint);}
   const table=el('table'),head=el('thead'),header=el('tr');for(const text of [game.i18n.localize("SWFFG.UI.Ground.Range"),game.i18n.localize("SWFFG.UI.Ground.Meters"),game.i18n.localize("SWFFG.UI.Ground.Feet")])header.append(el('th','',text));head.append(header);table.append(head);const body=el('tbody');this.inputs={};
   for(const [key,labelKey]of Object.entries(labels)){const label=game.i18n.localize(labelKey);
    const row=el('tr');row.append(el('th','',label));
@@ -45,12 +42,12 @@ class GroundRangeSettings extends foundry.applications.api.ApplicationV2{
  _replaceHTML(result,content){content.replaceChildren(result);}
  async save(){
   if(this.reference||!game.user.isGM||this.busy)return;this.error.hidden=true;
-  try{const values=validateGroundRanges(Object.fromEntries(Object.entries(this.inputs).map(([key,pair])=>[key,pair.m.value])));this.busy=true;await game.settings.set('starwarsffg','groundRangeDistances',values);for(const [key,input]of Object.entries(this.modeInputs)){if(game.settings.get('starwarsffg',key)!==input.checked)await game.settings.set('starwarsffg',key,input.checked);}await this.close({animate:false});}
+  try{const values=validateGroundRanges(Object.fromEntries(Object.entries(this.inputs).map(([key,pair])=>[key,pair.m.value])));this.busy=true;
+   await game.settings.set('starwarsffg','groundRangeDistances',values);for(const [key,input]of Object.entries(this.modeInputs)){if(game.settings.get('starwarsffg',key)!==input.checked)await game.settings.set('starwarsffg',key,input.checked);}await this.close({animate:false});}
   catch(error){this.error.textContent=error.message;this.error.hidden=false;}finally{this.busy=false;}
  }
 }
 export async function showGroundRangeSettings(){if(!game.user.isGM)return;const app=new GroundRangeSettings();await app.render({force:true});return app;}
-export async function showGroundRangeReference(scene=globalThis.canvas?.scene){const app=new GroundRangeSettings({reference:true,scene});await app.render({force:true});return app;}
 Hooks.once('init',()=>{
  game.settings.register('starwarsffg','groundRangeDistances',{scope:'world',config:false,type:Object,default:{...DEFAULT_GROUND_RANGES},onChange:()=>Hooks.callAll('ffgGroundRangesChanged')});
  game.settings.registerMenu('starwarsffg','groundRangeDistances',{name:"SWFFG.UI.Ground.SettingsTitle",label:"SWFFG.UI.Ground.SettingsTitle",icon:'fa-solid fa-ruler-combined',restricted:true,type:GroundRangeSettings});

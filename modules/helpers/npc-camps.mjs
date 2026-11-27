@@ -2,13 +2,14 @@ import {installLegacySlotCleanup} from './combatant-removal.mjs';
 import {installActorCampSheet} from './actor-camp-sheet.mjs';
 import {installDirectoryCamps} from './directory-camps.mjs';
 const scope='starwarsffg';
+const campLabel = key => game.i18n.localize('SWFFG.Combats.Camp.' + key);
 let queue=Promise.resolve();
 const serial=fn=>{const next=queue.catch(()=>{}).then(fn);queue=next;return next;};
 export function npcDisposition(entry){return Number(entry.token?.disposition??entry.participant?.token?.disposition??entry.actor?.prototypeToken?.disposition??0);}
-export function npcCampInfo(entry,{player=null}={}){
-  if(player===null)player=globalThis.game?.users?.some(user=>!user.isGM&&user.character&&(user.character.uuid===entry.actor?.uuid||entry.actor?.type==='character'&&user.character.id===entry.actor.id))??false;
+export function npcCampInfo(entry,{player:playerOverride=null}={}){
+  const player=playerOverride??globalThis.game?.users?.some(user=>!user.isGM&&user.character&&(user.character.uuid===entry.actor?.uuid||entry.actor?.type==='character'&&user.character.id===entry.actor.id))??false;
   const value=npcDisposition(entry),key=value===1?'friendly':value===-1?'hostile':value===-2?'secret':'neutral';
-  const label=key==='friendly'?(player?'PJ allié':'PNJ allié'):key==='hostile'?(player?'PJ adverse':'Adversaire'):key==='secret'?'Camp masqué':'Neutre';
+  const label = campLabel({friendly: player ? 'AlliedPC' : 'AlliedNPC', hostile: player ? 'OpposingPC' : 'Enemy', secret: 'Secret', neutral: 'Neutral'}[key]);
   return {value,key,label};
 }
 export function repairCampClaims(turns,claims={}){
@@ -22,10 +23,10 @@ export async function repairCombatCamps(combat){
   return serial(async()=>{if(combat._ffgRosterMutation)return;const all=combat.getFlag(scope,'combatClaims')??{},claims=all[combat.round]??{},next=repairCampClaims(combat.turns,claims),update={};for(const id of new Set([...Object.keys(claims),...Object.keys(next)]))if(claims[id]!==next[id])update['flags.starwarsffg.combatClaims.'+combat.round+'.'+(next[id]===undefined?'-=':'')+id]=next[id]??null;if(Object.keys(update).length)await combat.update(update);});
 }
 export async function setNpcCamp(entry,value,{future=true}={}){
-  if(!game.user.isGM)throw Error('Seul le MJ peut changer le camp.');
-  if(![-2,-1,0,1].includes(Number(value)))throw Error('Camp invalide.');
+  if(!game.user.isGM)throw Error(campLabel('GMOnly'));
+  if(![-2,-1,0,1].includes(Number(value)))throw Error(campLabel('Invalid'));
   const token=entry.token??entry.participant?.token,actor=token?game.actors.get(token.actorId):entry.actor;
-  if(!token&&!actor)throw Error('Ce personnage n’est plus disponible.');
+  if(!token&&!actor)throw Error(campLabel('Missing'));
   if(token)await token.update({disposition:Number(value)});
   if((future||!token)&&actor)await actor.update({'prototypeToken.disposition':Number(value)});
   for(const combat of game.combats)if(token&&combat.combatants.some(p=>p.token?.uuid===token.uuid))await repairCombatCamps(combat);
@@ -33,10 +34,10 @@ export async function setNpcCamp(entry,value,{future=true}={}){
 }
 export async function chooseNpcCamp(entry){
   if(!game.user.isGM)return;
-  const body=document.createElement('div'),label=document.createElement('label'),select=document.createElement('select');label.textContent='Camp';select.name='camp';
-  for(const [value,text] of [[1,'Allié des joueurs'],[-1,'Adversaire'],[0,'Neutre'],[-2,'Masqué']]){const option=document.createElement('option');option.value=String(value);option.textContent=text;option.defaultSelected=value===npcDisposition(entry);select.append(option);}select.value=String(npcDisposition(entry));label.append(select);body.append(label);
-  const defaults=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.name='future';check.defaultChecked=true;check.checked=true;defaults.append(check,' Utiliser aussi ce camp pour les futurs pions de cette fiche');body.append(defaults);
-  const chosen=await foundry.applications.api.DialogV2.wait({window:{title:'Camp de '+(entry.name??entry.actor?.name??'ce personnage')},content:body,rejectClose:false,buttons:[{action:'save',label:'Appliquer le camp',callback:(_event,button)=>({value:Number(button.form.elements.camp.value),future:button.form.elements.future.checked})},{action:'cancel',label:'Annuler',callback:()=>null}]});
+  const body=document.createElement('div'),label=document.createElement('label'),select=document.createElement('select');label.textContent=campLabel('Side');select.name='camp';
+  for(const [value,text] of [[1,'Ally'],[-1,'Enemy'],[0,'Neutral'],[-2,'Hidden']]){const option=document.createElement('option');option.value=String(value);option.textContent=campLabel(text);option.defaultSelected=value===npcDisposition(entry);select.append(option);}select.value=String(npcDisposition(entry));label.append(select);body.append(label);
+  const defaults=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.name='future';check.defaultChecked=true;check.checked=true;defaults.append(check,' '+campLabel('Future'));body.append(defaults);
+  const chosen=await foundry.applications.api.DialogV2.wait({window:{title:game.i18n.format('SWFFG.Combats.Camp.Title',{name:entry.name??entry.actor?.name??campLabel('Character')})},content:body,rejectClose:false,buttons:[{action:'save',label:campLabel('Apply'),callback:(_event,button)=>({value:Number(button.form.elements.camp.value),future:button.form.elements.future.checked})},{action:'cancel',label:game.i18n.localize('SWFFG.Cancel'),callback:()=>false}]});
   if(chosen)await setNpcCamp(entry,chosen.value,{future:chosen.future});
 }
 function markCurrentTurn(root,combat){
@@ -57,11 +58,11 @@ export function compactTracker(tracker,html){
     if(controls&&controls.parentElement!==row)row.insertBefore(controls,row.querySelector('.token-initiative'));
     const marker=heading.querySelector('.ffg-combat-talent-marker');if(marker&&controls)controls.prepend(marker);
     row.classList.add('nc-compact-combatant');
-    if(!game.user.isGM&&participant.hidden)continue;
+    if(!game.user.isGM&&(participant.hidden||participant.token?.hidden))continue;
     const info=npcCampInfo({actor:participant.actor,token:participant.token});row.dataset.npcCamp=info.key;heading.title=participant.name;
     if(name.querySelector('[data-npc-camp-control]'))continue;
-    const badge=document.createElement(game.user.isGM?'button':'span');badge.className='nc-camp-label';badge.dataset.npcCampControl='';badge.textContent=info.label;badge.title=info.label+(game.user.isGM?' - changer le camp':'');
-    if(game.user.isGM){badge.type='button';badge.setAttribute('aria-label','Camp de '+participant.name+' : '+info.label);badge.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();chooseNpcCamp({actor:participant.actor,token:participant.token,name:participant.name,participant}).catch(error=>ui.notifications.warn(error.message));});}
+    const badge=document.createElement(game.user.isGM?'button':'span');badge.className='nc-camp-label';badge.dataset.npcCampControl='';badge.textContent=info.label;badge.title=game.user.isGM ? info.label+' - '+campLabel('Change') : info.label;
+    if(game.user.isGM){badge.type='button';badge.setAttribute('aria-label',game.i18n.format('SWFFG.Combats.Camp.Badge',{name:participant.name,side:info.label}));badge.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();chooseNpcCamp({actor:participant.actor,token:participant.token,name:participant.name,participant}).catch(error=>ui.notifications.warn(error.message));});}
     name.append(badge);
   }
 }
